@@ -121,7 +121,7 @@ export default function PageLogin() {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
                 <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Mật khẩu</label>
-                <a href="#" className="text-xs font-bold text-slate-400 hover:text-sky-600 transition-colors">
+                <a href="/forgot-password" className="text-xs font-bold text-slate-400 hover:text-sky-600 transition-colors">
                   Quên mật khẩu?
                 </a>
               </div>

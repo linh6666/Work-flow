@@ -1,0 +1,196 @@
+<svg width="600" height="700" viewBox="0 0 600 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="su-sky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="su-indigo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0.4"/>
+    </linearGradient>
+    <linearGradient id="su-emerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.4"/>
+    </linearGradient>
+    <linearGradient id="su-glass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.03"/>
+    </linearGradient>
+    <filter id="su-glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="su-shadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Floating ambient particles -->
+  <g opacity="0.5">
+    <circle cx="60" cy="100" r="2" fill="#38bdf8">
+      <animate attributeName="cy" values="100;85;100" dur="7s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="7s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="540" cy="150" r="1.5" fill="#818cf8">
+      <animate attributeName="cy" values="150;135;150" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.7;0.3" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="120" cy="550" r="2.5" fill="#34d399">
+      <animate attributeName="cy" values="550;537;550" dur="8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.6;0.3" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="500" cy="500" r="2" fill="#38bdf8">
+      <animate attributeName="cy" values="500;487;500" dur="5.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.7;0.4" dur="5.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="50" r="1.8" fill="#34d399">
+      <animate attributeName="cy" values="50;40;50" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="80" cy="350" r="2" fill="#818cf8">
+      <animate attributeName="cy" values="350;340;350" dur="6.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="520" cy="380" r="1.5" fill="#38bdf8">
+      <animate attributeName="cy" values="380;368;380" dur="7.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Main form card (glass morphism) -->
+  <g filter="url(#su-shadow)">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,-4;0,0" dur="8s" repeatCount="indefinite"/>
+    </g>
+    <rect x="120" y="120" width="360" height="420" rx="24" fill="url(#su-glass)" stroke="#38bdf8" stroke-width="1" stroke-opacity="0.2"/>
+    
+    <!-- Avatar circle at top -->
+    <circle cx="300" cy="170" r="32" fill="url(#su-sky)" opacity="0.85">
+      <animate attributeName="r" values="32;34;32" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Person icon -->
+    <circle cx="300" cy="162" r="9" fill="white" opacity="0.9"/>
+    <ellipse cx="300" cy="185" rx="14" ry="9" fill="white" opacity="0.9"/>
+    
+    <!-- Form field placeholders -->
+    <!-- Username field -->
+    <rect x="165" y="225" width="270" height="36" rx="8" fill="white" opacity="0.06" stroke="white" stroke-width="0.5" stroke-opacity="0.1"/>
+    <rect x="178" y="238" width="14" height="10" rx="3" fill="#38bdf8" opacity="0.5"/>
+    <rect x="200" y="240" width="80" height="6" rx="3" fill="white" opacity="0.15"/>
+    
+    <!-- Email field -->
+    <rect x="165" y="275" width="270" height="36" rx="8" fill="white" opacity="0.06" stroke="white" stroke-width="0.5" stroke-opacity="0.1"/>
+    <rect x="178" y="288" width="14" height="10" rx="3" fill="#818cf8" opacity="0.5"/>
+    <rect x="200" y="290" width="120" height="6" rx="3" fill="white" opacity="0.15"/>
+    
+    <!-- Password field -->
+    <rect x="165" y="325" width="270" height="36" rx="8" fill="white" opacity="0.06" stroke="white" stroke-width="0.5" stroke-opacity="0.1"/>
+    <rect x="178" y="338" width="14" height="10" rx="3" fill="#34d399" opacity="0.5"/>
+    <g opacity="0.15">
+      <circle cx="204" cy="343" r="3" fill="white"/>
+      <circle cx="214" cy="343" r="3" fill="white"/>
+      <circle cx="224" cy="343" r="3" fill="white"/>
+      <circle cx="234" cy="343" r="3" fill="white"/>
+      <circle cx="244" cy="343" r="3" fill="white"/>
+      <circle cx="254" cy="343" r="3" fill="white"/>
+    </g>
+    
+    <!-- Confirm password field -->
+    <rect x="165" y="375" width="270" height="36" rx="8" fill="white" opacity="0.06" stroke="white" stroke-width="0.5" stroke-opacity="0.1"/>
+    <rect x="178" y="388" width="14" height="10" rx="3" fill="#34d399" opacity="0.4"/>
+    <g opacity="0.12">
+      <circle cx="204" cy="393" r="3" fill="white"/>
+      <circle cx="214" cy="393" r="3" fill="white"/>
+      <circle cx="224" cy="393" r="3" fill="white"/>
+      <circle cx="234" cy="393" r="3" fill="white"/>
+      <circle cx="244" cy="393" r="3" fill="white"/>
+      <circle cx="254" cy="393" r="3" fill="white"/>
+    </g>
+    
+    <!-- Submit button -->
+    <rect x="165" y="430" width="270" height="40" rx="10" fill="url(#su-sky)" opacity="0.7">
+      <animate attributeName="opacity" values="0.7;0.85;0.7" dur="3s" repeatCount="indefinite"/>
+    </rect>
+    <text x="270" y="455" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="white" opacity="0.9" text-anchor="middle">Đăng ký</text>
+    
+    <!-- Links at bottom -->
+    <rect x="230" y="490" width="140" height="6" rx="3" fill="white" opacity="0.08"/>
+  </g>
+
+  <!-- Shield / security icon (top-right) -->
+  <g filter="url(#su-glow)" opacity="0.7">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,-6;0,0" dur="7s" repeatCount="indefinite"/>
+    </g>
+    <circle cx="490" cy="180" r="28" fill="url(#su-glass)" stroke="#34d399" stroke-width="1" stroke-opacity="0.3">
+      <animate attributeName="stroke-opacity" values="0.2;0.5;0.2" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Shield shape -->
+    <path d="M490 162 L505 168 L505 185 C505 193 498 198 490 200 C482 198 475 193 475 185 L475 168 Z" fill="url(#su-emerald)" opacity="0.8"/>
+    <path d="M484 182 L488 186 L496 176" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
+      <animate attributeName="stroke-dasharray" values="0,30;30,0" dur="2s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Lock icon (top-left) -->
+  <g filter="url(#su-glow)" opacity="0.6">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="9s" repeatCount="indefinite"/>
+    </g>
+    <circle cx="110" cy="200" r="22" fill="url(#su-glass)" stroke="#818cf8" stroke-width="1" stroke-opacity="0.3"/>
+    <!-- Lock body -->
+    <rect x="100" y="200" width="20" height="14" rx="3" fill="url(#su-indigo)" opacity="0.8"/>
+    <!-- Lock shackle -->
+    <path d="M104 200 L104 195 C104 190 110 186 116 190 L116 200" stroke="#818cf8" stroke-width="2" fill="none" opacity="0.6"/>
+    <circle cx="110" cy="207" r="2" fill="white" opacity="0.8"/>
+  </g>
+
+  <!-- Checkmark badge (bottom-right) -->
+  <g filter="url(#su-glow)" opacity="0.65">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,-4;0,0" dur="6s" repeatCount="indefinite"/>
+    </g>
+    <circle cx="500" cy="450" r="24" fill="url(#su-glass)" stroke="#38bdf8" stroke-width="1" stroke-opacity="0.3"/>
+    <circle cx="500" cy="450" r="16" fill="url(#su-sky)" opacity="0.6"/>
+    <path d="M492 450 L498 456 L508 444" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+  </g>
+
+  <!-- Envelope icon (bottom-left) -->
+  <g filter="url(#su-glow)" opacity="0.6">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,-6;0,0" dur="8s" repeatCount="indefinite"/>
+    </g>
+    <circle cx="100" cy="440" r="22" fill="url(#su-glass)" stroke="#818cf8" stroke-width="1" stroke-opacity="0.3"/>
+    <!-- Envelope -->
+    <rect x="86" y="434" width="28" height="18" rx="3" fill="url(#su-indigo)" opacity="0.7"/>
+    <path d="M86 434 L100 446 L114 434" stroke="white" stroke-width="1.5" fill="none" opacity="0.6"/>
+  </g>
+
+  <!-- Connection lines from icons to form -->
+  <g stroke-width="1" fill="none" opacity="0.3">
+    <path d="M132 200 Q148 220 165 235" stroke="#818cf8" stroke-dasharray="3 3">
+      <animate attributeName="stroke-dashoffset" values="0;-6" dur="3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M462 180 Q445 200 435 225" stroke="#34d399" stroke-dasharray="3 3">
+      <animate attributeName="stroke-dashoffset" values="0;-6" dur="3.5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M122 440 Q143 430 165 420" stroke="#818cf8" stroke-dasharray="3 3">
+      <animate attributeName="stroke-dashoffset" values="0;-6" dur="4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M476 450 Q458 440 435 430" stroke="#38bdf8" stroke-dasharray="3 3">
+      <animate attributeName="stroke-dashoffset" values="0;-6" dur="3.5s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Pulse rings from avatar -->
+  <circle cx="300" cy="170" r="36" stroke="#38bdf8" stroke-width="1" fill="none" opacity="0">
+    <animate attributeName="r" values="36;55" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.35;0" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="300" cy="170" r="36" stroke="#818cf8" stroke-width="1" fill="none" opacity="0">
+    <animate attributeName="r" values="36;55" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.25;0" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Typing cursor animation on username field -->
+  <rect x="285" y="237" width="2" height="12" rx="1" fill="#38bdf8" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0;0.7" dur="1.2s" repeatCount="indefinite"/>
+  </rect>
+</svg>

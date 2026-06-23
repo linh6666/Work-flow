@@ -172,28 +172,10 @@ export default function PageLogin() {
      
 
           {/* Đăng ký */}
-          <p className="text-center text-sm text-slate-500 select-none">
-            Chưa có tài khoản?{' '}
-           <a
-  href="/sign-up"
-  className="font-bold text-[#294b61] hover:underline"
->
-  Đăng ký ngay
-</a>
-          </p>
+        
 
           {/* Làm mới trình duyệt */}
-          <button 
-            type="button"
-            onClick={() => typeof window !== 'undefined' && window.location.reload()}
-            className="mx-auto flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors focus:outline-none cursor-pointer"
-          >
-            {/* Refresh Icon */}
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
-            </svg>
-            Làm mới trình duyệt
-          </button>
+         
         </div>
       </div>
 

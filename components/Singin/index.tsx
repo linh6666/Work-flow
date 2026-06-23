@@ -18,7 +18,7 @@ export default function PageLogin() {
     <div className="flex min-h-screen bg-slate-900 text-slate-100 font-sans">
       
       {/* PHẦN BÊN TRÁI: BANNER / ILLUSTRATION (Ẩn trên màn hình nhỏ) */}
-      <div className="hidden lg:flex flex-col justify-center w-1/2 p-12 bg-slate-950 relative overflow-hidden border-r border-slate-800">
+      <div className="hidden lg:flex flex-col justify-center w-1/2 p-12 bg-[#294b61] relative overflow-hidden border-r border-slate-800">
         
         {/* Lưới nền (Grid Pattern Background) */}
         <div className="absolute inset-0 z-0 select-none">

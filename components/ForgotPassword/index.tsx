@@ -17,7 +17,7 @@ export default function PageLogin() {
     <div className="flex min-h-screen bg-slate-900 text-slate-100 font-sans">
       
       {/* PHẦN BÊN TRÁI: BANNER / ILLUSTRATION (Ẩn trên màn hình nhỏ) */}
-      <div className="hidden lg:flex flex-col justify-center w-1/2 p-12 bg-slate-950 relative overflow-hidden border-r border-slate-800">
+     <div className="hidden lg:flex flex-col justify-center w-1/2 p-12 bg-gradient-to-br from-[#294b61] via-[#35607d] to-[#4a7a9b] relative overflow-hidden border-r border-[#3a647f]">
         
         {/* Lưới nền (Grid Pattern Background) */}
         <div className="absolute inset-0 z-0 select-none">
@@ -111,16 +111,31 @@ export default function PageLogin() {
             </div>
 
             {/* Nút Đăng nhập chính */}
-            <button 
-              type="submit"
-              className="w-full bg-[#294b61] hover:bg-[#007ee6] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer text-sm"
-            >
-              {/* Sign in Icon */}
-              <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
-              </svg>
-              Tiếp tục
-            </button>
+         <button
+  type="submit"
+  className="w-full bg-[#294b61] hover:bg-[#007ee6] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer text-sm"
+>
+    Tiếp tục
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-4.5 h-4.5"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M5 12l14 0" />
+    <path d="M15 16l4 -4" />
+    <path d="M15 8l4 4" />
+  </svg>
+
+  
+</button>
           </form>
 
           {/* Các phương thức Đăng nhập mở rộng */}

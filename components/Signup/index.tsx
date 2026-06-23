@@ -21,7 +21,7 @@ export default function SignupPage() {
     <div className="flex min-h-screen bg-slate-900 text-slate-100 font-sans">
       
       {/* PHẦN BÊN TRÁI: BANNER / ILLUSTRATION (Ẩn trên màn hình nhỏ) */}
-      <div className="hidden lg:flex flex-col justify-center w-1/2 p-12 bg-slate-950 relative overflow-hidden border-r border-slate-800">
+     <div className="hidden lg:flex flex-col justify-center w-1/2 p-12 bg-[#294b61] relative overflow-hidden border-r border-[#3a647f]">
         
         {/* Lưới nền (Grid Pattern Background) */}
         <div className="absolute inset-0 z-0 select-none">
@@ -100,7 +100,9 @@ export default function SignupPage() {
               </svg>
               Tạo tài khoản mới
             </span>
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Đăng ký</h1>
+         <h1 className="text-2xl font-extrabold tracking-tight text-[#294b61]">
+  Đăng ký
+</h1>
             <p className="text-xs text-slate-500">Nhập thông tin tài khoản để đăng ký.</p>
           </div>
 
@@ -212,7 +214,7 @@ export default function SignupPage() {
             {/* Nút Đăng nhập chính */}
             <button 
               type="submit"
-              className="w-full bg-[#0091ff] hover:bg-[#007ee6] text-white font-semibold py-2 px-3 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer text-sm"
+              className="w-full bg-[#294b61] hover:bg-[#007ee6] text-white font-semibold py-2 px-3 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer text-sm"
             >
                {/* User plus Icon */}
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-user-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path d="M16 19h6"/><path d="M19 16v6"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4"/></svg>
@@ -226,7 +228,9 @@ export default function SignupPage() {
           {/* Đăng ký */}
           <p className="text-center text-sm text-slate-500 select-none">
             Đã có tài khoản?{' '}
-            <a href="/sign-in" className="font-bold text-sky-600 hover:underline">Đăng nhập ngay</a>
+         <a href="/sign-in" className="font-bold text-[#294b61] hover:underline">
+  Đăng nhập ngay
+</a>
           </p>
 
           {/* Làm mới trình duyệt */}

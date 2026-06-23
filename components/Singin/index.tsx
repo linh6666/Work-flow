@@ -40,7 +40,7 @@ export default function PageLogin() {
 
         {/* Khối hình ảnh mô phỏng UI Đăng nhập ở giữa */}
         <div className="flex justify-center items-center mb-2 z-10 select-none">
-          <Image src="/signin-hero.svg" alt="Workflow hero" width={400} height={400} className="w-full max-w-[400px] object-contain" priority />
+          <Image src="/logo/signin-hero.svg" alt="Workflow hero" width={400} height={400} className="w-full max-w-[400px] object-contain" priority />
         </div>
         {/* Nội dung chào mừng & Badge tính năng ở dưới cùng */}
         <div className="space-y-1 z-10 select-none text-center flex flex-col items-center w-full -mt-2">
@@ -98,7 +98,9 @@ export default function PageLogin() {
               </svg>
               Chào mừng trở lại
             </span>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Đăng nhập</h1>
+           <h1 className="text-3xl font-extrabold tracking-tight text-[#294b61]">
+  Đăng nhập
+</h1>
             <p className="text-sm text-slate-500">Nhập tên đăng nhập và mật khẩu để truy cập hệ thống.</p>
           </div>
 
@@ -156,7 +158,7 @@ export default function PageLogin() {
             {/* Nút Đăng nhập chính */}
             <button 
               type="submit"
-              className="w-full bg-[#0091ff] hover:bg-[#007ee6] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer text-sm"
+              className="w-full bg-[#294b61] hover:bg-[#007ee6] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer text-sm"
             >
               {/* Sign in Icon */}
               <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -172,7 +174,12 @@ export default function PageLogin() {
           {/* Đăng ký */}
           <p className="text-center text-sm text-slate-500 select-none">
             Chưa có tài khoản?{' '}
-            <a href="/sign-up" className="font-bold text-sky-600 hover:underline">Đăng ký ngay</a>
+           <a
+  href="/sign-up"
+  className="font-bold text-[#294b61] hover:underline"
+>
+  Đăng ký ngay
+</a>
           </p>
 
           {/* Làm mới trình duyệt */}

@@ -43,7 +43,7 @@ export default function SignupPage() {
 
         {/* Khối hình ảnh mô phỏng UI Đăng ký ở giữa */}
         <div className="flex justify-center items-center mb-2 z-10 select-none">
-          <Image src="/signup-hero.svg" alt="Workflow hero" width={380} height={380} className="w-full max-w-[380px] object-contain" priority />
+          <Image src="/logo/signup-hero.svg" alt="Workflow hero" width={380} height={380} className="w-full max-w-[380px] object-contain" priority />
         </div>
         {/* Nội dung chào mừng & Badge tính năng ở dưới cùng */}
         <div className="space-y-1 z-10 select-none text-center flex flex-col items-center w-full -mt-2">

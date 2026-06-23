@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="500" viewBox="0 0 600 500" fill="none">
+  <defs>
+    <!-- Soft gradients -->
+    <linearGradient id="ws-node-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.6"/>
+    </linearGradient>
+    <linearGradient id="ws-node-2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="ws-node-3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="ws-card-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.04"/>
+    </linearGradient>
+    <linearGradient id="ws-line-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.3"/>
+      <stop offset="50%" stop-color="#818cf8" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0.3"/>
+    </linearGradient>
+    <filter id="ws-glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="ws-soft-shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient floating particles -->
+  <g opacity="0.4">
+    <circle cx="80" cy="120" r="2" fill="#38bdf8">
+      <animate attributeName="cy" values="120;100;120" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="520" cy="80" r="1.5" fill="#818cf8">
+      <animate attributeName="cy" values="80;65;80" dur="7s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.7;0.3" dur="7s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="180" cy="400" r="2.5" fill="#34d399">
+      <animate attributeName="cy" values="400;385;400" dur="8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.6;0.3" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="450" cy="420" r="1.8" fill="#38bdf8">
+      <animate attributeName="cy" values="420;405;420" dur="5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.7;0.4" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="350" cy="60" r="2" fill="#34d399">
+      <animate attributeName="cy" values="60;48;60" dur="9s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.2;0.5;0.2" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="550" cy="300" r="1.5" fill="#818cf8">
+      <animate attributeName="cy" values="300;288;300" dur="6.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.6;0.3" dur="6.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="100" cy="280" r="2" fill="#38bdf8">
+      <animate attributeName="cy" values="280;270;280" dur="7.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.2;0.5;0.2" dur="7.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Connection lines between nodes -->
+  <g stroke="url(#ws-line-grad)" stroke-width="1.5" fill="none" opacity="0.5">
+    <!-- Central hub to Workspace 1 -->
+    <path d="M300 250 Q200 200 150 170">
+      <animate attributeName="stroke-opacity" values="0.3;0.7;0.3" dur="4s" repeatCount="indefinite"/>
+    </path>
+    <!-- Central hub to Workspace 2 -->
+    <path d="M300 250 Q400 180 460 140">
+      <animate attributeName="stroke-opacity" values="0.3;0.7;0.3" dur="5s" repeatCount="indefinite"/>
+    </path>
+    <!-- Central hub to Project nodes -->
+    <path d="M300 250 Q220 320 160 360">
+      <animate attributeName="stroke-opacity" values="0.3;0.6;0.3" dur="6s" repeatCount="indefinite"/>
+    </path>
+    <path d="M300 250 Q380 320 440 360">
+      <animate attributeName="stroke-opacity" values="0.3;0.6;0.3" dur="4.5s" repeatCount="indefinite"/>
+    </path>
+    <!-- Cross connections -->
+    <path d="M150 170 Q200 280 160 360" stroke-dasharray="4 4">
+      <animate attributeName="stroke-dashoffset" values="0;-8" dur="3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M460 140 Q450 260 440 360" stroke-dasharray="4 4">
+      <animate attributeName="stroke-dashoffset" values="0;-8" dur="3.5s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Central workspace hub -->
+  <g filter="url(#ws-glow)">
+    <circle cx="300" cy="250" r="48" fill="url(#ws-card-bg)" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.4">
+      <animate attributeName="r" values="48;50;48" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="250" r="36" fill="url(#ws-node-1)" opacity="0.9">
+      <animate attributeName="r" values="36;38;36" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Hub icon: grid layout -->
+    <rect x="286" y="238" width="10" height="10" rx="2" fill="white" opacity="0.9"/>
+    <rect x="300" y="238" width="10" height="10" rx="2" fill="white" opacity="0.7"/>
+    <rect x="286" y="252" width="10" height="10" rx="2" fill="white" opacity="0.7"/>
+    <rect x="300" y="252" width="10" height="10" rx="2" fill="white" opacity="0.9"/>
+  </g>
+
+  <!-- Workspace node 1 (top-left) -->
+  <g filter="url(#ws-soft-shadow)">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,-6;0,0" dur="7s" repeatCount="indefinite"/>
+    </g>
+    <rect x="100" y="120" width="100" height="90" rx="16" fill="url(#ws-card-bg)" stroke="#818cf8" stroke-width="1" stroke-opacity="0.3">
+      <animate attributeName="stroke-opacity" values="0.2;0.5;0.2" dur="4s" repeatCount="indefinite"/>
+    </rect>
+    <!-- Workspace icon -->
+    <circle cx="150" cy="152" r="14" fill="url(#ws-node-2)" opacity="0.8"/>
+    <text x="144" y="158" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" opacity="0.9">W</text>
+    <!-- Mini bar chart -->
+    <rect x="120" y="185" width="8" height="12" rx="2" fill="#818cf8" opacity="0.5"/>
+    <rect x="132" y="181" width="8" height="16" rx="2" fill="#818cf8" opacity="0.6"/>
+    <rect x="144" y="177" width="8" height="20" rx="2" fill="#818cf8" opacity="0.7"/>
+    <rect x="156" y="183" width="8" height="14" rx="2" fill="#818cf8" opacity="0.5"/>
+    <rect x="168" y="179" width="8" height="18" rx="2" fill="#818cf8" opacity="0.6"/>
+  </g>
+
+  <!-- Workspace node 2 (top-right) -->
+  <g filter="url(#ws-soft-shadow)">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,-8;0,0" dur="8s" repeatCount="indefinite"/>
+    </g>
+    <rect x="410" y="90" width="110" height="100" rx="16" fill="url(#ws-card-bg)" stroke="#34d399" stroke-width="1" stroke-opacity="0.3">
+      <animate attributeName="stroke-opacity" values="0.2;0.5;0.2" dur="5s" repeatCount="indefinite"/>
+    </rect>
+    <!-- Workspace icon -->
+    <circle cx="465" cy="125" r="14" fill="url(#ws-node-3)" opacity="0.8"/>
+    <text x="459" y="131" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" opacity="0.9">P</text>
+    <!-- Progress bars -->
+    <rect x="428" y="155" width="74" height="5" rx="2.5" fill="white" opacity="0.1"/>
+    <rect x="428" y="155" width="52" height="5" rx="2.5" fill="#34d399" opacity="0.6">
+      <animate attributeName="width" values="52;58;52" dur="4s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="428" y="166" width="74" height="5" rx="2.5" fill="white" opacity="0.1"/>
+    <rect x="428" y="166" width="38" height="5" rx="2.5" fill="#34d399" opacity="0.5">
+      <animate attributeName="width" values="38;44;38" dur="5s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="428" y="177" width="74" height="5" rx="2.5" fill="white" opacity="0.1"/>
+    <rect x="428" y="177" width="65" height="5" rx="2.5" fill="#34d399" opacity="0.7">
+      <animate attributeName="width" values="65;70;65" dur="3.5s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- Project node (bottom-left) -->
+  <g filter="url(#ws-soft-shadow)">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="6s" repeatCount="indefinite"/>
+    </g>
+    <rect x="100" y="330" width="120" height="80" rx="16" fill="url(#ws-card-bg)" stroke="#38bdf8" stroke-width="1" stroke-opacity="0.3">
+      <animate attributeName="stroke-opacity" values="0.2;0.4;0.2" dur="5s" repeatCount="indefinite"/>
+    </rect>
+    <!-- Team avatars -->
+    <circle cx="130" cy="360" r="10" fill="url(#ws-node-1)" opacity="0.7"/>
+    <circle cx="148" cy="360" r="10" fill="url(#ws-node-2)" opacity="0.7"/>
+    <circle cx="166" cy="360" r="10" fill="url(#ws-node-3)" opacity="0.7"/>
+    <circle cx="184" cy="360" r="10" fill="white" opacity="0.15"/>
+    <text x="179" y="364" font-family="Arial, sans-serif" font-size="9" fill="white" opacity="0.6">+2</text>
+    <!-- Task count -->
+    <text x="120" y="395" font-family="Arial, sans-serif" font-size="10" fill="white" opacity="0.5">5 tasks · 3 done</text>
+  </g>
+
+  <!-- Project node (bottom-right) -->
+  <g filter="url(#ws-soft-shadow)">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,-7;0,0" dur="9s" repeatCount="indefinite"/>
+    </g>
+    <rect x="390" y="330" width="110" height="80" rx="16" fill="url(#ws-card-bg)" stroke="#818cf8" stroke-width="1" stroke-opacity="0.3">
+      <animate attributeName="stroke-opacity" values="0.2;0.4;0.2" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <!-- Kanban mini -->
+    <rect x="408" y="350" width="25" height="40" rx="4" fill="white" opacity="0.08"/>
+    <rect x="437" y="350" width="25" height="40" rx="4" fill="white" opacity="0.08"/>
+    <rect x="466" y="350" width="25" height="40" rx="4" fill="white" opacity="0.08"/>
+    <!-- Mini task cards -->
+    <rect x="412" y="355" width="17" height="8" rx="2" fill="#818cf8" opacity="0.5">
+      <animate attributeName="opacity" values="0.5;0.8;0.5" dur="3s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="412" y="367" width="17" height="8" rx="2" fill="#818cf8" opacity="0.4"/>
+    <rect x="441" y="355" width="17" height="8" rx="2" fill="#38bdf8" opacity="0.5"/>
+    <rect x="441" y="367" width="17" height="8" rx="2" fill="#38bdf8" opacity="0.4">
+      <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="470" y="355" width="17" height="8" rx="2" fill="#34d399" opacity="0.6"/>
+    <text x="408" y="400" font-family="Arial, sans-serif" font-size="10" fill="white" opacity="0.5">Kanban Board</text>
+  </g>
+
+  <!-- Orbiting dots around central hub -->
+  <g opacity="0.6">
+    <circle cx="300" cy="250" r="3" fill="#38bdf8">
+      <animateTransform attributeName="transform" type="rotate" from="0 300 250" to="360 300 250" dur="15s" repeatCount="indefinite"/>
+      <animateMotion dur="15s" repeatCount="indefinite" path="M0,0 A68,68 0 1,1 0,-1 Z"/>
+    </circle>
+    <circle cx="300" cy="250" r="2.5" fill="#34d399">
+      <animateMotion dur="20s" repeatCount="indefinite" path="M0,0 A78,78 0 1,0 0,1 Z"/>
+    </circle>
+    <circle cx="300" cy="250" r="2" fill="#818cf8">
+      <animateMotion dur="12s" repeatCount="indefinite" path="M0,0 A58,58 0 1,1 1,0 Z"/>
+    </circle>
+  </g>
+
+  <!-- Pulse rings around central hub -->
+  <circle cx="300" cy="250" r="52" stroke="#38bdf8" stroke-width="1" fill="none" opacity="0">
+    <animate attributeName="r" values="52;80" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.4;0" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="300" cy="250" r="52" stroke="#818cf8" stroke-width="1" fill="none" opacity="0">
+    <animate attributeName="r" values="52;80" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.3;0" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+  </circle>
+<translator-workspace-root xmlns="" id="external-translator-root"/></svg>

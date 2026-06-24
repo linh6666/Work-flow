@@ -111,7 +111,7 @@ export default function WorkspaceSelection() {
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col antialiased">
       
       {/* KHU VỰC TOP BANNER & HEADER */}
-      <div className="bg-[#111e2e] text-white relative pb-20 pt-2 px-2 sm:px-8 lg:px-16">
+      <div className="bg-[#111e2e] text-white relative pb-14 pt-4 px-2 sm:px-8 lg:px-16">
         
         {/* Khung chứa các thành phần background để overflow-hidden hoạt động mà không che mất thanh tìm kiếm */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
@@ -132,16 +132,15 @@ export default function WorkspaceSelection() {
           <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px]" />
         </div>
 
-        {/* HEADER TOP NAV */}
-        <header className="relative z-20 flex items-center justify-between border-b border-white/5 pb-5 max-w-7xl mx-auto">
+        <header className="relative z-20 h-28 flex items-center justify-between border-b border-white/5 max-w-7xl mx-auto">
           {/* Logo WorkFlow */}
           <div className="flex items-center gap-2 cursor-pointer select-none">
             <Image 
               src="/logo/logo1.png" 
               alt="WorkFlow Logo" 
-              width={240} 
-              height={60} 
-              className="h-40 w-auto object-contain" 
+              width={560} 
+              height={140} 
+              className="h-[260px] w-auto object-contain -my-[90px]" 
               priority 
             />
           </div>
@@ -208,17 +207,17 @@ export default function WorkspaceSelection() {
         </header>
 
         {/* HERO CONTENT SECTION */}
-        <div className="relative z-10 max-w-7xl mx-auto mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
           {/* Left Title Content */}
-          <div className="lg:col-span-7 space-y-6 text-left">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-full text-xs font-medium tracking-wide">
+          <div className="lg:col-span-7 space-y-4 text-left">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-full text-[11px] font-medium tracking-wide">
               <span>✨</span> Chọn không gian để bắt đầu làm việc
             </span>
-            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
               Không gian làm việc
             </h1>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
+            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg">
               Truy cập dự án, theo dõi tiến độ, và cộng tác với team — tất cả trong một nền tảng.
             </p>
 
@@ -249,13 +248,13 @@ export default function WorkspaceSelection() {
           </div>
 
           {/* Right SVG Connected Nodes Graphic */}
-          <div className="lg:col-span-5 flex justify-center items-center relative h-[250px] w-full hidden lg:block">
+          <div className="lg:col-span-5 flex justify-center items-center relative h-[180px] w-full hidden lg:block">
             <Image 
               src="/logo/svgviewer.svg" 
               alt="Connected Workspaces" 
-              width={350} 
-              height={250} 
-              className="w-full max-w-[350px] object-contain select-none" 
+              width={260} 
+              height={180} 
+              className="w-full max-w-[260px] object-contain select-none" 
               priority 
             />
           </div>
@@ -263,7 +262,7 @@ export default function WorkspaceSelection() {
 
         {/* CẮT GÓC WAVE TRUYỀN THỐNG BẰNG SVG */}
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-[0] z-10 pointer-events-none select-none">
-          <svg className="relative block w-full h-[60px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <svg className="relative block w-full h-[40px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M0,60 Q600,120 1200,60 L1200,120 L0,120 Z" className="fill-slate-50"></path>
           </svg>
         </div>

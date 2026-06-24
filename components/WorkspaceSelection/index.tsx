@@ -93,7 +93,57 @@ export default function WorkspaceSelection() {
       role: 'SUPERADMIN',
       color: 'from-indigo-400 to-blue-600 shadow-indigo-500/20 text-indigo-500 bg-indigo-50',
       letter: 'T'
+    },
+    {
+      id: '7',
+      name: 'Task anh Dinh',
+      owner: 'NGUYỄN TIẾN DINH',
+      code: '1L4QAPCS',
+      date: '14 thg 3, 2026',
+      projectsCount: 2,
+      membersCount: 8,
+      role: 'SUPERADMIN',
+      color: 'from-indigo-400 to-blue-600 shadow-indigo-500/20 text-indigo-500 bg-indigo-50',
+      letter: 'T'
+    },
+    {
+      id: '8',
+      name: 'Task anh Dinh',
+      owner: 'NGUYỄN TIẾN DINH',
+      code: '1L4QAPCS',
+      date: '14 thg 3, 2026',
+      projectsCount: 2,
+      membersCount: 8,
+      role: 'SUPERADMIN',
+      color: 'from-indigo-400 to-blue-600 shadow-indigo-500/20 text-indigo-500 bg-indigo-50',
+      letter: 'T'
+    },
+    {
+      id: '9',
+      name: 'Task anh Dinh',
+      owner: 'NGUYỄN TIẾN DINH',
+      code: '1L4QAPCS',
+      date: '14 thg 3, 2026',
+      projectsCount: 2,
+      membersCount: 8,
+      role: 'SUPERADMIN',
+      color: 'from-indigo-400 to-blue-600 shadow-indigo-500/20 text-indigo-500 bg-indigo-50',
+      letter: 'T'
+    },
+    {
+      id: '10',
+      name: 'Task anh Dinh',
+      owner: 'NGUYỄN TIẾN DINH',
+      code: '1L4QAPCS',
+      date: '14 thg 3, 2026',
+      projectsCount: 2,
+      membersCount: 8,
+      role: 'SUPERADMIN',
+      color: 'from-indigo-400 to-blue-600 shadow-indigo-500/20 text-indigo-500 bg-indigo-50',
+      letter: 'T'
     }
+    
+
   ];
 
   // Filtering based on search query
@@ -111,7 +161,7 @@ export default function WorkspaceSelection() {
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col antialiased">
       
       {/* KHU VỰC TOP BANNER & HEADER */}
-      <div className="bg-[#111e2e] text-white relative pb-14 pt-4 px-2 sm:px-8 lg:px-16">
+      <div className="bg-[#111e2e] text-white sticky top-0 z-40 pb-9 pt-4 px-2 sm:px-8 lg:px-16">
         
         {/* Khung chứa các thành phần background để overflow-hidden hoạt động mà không che mất thanh tìm kiếm */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
@@ -132,7 +182,7 @@ export default function WorkspaceSelection() {
           <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px]" />
         </div>
 
-        <header className="relative z-20 h-28 flex items-center justify-between border-b border-white/5 max-w-7xl mx-auto">
+        <header className="relative z-20 h-20 flex items-center justify-between border-b border-white/5 max-w-7xl mx-auto">
           {/* Logo WorkFlow */}
           <div className="flex items-center gap-2 cursor-pointer select-none">
             <Image 
@@ -146,11 +196,11 @@ export default function WorkspaceSelection() {
           </div>
 
           {/* Navigation & Controls */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             {/* Nav links */}
-            <nav className="hidden md:flex items-center gap-5">
-              <a href="#" className="flex items-center gap-2 text-slate-300 hover:text-white transition-all text-sm font-medium py-1.5 px-3 rounded-lg hover:bg-white/5">
-                <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <nav className="hidden md:flex items-center gap-4">
+              <a href="#" className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-all text-xs font-semibold py-1 px-2.5 rounded-lg hover:bg-white/5">
+                <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="7" height="7" />
                   <rect x="14" y="3" width="7" height="7" />
                   <rect x="14" y="14" width="7" height="7" />
@@ -158,8 +208,8 @@ export default function WorkspaceSelection() {
                 </svg>
                 Quản trị
               </a>
-              <a href="#" className="flex items-center gap-2 text-slate-300 hover:text-white transition-all text-sm font-medium py-1.5 px-3 rounded-lg hover:bg-white/5">
-                <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <a href="#" className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-all text-xs font-semibold py-1 px-2.5 rounded-lg hover:bg-white/5">
+                <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="20" x2="18" y2="10" />
                   <line x1="12" y1="20" x2="12" y2="4" />
                   <line x1="6" y1="20" x2="6" y2="14" />
@@ -169,11 +219,11 @@ export default function WorkspaceSelection() {
             </nav>
 
             {/* Divider */}
-            <div className="hidden md:block w-px h-5 bg-white/10" />
+            <div className="hidden md:block w-px h-4 bg-white/10" />
 
             {/* Dark/Light mode button */}
-            <button className="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5">
-              <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <button className="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="5" />
                 <line x1="12" y1="1" x2="12" y2="3" />
                 <line x1="12" y1="21" x2="12" y2="23" />
@@ -187,18 +237,18 @@ export default function WorkspaceSelection() {
             </button>
 
             {/* User Account Button */}
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all cursor-pointer">
-              <div className="w-6 h-6 rounded-full bg-sky-400/20 border border-sky-400/30 flex items-center justify-center text-[11px] font-bold text-sky-300">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all cursor-pointer">
+              <div className="w-5 h-5 rounded-full bg-sky-400/20 border border-sky-400/30 flex items-center justify-center text-[10px] font-bold text-sky-300">
                 L
               </div>
-              <span className="text-xs font-semibold text-slate-200 hidden sm:inline-block max-w-[150px] truncate">
+              <span className="text-[11px] font-semibold text-slate-200 hidden sm:inline-block max-w-[130px] truncate">
                 lecongchien2472002@gm...
               </span>
             </div>
 
             {/* Logout link */}
-            <a href="/sign-in" className="flex items-center gap-1.5 text-slate-400 hover:text-rose-400 transition-colors text-sm font-medium py-1 px-2.5">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <a href="/sign-in" className="flex items-center gap-1.5 text-slate-400 hover:text-rose-400 transition-colors text-xs font-medium py-0.5 px-2">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
               </svg>
               <span className="hidden sm:inline">Đăng xuất</span>
@@ -207,37 +257,37 @@ export default function WorkspaceSelection() {
         </header>
 
         {/* HERO CONTENT SECTION */}
-        <div className="relative z-10 max-w-7xl mx-auto mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto mt-2 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
           {/* Left Title Content */}
-          <div className="lg:col-span-7 space-y-4 text-left">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-full text-[11px] font-medium tracking-wide">
+          <div className="lg:col-span-7 space-y-3 text-left">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-full text-[10px] font-medium tracking-wide">
               <span>✨</span> Chọn không gian để bắt đầu làm việc
             </span>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white leading-tight">
               Không gian làm việc
             </h1>
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg">
+            <p className="text-slate-300 text-[11px] sm:text-xs leading-relaxed max-w-md">
               Truy cập dự án, theo dõi tiến độ, và cộng tác với team — tất cả trong một nền tảng.
             </p>
 
             {/* Statistics Row */}
-            <div className="flex flex-wrap gap-2.5 pt-2">
-              <span className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs font-semibold text-slate-200">
-                <svg className="w-4.5 h-4.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="flex flex-wrap gap-2 pt-1">
+              <span className="flex items-center gap-1 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-[11px] font-medium text-slate-200">
+                <svg className="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                 </svg>
                 10 workspace
               </span>
-              <span className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs font-semibold text-slate-200">
-                <svg className="w-4.5 h-4.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <span className="flex items-center gap-1 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-[11px] font-medium text-slate-200">
+                <svg className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
                   <path d="M12 6v6l4 2" />
                 </svg>
                 33 dự án
               </span>
-              <span className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs font-semibold text-slate-200">
-                <svg className="w-4.5 h-4.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <span className="flex items-center gap-1 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-[11px] font-medium text-slate-200">
+                <svg className="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                   <circle cx="9" cy="7" r="4" />
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
@@ -248,13 +298,13 @@ export default function WorkspaceSelection() {
           </div>
 
           {/* Right SVG Connected Nodes Graphic */}
-          <div className="lg:col-span-5 flex justify-center items-center relative h-[180px] w-full hidden lg:block">
+          <div className="lg:col-span-5 flex justify-end items-center relative h-[150px] w-full hidden lg:block">
             <Image 
               src="/logo/svgviewer.svg" 
               alt="Connected Workspaces" 
-              width={260} 
-              height={180} 
-              className="w-full max-w-[260px] object-contain select-none" 
+              width={240} 
+              height={150} 
+              className="w-full max-w-[240px] object-contain select-none" 
               priority 
             />
           </div>
@@ -262,7 +312,7 @@ export default function WorkspaceSelection() {
 
         {/* CẮT GÓC WAVE TRUYỀN THỐNG BẰNG SVG */}
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-[0] z-10 pointer-events-none select-none">
-          <svg className="relative block w-full h-[40px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <svg className="relative block w-full h-[25px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M0,60 Q600,120 1200,60 L1200,120 L0,120 Z" className="fill-slate-50"></path>
           </svg>
         </div>
@@ -388,12 +438,12 @@ export default function WorkspaceSelection() {
       </main>
 
       {/* NÚT THÊM FLOATING ACTION BUTTON */}
-      <button className="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer z-50">
+      {/* <button className="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer z-50">
         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />
         </svg>
-      </button>
+      </button> */}
 
     </div>
   );

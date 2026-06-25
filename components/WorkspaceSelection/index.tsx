@@ -187,7 +187,7 @@ export default function WorkspaceSelection() {
           <div className="flex items-center gap-2 cursor-pointer select-none">
             <Image 
               src="/logo/logo1.png" 
-              alt="WorkFlow Logo" 
+              alt="Logo WorkFlow" 
               width={560} 
               height={140} 
               className="h-[260px] w-auto object-contain -my-[90px]" 
@@ -222,7 +222,7 @@ export default function WorkspaceSelection() {
             <div className="hidden md:block w-px h-4 bg-white/10" />
 
             {/* Dark/Light mode button */}
-            <button className="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5">
+            {/* <button className="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="5" />
                 <line x1="12" y1="1" x2="12" y2="3" />
@@ -234,7 +234,7 @@ export default function WorkspaceSelection() {
                 <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
               </svg>
-            </button>
+            </button> */}
 
             {/* User Account Button */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all cursor-pointer">
@@ -301,7 +301,7 @@ export default function WorkspaceSelection() {
           <div className="lg:col-span-5 flex justify-end items-center relative h-[150px] w-full hidden lg:block">
             <Image 
               src="/logo/svgviewer.svg" 
-              alt="Connected Workspaces" 
+              alt="Kết nối các không gian làm việc" 
               width={240} 
               height={150} 
               className="w-full max-w-[240px] object-contain select-none" 
@@ -311,11 +311,11 @@ export default function WorkspaceSelection() {
         </div>
 
         {/* CẮT GÓC WAVE TRUYỀN THỐNG BẰNG SVG */}
-        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-[0] z-10 pointer-events-none select-none">
+        {/* <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-[0] z-10 pointer-events-none select-none">
           <svg className="relative block w-full h-[25px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M0,60 Q600,120 1200,60 L1200,120 L0,120 Z" className="fill-slate-50"></path>
           </svg>
-        </div>
+        </div> */}
 
         {/* TÌM KIẾM WORKSPACE FLOATING SEARCH BAR */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-30 w-full max-w-xl px-4">
@@ -328,7 +328,7 @@ export default function WorkspaceSelection() {
               </svg>
               <input
                 type="text"
-                placeholder="Tìm kiếm workspace..."
+                placeholder="Tìm kiếm không gian làm việc..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full text-slate-800 placeholder-slate-400 text-sm font-medium focus:outline-none bg-transparent"

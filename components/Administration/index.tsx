@@ -158,6 +158,9 @@ export default function Administration() {
   const [taskSearchQuery, setTaskSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'me'>('all');
 
+  // Sidebar Collapse State
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
   // Project Collapse/Expand Handler
   const toggleProjectCollapse = (id: string) => {
     setProjects(projects.map(p => p.id === id ? { ...p, isOpen: !p.isOpen } : p));
@@ -242,37 +245,40 @@ export default function Administration() {
     <div className="flex h-screen w-screen bg-slate-50 font-sans overflow-hidden text-slate-800 antialiased">
       
       {/* 1. LEFT SIDEBAR */}
-      <aside className="w-64 bg-[#111e2e] text-slate-300 flex flex-col h-full shrink-0 border-r border-white/5 select-none z-20">
+      <aside className={`${isSidebarCollapsed ? 'w-16' : 'w-64'} bg-[#111e2e] text-slate-300 flex flex-col h-full shrink-0 border-r border-white/5 select-none z-20 transition-all duration-300`}>
         
         {/* Workspace Brand Dropdown */}
-        <div className="p-4 border-b border-white/5 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer">
+        <div className={`p-4 border-b border-white/5 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} hover:bg-white/5 transition-colors cursor-pointer`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white font-extrabold flex items-center justify-center text-lg shadow-md shadow-emerald-500/15">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white font-extrabold flex items-center justify-center text-lg shadow-md shadow-emerald-500/15 shrink-0">
               Q
             </div>
-            <div className="text-left">
-              <h2 className="font-extrabold text-sm text-white tracking-tight">QLT_CNTT</h2>
-              <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
-                <span className="flex items-center gap-0.5">
-                  <IconFolder size={11} /> 12
-                </span>
-                <span className="flex items-center gap-0.5">
-                  <IconUsers size={11} /> 11
-                </span>
+            {!isSidebarCollapsed && (
+              <div className="text-left">
+                <h2 className="font-extrabold text-sm text-white tracking-tight">QLT_CNTT</h2>
+                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
+                  <span className="flex items-center gap-0.5">
+                    <IconFolder size={11} /> 12
+                  </span>
+                  <span className="flex items-center gap-0.5">
+                    <IconUsers size={11} /> 11
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-          <IconChevronDown size={16} className="text-slate-400" />
+          {!isSidebarCollapsed && <IconChevronDown size={16} className="text-slate-400" />}
         </div>
 
         {/* Create Buttons & Quick Search Row */}
-        <div className="px-4 py-3 flex gap-2 border-b border-white/5">
+        <div className={`px-4 py-3 flex ${isSidebarCollapsed ? 'flex-col gap-3 items-center' : 'gap-2'} border-b border-white/5`}>
           <button 
             onClick={() => setIsProjectModalOpen(true)}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-lg text-[11px] font-bold shadow-md shadow-sky-500/10 hover:opacity-95 active:scale-95 transition-all cursor-pointer"
+            className={`flex items-center justify-center gap-1.5 py-2 ${isSidebarCollapsed ? 'w-8 h-8 rounded-full px-0' : 'flex-1 px-3 rounded-lg'} bg-gradient-to-r from-sky-400 to-blue-500 text-white text-[11px] font-bold shadow-md shadow-sky-500/10 hover:opacity-95 active:scale-95 transition-all cursor-pointer`}
+            title="Tạo dự án"
           >
             <IconPlus size={14} stroke={3} />
-            Tạo dự án
+            {!isSidebarCollapsed && "Tạo dự án"}
           </button>
           
           <button 
@@ -280,18 +286,21 @@ export default function Administration() {
               setSelectedColumnForNewTask('reprocess');
               setIsTaskModalOpen(true);
             }}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-white/10 hover:bg-white/15 text-slate-200 border border-white/10 rounded-lg text-[11px] font-bold active:scale-95 transition-all cursor-pointer"
+            className={`flex items-center justify-center gap-1.5 py-2 ${isSidebarCollapsed ? 'w-8 h-8 rounded-full px-0' : 'flex-1 px-3 rounded-lg'} bg-white/10 hover:bg-white/15 text-slate-200 border border-white/10 active:scale-95 transition-all cursor-pointer`}
+            title="Tạo việc"
           >
             <IconPlus size={14} />
-            Tạo việc
+            {!isSidebarCollapsed && "Tạo việc"}
           </button>
         </div>
 
         {/* Projects Navigation List */}
         <div className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin scrollbar-thumb-white/10">
-          <div className="px-2 pb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
-            <span>Dự án của bạn ({projects.length})</span>
-          </div>
+          {!isSidebarCollapsed && (
+            <div className="px-2 pb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+              <span>Dự án của bạn ({projects.length})</span>
+            </div>
+          )}
 
           {projects.map((proj) => {
             const isProjectActive = proj.id === activeProjectId;
@@ -299,28 +308,31 @@ export default function Administration() {
               <div key={proj.id} className="space-y-0.5">
                 {/* Project Header Row */}
                 <div 
-                  className={`w-full flex items-center justify-between px-2 py-2 rounded-lg cursor-pointer transition-all duration-150 ${
+                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center py-2.5' : 'justify-between py-2'} px-2 rounded-lg cursor-pointer transition-all duration-150 ${
                     isProjectActive ? 'bg-white/5 text-white' : 'hover:bg-white/5 text-slate-400 hover:text-slate-200'
                   }`}
                   onClick={() => setActiveProjectId(proj.id)}
+                  title={isSidebarCollapsed ? proj.name : undefined}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${proj.color}`} />
-                    <span className="text-xs font-bold truncate leading-none">{proj.name}</span>
+                    {!isSidebarCollapsed && <span className="text-xs font-bold truncate leading-none">{proj.name}</span>}
                   </div>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleProjectCollapse(proj.id);
-                    }}
-                    className="p-0.5 hover:bg-white/10 rounded text-slate-500 hover:text-slate-300 transition-colors"
-                  >
-                    {proj.isOpen ? <IconChevronDown size={14} /> : <IconChevronRight size={14} />}
-                  </button>
+                  {!isSidebarCollapsed && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleProjectCollapse(proj.id);
+                      }}
+                      className="p-0.5 hover:bg-white/10 rounded text-slate-500 hover:text-slate-300 transition-colors"
+                    >
+                      {proj.isOpen ? <IconChevronDown size={14} /> : <IconChevronRight size={14} />}
+                    </button>
+                  )}
                 </div>
 
                 {/* Submenu items (Expanded only) */}
-                {proj.isOpen && (
+                {!isSidebarCollapsed && proj.isOpen && (
                   <div className="pl-6 pr-2 space-y-0.5 border-l border-white/5 ml-3">
                     <button 
                       onClick={() => {
@@ -373,18 +385,24 @@ export default function Administration() {
 
         {/* Footer Area */}
         <div className="p-3 border-t border-white/5 space-y-2">
-          <div className="flex items-center gap-2.5 px-2 py-1 bg-white/5 border border-white/10 rounded-lg">
+          <div className={`flex items-center gap-2.5 ${isSidebarCollapsed ? 'justify-center p-1' : 'px-2 py-1'} bg-white/5 border border-white/10 rounded-lg`}>
             <div className="w-5.5 h-5.5 rounded-full bg-sky-400/20 border border-sky-400/30 flex items-center justify-center text-[10px] font-bold text-sky-300 shrink-0">
               L
             </div>
-            <span className="text-[11px] font-semibold text-slate-300 truncate">
-              lecongchien247
-            </span>
+            {!isSidebarCollapsed && (
+              <span className="text-[11px] font-semibold text-slate-300 truncate">
+                lecongchien247
+              </span>
+            )}
           </div>
 
-          <a href="/workspace-selection" className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-rose-500/10 hover:text-rose-400 rounded text-slate-400 text-xs font-semibold transition-all">
-            <IconLogout size={14} />
-            Đăng xuất
+          <a 
+            href="/workspace-selection" 
+            className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center py-2' : 'gap-2 px-2 py-1.5'} hover:bg-rose-500/10 hover:text-rose-400 rounded text-slate-400 text-xs font-semibold transition-all`}
+            title="Đăng xuất"
+          >
+            <IconLogout size={14} className="shrink-0" />
+            {!isSidebarCollapsed && "Đăng xuất"}
           </a>
         </div>
       </aside>
@@ -396,6 +414,13 @@ export default function Administration() {
         <header className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between shrink-0 select-none z-15">
           {/* Breadcrumbs & Title */}
           <div className="flex items-center gap-2.5 text-xs text-slate-400 font-semibold">
+            <button 
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="mr-1.5 p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition-colors cursor-pointer flex items-center justify-center"
+              title={isSidebarCollapsed ? "Mở rộng menu" : "Thu gọn menu"}
+            >
+              {isSidebarCollapsed ? <IconChevronRight size={16} /> : <IconChevronLeft size={16} />}
+            </button>
             <a href="/workspace-selection" className="hover:text-slate-600 transition-colors p-1 hover:bg-slate-50 rounded">
               <IconHome size={15} />
             </a>

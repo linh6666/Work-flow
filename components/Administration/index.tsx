@@ -248,51 +248,23 @@ export default function Administration() {
       <aside className={`${isSidebarCollapsed ? 'w-16' : 'w-64'} bg-[#111e2e] text-slate-300 flex flex-col h-full shrink-0 border-r border-white/5 select-none z-20 transition-all duration-300`}>
         
         {/* Workspace Brand Dropdown */}
-        <div className={`p-4 border-b border-white/5 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} hover:bg-white/5 transition-colors cursor-pointer`}>
-          <div className="flex items-center gap-3">
+        <div className={`px-0 py-2 border-b border-white/5 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} hover:bg-white/5 transition-colors cursor-pointer`}>
+          {isSidebarCollapsed ? (
             <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white font-extrabold flex items-center justify-center text-lg shadow-md shadow-emerald-500/15 shrink-0">
               Q
             </div>
-            {!isSidebarCollapsed && (
-              <div className="text-left">
-                <h2 className="font-extrabold text-sm text-white tracking-tight">QLT_CNTT</h2>
-                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
-                  <span className="flex items-center gap-0.5">
-                    <IconFolder size={11} /> 12
-                  </span>
-                  <span className="flex items-center gap-0.5">
-                    <IconUsers size={11} /> 11
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-          {!isSidebarCollapsed && <IconChevronDown size={16} className="text-slate-400" />}
+          ) : (
+            <Image 
+              src="/logo/logo1.png" 
+              alt="Logo WorkFlow" 
+              width={560} 
+              height={140} 
+              className="h-[240px] w-full object-contain -my-[85px] scale-115" 
+              priority 
+            />
+          )}
         </div>
 
-        {/* Create Buttons & Quick Search Row */}
-        <div className={`px-4 py-3 flex ${isSidebarCollapsed ? 'flex-col gap-3 items-center' : 'gap-2'} border-b border-white/5`}>
-          <button 
-            onClick={() => setIsProjectModalOpen(true)}
-            className={`flex items-center justify-center gap-1.5 py-2 ${isSidebarCollapsed ? 'w-8 h-8 rounded-full px-0' : 'flex-1 px-3 rounded-lg'} bg-gradient-to-r from-sky-400 to-blue-500 text-white text-[11px] font-bold shadow-md shadow-sky-500/10 hover:opacity-95 active:scale-95 transition-all cursor-pointer`}
-            title="Tạo dự án"
-          >
-            <IconPlus size={14} stroke={3} />
-            {!isSidebarCollapsed && "Tạo dự án"}
-          </button>
-          
-          <button 
-            onClick={() => {
-              setSelectedColumnForNewTask('reprocess');
-              setIsTaskModalOpen(true);
-            }}
-            className={`flex items-center justify-center gap-1.5 py-2 ${isSidebarCollapsed ? 'w-8 h-8 rounded-full px-0' : 'flex-1 px-3 rounded-lg'} bg-white/10 hover:bg-white/15 text-slate-200 border border-white/10 active:scale-95 transition-all cursor-pointer`}
-            title="Tạo việc"
-          >
-            <IconPlus size={14} />
-            {!isSidebarCollapsed && "Tạo việc"}
-          </button>
-        </div>
 
         {/* Projects Navigation List */}
         <div className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin scrollbar-thumb-white/10">

@@ -250,15 +250,8 @@ export default function Administration() {
         {/* Workspace Brand Dropdown */}
         <div className={`px-0 py-2 border-b border-white/5 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} hover:bg-white/5 transition-colors cursor-pointer`}>
           {isSidebarCollapsed ? (
-            <div className="w-10 h-10 relative overflow-hidden rounded-xl flex items-center justify-center shrink-0">
-              <Image 
-                src="/logo/logo1.png" 
-                alt="Logo WorkFlow Icon" 
-                width={560} 
-                height={140} 
-                className="h-[120px] w-auto max-w-none object-cover object-left -my-[40px] -ml-[8px] scale-110" 
-                priority 
-              />
+            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white font-extrabold flex items-center justify-center text-lg shadow-md shadow-emerald-500/15 shrink-0">
+              Q
             </div>
           ) : (
             <Image 
@@ -275,11 +268,11 @@ export default function Administration() {
 
         {/* Projects Navigation List */}
         <div className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin scrollbar-thumb-white/10">
-          {!isSidebarCollapsed && (
+          {/* {!isSidebarCollapsed && (
             <div className="px-2 pb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
               <span>Dự án của bạn ({projects.length})</span>
             </div>
-          )}
+          )} */}
 
           {projects.map((proj) => {
             const isProjectActive = proj.id === activeProjectId;
@@ -364,6 +357,16 @@ export default function Administration() {
 
         {/* Footer Area */}
         <div className="p-3 border-t border-white/5 space-y-2">
+          <div className={`flex items-center gap-2.5 ${isSidebarCollapsed ? 'justify-center p-1' : 'px-2 py-1'} bg-white/5 border border-white/10 rounded-lg`}>
+            <div className="w-5.5 h-5.5 rounded-full bg-sky-400/20 border border-sky-400/30 flex items-center justify-center text-[10px] font-bold text-sky-300 shrink-0">
+              L
+            </div>
+            {!isSidebarCollapsed && (
+              <span className="text-[11px] font-semibold text-slate-300 truncate">
+                lecongchien247
+              </span>
+            )}
+          </div>
 
           <a 
             href="/workspace-selection" 

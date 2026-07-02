@@ -357,7 +357,7 @@ export default function Administration() {
 
         {/* Footer Area */}
         <div className="p-3 border-t border-white/5 space-y-2">
-          <div className={`flex items-center gap-2.5 ${isSidebarCollapsed ? 'justify-center p-1' : 'px-2 py-1'} bg-white/5 border border-white/10 rounded-lg`}>
+          {/* <div className={`flex items-center gap-2.5 ${isSidebarCollapsed ? 'justify-center p-1' : 'px-2 py-1'} bg-white/5 border border-white/10 rounded-lg`}>
             <div className="w-5.5 h-5.5 rounded-full bg-sky-400/20 border border-sky-400/30 flex items-center justify-center text-[10px] font-bold text-sky-300 shrink-0">
               L
             </div>
@@ -366,7 +366,7 @@ export default function Administration() {
                 lecongchien247
               </span>
             )}
-          </div>
+          </div> */}
 
           <a 
             href="/workspace-selection" 

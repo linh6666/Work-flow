@@ -29,7 +29,8 @@ import {
   IconHelp,
   IconNews,
   IconBug,
-  IconTrash
+  IconTrash,
+  IconBell
 } from '@tabler/icons-react';
 
 interface Project {
@@ -248,21 +249,15 @@ export default function Administration() {
       <aside className={`${isSidebarCollapsed ? 'w-16' : 'w-64'} bg-[#111e2e] text-slate-300 flex flex-col h-full shrink-0 border-r border-white/5 select-none z-20 transition-all duration-300`}>
         
         {/* Workspace Brand Dropdown */}
-        <div className={`px-0 py-2 border-b border-white/5 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} hover:bg-white/5 transition-colors cursor-pointer`}>
-          {isSidebarCollapsed ? (
-            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white font-extrabold flex items-center justify-center text-lg shadow-md shadow-emerald-500/15 shrink-0">
-              Q
-            </div>
-          ) : (
-            <Image 
-              src="/logo/logo1.png" 
-              alt="Logo WorkFlow" 
-              width={560} 
-              height={140} 
-              className="h-[240px] w-full object-contain -my-[85px] scale-115" 
-              priority 
-            />
-          )}
+        <div className={`px-0 py-2 border-b border-white/5 flex items-center justify-center hover:bg-white/5 transition-colors cursor-pointer`}>
+          <Image 
+            src="/logo/logo1.png" 
+            alt="Logo WorkFlow" 
+            width={560} 
+            height={140} 
+            className="h-[240px] w-full object-contain -my-[85px] scale-115" 
+            priority 
+          />
         </div>
 
 
@@ -362,8 +357,8 @@ export default function Administration() {
               L
             </div>
             {!isSidebarCollapsed && (
-              <span className="text-[11px] font-semibold text-slate-300 truncate">
-                lecongchien247
+              <span className="text-[11px] font-semibold text-slate-300 truncate" title="lecongchien2472002@gmail.com">
+                lecongchien2472002@gmail.com
               </span>
             )}
           </div> */}
@@ -406,12 +401,14 @@ export default function Administration() {
 
           {/* Controls & Nav */}
           <div className="flex items-center gap-4">
+            {/* Ẩn Bản tin theo yêu cầu
             <button className="flex items-center gap-1.5 text-xs text-indigo-600 font-bold px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full hover:bg-indigo-100/50 transition-all cursor-pointer">
               <IconNews size={13} />
               Bản tin
             </button>
+            */}
 
-            {/* Global Search */}
+            {/* Ẩn Tìm kiếm toàn cục theo yêu cầu
             <div className="relative w-44 md:w-56 group">
               <input 
                 type="text" 
@@ -420,23 +417,31 @@ export default function Administration() {
               />
               <IconSearch size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-500 transition-colors" />
             </div>
+            */}
 
             {/* Icons */}
             <div className="flex items-center gap-1 text-slate-400">
+              {/* Ẩn Hướng dẫn (?) và Giao diện theo yêu cầu
               <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Hướng dẫn">
                 <IconHelp size={16} />
               </button>
               <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Giao diện">
                 <IconSun size={16} />
               </button>
-              <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Cấu hình">
-                <IconSettings size={16} />
+              */}
+              <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Thông báo">
+                <IconBell size={16} />
               </button>
             </div>
 
-            {/* User Avatar Stack */}
-            <div className="w-8 h-8 rounded-full border border-sky-400 bg-sky-100 text-sky-800 font-bold flex items-center justify-center text-xs select-none">
-              L
+            {/* User Account Button/Pill */}
+            <div className="flex items-center gap-2 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100/50 transition-all cursor-pointer">
+              <div className="w-5.5 h-5.5 rounded-full bg-sky-400/20 border border-sky-400/30 flex items-center justify-center text-[10px] font-bold text-sky-600 shrink-0">
+                L
+              </div>
+              <span className="text-[11px] font-semibold text-slate-600 truncate max-w-[180px] hidden sm:inline-block" title="lecongchien2472002@gmail.com">
+                lecongchien2472002@gmail.com
+              </span>
             </div>
           </div>
         </header>

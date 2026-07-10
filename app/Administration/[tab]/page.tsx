@@ -13,8 +13,9 @@ export const metadata: Metadata = {
   description: "Bảng quản lý công việc (Kanban Board) và các phân hệ quản lý dự án.",
 };
 
-export default function AdministrationTabPage({ params }: { params: { tab: string } }) {
-  const tab = params.tab;
+export default async function AdministrationTabPage({ params }: { params: Promise<{ tab: string }> }) {
+  const resolvedParams = await params;
+  const tab = resolvedParams.tab;
 
   switch (tab) {
     case 'tong-quan':

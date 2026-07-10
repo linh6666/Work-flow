@@ -149,7 +149,7 @@ export default function AdministrationLayout({ children }: { children: React.Rea
 
           <a 
             href="/workspace-selection" 
-            className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center py-2' : 'gap-2 px-2 py-1.5'} hover:bg-rose-50 hover:text-rose-500 rounded text-slate-500 text-xs font-semibold transition-all`}
+            className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center py-2' : 'gap-2 px-2 py-1.5'} hover:bg-[#BB8D38]/10 hover:text-[#BB8D38] rounded text-slate-500 text-xs font-semibold transition-all`}
             title="Đăng xuất"
           >
             <IconLogout size={14} className="shrink-0" />
@@ -172,11 +172,11 @@ export default function AdministrationLayout({ children }: { children: React.Rea
             >
               {isSidebarCollapsed ? <IconChevronRight size={16} /> : <IconChevronLeft size={16} />}
             </button>
-            <a href="/workspace-selection" className="hover:text-slate-600 transition-colors p-1 hover:bg-slate-50 rounded">
+            {/* <a href="" className="hover:text-slate-600 transition-colors p-1 hover:bg-slate-50 rounded">
               <IconHome size={15} />
-            </a>
-            <span>/</span>
-            <span>Dự án</span>
+            </a> */}
+            {/* <span>/</span> */}
+            <span>Trang</span>
             <span>/</span>
             <span className="text-slate-800 font-bold bg-slate-100 px-2 py-0.5 rounded-md">
               {currentMenuItem.name}

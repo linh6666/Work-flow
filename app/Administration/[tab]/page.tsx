@@ -7,6 +7,7 @@ import BaoGia from "../../../components/Administration/tabs/BaoGia";
 import HopDong from "../../../components/Administration/tabs/HopDong";
 import YeuCauSanXuat from "../../../components/Administration/tabs/YeuCauSanXuat";
 import QuanTriUser from "../../../components/Administration/tabs/QuanTriUser";
+import QuanLyDuAn from "../../../components/Administration/tabs/QuanLyDuAn";
 
 export const metadata: Metadata = {
   title: "Quản lý công việc - WorkFlow",
@@ -19,8 +20,9 @@ export default async function AdministrationTabPage({ params }: { params: Promis
 
   switch (tab) {
     case 'tong-quan':
-    case 'quan-ly-du-an':
       return <TongQuan />;
+    case 'quan-ly-du-an':
+      return <QuanLyDuAn />;
     case 'khach-hang':
       return <KhachHang />;
     case 'de-xuat-bao-gia':

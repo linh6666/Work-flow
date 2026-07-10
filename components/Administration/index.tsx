@@ -30,7 +30,13 @@ import {
   IconNews,
   IconBug,
   IconTrash,
-  IconBell
+  IconBell,
+  IconFilePlus,
+  IconClipboardList,
+  IconFileText,
+  IconSignature,
+  IconBuildingFactory2,
+  IconShieldCheck
 } from '@tabler/icons-react';
 
 interface Project {
@@ -66,6 +72,21 @@ export default function Administration() {
   // State for active project & submenu item
   const [activeProjectId, setActiveProjectId] = useState<string>('web');
   const [activeSubMenu, setActiveSubMenu] = useState<'tasks' | 'process' | 'modules'>('tasks');
+  const [activeMenu, setActiveMenu] = useState<string>('tong-quan');
+
+  const menuItems = [
+    { id: 'tong-quan', name: 'Tổng quan', icon: IconLayoutGrid },
+    { id: 'khach-hang', name: 'Khách hàng', icon: IconUsers },
+    { id: 'de-xuat-bao-gia', name: 'Đề xuất Báo giá', icon: IconFilePlus },
+    { id: 'nhan-su-du-an', name: 'Nhân sự Dự án', icon: IconClipboardList },
+    { id: 'bao-gia', name: 'Báo giá', icon: IconFileText },
+    { id: 'hop-dong', name: 'Hợp đồng', icon: IconSignature },
+    { id: 'yeu-cau-san-xuat', name: 'Yêu cầu Sản xuất', icon: IconBuildingFactory2 },
+    { id: 'quan-ly-du-an', name: 'Quản lý Dự án', icon: IconFolder },
+    { id: 'quan-tri-user', name: 'Quản trị user', icon: IconShieldCheck },
+  ];
+
+  const currentMenuItem = menuItems.find(item => item.id === activeMenu) || menuItems[0];
 
   // State for Tasks
   const [tasks, setTasks] = useState<Task[]>([
@@ -249,7 +270,7 @@ export default function Administration() {
       <aside className={`${isSidebarCollapsed ? 'w-16' : 'w-64'} bg-white text-slate-700 flex flex-col h-full shrink-0 border-r border-slate-200 select-none z-20 transition-all duration-300`}>
         
         {/* Workspace Brand Dropdown */}
-        <div className={`px-0 py-2 border-b border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-colors cursor-pointer`}>
+        <div className="px-0 py-2 border-b border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-colors cursor-pointer overflow-hidden">
           <Image 
             src="/logo/MHV_VN_SOLOGAN_H.png" 
             alt="Logo WorkFlow" 
@@ -262,90 +283,30 @@ export default function Administration() {
 
 
         {/* Projects Navigation List */}
-        <div className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin scrollbar-thumb-slate-200">
-          {/* {!isSidebarCollapsed && (
-            <div className="px-2 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between">
-              <span>Dự án của bạn ({projects.length})</span>
-            </div>
-          )} */}
-
-          {projects.map((proj) => {
-            const isProjectActive = proj.id === activeProjectId;
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-2 scrollbar-thin scrollbar-thumb-slate-200">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.id === activeMenu;
             return (
-              <div key={proj.id} className="space-y-0.5">
-                {/* Project Header Row */}
-                <div 
-                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center py-2.5' : 'justify-between py-2'} px-2 rounded-lg cursor-pointer transition-all duration-150 ${
-                    isProjectActive ? 'bg-slate-100 text-slate-900 font-bold' : 'hover:bg-slate-50 text-slate-600 hover:text-slate-900'
-                  }`}
-                  onClick={() => setActiveProjectId(proj.id)}
-                  title={isSidebarCollapsed ? proj.name : undefined}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${proj.color}`} />
-                    {!isSidebarCollapsed && <span className="text-xs font-bold truncate leading-none">{proj.name}</span>}
-                  </div>
-                  {!isSidebarCollapsed && (
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleProjectCollapse(proj.id);
-                      }}
-                      className="p-0.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors"
-                    >
-                      {proj.isOpen ? <IconChevronDown size={14} /> : <IconChevronRight size={14} />}
-                    </button>
-                  )}
-                </div>
-
-                {/* Submenu items (Expanded only) */}
-                {!isSidebarCollapsed && proj.isOpen && (
-                  <div className="pl-6 pr-2 space-y-0.5 border-l border-slate-200 ml-3">
-                    <button 
-                      onClick={() => {
-                        setActiveProjectId(proj.id);
-                        setActiveSubMenu('tasks');
-                      }}
-                      className={`w-full flex items-center gap-2 py-1.5 px-2 rounded text-[11px] font-semibold text-left transition-all ${
-                        isProjectActive && activeSubMenu === 'tasks'
-                          ? 'text-sky-600 bg-sky-50'
-                          : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                    >
-                      <IconNotebook size={13} />
-                      Công việc
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setActiveProjectId(proj.id);
-                        setActiveSubMenu('process');
-                      }}
-                      className={`w-full flex items-center gap-2 py-1.5 px-2 rounded text-[11px] font-semibold text-left transition-all ${
-                        isProjectActive && activeSubMenu === 'process'
-                          ? 'text-sky-600 bg-sky-50'
-                          : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                    >
-                      <IconHierarchy size={13} />
-                      Quy trình (DEMO)
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setActiveProjectId(proj.id);
-                        setActiveSubMenu('modules');
-                      }}
-                      className={`w-full flex items-center gap-2 py-1.5 px-2 rounded text-[11px] font-semibold text-left transition-all ${
-                        isProjectActive && activeSubMenu === 'modules'
-                          ? 'text-sky-600 bg-sky-50'
-                          : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                    >
-                      <IconLayoutGrid size={13} />
-                      Modules
-                    </button>
-                  </div>
+              <button
+                key={item.id}
+                onClick={() => setActiveMenu(item.id)}
+                className={`w-full flex items-center cursor-pointer ${
+                  isSidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3.5 py-2.5'
+                } rounded-lg text-white transition-all duration-150 ${
+                  isActive 
+                    ? 'bg-[#BB8D38] font-bold shadow-sm' 
+                    : 'bg-[#406c89] hover:bg-[#BB8D38] font-semibold'
+                }`}
+                title={item.name}
+              >
+                <Icon size={16} className="shrink-0 text-white" />
+                {!isSidebarCollapsed && (
+                  <span className="text-xs tracking-wide text-left">
+                    {item.name}
+                  </span>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
@@ -395,7 +356,7 @@ export default function Administration() {
             <span>Dự án</span>
             <span>/</span>
             <span className="text-slate-800 font-bold bg-slate-100 px-2 py-0.5 rounded-md">
-              {currentProject.name}
+              {currentMenuItem.name}
             </span>
           </div>
 
@@ -450,7 +411,7 @@ export default function Administration() {
         <main className="flex-1 flex flex-col bg-slate-50 overflow-hidden">
           
           {/* Submenu Task filters toolbar (Only visible for 'tasks' submenu) */}
-          {activeSubMenu === 'tasks' && (
+          {(activeMenu === 'tong-quan' || activeMenu === 'quan-ly-du-an') && (
             <div className="bg-white border-b border-slate-100/90 py-2.5 px-6 flex flex-wrap items-center justify-between gap-3 shrink-0 select-none">
               <div className="flex items-center gap-2">
                 {/* Board selector */}
@@ -519,7 +480,7 @@ export default function Administration() {
 
           {/* Kanban Columns (Dynamic Board View) */}
           <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 select-none">
-            {activeSubMenu === 'tasks' ? (
+            {(activeMenu === 'tong-quan' || activeMenu === 'quan-ly-du-an') ? (
               <div className="flex gap-4 h-full items-start min-w-[1000px]">
                 {columns.map((col) => {
                   const colTasks = getFilteredTasks(col.key);
@@ -629,13 +590,13 @@ export default function Administration() {
               // Empty states for Demo views
               <div className="flex-1 flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4 text-slate-400 shadow-sm border border-slate-200/50">
-                  {activeSubMenu === 'process' ? <IconHierarchy size={28} /> : <IconLayoutGrid size={28} />}
+                  <IconLayoutGrid size={28} />
                 </div>
                 <h3 className="font-bold text-slate-700 text-sm">
-                  {activeSubMenu === 'process' ? 'Phân hệ Quy trình (DEMO)' : 'Phân hệ Modules'}
+                  Phân hệ {currentMenuItem.name}
                 </h3>
                 <p className="text-xs text-slate-400 max-w-sm mt-1 leading-relaxed">
-                  Giao diện cho phân hệ này đang được phát triển. Nhấp chọn mục **Công việc** ở danh mục dự án để làm việc với Kanban Board.
+                  Giao diện cho phân hệ **{currentMenuItem.name}** đang được phát triển. Nhấp chọn mục **Tổng quan** hoặc **Quản lý Dự án** ở danh mục dự án để làm việc với Kanban Board.
                 </p>
               </div>
             )}

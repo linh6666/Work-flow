@@ -25,24 +25,27 @@ export default function TongQuan() {
   };
 
   return (
-    <div className="flex-1 bg-[#fafbfc] overflow-y-auto px-8 py-6 select-none">
-      {/* HEADER SECTION */}
-      <div className="mb-8">
-        <h1 className="text-xl font-bold text-slate-800">Tổng quan</h1>
-        <p className="text-xs text-slate-500 mt-1 font-medium">
-          Chào mừng đến Mô Hình Việt — Hệ thống quản lý kinh doanh
-        </p>
-      </div>
+    <div className="flex-1 flex flex-col bg-[#fafbfc] overflow-hidden select-none">
+      {/* STICKY HEADER SECTION */}
+      <div className="sticky top-0 z-10 bg-[#fafbfc] px-8 pt-6 pb-4 border-b border-slate-100 shrink-0">
+  <h1 className="text-3xl font-bold text-slate-800">Tổng quan</h1>
+  <p className="text-base text-slate-500 mt-2 font-medium">
+    Chào mừng đến Mô Hình Việt — Hệ thống quản lý kinh doanh
+  </p>
+</div>
+
+      {/* SCROLLABLE CONTENT */}
+      <div className="flex-1 overflow-y-auto px-8 py-6">
 
       <div className="space-y-8 max-w-6xl">
         {/* CATEGORY 1: KINH DOANH */}
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <IconBriefcase size={16} className="text-[#BB8D38]" />
-            <h2 className="text-[11px] font-black tracking-wider uppercase text-[#BB8D38]">
-              KINH DOANH
-            </h2>
-          </div>
+         <div className="flex items-center gap-3 mb-4">
+  <IconBriefcase size={24} className="text-[#BB8D38]" />
+  <h2 className="text-lg font-black tracking-wider uppercase text-[#BB8D38]">
+    KINH DOANH
+  </h2>
+</div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {/* Card: Khách hàng */}
@@ -108,7 +111,7 @@ export default function TongQuan() {
               </div>
               <div>
                 <span className="text-xs font-semibold text-slate-400 block mb-1">Tổng giá trị HĐ</span>
-                <span className="text-2xl font-black text-slate-800">2.32 Tỷ</span>
+                <span className="text-2xl font-black text-[#453AD4]">2.32 Tỷ</span>
               </div>
             </div>
           </div>
@@ -116,12 +119,12 @@ export default function TongQuan() {
 
         {/* CATEGORY 2: HÀNH CHÍNH */}
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <IconReportMoney size={16} className="text-indigo-600" />
-            <h2 className="text-[11px] font-black tracking-wider uppercase text-indigo-600">
-              HÀNH CHÍNH
-            </h2>
-          </div>
+         <div className="flex items-center gap-3 mb-4">
+  <IconReportMoney size={24} className="text-indigo-600" />
+  <h2 className="text-lg font-black tracking-wider uppercase text-indigo-600">
+    HÀNH CHÍNH
+  </h2>
+</div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {/* Card: Quản lý Tài chính */}
@@ -136,21 +139,22 @@ export default function TongQuan() {
               </div>
               <div className="mb-2">
                 <span className="text-xs font-semibold text-slate-400 block mb-1">Quản lý Tài chính</span>
-                <span className="text-2xl font-black text-slate-400">-</span>
+                {/* <span className="text-2xl font-black text-emerald-500">-</span> */}
+                <span className="text-2xl font-black text-emerald-500">──</span>
               </div>
-              <div className="absolute bottom-0 left-5 right-5 h-1 bg-emerald-500 rounded-t-full" />
+{/* <div className="absolute bottom-0 left-0 w-1/2 h-1 bg-emerald-500 rounded-t-full" /> */}
             </div>
           </div>
         </div>
 
         {/* CATEGORY 3: QUẢN LÝ DỰ ÁN */}
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <IconCompass size={16} className="text-fuchsia-600" />
-            <h2 className="text-[11px] font-black tracking-wider uppercase text-fuchsia-600">
-              QUẢN LÝ DỰ ÁN
-            </h2>
-          </div>
+        <div className="flex items-center gap-3 mb-4">
+  <IconCompass size={24} className="text-fuchsia-600" />
+  <h2 className="text-lg font-black tracking-wider uppercase text-fuchsia-600">
+    QUẢN LÝ DỰ ÁN
+  </h2>
+</div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {/* Card: Dự án */}
@@ -183,9 +187,9 @@ export default function TongQuan() {
               </div>
               <div className="mb-2">
                 <span className="text-xs font-semibold text-slate-400 block mb-1">Nhân sự Dự án</span>
-                <span className="text-2xl font-black text-slate-400">-</span>
+  <span className="text-2xl font-black text-indigo-500">──</span>
               </div>
-              <div className="absolute bottom-0 left-5 right-5 h-1 bg-indigo-500 rounded-t-full" />
+              {/* <div className="absolute bottom-0 left-5 right-5 h-1 bg-indigo-500 rounded-t-full" /> */}
             </div>
           </div>
         </div>
@@ -349,10 +353,8 @@ export default function TongQuan() {
             </div>
           </div>
         </div>
-
-        {/* QUICK ACTIONS ACTION BAR */}
-       
-      </div>
+      </div>  {/* end space-y-8 max-w-6xl */}
+      </div>  {/* end scrollable content */}
     </div>
   );
 }

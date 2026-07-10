@@ -246,12 +246,12 @@ export default function Administration() {
     <div className="flex h-screen w-screen bg-slate-50 font-sans overflow-hidden text-slate-800 antialiased">
       
       {/* 1. LEFT SIDEBAR */}
-      <aside className={`${isSidebarCollapsed ? 'w-16' : 'w-64'} bg-[#111e2e] text-slate-300 flex flex-col h-full shrink-0 border-r border-white/5 select-none z-20 transition-all duration-300`}>
+      <aside className={`${isSidebarCollapsed ? 'w-16' : 'w-64'} bg-white text-slate-700 flex flex-col h-full shrink-0 border-r border-slate-200 select-none z-20 transition-all duration-300`}>
         
         {/* Workspace Brand Dropdown */}
-        <div className={`px-0 py-2 border-b border-white/5 flex items-center justify-center hover:bg-white/5 transition-colors cursor-pointer`}>
+        <div className={`px-0 py-2 border-b border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-colors cursor-pointer`}>
           <Image 
-            src="/logo/logo1.png" 
+            src="/logo/MHV_VN_SOLOGAN_H.png" 
             alt="Logo WorkFlow" 
             width={560} 
             height={140} 
@@ -262,9 +262,9 @@ export default function Administration() {
 
 
         {/* Projects Navigation List */}
-        <div className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin scrollbar-thumb-white/10">
+        <div className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin scrollbar-thumb-slate-200">
           {/* {!isSidebarCollapsed && (
-            <div className="px-2 pb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+            <div className="px-2 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between">
               <span>Dự án của bạn ({projects.length})</span>
             </div>
           )} */}
@@ -276,7 +276,7 @@ export default function Administration() {
                 {/* Project Header Row */}
                 <div 
                   className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center py-2.5' : 'justify-between py-2'} px-2 rounded-lg cursor-pointer transition-all duration-150 ${
-                    isProjectActive ? 'bg-white/5 text-white' : 'hover:bg-white/5 text-slate-400 hover:text-slate-200'
+                    isProjectActive ? 'bg-slate-100 text-slate-900 font-bold' : 'hover:bg-slate-50 text-slate-600 hover:text-slate-900'
                   }`}
                   onClick={() => setActiveProjectId(proj.id)}
                   title={isSidebarCollapsed ? proj.name : undefined}
@@ -291,7 +291,7 @@ export default function Administration() {
                         e.stopPropagation();
                         toggleProjectCollapse(proj.id);
                       }}
-                      className="p-0.5 hover:bg-white/10 rounded text-slate-500 hover:text-slate-300 transition-colors"
+                      className="p-0.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors"
                     >
                       {proj.isOpen ? <IconChevronDown size={14} /> : <IconChevronRight size={14} />}
                     </button>
@@ -300,7 +300,7 @@ export default function Administration() {
 
                 {/* Submenu items (Expanded only) */}
                 {!isSidebarCollapsed && proj.isOpen && (
-                  <div className="pl-6 pr-2 space-y-0.5 border-l border-white/5 ml-3">
+                  <div className="pl-6 pr-2 space-y-0.5 border-l border-slate-200 ml-3">
                     <button 
                       onClick={() => {
                         setActiveProjectId(proj.id);
@@ -308,8 +308,8 @@ export default function Administration() {
                       }}
                       className={`w-full flex items-center gap-2 py-1.5 px-2 rounded text-[11px] font-semibold text-left transition-all ${
                         isProjectActive && activeSubMenu === 'tasks'
-                          ? 'text-sky-400 bg-sky-500/10'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'text-sky-600 bg-sky-50'
+                          : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
                       <IconNotebook size={13} />
@@ -322,8 +322,8 @@ export default function Administration() {
                       }}
                       className={`w-full flex items-center gap-2 py-1.5 px-2 rounded text-[11px] font-semibold text-left transition-all ${
                         isProjectActive && activeSubMenu === 'process'
-                          ? 'text-sky-400 bg-sky-500/10'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'text-sky-600 bg-sky-50'
+                          : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
                       <IconHierarchy size={13} />
@@ -336,8 +336,8 @@ export default function Administration() {
                       }}
                       className={`w-full flex items-center gap-2 py-1.5 px-2 rounded text-[11px] font-semibold text-left transition-all ${
                         isProjectActive && activeSubMenu === 'modules'
-                          ? 'text-sky-400 bg-sky-500/10'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'text-sky-600 bg-sky-50'
+                          : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
                       <IconLayoutGrid size={13} />
@@ -351,7 +351,7 @@ export default function Administration() {
         </div>
 
         {/* Footer Area */}
-        <div className="p-3 border-t border-white/5 space-y-2">
+        <div className="p-3 border-t border-slate-100 space-y-2">
           {/* <div className={`flex items-center gap-2.5 ${isSidebarCollapsed ? 'justify-center p-1' : 'px-2 py-1'} bg-white/5 border border-white/10 rounded-lg`}>
             <div className="w-5.5 h-5.5 rounded-full bg-sky-400/20 border border-sky-400/30 flex items-center justify-center text-[10px] font-bold text-sky-300 shrink-0">
               L
@@ -365,7 +365,7 @@ export default function Administration() {
 
           <a 
             href="/workspace-selection" 
-            className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center py-2' : 'gap-2 px-2 py-1.5'} hover:bg-rose-500/10 hover:text-rose-400 rounded text-slate-400 text-xs font-semibold transition-all`}
+            className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center py-2' : 'gap-2 px-2 py-1.5'} hover:bg-rose-50 hover:text-rose-500 rounded text-slate-500 text-xs font-semibold transition-all`}
             title="Đăng xuất"
           >
             <IconLogout size={14} className="shrink-0" />

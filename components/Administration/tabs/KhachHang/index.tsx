@@ -2,10 +2,12 @@
 
 import React, { useState } from 'react';
 import ThemKhachHangModal from './modal/ThemKhachHangModal';
+import SuaKhachHangModal from './modal-sua/SuaKhachHangModal';
+import XoaKhachHangModal from './modal-xoa/XoaKhachHangModal';
 import {
   IconPlus,
   IconSearch,
-  IconPencil,
+  IconEdit,
   IconTrash,
   IconPhone,
   IconFileText,
@@ -142,6 +144,8 @@ export default function KhachHang() {
   const [sortKey, setSortKey] = useState<SortKey>(null);
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<KhachHangItem | null>(null);
+  const [deletingCustomer, setDeletingCustomer] = useState<KhachHangItem | null>(null);
 
   const total = customers.length;
   const dangGiaoDich = 0;
@@ -161,9 +165,13 @@ export default function KhachHang() {
     setCustomers(prev => [{ id: nextId, ...newKh }, ...prev]);
   };
 
-  const handleDeleteCustomer = (id: string) => {
-    if (confirm('Bạn có chắc chắn muốn xóa khách hàng này không?')) {
-      setCustomers(prev => prev.filter(c => c.id !== id));
+  const handleUpdateCustomer = (updatedKh: KhachHangItem) => {
+    setCustomers(prev => prev.map(c => c.id === updatedKh.id ? updatedKh : c));
+  };
+
+  const handleDeleteCustomer = () => {
+    if (deletingCustomer) {
+      setCustomers(prev => prev.filter(c => c.id !== deletingCustomer.id));
     }
   };
 
@@ -330,13 +338,14 @@ export default function KhachHang() {
                         <span className="text-slate-700 font-medium">{kh.nguoiLienHe || '—'}</span>
                         <div className="flex items-center gap-1">
                           <button
+                            onClick={() => setEditingCustomer(kh)}
                             className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
                             title="Chỉnh sửa"
                           >
-                            <IconPencil size={16} />
+                            <IconEdit stroke={2} size={16} />
                           </button>
                            <button
-                            onClick={() => handleDeleteCustomer(kh.id)}
+                            onClick={() => setDeletingCustomer(kh)}
                             className="p-1.5 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 cursor-pointer transition-colors"
                             title="Xóa"
                           >
@@ -409,6 +418,20 @@ export default function KhachHang() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveCustomer}
         suggestedMa={getSuggestedMa()}
+      />
+
+      <SuaKhachHangModal
+        isOpen={editingCustomer !== null}
+        onClose={() => setEditingCustomer(null)}
+        onSave={handleUpdateCustomer}
+        customer={editingCustomer}
+      />
+
+      <XoaKhachHangModal
+        isOpen={deletingCustomer !== null}
+        onClose={() => setDeletingCustomer(null)}
+        onConfirm={handleDeleteCustomer}
+        customerName={deletingCustomer?.ten || ''}
       />
     </div>
   );

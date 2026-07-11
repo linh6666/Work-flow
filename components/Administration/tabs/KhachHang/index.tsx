@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import ThemKhachHangModal from './modal/ThemKhachHangModal';
 import SuaKhachHangModal from './modal-sua/SuaKhachHangModal';
 import XoaKhachHangModal from './modal-xoa/XoaKhachHangModal';
+import LapDxbgModal from './modal-dxbg/LapDxbgModal';
 import {
   IconPlus,
   IconSearch,
@@ -110,10 +111,11 @@ function Avatar({ name }: { name: string }) {
   );
 }
 
-function ActionButtons() {
+function ActionButtons({ onLapDxbg }: { onLapDxbg: () => void }) {
   return (
     <div className="flex flex-wrap items-center justify-end gap-1.5">
       <button
+        onClick={onLapDxbg}
         className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-all whitespace-nowrap cursor-pointer"
         title="Lập Đề xuất Báo giá"
       >
@@ -146,6 +148,7 @@ export default function KhachHang() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<KhachHangItem | null>(null);
   const [deletingCustomer, setDeletingCustomer] = useState<KhachHangItem | null>(null);
+  const [selectedDxbgCustomer, setSelectedDxbgCustomer] = useState<KhachHangItem | null>(null);
 
   const total = customers.length;
   const dangGiaoDich = 0;
@@ -395,7 +398,7 @@ export default function KhachHang() {
 
                     {/* Thao tác */}
                     <td className="px-4 py-3">
-                      <ActionButtons />
+                      <ActionButtons onLapDxbg={() => setSelectedDxbgCustomer(kh)} />
                     </td>
                   </tr>
                 ))}
@@ -432,6 +435,16 @@ export default function KhachHang() {
         onClose={() => setDeletingCustomer(null)}
         onConfirm={handleDeleteCustomer}
         customerName={deletingCustomer?.ten || ''}
+      />
+
+      <LapDxbgModal
+        isOpen={selectedDxbgCustomer !== null}
+        onClose={() => setSelectedDxbgCustomer(null)}
+        onSave={(data) => {
+          console.log("Saved proposal:", data);
+        }}
+        customer={selectedDxbgCustomer}
+        customers={customers}
       />
     </div>
   );

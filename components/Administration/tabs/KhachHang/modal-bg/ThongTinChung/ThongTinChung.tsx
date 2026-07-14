@@ -23,6 +23,23 @@ interface ThongTinChungProps {
   customers: KhachHangItem[];
 }
 
+const inputClass =
+  'h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-xs outline-none transition focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100';
+
+const labelClass = 'mb-1.5 block text-xs font-medium text-slate-900';
+
+const statusOptions = [
+  'Bản nháp',
+  'Đã gửi',
+  'Đang theo dõi',
+  'Đang bổ sung thông tin',
+  'Đang đàm phán',
+  'Tạm dừng',
+  'Đã chốt',
+  'Từ chối báo giá',
+  'Không thực hiện',
+];
+
 export default function ThongTinChung({
   soBaoGia,
   setSoBaoGia,
@@ -45,146 +62,213 @@ export default function ThongTinChung({
   customers = [],
 }: ThongTinChungProps) {
   return (
-    <div className="space-y-6 tab-content-active bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-xl">
-      {/* Banner Section */}
-      <div className="bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl py-4.5 px-6 text-center select-none shadow-sm bg-opacity-80 backdrop-blur-md">
-        <h4 className="text-lg font-extrabold tracking-wider">BẢNG BÁO GIÁ CHI TIẾT</h4>
-        <p className="text-[10px] text-amber-100 font-bold tracking-widest mt-0.5 uppercase">Official Quotation</p>
+    <section className="tab-content-active overflow-hidden rounded-lg border border-slate-200 bg-slate-50 text-left shadow-xs">
+      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
+        <h4 className="text-sm font-bold text-slate-950">Thông tin chung</h4>
+        <span className="text-lg leading-none text-slate-400">⌃</span>
       </div>
 
-      {/* General Info Row */}
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
-            Số báo giá / Quotation No. *
+      <div className="space-y-4 p-4">
+        <div className="rounded-md border border-indigo-200 bg-indigo-50/60 p-3">
+          <label className="mb-2 block text-xs font-semibold text-indigo-700">
+            Ngôn ngữ báo giá *
           </label>
-          <input 
-            type="text" 
-            required
-            value={soBaoGia}
-            onChange={(e) => setSoBaoGia(e.target.value)}
-            className="w-full text-sm bg-white/30 backdrop-blur-md border border-white/30 rounded-lg px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-amber-400 transition-colors duration-200"
-          />
-        </div>
-        
-        <div>
-          <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
-            Ngày báo giá / Date *
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              className="h-9 rounded-md bg-indigo-700 text-xs font-bold text-white shadow-sm"
+            >
+              <span className="mr-1 text-[9px] font-extrabold">VN</span>Tiếng Việt
+            </button>
+            <button
+              type="button"
+              className="h-9 rounded-md border border-slate-200 bg-white text-xs font-semibold text-slate-500"
+            >
+              <span className="mr-1 text-[9px] font-extrabold">GB</span>Tiếng Anh
+            </button>
+            <button
+              type="button"
+              className="h-9 rounded-md border border-slate-200 bg-white text-xs font-semibold text-slate-500"
+            >
+              <span className="mr-1 text-[9px] font-extrabold">VNGB</span>Việt - Anh
+            </button>
+          </div>
+
+          <label className="mb-2 mt-3 block text-xs font-semibold text-indigo-700">
+            Loại báo giá *
           </label>
-          <input 
-            type="date" 
-            required
-            value={ngay}
-            onChange={(e) => setNgay(e.target.value)}
-            className="w-full text-sm bg-white/30 backdrop-blur-md border border-white/30 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-1 focus:ring-amber-400 cursor-pointer transition-colors duration-200"
-          />
+          <div className="relative">
+            <select className={`${inputClass} appearance-none pr-9 font-medium`}>
+              <option>Báo giá Mô hình Quy hoạch</option>
+              <option>Báo giá Mô hình Kiến trúc</option>
+              <option>Báo giá Mô hình Nội thất</option>
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-400">
+             ⌄
+            </span>
+          </div>
+          <p className="mt-2 text-xs text-indigo-600">
+            Chỉ hiển thị mẫu hỗ trợ ngôn ngữ Tiếng Việt
+          </p>
         </div>
 
-        <div>
-          <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
-            Hạn hiệu lực / Validity *
+        <div className="rounded-md border border-amber-300 bg-amber-50/50 p-3">
+          <label className="mb-2 block text-xs font-semibold text-amber-700">
+            Liên kết Đề xuất Báo giá (tùy chọn)
           </label>
-          <input 
-            type="date" 
-            required
-            value={hanHieuLuc}
-            onChange={(e) => setHanHieuLuc(e.target.value)}
-            className="w-full text-sm bg-white/30 backdrop-blur-md border border-white/30 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-1 focus:ring-amber-400 cursor-pointer transition-colors duration-200"
-          />
-        </div>
-      </div>
-
-      {/* CRM Customer Info Box */}
-      <div className="border border-amber-100 bg-amber-50/20 p-4 rounded-xl space-y-4">
-        <div className="flex items-center justify-between">
-          <label className="block text-[12px] font-bold text-amber-700 uppercase tracking-wide">
-            Khách hàng liên kết (CRM)
-          </label>
-          <span className="text-[11px] font-medium text-slate-400">Chọn khách hàng từ danh sách của bạn</span>
-        </div>
-        <div className="relative">
-          <select
-            value={selectedCustomerId}
-            onChange={(e) => handleCustomerChange(e.target.value)}
-            className="w-full text-sm bg-white/30 backdrop-blur-md border border-white/30 rounded-lg px-3.5 py-2 text-slate-800 font-medium appearance-none focus:outline-none focus:ring-1 focus:ring-amber-400 cursor-pointer transition-colors duration-200"
-          >
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                [{c.ma}] {c.ten}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
-            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-            </svg>
+          <div className="relative">
+            <select className={`${inputClass} appearance-none pr-9 text-slate-500`}>
+              <option>Chọn đề xuất để tự điền thông tin...</option>
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-400">
+             ⌄
+            </span>
           </div>
         </div>
 
-        {/* Dynamic Customer Contact Fields */}
-        <div className="grid grid-cols-2 gap-4 pt-1">
+        <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-              Đơn vị liên hệ *
-            </label>
-            <input 
-              type="text" 
+            <label className={labelClass}>Số báo giá * (tự động)</label>
+            <input
+              type="text"
+              required
+              value={soBaoGia}
+              onChange={(e) => setSoBaoGia(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Ngày báo giá</label>
+            <input
+              type="date"
+              required
+              value={ngay}
+              onChange={(e) => setNgay(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Hiệu lực</label>
+            <input
+              type="date"
+              required
+              value={hanHieuLuc}
+              onChange={(e) => setHanHieuLuc(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelClass}>Khách hàng</label>
+            <div className="relative">
+              <select
+                value={selectedCustomerId}
+                onChange={(e) => handleCustomerChange(e.target.value)}
+                className={`${inputClass} appearance-none pr-9`}
+              >
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.ten}
+                  </option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-400">
+                ⌄
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label className={labelClass}>Tên khách hàng (nhập tay nếu chưa có) *</label>
+            <input
+              type="text"
               required
               value={donViLienHe}
               onChange={(e) => setDonViLienHe(e.target.value)}
-              className="w-full text-xs bg-white/30 backdrop-blur-md border border-white/30 rounded-md px-3 py-1.5 text-slate-800"
-            />
-          </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-              Người liên hệ
-            </label>
-            <input 
-              type="text" 
-              value={nguoiLienHe}
-              onChange={(e) => setNguoiLienHe(e.target.value)}
-              className="w-full text-xs bg-white/30 backdrop-blur-md border border-white/30 rounded-md px-3 py-1.5 text-slate-800"
-            />
-          </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-              Điện thoại liên hệ
-            </label>
-            <input 
-              type="text" 
-              value={dienThoai}
-              onChange={(e) => setDienThoai(e.target.value)}
-              className="w-full text-xs bg-white/30 backdrop-blur-md border border-white/30 rounded-md px-3 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-400 transition-colors duration-200"
-            />
-          </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-              Email liên hệ
-            </label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full text-xs bg-white/30 backdrop-blur-md border border-white/30 rounded-md px-3 py-1.5 text-slate-800"
+              className={inputClass}
             />
           </div>
         </div>
-      </div>
 
-      {/* Project Name */}
-      <div>
-        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
-          Tên mô hình / dự án *
-        </label>
-        <input 
-          type="text" 
-          required
-          placeholder="Nhập tên dự án cần báo giá (VD: Mô hình dự án River Panorama)"
-          value={tenDuAn}
-          onChange={(e) => setTenDuAn(e.target.value)}
-          className="w-full text-sm bg-white/30 backdrop-blur-md border border-white/30 rounded-lg px-3.5 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-400 transition-colors duration-200 font-medium"
-        />
+        <div>
+          <label className={labelClass}>Tên mô hình / dự án *</label>
+          <input
+            type="text"
+            required
+            placeholder="MÔ HÌNH DỰ ÁN..."
+            value={tenDuAn}
+            onChange={(e) => setTenDuAn(e.target.value)}
+            className={`${inputClass} uppercase placeholder:text-slate-400`}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelClass}>Tỷ lệ</label>
+            <input type="text" placeholder="1/800" className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>Kích thước</label>
+            <input type="text" placeholder="2650X1900MM" className={inputClass} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className={labelClass}>Người liên hệ</label>
+            <input
+              type="text"
+              value={nguoiLienHe}
+              onChange={(e) => setNguoiLienHe(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Điện thoại</label>
+            <input
+              type="text"
+              value={dienThoai}
+              onChange={(e) => setDienThoai(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+        </div>
+
+        <div className="rounded-md border border-slate-200 bg-white p-3">
+          <label className="mb-2 block text-xs font-bold text-slate-900">
+            Trạng thái theo dõi
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {statusOptions.map((status, index) => (
+              <button
+                key={status}
+                type="button"
+                className={`h-8 rounded-md border px-3 text-left text-xs font-medium ${
+                  index === 0
+                    ? 'border-slate-700 bg-slate-50 text-slate-800 ring-1 ring-slate-700'
+                    : 'border-slate-200 bg-white text-slate-600'
+                }`}
+              >
+                {index === 0 ? '✓ ' : ''}
+                {status}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

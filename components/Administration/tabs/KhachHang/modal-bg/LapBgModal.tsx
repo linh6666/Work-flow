@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+﻿/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -66,7 +66,7 @@ export default function LapBgModal({
     { id: '1', tenHangMuc: 'Mô hình kiến trúc dự án', donViTinh: 'Bộ', soLuong: 1, donGia: 0 }
   ]);
   
-  // VAT & Ghi chú
+  // VAT & Ghi chÃº
   const [vatPercent, setVatPercent] = useState<number>(10);
   const [ghiChu, setGhiChu] = useState('');
   const [dieuKhoanThanhToan, setDieuKhoanThanhToan] = useState('');
@@ -79,11 +79,11 @@ export default function LapBgModal({
       const todayStr = today.toISOString().split('T')[0];
       setNgay(todayStr);
       
-      // Tự sinh số báo giá tạm thời: BG-YYYYMMDD-ID
+      // Tá»± sinh sá»‘ bÃ¡o giÃ¡ táº¡m thá»i: BG-YYYYMMDD-ID
       const dateCompact = todayStr.replace(/-/g, '');
       setSoBaoGia(`BG-${dateCompact}-${customer.ma}`);
       
-      // Hạn hiệu lực mặc định là 30 ngày sau
+      // Háº¡n hiá»‡u lá»±c máº·c Ä‘á»‹nh lÃ  30 ngÃ y sau
       const expiryDate = new Date();
       expiryDate.setDate(today.getDate() + 30);
       setHanHieuLuc(expiryDate.toISOString().split('T')[0]);
@@ -99,8 +99,8 @@ export default function LapBgModal({
         { id: '1', tenHangMuc: 'Thi công mô hình kiến trúc tỷ lệ 1/500', donViTinh: 'Gói', soLuong: 1, donGia: 50000000 }
       ]);
       setVatPercent(10);
-      setGhiChu('Báo giá chưa bao gồm chi phí vận chuyển ngoài phạm vi nội thành.');
-      setDieuKhoanThanhToan('Tạm ứng 50% sau khi ký hợp đồng, 50% còn lại thanh toán khi bàn giao nghiệm thu.');
+      setGhiChu('BÃ¡o giÃ¡ chÆ°a bao gá»“m chi phÃ­ váº­n chuyá»ƒn ngoÃ i pháº¡m vi ná»™i thÃ nh.');
+      setDieuKhoanThanhToan('Táº¡m á»©ng 50% sau khi kÃ½ há»£p Ä‘á»“ng, 50% cÃ²n láº¡i thanh toÃ¡n khi bÃ n giao nghiá»‡m thu.');
     }
   }, [isOpen, customer]);
 
@@ -108,7 +108,7 @@ export default function LapBgModal({
 
   const validateTab1 = () => {
     if (!ngay || !soBaoGia.trim() || !donViLienHe.trim() || !tenDuAn.trim()) {
-      alert('Vui lòng điền đầy đủ các thông tin bắt buộc ở phần Thông tin chung.');
+      alert('Vui lÃ²ng Ä‘iá»n Ä‘áº§y Ä‘á»§ cÃ¡c thÃ´ng tin báº¯t buá»™c á»Ÿ pháº§n ThÃ´ng tin chung.');
       return false;
     }
     return true;
@@ -117,7 +117,7 @@ export default function LapBgModal({
   const validateTab2 = () => {
     const invalidItem = items.find(item => !item.tenHangMuc.trim());
     if (invalidItem) {
-      alert('Vui lòng nhập tên cho tất cả các hạng mục báo giá.');
+      alert('Vui lÃ²ng nháº­p tÃªn cho táº¥t cáº£ cÃ¡c háº¡ng má»¥c bÃ¡o giÃ¡.');
       return false;
     }
     return true;
@@ -149,7 +149,7 @@ export default function LapBgModal({
 
   const handleRemoveItem = (id: string) => {
     if (items.length <= 1) {
-      alert('Báo giá phải có ít nhất một hạng mục.');
+      alert('BÃ¡o giÃ¡ pháº£i cÃ³ Ã­t nháº¥t má»™t háº¡ng má»¥c.');
       return;
     }
     setItems(prev => prev.filter(item => item.id !== id));
@@ -166,7 +166,7 @@ export default function LapBgModal({
     );
   };
 
-  // Tính toán số tiền
+  // TÃ­nh toÃ¡n sá»‘ tiá»n
   const calculateSubtotal = () => {
     return items.reduce((sum, item) => sum + (item.soLuong * item.donGia), 0);
   };
@@ -210,7 +210,7 @@ export default function LapBgModal({
       dieuKhoanThanhToan: dieuKhoanThanhToan.trim(),
     });
 
-    alert('Lập báo giá thành công!');
+    alert('Láº­p bÃ¡o giÃ¡ thÃ nh cÃ´ng!');
     onClose();
   };
 
@@ -269,7 +269,7 @@ export default function LapBgModal({
             }`}
           >
             <IconListDetails size={18} />
-            <span>Chi tiết hạng mục</span>
+            <span>Danh mục & Giá</span>
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
               activeTab === 'items' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
             }`}>
@@ -286,7 +286,7 @@ export default function LapBgModal({
             }`}
           >
             <IconReceipt size={18} />
-            <span>Điều khoản & Tổng hợp</span>
+            <span>Điều kiện báo giá</span>
           </button>
         </div>
 
@@ -351,31 +351,15 @@ export default function LapBgModal({
           </div>
 
           {/* Modal Footer */}
-          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between shrink-0">
-            <div>
+          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end shrink-0">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-sm font-semibold transition-all cursor-pointer shadow-2xs"
+                className="px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-lg text-sm font-semibold transition-all cursor-pointer shadow-2xs"
               >
                 Hủy
               </button>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {activeTab !== 'info' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (activeTab === 'terms') setActiveTab('items');
-                    else if (activeTab === 'items') setActiveTab('info');
-                  }}
-                  className="px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-sm font-semibold transition-all cursor-pointer shadow-2xs"
-                >
-                  Quay lại
-                </button>
-              )}
-
               {activeTab !== 'terms' ? (
                 <button
                   type="button"
@@ -383,16 +367,16 @@ export default function LapBgModal({
                     if (activeTab === 'info' && validateTab1()) setActiveTab('items');
                     else if (activeTab === 'items' && validateTab2()) setActiveTab('terms');
                   }}
-                  className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-lg text-sm font-semibold transition-all cursor-pointer shadow-sm shadow-amber-600/10"
+                  className="px-5 py-2.5 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white rounded-lg text-sm font-semibold transition-all cursor-pointer shadow-sm shadow-indigo-700/15"
                 >
                   Tiếp tục
                 </button>
               ) : (
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-lg text-sm font-semibold transition-all cursor-pointer shadow-sm shadow-amber-600/10"
+                  className="px-5 py-2.5 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white rounded-lg text-sm font-semibold transition-all cursor-pointer shadow-sm shadow-indigo-700/15"
                 >
-                  Gửi báo giá
+                  Lưu báo giá
                 </button>
               )}
             </div>

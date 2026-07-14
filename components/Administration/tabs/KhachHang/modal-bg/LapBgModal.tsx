@@ -1,4 +1,4 @@
-﻿/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -11,9 +11,18 @@ import DieuKhoanTongHop from './DieuKhoanTongHop/DieuKhoanTongHop';
 export interface ItemBaoGia {
   id: string;
   tenHangMuc: string;
+  moTa: string;
   donViTinh: string;
   soLuong: number;
   donGia: number;
+}
+
+export interface SectionBaoGia {
+  id: string;
+  tenPhan: string;
+  ck: boolean;
+  isCollapsed: boolean;
+  items: ItemBaoGia[];
 }
 
 export interface BaoGiaData {
@@ -27,6 +36,7 @@ export interface BaoGiaData {
   email: string;
   tenDuAn: string;
   items: ItemBaoGia[];
+  sections?: SectionBaoGia[];
   subtotal: number;
   vatPercent: number;
   vatAmount: number;
@@ -61,12 +71,10 @@ export default function LapBgModal({
   const [email, setEmail] = useState('');
   const [tenDuAn, setTenDuAn] = useState('');
   
-  // Bảng hạng mục báo giá
-  const [items, setItems] = useState<ItemBaoGia[]>([
-    { id: '1', tenHangMuc: 'Mô hình kiến trúc dự án', donViTinh: 'Bộ', soLuong: 1, donGia: 0 }
-  ]);
+  // Bảng hạng mục báo giá phân theo từng phần
+  const [sections, setSections] = useState<SectionBaoGia[]>([]);
   
-  // VAT & Ghi chÃº
+  // VAT & Ghi chú
   const [vatPercent, setVatPercent] = useState<number>(10);
   const [ghiChu, setGhiChu] = useState('');
   const [dieuKhoanThanhToan, setDieuKhoanThanhToan] = useState('');
@@ -79,11 +87,11 @@ export default function LapBgModal({
       const todayStr = today.toISOString().split('T')[0];
       setNgay(todayStr);
       
-      // Tá»± sinh sá»‘ bÃ¡o giÃ¡ táº¡m thá»i: BG-YYYYMMDD-ID
+      // Tự sinh số báo giá tạm thời: BG-YYYYMMDD-ID
       const dateCompact = todayStr.replace(/-/g, '');
       setSoBaoGia(`BG-${dateCompact}-${customer.ma}`);
       
-      // Háº¡n hiá»‡u lá»±c máº·c Ä‘á»‹nh lÃ  30 ngÃ y sau
+      // Hạn hiệu lực mặc định là 30 ngày sau
       const expiryDate = new Date();
       expiryDate.setDate(today.getDate() + 30);
       setHanHieuLuc(expiryDate.toISOString().split('T')[0]);
@@ -95,12 +103,10 @@ export default function LapBgModal({
       setEmail(customer.email || '');
       setTenDuAn('');
       
-      setItems([
-        { id: '1', tenHangMuc: 'Thi công mô hình kiến trúc tỷ lệ 1/500', donViTinh: 'Gói', soLuong: 1, donGia: 50000000 }
-      ]);
+      setSections([]);
       setVatPercent(10);
-      setGhiChu('BÃ¡o giÃ¡ chÆ°a bao gá»“m chi phÃ­ váº­n chuyá»ƒn ngoÃ i pháº¡m vi ná»™i thÃ nh.');
-      setDieuKhoanThanhToan('Táº¡m á»©ng 50% sau khi kÃ½ há»£p Ä‘á»“ng, 50% cÃ²n láº¡i thanh toÃ¡n khi bÃ n giao nghiá»‡m thu.');
+      setGhiChu('Báo giá chưa bao gồm chi phí vận chuyển ngoài phạm vi nội thành.');
+      setDieuKhoanThanhToan('Tạm ứng 50% sau khi ký hợp đồng, 50% còn lại thanh toán khi bàn giao nghiệm thu.');
     }
   }, [isOpen, customer]);
 
@@ -108,23 +114,32 @@ export default function LapBgModal({
 
   const validateTab1 = () => {
     if (!ngay || !soBaoGia.trim() || !donViLienHe.trim() || !tenDuAn.trim()) {
-      alert('Vui lÃ²ng Ä‘iá»n Ä‘áº§y Ä‘á»§ cÃ¡c thÃ´ng tin báº¯t buá»™c á»Ÿ pháº§n ThÃ´ng tin chung.');
+      alert('Vui lòng điền đầy đủ các thông tin bắt buộc ở phần Thông tin chung.');
       return false;
     }
     return true;
   };
 
   const validateTab2 = () => {
-    const invalidItem = items.find(item => !item.tenHangMuc.trim());
-    if (invalidItem) {
-      alert('Vui lÃ²ng nháº­p tÃªn cho táº¥t cáº£ cÃ¡c háº¡ng má»¥c bÃ¡o giÃ¡.');
+    if (sections.length === 0) {
+      alert('Vui lòng thêm ít nhất một phần báo giá.');
       return false;
+    }
+    for (const section of sections) {
+      if (!section.tenPhan.trim()) {
+        alert('Vui lòng điền tên cho tất cả các phần.');
+        return false;
+      }
+      const invalidItem = section.items.find(item => !item.tenHangMuc.trim());
+      if (invalidItem) {
+        alert(`Vui lòng nhập tên cho tất cả các hạng mục trong phần "${section.tenPhan}".`);
+        return false;
+      }
     }
     return true;
   };
 
   const handleTabClick = (tab: 'info' | 'items' | 'terms') => {
-    // Directly switch tabs without validation as per user request
     setActiveTab(tab);
   };
 
@@ -139,36 +154,133 @@ export default function LapBgModal({
     }
   };
 
-  const handleAddItem = () => {
-    const nextId = (Math.max(...items.map(item => parseInt(item.id) || 0), 0) + 1).toString();
-    setItems(prev => [
+  // Các hàm quản lý phần (Section)
+  const handleAddSection = (title?: string) => {
+    const nextId = (Math.max(...sections.map(s => parseInt(s.id) || 0), 0) + 1).toString();
+    setSections(prev => [
       ...prev,
-      { id: nextId, tenHangMuc: '', donViTinh: 'Bộ', soLuong: 1, donGia: 0 }
+      {
+        id: nextId,
+        tenPhan: title || 'PHẦN MỚI',
+        ck: true,
+        isCollapsed: false,
+        items: [
+          { id: `${nextId}-1`, tenHangMuc: '', moTa: '', donViTinh: 'Bộ', soLuong: 1, donGia: 0 }
+        ]
+      }
     ]);
   };
 
-  const handleRemoveItem = (id: string) => {
-    if (items.length <= 1) {
-      alert('BÃ¡o giÃ¡ pháº£i cÃ³ Ã­t nháº¥t má»™t háº¡ng má»¥c.');
-      return;
-    }
-    setItems(prev => prev.filter(item => item.id !== id));
+  const handleAddMultipleSections = (titles: string[]) => {
+    setSections(prev => {
+      let currentMaxId = Math.max(...prev.map(s => parseInt(s.id) || 0), 0);
+      const newSections = titles.map(title => {
+        currentMaxId += 1;
+        const newId = currentMaxId.toString();
+        return {
+          id: newId,
+          tenPhan: title,
+          ck: true,
+          isCollapsed: false,
+          items: [
+            { id: `${newId}-1`, tenHangMuc: '', moTa: '', donViTinh: 'Bộ', soLuong: 1, donGia: 0 }
+          ]
+        };
+      });
+      return [...prev, ...newSections];
+    });
   };
 
-  const handleItemChange = (id: string, key: keyof ItemBaoGia, value: string | number) => {
-    setItems(prev =>
-      prev.map(item => {
-        if (item.id === id) {
-          return { ...item, [key]: value };
+  const handleRemoveSection = (sectionId: string) => {
+    setSections(prev => prev.filter(s => s.id !== sectionId));
+  };
+
+  const handleClearAllSections = () => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa tất cả các phần không?')) {
+      setSections([]);
+    }
+  };
+
+  const handleSectionChange = (sectionId: string, key: keyof SectionBaoGia, value: any) => {
+    setSections(prev =>
+      prev.map(s => {
+        if (s.id === sectionId) {
+          return { ...s, [key]: value };
         }
-        return item;
+        return s;
       })
     );
   };
 
-  // TÃ­nh toÃ¡n sá»‘ tiá»n
+  // Các hàm quản lý hạng mục con (Item) trong từng phần
+  const handleAddItemToSection = (sectionId: string) => {
+    setSections(prev =>
+      prev.map(s => {
+        if (s.id === sectionId) {
+          const nextSubId = (Math.max(...s.items.map(item => {
+            const parts = item.id.split('-');
+            return parseInt(parts[parts.length - 1]) || 0;
+          }), 0) + 1).toString();
+          const newItem: ItemBaoGia = {
+            id: `${s.id}-${nextSubId}`,
+            tenHangMuc: '',
+            moTa: '',
+            donViTinh: 'Bộ',
+            soLuong: 1,
+            donGia: 0
+          };
+          return {
+            ...s,
+            items: [...s.items, newItem]
+          };
+        }
+        return s;
+      })
+    );
+  };
+
+  const handleRemoveItemFromSection = (sectionId: string, itemId: string) => {
+    setSections(prev =>
+      prev.map(s => {
+        if (s.id === sectionId) {
+          if (s.items.length <= 1) {
+            alert('Mỗi phần phải có ít nhất một hạng mục. Hoặc bạn có thể xóa cả phần.');
+            return s;
+          }
+          return {
+            ...s,
+            items: s.items.filter(item => item.id !== itemId)
+          };
+        }
+        return s;
+      })
+    );
+  };
+
+  const handleItemChangeInSection = (sectionId: string, itemId: string, key: keyof ItemBaoGia, value: any) => {
+    setSections(prev =>
+      prev.map(s => {
+        if (s.id === sectionId) {
+          return {
+            ...s,
+            items: s.items.map(item => {
+              if (item.id === itemId) {
+                return { ...item, [key]: value };
+              }
+              return item;
+            })
+          };
+        }
+        return s;
+      })
+    );
+  };
+
+  // Tính toán số tiền
   const calculateSubtotal = () => {
-    return items.reduce((sum, item) => sum + (item.soLuong * item.donGia), 0);
+    return sections.reduce((sum, s) => {
+      return sum + s.items.reduce((itemSum, item) => itemSum + (item.soLuong * item.donGia), 0);
+    }, 0);
   };
 
   const subtotal = calculateSubtotal();
@@ -191,6 +303,21 @@ export default function LapBgModal({
       return;
     }
 
+    // Làm phẳng items trước khi gửi đi để tương thích ngược
+    const flatItems: ItemBaoGia[] = [];
+    sections.forEach(s => {
+      s.items.forEach(item => {
+        flatItems.push({
+          id: item.id,
+          tenHangMuc: item.tenHangMuc,
+          moTa: item.moTa || '',
+          donViTinh: item.donViTinh,
+          soLuong: item.soLuong,
+          donGia: item.donGia
+        });
+      });
+    });
+
     onSave({
       ngay,
       soBaoGia: soBaoGia.trim(),
@@ -201,7 +328,8 @@ export default function LapBgModal({
       dienThoai: dienThoai.trim(),
       email: email.trim(),
       tenDuAn: tenDuAn.trim(),
-      items,
+      items: flatItems,
+      sections,
       subtotal,
       vatPercent,
       vatAmount,
@@ -210,7 +338,7 @@ export default function LapBgModal({
       dieuKhoanThanhToan: dieuKhoanThanhToan.trim(),
     });
 
-    alert('Láº­p bÃ¡o giÃ¡ thÃ nh cÃ´ng!');
+    alert('Lập báo giá thành công!');
     onClose();
   };
 
@@ -273,7 +401,7 @@ export default function LapBgModal({
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
               activeTab === 'items' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
             }`}>
-              {items.length}
+              {sections.reduce((sum, s) => sum + s.items.length, 0)}
             </span>
           </button>
           <button
@@ -325,11 +453,20 @@ export default function LapBgModal({
 
             {activeTab === 'items' && (
               <ChiTietHangMuc
-                items={items}
-                handleAddItem={handleAddItem}
-                handleRemoveItem={handleRemoveItem}
-                handleItemChange={handleItemChange}
+                sections={sections}
+                handleAddSection={handleAddSection}
+                handleAddMultipleSections={handleAddMultipleSections}
+                handleRemoveSection={handleRemoveSection}
+                handleClearAllSections={handleClearAllSections}
+                handleSectionChange={handleSectionChange}
+                handleAddItemToSection={handleAddItemToSection}
+                handleRemoveItemFromSection={handleRemoveItemFromSection}
+                handleItemChangeInSection={handleItemChangeInSection}
                 formatCurrency={formatCurrency}
+                subtotal={subtotal}
+                vatPercent={vatPercent}
+                vatAmount={vatAmount}
+                total={total}
               />
             )}
 

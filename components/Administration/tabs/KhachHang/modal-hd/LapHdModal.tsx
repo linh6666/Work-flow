@@ -10,6 +10,8 @@ import {
   IconFileText,
   IconClipboardList,
   IconPaperclip,
+  IconDownload,
+  IconTemplate,
 } from '@tabler/icons-react';
 import { KhachHangItem } from '../index';
 import ThongTinChung from './ThongTinChung/ThongTinChung';
@@ -54,6 +56,8 @@ export default function LapHdModal({
   customers = [],
 }: LapHdModalProps) {
   const [activeTab, setActiveTab] = useState<'info' | 'payment' | 'terms' | 'dieukhoan' | 'files'>('info');
+  const [ngonNgu, setNgonNgu] = useState<'vi' | 'en' | 'vi-en'>('vi');
+  const [mauHopDong, setMauHopDong] = useState('');
 
   // --- Tab: Thông tin chung ---
   const [soHopDong, setSoHopDong] = useState('');
@@ -192,15 +196,72 @@ export default function LapHdModal({
       <div className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[95vh] transform transition-all scale-100 animate-scale-up">
 
         {/* Modal Header */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
-          <div className="flex items-center gap-2">
-            <IconSignature size={22} className="text-emerald-600" />
-            <h3 className="text-lg font-bold text-slate-800">Chỉnh sửa hợp đồng</h3>
+        <div className="px-6 py-4 flex items-start justify-between border-b border-slate-100 shrink-0">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <IconSignature size={22} className="text-emerald-600" />
+              <h3 className="text-lg font-bold text-slate-800">Chỉnh sửa hợp đồng</h3>
+            </div>
+
+            {/* Ngôn ngữ hợp đồng */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500 font-medium whitespace-nowrap">Ngôn ngữ HĐ:</span>
+              <div className="flex items-center gap-1.5">
+                {([
+                  { key: 'vi',    flag: '🇻🇳', label: 'Tiếng Việt' },
+                  { key: 'en',    flag: '🇬🇧', label: 'Tiếng Anh' },
+                  { key: 'vi-en', flag: '🇻🇳🇬🇧', label: 'Việt - Anh' },
+                ] as const).map((lang) => (
+                  <button
+                    key={lang.key}
+                    type="button"
+                    onClick={() => setNgonNgu(lang.key)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                      ngonNgu === lang.key
+                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-400 hover:text-emerald-600'
+                    }`}
+                  >
+                    <span>{lang.flag}</span>
+                    <span>{lang.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tạo từ mẫu hợp đồng có sẵn */}
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 flex flex-col gap-2 min-w-[420px]">
+              <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 uppercase tracking-wide">
+                <IconDownload size={14} />
+                <IconTemplate size={14} />
+                <span>Tạo từ mẫu hợp đồng có sẵn</span>
+              </div>
+              <div className="relative">
+                <select
+                  value={mauHopDong}
+                  onChange={(e) => setMauHopDong(e.target.value)}
+                  className="h-8 w-full rounded-md border border-slate-200 bg-white pl-3 pr-8 text-sm text-slate-600 shadow-xs outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 appearance-none cursor-pointer"
+                >
+                  <option value="">Chọn mẫu để tải nội dung hợp đồng...</option>
+                  <option value="mau-thi-cong">Mẫu hợp đồng thi công</option>
+                  <option value="mau-tu-van">Mẫu hợp đồng tư vấn thiết kế</option>
+                  <option value="mau-cung-cap">Mẫu hợp đồng cung cấp vật tư</option>
+                  <option value="mau-bao-tri">Mẫu hợp đồng bảo trì bảo dưỡng</option>
+                </select>
+                <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-slate-400 text-xs">⌄</span>
+              </div>
+              {mauHopDong && (
+                <p className="text-[11px] text-emerald-600 font-medium">
+                  ✓ Nội dung hợp đồng sẽ được tải từ mẫu đã chọn
+                </p>
+              )}
+            </div>
           </div>
+
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
+            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-50 transition-all cursor-pointer mt-0.5"
           >
             <IconX size={20} />
           </button>

@@ -7,7 +7,11 @@ import {
   IconSignature, 
   IconInfoCircle, 
   IconCreditCard, 
-  IconFileText 
+  IconFileText,
+  IconClipboardList,
+  IconPaperclip,
+  IconUpload,
+  IconTrash
 } from '@tabler/icons-react';
 import { KhachHangItem } from '../index';
 
@@ -28,6 +32,7 @@ export interface HdData {
   tongThanhToan: number;
   dieuKhoanThanhToan: string;
   ghiChu: string;
+  danhSachFile: { name: string; size: number; type: string }[];
 }
 
 interface LapHdModalProps {
@@ -53,7 +58,7 @@ export default function LapHdModal({
   customer,
   customers = [],
 }: LapHdModalProps) {
-  const [activeTab, setActiveTab] = useState<'info' | 'payment' | 'terms'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'payment' | 'terms' | 'dieukhoan' | 'files'>('info');
   const [soHopDong, setSoHopDong] = useState('');
   const [ngayHopDong, setNgayHopDong] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
@@ -70,6 +75,7 @@ export default function LapHdModal({
   const [vatPercent, setVatPercent] = useState<number>(10);
   const [dieuKhoanThanhToan, setDieuKhoanThanhToan] = useState('');
   const [ghiChu, setGhiChu] = useState('');
+  const [danhSachFile, setDanhSachFile] = useState<File[]>([]);
 
   // Tự sinh số hợp đồng và nạp dữ liệu khi mở modal
   useEffect(() => {
@@ -95,6 +101,7 @@ export default function LapHdModal({
       setVatPercent(10);
       setGhiChu('');
       setDieuKhoanThanhToan('Tạm ứng 50% sau khi ký hợp đồng, 50% còn lại thanh toán sau khi bàn giao nghiệm thu.');
+      setDanhSachFile([]);
     }
   }, [isOpen, customer]);
 
@@ -164,6 +171,7 @@ export default function LapHdModal({
       tongThanhToan,
       dieuKhoanThanhToan: dieuKhoanThanhToan.trim(),
       ghiChu: ghiChu.trim(),
+      danhSachFile: danhSachFile.map(f => ({ name: f.name, size: f.size, type: f.type })),
     });
 
     alert('Lập hợp đồng thành công!');
@@ -184,13 +192,13 @@ export default function LapHdModal({
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[95vh] transform transition-all scale-100 animate-scale-up">
+      <div className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[95vh] transform transition-all scale-100 animate-scale-up">
         
         {/* Modal Header */}
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
             <IconSignature size={22} className="text-emerald-600" />
-            <h3 className="text-lg font-bold text-slate-800">Tạo hợp đồng mới</h3>
+            <h3 className="text-lg font-bold text-slate-800">Chỉnh sửa hợp đồng</h3>
           </div>
           <button 
             type="button"
@@ -202,42 +210,71 @@ export default function LapHdModal({
         </div>
 
         {/* Tab Selection */}
-        <div className="px-6 border-b border-slate-100 flex gap-6 shrink-0 bg-slate-50/50 select-none">
+        <div className="px-6 border-b border-slate-100 flex gap-5 shrink-0 bg-slate-50/50 select-none">
           <button
             type="button"
             onClick={() => setActiveTab('info')}
-            className={`py-3 flex items-center gap-2 border-b-2 text-sm font-bold transition-all cursor-pointer focus:outline-none ${
+            className={`py-3 flex items-center gap-2 border-b-2 text-sm font-bold transition-all cursor-pointer focus:outline-none whitespace-nowrap ${
               activeTab === 'info'
                 ? 'border-emerald-600 text-emerald-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            <IconInfoCircle size={18} />
+            <IconInfoCircle size={16} />
             <span>Thông tin chung</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('payment')}
-            className={`py-3 flex items-center gap-2 border-b-2 text-sm font-bold transition-all cursor-pointer focus:outline-none ${
+            className={`py-3 flex items-center gap-2 border-b-2 text-sm font-bold transition-all cursor-pointer focus:outline-none whitespace-nowrap ${
               activeTab === 'payment'
                 ? 'border-emerald-600 text-emerald-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            <IconCreditCard size={18} />
-            <span>Giá trị & Thanh toán</span>
+            <IconCreditCard size={16} />
+            <span>Hạng mục & Giá trị</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('terms')}
-            className={`py-3 flex items-center gap-2 border-b-2 text-sm font-bold transition-all cursor-pointer focus:outline-none ${
+            className={`py-3 flex items-center gap-2 border-b-2 text-sm font-bold transition-all cursor-pointer focus:outline-none whitespace-nowrap ${
               activeTab === 'terms'
                 ? 'border-emerald-600 text-emerald-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            <IconFileText size={18} />
-            <span>Điều kiện bổ sung</span>
+            <IconFileText size={16} />
+            <span>Tính tiền thanh toán</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('dieukhoan')}
+            className={`py-3 flex items-center gap-2 border-b-2 text-sm font-bold transition-all cursor-pointer focus:outline-none whitespace-nowrap ${
+              activeTab === 'dieukhoan'
+                ? 'border-emerald-600 text-emerald-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <IconClipboardList size={16} />
+            <span>Điều khoản & Thanh toán</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('files')}
+            className={`py-3 flex items-center gap-2 border-b-2 text-sm font-bold transition-all cursor-pointer focus:outline-none whitespace-nowrap ${
+              activeTab === 'files'
+                ? 'border-emerald-600 text-emerald-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <IconPaperclip size={16} />
+            <span>Hồ sơ kèm theo</span>
+            {danhSachFile.length > 0 && (
+              <span className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full bg-emerald-600 text-white text-[9px] font-bold">
+                {danhSachFile.length}
+              </span>
+            )}
           </button>
         </div>
 
@@ -418,12 +455,34 @@ export default function LapHdModal({
                   </div>
                 </div>
 
+              </div>
+            )}
+
+            {activeTab === 'dieukhoan' && (
+              <div className="tab-content-active space-y-4">
                 <div>
                   <label className={labelClass}>Điều khoản thanh toán</label>
                   <textarea
-                    rows={3}
+                    rows={4}
                     value={dieuKhoanThanhToan}
                     onChange={(e) => setDieuKhoanThanhToan(e.target.value)}
+                    placeholder="Nhập điều khoản thanh toán..."
+                    className={`${textareaClass} min-h-[110px]`}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Điều khoản bàn giao</label>
+                  <textarea
+                    rows={3}
+                    placeholder="Mô tả thời gian và điều kiện bàn giao sản phẩm/dịch vụ..."
+                    className={`${textareaClass} min-h-[90px]`}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Bảo hành & Hỗ trợ sau bán</label>
+                  <textarea
+                    rows={3}
+                    placeholder="Mô tả chính sách bảo hành, thời gian bảo hành, hỗ trợ kỹ thuật..."
                     className={`${textareaClass} min-h-[90px]`}
                   />
                 </div>
@@ -444,6 +503,89 @@ export default function LapHdModal({
                 </div>
               </div>
             )}
+
+            {activeTab === 'files' && (
+              <div className="tab-content-active space-y-4">
+                {/* Drop zone */}
+                <label
+                  htmlFor="hd-file-upload"
+                  className="flex flex-col items-center justify-center gap-3 w-full border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/60 py-8 cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group"
+                >
+                  <div className="w-11 h-11 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center group-hover:bg-emerald-100 transition-all">
+                    <IconUpload size={22} className="text-emerald-500" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-semibold text-slate-700">Nhấn để chọn file hoặc kéo thả vào đây</p>
+                    <p className="text-xs text-slate-400 mt-0.5">PDF, DOCX, XLSX, JPG, PNG – tối đa 20MB mỗi file</p>
+                  </div>
+                  <input
+                    id="hd-file-upload"
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                    className="hidden"
+                    onChange={(e) => {
+                      const newFiles = Array.from(e.target.files || []);
+                      setDanhSachFile(prev => [
+                        ...prev,
+                        ...newFiles.filter(nf => !prev.some(f => f.name === nf.name && f.size === nf.size))
+                      ]);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+
+                {/* File list */}
+                {danhSachFile.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      {danhSachFile.length} tệp đã chọn
+                    </p>
+                    {danhSachFile.map((file, idx) => {
+                      const sizeKb = (file.size / 1024).toFixed(1);
+                      const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+                      const displaySize = file.size > 1024 * 1024 ? `${sizeMb} MB` : `${sizeKb} KB`;
+                      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+                      const extColors: Record<string, string> = {
+                        pdf: 'bg-red-50 text-red-600 border-red-200',
+                        doc: 'bg-blue-50 text-blue-600 border-blue-200',
+                        docx: 'bg-blue-50 text-blue-600 border-blue-200',
+                        xls: 'bg-green-50 text-green-600 border-green-200',
+                        xlsx: 'bg-green-50 text-green-600 border-green-200',
+                        jpg: 'bg-amber-50 text-amber-600 border-amber-200',
+                        jpeg: 'bg-amber-50 text-amber-600 border-amber-200',
+                        png: 'bg-purple-50 text-purple-600 border-purple-200',
+                      };
+                      const extColor = extColors[ext] || 'bg-slate-50 text-slate-600 border-slate-200';
+                      return (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg border border-slate-100 bg-white shadow-xs hover:border-slate-200 transition-all"
+                        >
+                          <span className={`inline-flex items-center justify-center w-8 h-8 rounded-md border text-[10px] font-extrabold uppercase ${extColor}`}>
+                            {ext}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-slate-800 truncate">{file.name}</p>
+                            <p className="text-xs text-slate-400">{displaySize}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setDanhSachFile(prev => prev.filter((_, i) => i !== idx))}
+                            className="p-1.5 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
+                            title="Xóa tệp"
+                          >
+                            <IconTrash size={14} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-center text-xs text-slate-400 py-2">Chưa có tệp nào được chọn.</p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Modal Footer */}
@@ -456,12 +598,14 @@ export default function LapHdModal({
               >
                 Hủy
               </button>
-              {activeTab !== 'terms' ? (
+              {activeTab !== 'files' ? (
                 <button
                   type="button"
                   onClick={() => {
                     if (activeTab === 'info' && validateTab1()) setActiveTab('payment');
                     else if (activeTab === 'payment' && validateTab2()) setActiveTab('terms');
+                    else if (activeTab === 'terms') setActiveTab('dieukhoan');
+                    else if (activeTab === 'dieukhoan') setActiveTab('files');
                   }}
                   className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-lg text-sm font-semibold transition-all cursor-pointer shadow-sm"
                 >

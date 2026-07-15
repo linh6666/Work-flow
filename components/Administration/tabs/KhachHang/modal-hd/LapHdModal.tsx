@@ -70,6 +70,9 @@ export default function LapHdModal({
   const [dienThoai, setDienThoai] = useState('');
   const [email, setEmail] = useState('');
   const [tenDuAn, setTenDuAn] = useState('');
+  const [maSoThue, setMaSoThue] = useState('');
+  const [soTaiKhoan, setSoTaiKhoan] = useState('');
+  const [nganHang, setNganHang] = useState('');
 
   // --- Tab: Hạng mục & Giá trị ---
   const [giaTriHopDong, setGiaTriHopDong] = useState<number>(0);
@@ -101,6 +104,9 @@ export default function LapHdModal({
       setDienThoai(customer.dienThoai || '');
       setEmail(customer.email || '');
       setTenDuAn('');
+      setMaSoThue('');
+      setSoTaiKhoan('');
+      setNganHang('');
       setGiaTriHopDong(0);
       setVatPercent(10);
       setGhiChu('');
@@ -131,7 +137,7 @@ export default function LapHdModal({
   };
 
   const validateTab1 = () => {
-    if (!ngayHopDong || !soHopDong.trim() || !donViLienHe.trim() || !tenDuAn.trim()) {
+    if (!ngayHopDong || !soHopDong.trim() || !donViLienHe.trim()) {
       alert('Vui lòng điền đầy đủ thông tin bắt buộc ở tab Thông tin chung.');
       return false;
     }
@@ -315,6 +321,9 @@ export default function LapHdModal({
                 dienThoai={dienThoai} setDienThoai={setDienThoai}
                 email={email} setEmail={setEmail}
                 diaChi={diaChi} setDiaChi={setDiaChi}
+                maSoThue={maSoThue} setMaSoThue={setMaSoThue}
+                soTaiKhoan={soTaiKhoan} setSoTaiKhoan={setSoTaiKhoan}
+                nganHang={nganHang} setNganHang={setNganHang}
               />
             )}
             {activeTab === 'payment' && (

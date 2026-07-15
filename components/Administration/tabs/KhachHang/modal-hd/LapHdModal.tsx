@@ -354,7 +354,7 @@ export default function LapHdModal({
               />
             )}
             {activeTab === 'terms' && (
-              <TinhTienTab ghiChu={ghiChu} setGhiChu={setGhiChu} />
+              <TinhTienTab tongThanhToan={tongThanhToan} formatCurrency={formatCurrency} />
             )}
             {activeTab === 'dieukhoan' && (
               <DieuKhoanTab

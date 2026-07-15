@@ -76,7 +76,13 @@ export default function LapHdModal({
 
   // --- Tab: Hạng mục & Giá trị ---
   const [giaTriHopDong, setGiaTriHopDong] = useState<number>(0);
-  const [vatPercent, setVatPercent] = useState<number>(10);
+  const [vatPercent, setVatPercent] = useState<number>(8);
+  const [tenMoHinh, setTenMoHinh] = useState('');
+  const [tyLe, setTyLe] = useState('');
+  const [kichThuoc, setKichThuoc] = useState('');
+  const [diaChiGiaoHang, setDiaChiGiaoHang] = useState('');
+  const [trangThai, setTrangThai] = useState('ban-nhap');
+  const [baoGiaDuyet, setBaoGiaDuyet] = useState('');
 
   // --- Tab: Tính tiền / Ghi chú ---
   const [ghiChu, setGhiChu] = useState('');
@@ -108,7 +114,13 @@ export default function LapHdModal({
       setSoTaiKhoan('');
       setNganHang('');
       setGiaTriHopDong(0);
-      setVatPercent(10);
+      setVatPercent(8);
+      setTenMoHinh('');
+      setTyLe('');
+      setKichThuoc('');
+      setDiaChiGiaoHang('');
+      setTrangThai('ban-nhap');
+      setBaoGiaDuyet('');
       setGhiChu('');
       setDieuKhoanThanhToan('Tạm ứng 50% sau khi ký hợp đồng, 50% còn lại thanh toán sau khi bàn giao nghiệm thu.');
       setDanhSachFile([]);
@@ -333,6 +345,12 @@ export default function LapHdModal({
                 vatAmount={vatAmount}
                 tongThanhToan={tongThanhToan}
                 formatCurrency={formatCurrency}
+                tenMoHinh={tenMoHinh} setTenMoHinh={setTenMoHinh}
+                tyLe={tyLe} setTyLe={setTyLe}
+                kichThuoc={kichThuoc} setKichThuoc={setKichThuoc}
+                diaChiGiaoHang={diaChiGiaoHang} setDiaChiGiaoHang={setDiaChiGiaoHang}
+                trangThai={trangThai} setTrangThai={setTrangThai}
+                baoGiaDuyet={baoGiaDuyet} setBaoGiaDuyet={setBaoGiaDuyet}
               />
             )}
             {activeTab === 'terms' && (

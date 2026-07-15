@@ -6,6 +6,7 @@ import SuaKhachHangModal from './modal-sua/SuaKhachHangModal';
 import XoaKhachHangModal from './modal-xoa/XoaKhachHangModal';
 import LapDxbgModal from './modal-dxbg/LapDxbgModal';
 import LapBgModal from './modal-bg/LapBgModal';
+import LapHdModal from './modal-hd/LapHdModal';
 import {
   IconPlus,
   IconSearch,
@@ -112,7 +113,15 @@ function Avatar({ name }: { name: string }) {
   );
 }
 
-function ActionButtons({ onLapDxbg, onLapBg }: { onLapDxbg: () => void; onLapBg: () => void }) {
+function ActionButtons({ 
+  onLapDxbg, 
+  onLapBg, 
+  onLapHd 
+}: { 
+  onLapDxbg: () => void; 
+  onLapBg: () => void; 
+  onLapHd: () => void; 
+}) {
   return (
     <div className="flex flex-wrap items-center justify-end gap-1.5">
       <button
@@ -132,6 +141,7 @@ function ActionButtons({ onLapDxbg, onLapBg }: { onLapDxbg: () => void; onLapBg:
         Lập BG
       </button>
       <button
+        onClick={onLapHd}
         className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-all whitespace-nowrap cursor-pointer"
         title="Lập Hợp đồng"
       >
@@ -152,6 +162,7 @@ export default function KhachHang() {
   const [deletingCustomer, setDeletingCustomer] = useState<KhachHangItem | null>(null);
   const [selectedDxbgCustomer, setSelectedDxbgCustomer] = useState<KhachHangItem | null>(null);
   const [selectedBgCustomer, setSelectedBgCustomer] = useState<KhachHangItem | null>(null);
+  const [selectedHdCustomer, setSelectedHdCustomer] = useState<KhachHangItem | null>(null);
 
   const total = customers.length;
   const dangGiaoDich = 0;
@@ -404,6 +415,7 @@ export default function KhachHang() {
                       <ActionButtons 
                         onLapDxbg={() => setSelectedDxbgCustomer(kh)} 
                         onLapBg={() => setSelectedBgCustomer(kh)} 
+                        onLapHd={() => setSelectedHdCustomer(kh)}
                       />
                     </td>
                   </tr>
@@ -460,6 +472,16 @@ export default function KhachHang() {
           console.log("Saved quotation:", data);
         }}
         customer={selectedBgCustomer}
+        customers={customers}
+      />
+
+      <LapHdModal
+        isOpen={selectedHdCustomer !== null}
+        onClose={() => setSelectedHdCustomer(null)}
+        onSave={(data) => {
+          console.log("Saved contract:", data);
+        }}
+        customer={selectedHdCustomer}
         customers={customers}
       />
     </div>

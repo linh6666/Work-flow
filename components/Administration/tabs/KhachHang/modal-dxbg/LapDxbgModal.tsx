@@ -186,7 +186,7 @@ export default function LapDxbgModal({
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
             <IconFileText size={22} className="text-indigo-600" />
-            <h3 className="text-lg font-bold text-slate-800">Lập đề xuất báo giá</h3>
+            <h3 className="text-lg font-bold text-slate-800">Chỉnh sửa hợp đồng</h3>
           </div>
           <button 
             type="button"

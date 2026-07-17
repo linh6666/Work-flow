@@ -12,6 +12,10 @@ import {
 import CreateDeptModal from './createDeptModal/CreateDeptModal';
 import CreateStaffModal from './createStaffModal/CreateStaffModal';
 import CreateJobModal from './createJobModal/CreateJobModal';
+import EditStaffModal from './editStaffModal/EditStaffModal';
+import DeleteStaffModal from './deleteStaffModal/DeleteStaffModal';
+import EditJobModal from './editJobModal/EditJobModal';
+import DeleteJobModal from './deleteJobModal/DeleteJobModal';
 
 interface NhanSuConfigProps {
   onClose: () => void;
@@ -189,6 +193,14 @@ export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
   const [isDeptModalOpen, setIsDeptModalOpen] = useState(false);
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
+  const [isEditStaffModalOpen, setIsEditStaffModalOpen] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<{ id: string; name: string; role: string; price: string } | null>(null);
+  const [isDeleteStaffModalOpen, setIsDeleteStaffModalOpen] = useState(false);
+  const [deletingStaff, setDeletingStaff] = useState<{ id: string; name: string; role: string; price: string } | null>(null);
+  const [isEditJobModalOpen, setIsEditJobModalOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState<{ code: string; name: string } | null>(null);
+  const [isDeleteJobModalOpen, setIsDeleteJobModalOpen] = useState(false);
+  const [deletingJob, setDeletingJob] = useState<{ code: string; name: string } | null>(null);
 
   const activeCount = DEPARTMENTS.find(d => d.name === activeTab)?.count || 0;
   const staffList = STAFF_BY_DEPT[activeTab] || FallbackStaff(activeTab);
@@ -339,7 +351,10 @@ export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
                             <button 
                               type="button" 
                               className="text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
-                              onClick={() => alert(`Sửa nhân viên: ${row.name}`)}
+                              onClick={() => {
+                                setEditingStaff(row);
+                                setIsEditStaffModalOpen(true);
+                              }}
                             >
                               <IconPencil size={16} />
                             </button>
@@ -350,13 +365,16 @@ export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
                             >
                               <IconCopy size={16} />
                             </button>
-                            <button 
-                              type="button" 
-                              className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
-                              onClick={() => alert(`Xóa nhân viên: ${row.name}`)}
-                            >
-                              <IconTrash size={16} />
-                            </button>
+                             <button 
+                               type="button" 
+                               className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                               onClick={() => {
+                                 setDeletingStaff(row);
+                                 setIsDeleteStaffModalOpen(true);
+                               }}
+                             >
+                               <IconTrash size={16} />
+                             </button>
                           </div>
                         </td>
                       </tr>
@@ -402,7 +420,10 @@ export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
                       <button 
                         type="button" 
                         className="text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
-                        onClick={() => alert(`Sửa công việc: ${job.name}`)}
+                        onClick={() => {
+                          setEditingJob(job);
+                          setIsEditJobModalOpen(true);
+                        }}
                       >
                         <IconPencil size={15} />
                       </button>
@@ -416,7 +437,10 @@ export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
                       <button 
                         type="button" 
                         className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
-                        onClick={() => alert(`Xóa công việc: ${job.name}`)}
+                        onClick={() => {
+                          setDeletingJob(job);
+                          setIsDeleteJobModalOpen(true);
+                        }}
                       >
                         <IconTrash size={15} />
                       </button>
@@ -466,6 +490,54 @@ export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
         onClose={() => setIsJobModalOpen(false)}
         defaultDept={activeTab}
         onSave={(job) => alert(`Đã thêm công việc: ${job.name} - Phòng: ${job.dept}`)}
+      />
+
+      {/* Edit Staff Modal */}
+      <EditStaffModal
+        isOpen={isEditStaffModalOpen}
+        onClose={() => {
+          setIsEditStaffModalOpen(false);
+          setEditingStaff(null);
+        }}
+        staff={editingStaff}
+        deptName={activeTab}
+        onSave={(updated) => alert(`Đã lưu thay đổi nhân viên: ${updated.name} (ID: ${updated.id}) - Vai trò: ${updated.role} - Đơn giá: ${updated.price} - Phòng mới: ${updated.dept}`)}
+      />
+
+      {/* Delete Staff Modal */}
+      <DeleteStaffModal
+        isOpen={isDeleteStaffModalOpen}
+        onClose={() => {
+          setIsDeleteStaffModalOpen(false);
+          setDeletingStaff(null);
+        }}
+        staff={deletingStaff}
+        deptName={activeTab}
+        onConfirm={(staffId) => alert(`Đã xác nhận xóa nhân viên có ID: ${staffId}`)}
+      />
+
+      {/* Edit Job Modal */}
+      <EditJobModal
+        isOpen={isEditJobModalOpen}
+        onClose={() => {
+          setIsEditJobModalOpen(false);
+          setEditingJob(null);
+        }}
+        job={editingJob}
+        deptName={activeTab}
+        onSave={(updated) => alert(`Đã cập nhật công việc: ${updated.name} (STT: ${updated.code}) - Phòng: ${updated.dept}`)}
+      />
+
+      {/* Delete Job Modal */}
+      <DeleteJobModal
+        isOpen={isDeleteJobModalOpen}
+        onClose={() => {
+          setIsDeleteJobModalOpen(false);
+          setDeletingJob(null);
+        }}
+        job={deletingJob}
+        deptName={activeTab}
+        onConfirm={(jobCode) => alert(`Đã xác nhận xóa hạng mục công việc có mã: ${jobCode}`)}
       />
     </div>
   );

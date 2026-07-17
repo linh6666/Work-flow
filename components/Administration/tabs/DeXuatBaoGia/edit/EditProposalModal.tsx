@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { IconX, IconChevronDown, IconClipboardList } from '@tabler/icons-react';
-import { DeXuat, TrangThai } from '../../index';
+import { DeXuat, TrangThai } from '../index';
 
 interface EditProposalModalProps {
   isOpen: boolean;

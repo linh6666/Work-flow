@@ -12,8 +12,8 @@ import {
   IconCheck,
 } from '@tabler/icons-react';
 import CreateProposalModal from './modal/CreateProposalModal';
-import EditProposalModal from './modal/edit/EditProposalModal';
-import DeleteConfirmModal from './modal/delete/DeleteConfirmModal';
+import EditProposalModal from './edit/EditProposalModal';
+import DeleteConfirmModal from './delete/DeleteConfirmModal';
 
 // ─── Types ────────────────────────────────────────────────────────────
 export type TrangThai =

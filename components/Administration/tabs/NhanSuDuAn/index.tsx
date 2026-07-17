@@ -14,6 +14,8 @@ import {
 } from '@tabler/icons-react';
 import CreateNhanSuModal from './modal/CreateNhanSuModal';
 import NhanSuConfig from './config/NhanSuConfig';
+import EditNhanSuModal from './editNhanSuModal/EditNhanSuModal';
+import DeleteNhanSuModal from './deleteNhanSuModal/DeleteNhanSuModal';
 
 // ─── Types ────────────────────────────────────────────────────────────
 type TrangThai = 'dang-dien' | 'da-tong-hop';
@@ -74,10 +76,24 @@ export default function NhanSuDuAn() {
   const [data, setData] = useState<NhanSu[]>(MOCK);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfigView, setIsConfigView] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<NhanSu | null>(null);
+  const [isDeleteModalOpen, setIsDeletePlanModalOpen] = useState(false);
+  const [deletingPlan, setDeletingPlan] = useState<NhanSu | null>(null);
 
   const handleCreateNhanSu = (newNhanSu: Omit<NhanSu, 'id'>) => {
     const newId = (data.length + 1).toString();
     setData([{ ...newNhanSu, id: newId }, ...data]);
+  };
+
+  const handleSaveEdit = (updatedPlan: NhanSu) => {
+    setData(prev => prev.map(item => item.id === updatedPlan.id ? updatedPlan : item));
+    alert(`Đã cập nhật kế hoạch dự án: ${updatedPlan.duAn}`);
+  };
+
+  const handleConfirmDelete = (planId: string) => {
+    setData(prev => prev.filter(item => item.id !== planId));
+    alert('Đã xóa thành công kế hoạch nhân sự!');
   };
 
   // Filter logic
@@ -268,14 +284,20 @@ export default function NhanSuDuAn() {
                         <button 
                           type="button" 
                           className="text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
-                          onClick={() => alert(`Chỉnh sửa kế hoạch nhân sự của ${item.duAn}`)}
+                          onClick={() => {
+                            setEditingPlan(item);
+                            setIsEditModalOpen(true);
+                          }}
                         >
                           <IconPencil size={18} />
                         </button>
                         <button 
                           type="button" 
                           className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
-                          onClick={() => alert(`Xóa kế hoạch nhân sự của ${item.duAn}`)}
+                          onClick={() => {
+                            setDeletingPlan(item);
+                            setIsDeletePlanModalOpen(true);
+                          }}
                         >
                           <IconTrash size={18} />
                         </button>
@@ -302,6 +324,26 @@ export default function NhanSuDuAn() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateNhanSu}
+      />
+
+      <EditNhanSuModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingPlan(null);
+        }}
+        plan={editingPlan}
+        onSave={handleSaveEdit}
+      />
+
+      <DeleteNhanSuModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeletePlanModalOpen(false);
+          setDeletingPlan(null);
+        }}
+        plan={deletingPlan}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );

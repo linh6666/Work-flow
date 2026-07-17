@@ -12,9 +12,11 @@ import {
   IconCheck,
 } from '@tabler/icons-react';
 import CreateProposalModal from './modal/CreateProposalModal';
+import EditProposalModal from './modal/edit/EditProposalModal';
+import DeleteConfirmModal from './modal/delete/DeleteConfirmModal';
 
 // ─── Types ────────────────────────────────────────────────────────────
-type TrangThai =
+export type TrangThai =
   | 'cho-tp'
   | 'tp-duyet'
   | 'tp-tu-choi'
@@ -22,7 +24,7 @@ type TrangThai =
   | 'pgd-duyet'
   | 'pgd-tu-choi';
 
-interface DeXuat {
+export interface DeXuat {
   id: string;
   soDX: string;
   donViLienHe: string;
@@ -100,7 +102,15 @@ export default function DeXuatBaoGia() {
   const [search, setSearch]   = useState('');
   const [filter, setFilter]   = useState<TrangThai | 'all'>('all');
   const [data, setData]       = useState<DeXuat[]>(MOCK);
+  
+  // Modals state
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedProposalForEdit, setSelectedProposalForEdit] = useState<DeXuat | null>(null);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedProposalForDelete, setSelectedProposalForDelete] = useState<DeXuat | null>(null);
 
   const handleCreateProposal = (newDX: Omit<DeXuat, 'id' | 'buocHoanTat' | 'tongBuoc'>) => {
     const newId = (data.length + 1).toString();
@@ -111,6 +121,17 @@ export default function DeXuatBaoGia() {
       tongBuoc: 2,
     };
     setData([fullNewDX, ...data]);
+  };
+
+  const handleEditProposal = (updatedDX: DeXuat) => {
+    setData(prev => prev.map(item => item.id === updatedDX.id ? updatedDX : item));
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedProposalForDelete) {
+      setData(prev => prev.filter(item => item.id !== selectedProposalForDelete.id));
+      setSelectedProposalForDelete(null);
+    }
   };
 
   const filtered = data.filter((d) => {
@@ -265,10 +286,24 @@ export default function DeXuatBaoGia() {
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <span className="text-indigo-600 font-semibold text-xs">{row.soDX}</span>
-                          <button type="button" className="text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer">
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              setSelectedProposalForEdit(row);
+                              setIsEditModalOpen(true);
+                            }}
+                            className="text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                          >
                             <IconPencil size={18} />
                           </button>
-                          <button type="button" className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer">
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              setSelectedProposalForDelete(row);
+                              setIsDeleteModalOpen(true);
+                            }}
+                            className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                          >
                             <IconTrash size={18} />
                           </button>
                         </div>
@@ -320,6 +355,26 @@ export default function DeXuatBaoGia() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateProposal}
+      />
+
+      <EditProposalModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedProposalForEdit(null);
+        }}
+        onSubmit={handleEditProposal}
+        proposal={selectedProposalForEdit}
+      />
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedProposalForDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        proposalCode={selectedProposalForDelete?.soDX || ''}
       />
     </div>
   );

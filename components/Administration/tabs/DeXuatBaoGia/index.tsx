@@ -14,6 +14,8 @@ import {
 import CreateProposalModal from './modal/CreateProposalModal';
 import EditProposalModal from './edit/EditProposalModal';
 import DeleteConfirmModal from './delete/DeleteConfirmModal';
+import TrienKhaiHoanTatModal from './trienKhaiHoanTat/TrienKhaiHoanTatModal';
+import TrienKhaiChuaLamModal from './trienKhaiChuaLam/TrienKhaiChuaLamModal';
 
 // ─── Types ────────────────────────────────────────────────────────────
 export type TrangThai =
@@ -112,6 +114,10 @@ export default function DeXuatBaoGia() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedProposalForDelete, setSelectedProposalForDelete] = useState<DeXuat | null>(null);
 
+  const [isTrienKhaiHoanTatModalOpen, setIsTrienKhaiHoanTatModalOpen] = useState(false);
+  const [isTrienKhaiChuaLamModalOpen, setIsTrienKhaiChuaLamModalOpen] = useState(false);
+  const [selectedProposalForTrienKhai, setSelectedProposalForTrienKhai] = useState<DeXuat | null>(null);
+
   const handleCreateProposal = (newDX: Omit<DeXuat, 'id' | 'buocHoanTat' | 'tongBuoc'>) => {
     const newId = (data.length + 1).toString();
     const fullNewDX: DeXuat = {
@@ -132,6 +138,26 @@ export default function DeXuatBaoGia() {
       setData(prev => prev.filter(item => item.id !== selectedProposalForDelete.id));
       setSelectedProposalForDelete(null);
     }
+  };
+
+  const handleUpdateSteps = (proposalId: string, steps: number) => {
+    setData(prev => prev.map(item => {
+      if (item.id === proposalId) {
+        return { ...item, buocHoanTat: steps };
+      }
+      return item;
+    }));
+    setSelectedProposalForTrienKhai(prev => {
+      if (prev && prev.id === proposalId) {
+        const updated = { ...prev, buocHoanTat: steps };
+        if (steps === 2) {
+          setIsTrienKhaiChuaLamModalOpen(false);
+          setIsTrienKhaiHoanTatModalOpen(true);
+        }
+        return updated;
+      }
+      return prev;
+    });
   };
 
   const filtered = data.filter((d) => {
@@ -335,6 +361,14 @@ export default function DeXuatBaoGia() {
                           )}
                           <button
                             type="button"
+                            onClick={() => {
+                              setSelectedProposalForTrienKhai(row);
+                              if (row.buocHoanTat === 2) {
+                                setIsTrienKhaiHoanTatModalOpen(true);
+                              } else {
+                                setIsTrienKhaiChuaLamModalOpen(true);
+                              }
+                            }}
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-all cursor-pointer"
                           >
                             Triển khai
@@ -375,6 +409,25 @@ export default function DeXuatBaoGia() {
         }}
         onConfirm={handleDeleteConfirm}
         proposalCode={selectedProposalForDelete?.soDX || ''}
+      />
+
+      <TrienKhaiHoanTatModal
+        isOpen={isTrienKhaiHoanTatModalOpen}
+        onClose={() => {
+          setIsTrienKhaiHoanTatModalOpen(false);
+          setSelectedProposalForTrienKhai(null);
+        }}
+        proposal={selectedProposalForTrienKhai}
+      />
+
+      <TrienKhaiChuaLamModal
+        isOpen={isTrienKhaiChuaLamModalOpen}
+        onClose={() => {
+          setIsTrienKhaiChuaLamModalOpen(false);
+          setSelectedProposalForTrienKhai(null);
+        }}
+        onUpdateSteps={handleUpdateSteps}
+        proposal={selectedProposalForTrienKhai}
       />
     </div>
   );

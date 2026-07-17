@@ -13,6 +13,7 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 import CreateNhanSuModal from './modal/CreateNhanSuModal';
+import NhanSuConfig from './config/NhanSuConfig';
 
 // ─── Types ────────────────────────────────────────────────────────────
 type TrangThai = 'dang-dien' | 'da-tong-hop';
@@ -72,6 +73,7 @@ export default function NhanSuDuAn() {
   const [search, setSearch] = useState('');
   const [data, setData] = useState<NhanSu[]>(MOCK);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfigView, setIsConfigView] = useState(false);
 
   const handleCreateNhanSu = (newNhanSu: Omit<NhanSu, 'id'>) => {
     const newId = (data.length + 1).toString();
@@ -89,6 +91,10 @@ export default function NhanSuDuAn() {
   const total = data.length;
   const dangDien = data.filter(item => item.trangThai === 'dang-dien').length;
   const hoanThanh = data.filter(item => item.trangThai === 'da-tong-hop').length;
+
+  if (isConfigView) {
+    return <NhanSuConfig onClose={() => setIsConfigView(false)} />;
+  }
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -120,7 +126,7 @@ export default function NhanSuDuAn() {
           <button 
             type="button" 
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer shadow-xs transition-all active:scale-95"
-            onClick={() => alert("Mở cấu hình mẫu nhân sự...")}
+            onClick={() => setIsConfigView(true)}
           >
             <IconSettings size={14} />
             Cấu hình mẫu nhân sự

@@ -11,6 +11,7 @@ import {
   IconArrowsSort,
   IconCheck,
 } from '@tabler/icons-react';
+import CreateProposalModal from './modal/CreateProposalModal';
 
 // ─── Types ────────────────────────────────────────────────────────────
 type TrangThai =
@@ -31,6 +32,21 @@ interface DeXuat {
   trangThai: TrangThai;
   buocHoanTat: number;
   tongBuoc: number;
+  khachHangCrm?: string;
+  noiDungYeuCau?: string;
+  tenDuAn?: string;
+  tyLeMoHinh?: string;
+  kichThuocDuKien?: string;
+  diaDiemLapDat?: string;
+  loaiChan?: string;
+  kinh?: string;
+  anhSang?: string[];
+  congNghe?: string[];
+  tinhTrangHoSo?: string;
+  thoiGianBaoGia?: string;
+  thoiGianMoHinh?: string;
+  duongDanHoSo?: string;
+  ghiChu?: string;
 }
 
 // ─── Mock data ────────────────────────────────────────────────────────
@@ -83,7 +99,19 @@ const FILTER_TABS: { key: TrangThai | 'all'; label: string }[] = [
 export default function DeXuatBaoGia() {
   const [search, setSearch]   = useState('');
   const [filter, setFilter]   = useState<TrangThai | 'all'>('all');
-  const [data]                = useState<DeXuat[]>(MOCK);
+  const [data, setData]       = useState<DeXuat[]>(MOCK);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCreateProposal = (newDX: Omit<DeXuat, 'id' | 'buocHoanTat' | 'tongBuoc'>) => {
+    const newId = (data.length + 1).toString();
+    const fullNewDX: DeXuat = {
+      ...newDX,
+      id: newId,
+      buocHoanTat: newDX.trangThai === 'pgd-duyet' ? 2 : (newDX.trangThai === 'tp-duyet' ? 1 : 0),
+      tongBuoc: 2,
+    };
+    setData([fullNewDX, ...data]);
+  };
 
   const filtered = data.filter((d) => {
     const matchSearch =
@@ -113,6 +141,7 @@ export default function DeXuatBaoGia() {
         </div>
         <button
           type="button"
+          onClick={() => setIsModalOpen(true)}
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-white text-sm font-semibold shadow-sm transition-all cursor-pointer active:scale-95"
           style={{ backgroundColor: '#406c89' }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#345a74')}
@@ -286,6 +315,12 @@ export default function DeXuatBaoGia() {
           </table>
         </div>
       </div>
+
+      <CreateProposalModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleCreateProposal}
+      />
     </div>
   );
 }

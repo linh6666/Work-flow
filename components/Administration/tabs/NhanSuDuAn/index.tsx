@@ -16,6 +16,7 @@ import CreateNhanSuModal from './modal/CreateNhanSuModal';
 import NhanSuConfig from './config/NhanSuConfig';
 import EditNhanSuModal from './editNhanSuModal/EditNhanSuModal';
 import DeleteNhanSuModal from './deleteNhanSuModal/DeleteNhanSuModal';
+import XemNhanSu from './xemNhanSu/XemNhanSu';
 
 // ─── Types ────────────────────────────────────────────────────────────
 type TrangThai = 'dang-dien' | 'da-tong-hop';
@@ -80,6 +81,8 @@ export default function NhanSuDuAn() {
   const [editingPlan, setEditingPlan] = useState<NhanSu | null>(null);
   const [isDeleteModalOpen, setIsDeletePlanModalOpen] = useState(false);
   const [deletingPlan, setDeletingPlan] = useState<NhanSu | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewingPlan, setViewingPlan] = useState<NhanSu | null>(null);
 
   const handleCreateNhanSu = (newNhanSu: Omit<NhanSu, 'id'>) => {
     const newId = (data.length + 1).toString();
@@ -110,6 +113,22 @@ export default function NhanSuDuAn() {
 
   if (isConfigView) {
     return <NhanSuConfig onClose={() => setIsConfigView(false)} />;
+  }
+
+  if (isViewModalOpen && viewingPlan) {
+    return (
+      <XemNhanSu 
+        plan={viewingPlan} 
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setViewingPlan(null);
+        }} 
+        onEdit={() => {
+          setEditingPlan(viewingPlan);
+          setIsEditModalOpen(true);
+        }}
+      />
+    );
   }
 
   return (
@@ -304,7 +323,10 @@ export default function NhanSuDuAn() {
                         <button 
                           type="button" 
                           className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer shadow-2xs transition-all active:scale-95"
-                          onClick={() => alert(`Xem chi tiết ${item.duAn}`)}
+                          onClick={() => {
+                            setViewingPlan(item);
+                            setIsViewModalOpen(true);
+                          }}
                         >
                           Xem
                           <IconChevronRight size={12} className="text-slate-400" />
@@ -345,6 +367,7 @@ export default function NhanSuDuAn() {
         plan={deletingPlan}
         onConfirm={handleConfirmDelete}
       />
+
     </div>
   );
 }

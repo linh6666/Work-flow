@@ -9,6 +9,9 @@ import {
   IconCopy, 
   IconTrash 
 } from '@tabler/icons-react';
+import CreateDeptModal from './createDeptModal/CreateDeptModal';
+import CreateStaffModal from './createStaffModal/CreateStaffModal';
+import CreateJobModal from './createJobModal/CreateJobModal';
 
 interface NhanSuConfigProps {
   onClose: () => void;
@@ -183,6 +186,9 @@ const FallbackStaff = (deptName: string) => [
 
 export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
   const [activeTab, setActiveTab] = useState('Điện'); // Default to Điện to match user context
+  const [isDeptModalOpen, setIsDeptModalOpen] = useState(false);
+  const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
+  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
 
   const activeCount = DEPARTMENTS.find(d => d.name === activeTab)?.count || 0;
   const staffList = STAFF_BY_DEPT[activeTab] || FallbackStaff(activeTab);
@@ -228,7 +234,7 @@ export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
           <button 
             type="button" 
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer shadow-2xs transition-all active:scale-95"
-            onClick={() => alert("Thêm phòng ban mới...")}
+            onClick={() => setIsDeptModalOpen(true)}
           >
             <IconFolderPlus size={14} />
             Thêm phòng ban
@@ -237,7 +243,7 @@ export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
           <button 
             type="button" 
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-white text-xs font-bold shadow-sm cursor-pointer transition-all active:scale-95 bg-[#2d3785] hover:bg-[#202760]"
-            onClick={() => alert("Thêm nhân viên mới...")}
+            onClick={() => setIsStaffModalOpen(true)}
           >
             <IconPlus size={14} />
             Thêm nhân viên
@@ -376,7 +382,7 @@ export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
               <button 
                 type="button"
                 className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-655 hover:bg-slate-50 cursor-pointer shadow-3xs active:scale-95 transition-all"
-                onClick={() => alert("Thêm công việc mới...")}
+                onClick={() => setIsJobModalOpen(true)}
               >
                 <IconPlus size={12} />
                 Thêm CV
@@ -438,6 +444,29 @@ export default function NhanSuConfig({ onClose }: NhanSuConfigProps) {
         </div>
 
       </div>
+
+      {/* Create Department Modal */}
+      <CreateDeptModal 
+        isOpen={isDeptModalOpen}
+        onClose={() => setIsDeptModalOpen(false)}
+        onSave={(name, code) => alert(`Đã tạo phòng ban: ${name} (${code || 'Không có mã'})`)}
+      />
+
+      {/* Create Staff Modal */}
+      <CreateStaffModal
+        isOpen={isStaffModalOpen}
+        onClose={() => setIsStaffModalOpen(false)}
+        defaultDept={activeTab}
+        onSave={(staff) => alert(`Đã thêm nhân viên: ${staff.name} [Mã: ${staff.id}] - Vai trò: ${staff.role} - Đơn giá: ${staff.price} - Phòng: ${staff.dept}`)}
+      />
+
+      {/* Create Job Modal */}
+      <CreateJobModal
+        isOpen={isJobModalOpen}
+        onClose={() => setIsJobModalOpen(false)}
+        defaultDept={activeTab}
+        onSave={(job) => alert(`Đã thêm công việc: ${job.name} - Phòng: ${job.dept}`)}
+      />
     </div>
   );
 }

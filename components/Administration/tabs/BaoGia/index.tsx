@@ -226,8 +226,8 @@ export default function BaoGia() {
     <div className="flex-1 flex flex-col bg-[#fafbfc] overflow-hidden select-none">
       {/* 1. STICKY HEADER */}
       <div className="sticky top-0 z-10 bg-[#fafbfc] px-8 pt-6 pb-4 border-b border-slate-100 shrink-0">
-        <div className="flex items-center gap-2.5 text-indigo-600 font-bold mb-2">
-          <div className="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+        <div className="flex items-center gap-2.5 text-[#406c89] font-bold mb-2">
+          <div className="w-9 h-9 rounded-lg bg-[#406c89]/10 border border-[#406c89]/20 flex items-center justify-center text-[#406c89]">
             <IconFileText size={20} />
           </div>
           <span className="text-slate-800 text-lg font-black">Báo giá</span>
@@ -292,7 +292,7 @@ export default function BaoGia() {
           {/* Card 1 */}
           <div className="bg-white border border-slate-200/50 rounded-xl p-4 flex flex-col justify-between h-[88px] shadow-xs hover:shadow-sm transition-shadow">
             <span className="text-xs font-semibold text-slate-400">Tổng báo giá</span>
-            <span className="text-2xl font-extrabold text-indigo-600 leading-none">{totalCount}</span>
+            <span className="text-2xl font-extrabold text-[#406c89] leading-none">{totalCount}</span>
           </div>
 
           {/* Card 2 */}
@@ -384,13 +384,13 @@ export default function BaoGia() {
                           className="w-3.5 h-3.5 rounded border-slate-300 text-[#406c89] focus:ring-[#406c89] cursor-pointer"
                         />
                       </td>
-                      <td className="p-3.5 font-semibold text-indigo-600">
+                      <td className="p-3.5 font-semibold text-[#406c89]">
                         <div className="flex items-center gap-3">
                           <span>{item.soBg}</span>
                           <div className="flex items-center gap-1 shrink-0">
                             <button
                               onClick={() => handleOpenEditModal(item)}
-                              className="p-1 hover:bg-indigo-50 rounded text-indigo-500 hover:text-indigo-700 transition-all cursor-pointer"
+                              className="p-1 hover:bg-slate-100 rounded text-[#406c89] hover:text-[#345972] transition-all cursor-pointer"
                               title="Sửa"
                             >
                               <IconPencil size={15} />
@@ -429,7 +429,7 @@ export default function BaoGia() {
                       <td className="p-3.5">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${
                           item.trangThai === 'Đã gửi'
-                            ? 'bg-indigo-50 text-indigo-600 border-indigo-100'
+                            ? 'bg-[#406c89]/10 text-[#406c89] border-[#406c89]/20'
                             : item.trangThai === 'Đã chốt'
                             ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                             : item.trangThai === 'Đang soạn'

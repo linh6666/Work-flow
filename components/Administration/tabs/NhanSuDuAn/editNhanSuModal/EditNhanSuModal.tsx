@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { IconX, IconChevronDown, IconDeviceFloppy } from '@tabler/icons-react';
+import { IconX, IconChevronDown, IconBulb } from '@tabler/icons-react';
 
 interface NhanSuData {
   id: string;
@@ -56,7 +56,7 @@ const FOOT_OPTIONS = ['Chân mô hình vát', 'Chân khung thép bọc gỗ lami
 const GLASS_OPTIONS = ['Lồng kính', 'Kính cường lực 10mm', 'Mica bảo vệ', 'Không có kính'];
 
 export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditNhanSuModalProps) {
-  const [soDX, setSoDX] = useState('');
+  const [soDX, setSoDX] = useState('ĐXBG-002-2026');
   const [duAn, setDuAn] = useState('');
   const [khachHang, setKhachHang] = useState('');
   const [tyLeMoHinh, setTyLeMoHinh] = useState('');
@@ -85,8 +85,8 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
       setLoaiChan(plan.loaiChan || 'Chân mô hình vát');
       setKinh(plan.kinh || 'Lồng kính');
       setAnhSang(plan.anhSang || ['Ánh sáng công trình ngẫu nhiên', 'Ánh sáng Cảnh quan']);
-      setCongNghe(plan.congNghe || []);
-      setGhiChu(plan.ghiChu || '');
+      setCongNghe(plan.congNghe || ['Hệ thống ánh sáng điều khiển Galaxy Tab']);
+      setGhiChu(plan.ghiChu || 'Tự động tạo khi PGĐ phê duyệt Đề xuất ĐXBG-002-2026');
       setTrangThai(plan.trangThai);
     }
   }, [isOpen, plan]);
@@ -102,40 +102,36 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
     }
   };
 
-  const toggleLight = (option: string) => {
+  const toggleLight = (opt: string) => {
     setAnhSang(prev => 
-      prev.includes(option) ? prev.filter(item => item !== option) : [...prev, option]
+      prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt]
     );
   };
 
-  const toggleTech = (option: string) => {
+  const toggleTech = (opt: string) => {
     setCongNghe(prev => 
-      prev.includes(option) ? prev.filter(item => item !== option) : [...prev, option]
+      prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt]
     );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!duAn.trim()) {
-      alert("Vui lòng điền tên dự án / mô hình!");
-      return;
-    }
     onSave({
       ...plan,
       duAn,
       khachHang,
-      ngayLap,
-      trangThai,
       lienKetDeXuat: soDX,
       tyLeMoHinh,
       kichThuocDuKien,
       diaDiemLapDat,
       duongDanHoSo,
+      ngayLap,
       loaiChan,
       kinh,
       anhSang,
       congNghe,
       ghiChu,
+      trangThai,
     });
     onClose();
   };
@@ -147,11 +143,14 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
       <div className="absolute inset-0" onClick={onClose} />
 
       {/* Modal Content Card */}
-      <div className="relative bg-white w-full max-w-[650px] my-8 rounded-2xl shadow-lg border border-slate-100/50 overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+      <div className="relative bg-white w-full max-w-[620px] my-8 rounded-2xl shadow-lg border border-slate-100/50 overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-white">
-          <h3 className="text-[17px] font-bold text-slate-800 tracking-tight">Chỉnh sửa Bản dự kiến Nhân sự</h3>
+        <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 bg-white">
+          <div>
+            <h3 className="text-base font-bold text-slate-800">Chỉnh sửa Bản dự kiến Nhân sự</h3>
+            <p className="text-[10px] text-slate-400 font-semibold mt-0.5 uppercase tracking-wider">{plan.maKH}</p>
+          </div>
           <button 
             type="button"
             onClick={onClose}
@@ -162,136 +161,128 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
         </div>
 
         {/* Scrollable Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5 text-xs no-scrollbar">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs no-scrollbar">
           
-          {/* Section 1: Thông tin chung */}
-          <div className="space-y-4">
-            <h4 className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
-              THÔNG TIN DỰ ÁN
-            </h4>
-
-            {/* Liên kết đề xuất */}
-            <div className="flex flex-col gap-1.5">
-              <label className="font-bold text-slate-700">Liên kết Đề xuất báo giá đã duyệt <span className="text-red-500 font-bold">*</span></label>
-              <div className="relative">
-                <select
-                  value={soDX}
-                  onChange={(e) => handleProposalChange(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-indigo-500 bg-white text-slate-800 appearance-none focus:outline-hidden focus:ring-1 focus:ring-indigo-500 transition-all cursor-pointer font-semibold pr-10"
-                >
-                  <option value="">-- Chọn Đề xuất báo giá --</option>
-                  {APPROVED_PROPOSALS.map((p) => (
-                    <option key={p.id} value={p.id}>{p.label}</option>
-                  ))}
-                </select>
-                <IconChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
-              <span className="text-[10px] text-slate-450 font-medium mt-0.5 ml-0.5 block">
-                Chi hiển thị các đề xuất đã được duyệt bởi Trưởng phòng hoặc Phó Giám đốc
-              </span>
+          {/* 1. Đề xuất báo giá */}
+          <div className="flex flex-col gap-1.5">
+            <label className="font-bold text-slate-700">Liên kết Đề xuất báo giá đã duyệt *</label>
+            <div className="relative">
+              <select
+                value={soDX}
+                onChange={(e) => handleProposalChange(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-850 appearance-none focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all cursor-pointer font-semibold pr-10"
+              >
+                {APPROVED_PROPOSALS.map((p) => (
+                  <option key={p.id} value={p.id}>{p.label}</option>
+                ))}
+              </select>
+              <IconChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             </div>
-
-            {/* Row 2: Tên dự án & Khách hàng */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-slate-700">Tên dự án / mô hình <span className="text-red-500 font-bold">*</span></label>
-                <input
-                  type="text"
-                  required
-                  value={duAn}
-                  onChange={(e) => setDuAn(e.target.value)}
-                  placeholder="Nhập tên dự án / mô hình"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-slate-700">Khách hàng</label>
-                <input
-                  type="text"
-                  value={khachHang}
-                  onChange={(e) => setKhachHang(e.target.value)}
-                  placeholder="Nhập tên khách hàng"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
-                />
-              </div>
-            </div>
-
-            {/* Row 3: Tỷ lệ mô hình & Kích thước */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-slate-700">Tỷ lệ mô hình</label>
-                <input
-                  type="text"
-                  value={tyLeMoHinh}
-                  onChange={(e) => setTyLeMoHinh(e.target.value)}
-                  placeholder="VD: 1/100, 1/200..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-slate-700">Kích thước dự kiến</label>
-                <input
-                  type="text"
-                  value={kichThuocDuKien}
-                  onChange={(e) => setKichThuocDuKien(e.target.value)}
-                  placeholder="VD: 2.4m x 3.6m..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
-                />
-              </div>
-            </div>
-
-            {/* Row 4: Địa điểm lắp đặt */}
-            <div className="flex flex-col gap-1.5">
-              <label className="font-bold text-slate-700">Địa điểm lắp đặt mô hình</label>
-              <input
-                type="text"
-                value={diaDiemLapDat}
-                onChange={(e) => setDiaDiemLapDat(e.target.value)}
-                placeholder="Nhập địa điểm lắp đặt"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
-              />
-            </div>
-
-            {/* Row 5: Đường dẫn hồ sơ */}
-            <div className="flex flex-col gap-1.5">
-              <label className="font-bold text-slate-700">Đường dẫn hồ sơ dự án</label>
-              <input
-                type="text"
-                value={duongDanHoSo}
-                onChange={(e) => setDuongDanHoSo(e.target.value)}
-                placeholder="https://drive.google.com/..."
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
-              />
-              <span className="text-[10px] text-slate-450 font-medium mt-0.5 ml-0.5 block">
-                Link Google Drive, SharePoint, hoặc đường dẫn hồ sơ lưu trữ
-              </span>
-            </div>
-
-            {/* Row 6: Ngày lập */}
-            <div className="flex flex-col gap-1.5 w-[220px]">
-              <label className="font-bold text-slate-700">Ngày lập</label>
-              <input
-                type="date"
-                required
-                value={ngayLap}
-                onChange={(e) => setNgayLap(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
-              />
-            </div>
-
+            <span className="text-[10px] text-slate-400 font-semibold mt-0.5 ml-0.5 block">
+              Chi hiển thị các đề xuất đã được duyệt bởi Trưởng phòng hoặc Phó Giám đốc
+            </span>
           </div>
 
-          <div className="border-t border-slate-100/80 pt-3" />
+          {/* 2. Tên dự án / mô hình & Khách hàng */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="font-bold text-slate-700">Tên dự án / mô hình *</label>
+              <input
+                type="text"
+                required
+                value={duAn}
+                onChange={(e) => setDuAn(e.target.value)}
+                placeholder="Nhập tên mô hình"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
+              />
+            </div>
 
-          {/* Section 2: Thông số kỹ thuật mô hình */}
+            <div className="flex flex-col gap-1.5">
+              <label className="font-bold text-slate-700">Khách hàng</label>
+              <input
+                type="text"
+                value={khachHang}
+                onChange={(e) => setKhachHang(e.target.value)}
+                placeholder="Nhập tên khách hàng"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
+              />
+            </div>
+          </div>
+
+          {/* 3. Tỷ lệ & Kích thước */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="font-bold text-slate-700">Tỷ lệ mô hình</label>
+              <input
+                type="text"
+                value={tyLeMoHinh}
+                onChange={(e) => setTyLeMoHinh(e.target.value)}
+                placeholder="Ví dụ: 1/500"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="font-bold text-slate-700">Kích thước dự kiến</label>
+              <input
+                type="text"
+                value={kichThuocDuKien}
+                onChange={(e) => setKichThuocDuKien(e.target.value)}
+                placeholder="Ví dụ: 3000x4000mm"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
+              />
+            </div>
+          </div>
+
+          {/* 4. Địa điểm lắp đặt */}
+          <div className="flex flex-col gap-1.5">
+            <label className="font-bold text-slate-700">Địa điểm lắp đặt mô hình</label>
+            <input
+              type="text"
+              value={diaDiemLapDat}
+              onChange={(e) => setDiaDiemLapDat(e.target.value)}
+              placeholder="Nhập địa điểm lắp đặt"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
+            />
+          </div>
+
+          {/* 5. Đường dẫn hồ sơ */}
+          <div className="flex flex-col gap-1.5">
+            <label className="font-bold text-slate-700">Đường dẫn hồ sơ dự án</label>
+            <input
+              type="text"
+              value={duongDanHoSo}
+              onChange={(e) => setDuongDanHoSo(e.target.value)}
+              placeholder="https://drive.google.com/..."
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
+            />
+            <span className="text-[10px] text-slate-400 font-semibold mt-0.5 ml-0.5 block">
+              Link Google Drive, SharePoint, hoặc đường dẫn hồ sơ lưu trữ
+            </span>
+          </div>
+
+          {/* 6. Ngày lập */}
+          <div className="flex flex-col gap-1.5 w-[220px]">
+            <label className="font-bold text-slate-700">Ngày lập</label>
+            <input
+              type="date"
+              required
+              value={ngayLap}
+              onChange={(e) => setNgayLap(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
+            />
+          </div>
+
+          {/* Divider */}
+          <hr className="border-slate-100 my-1" />
+
+          {/* Section: Thông số kỹ thuật */}
           <div className="space-y-4">
-            <h4 className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
-              THÔNG SỐ KỸ THUẬT MÔ HÌNH
+            <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Thông số kỹ thuật mô hình
             </h4>
 
-            {/* Row 1: Loại chân & Kính */}
+            {/* Chân & Kính */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label className="font-bold text-slate-700">Loại chân</label>
@@ -326,7 +317,7 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
               </div>
             </div>
 
-            {/* Row 2: Ánh sáng */}
+            {/* Ánh sáng */}
             <div className="flex flex-col gap-2">
               <label className="font-bold text-slate-700">Ánh sáng (chọn một hoặc nhiều)</label>
               <div className="flex flex-wrap gap-2.5">
@@ -339,7 +330,7 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
                       onClick={() => toggleLight(opt)}
                       className={`px-4.5 py-2 text-xs font-bold rounded-full transition-all cursor-pointer border active:scale-95 ${
                         isChecked 
-                          ? 'bg-[#2b2c7c] text-white border-transparent' 
+                          ? 'bg-[#3b3dbf] text-white border-transparent shadow-2xs' 
                           : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
                       }`}
                     >
@@ -350,9 +341,9 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
               </div>
             </div>
 
-            {/* Row 3: Công nghệ */}
-            <div className="flex flex-col gap-2 pt-1">
-              <label className="font-bold text-slate-700">Công nghệ tích hợp (chọn một hoặc nhiều)</label>
+            {/* Công nghệ */}
+            <div className="flex flex-col gap-2">
+              <label className="font-bold text-slate-700">Công nghệ (chọn một hoặc nhiều)</label>
               <div className="flex flex-wrap gap-2.5">
                 {TECH_OPTIONS.map((opt) => {
                   const isChecked = congNghe.includes(opt);
@@ -363,7 +354,7 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
                       onClick={() => toggleTech(opt)}
                       className={`px-4.5 py-2 text-xs font-bold rounded-full transition-all cursor-pointer border active:scale-95 ${
                         isChecked 
-                          ? 'bg-[#2b2c7c] text-white border-transparent' 
+                          ? 'bg-[#3b3dbf] text-white border-transparent shadow-2xs' 
                           : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
                       }`}
                     >
@@ -374,16 +365,27 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
               </div>
             </div>
 
-            {/* Ghi chú thêm */}
-            <div className="flex flex-col gap-2.5 pt-1">
-              <label className="font-bold text-slate-700">Ghi chú thêm</label>
-              <textarea
-                rows={3}
+            {/* Divider */}
+            <hr className="border-slate-100 my-1" />
+
+            {/* Ghi chú */}
+            <div className="flex flex-col gap-1.5">
+              <label className="font-bold text-slate-700">Ghi chú</label>
+              <input
+                type="text"
                 value={ghiChu}
                 onChange={(e) => setGhiChu(e.target.value)}
-                placeholder="Nhập các ghi chú, lưu ý đặc biệt cho kế hoạch..."
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold resize-none"
+                placeholder="Nhập ghi chú"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
               />
+            </div>
+
+            {/* Info notice bar */}
+            <div className="flex items-start gap-2 p-3.5 rounded-xl bg-blue-50/50 border border-blue-100 text-indigo-900 leading-normal text-xs font-semibold">
+              <IconBulb size={16} className="text-amber-500 shrink-0 mt-0.5" />
+              <span>
+                Sau khi tạo, toàn bộ phòng ban Kỹ thuật sẽ nhìn thấy mẫu này và tự vào điền thông tin nhân sự của phòng mình.
+              </span>
             </div>
 
           </div>
@@ -391,7 +393,7 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
         </form>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4.5 border-t border-slate-100 bg-slate-50/30">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/30 shrink-0">
           <button
             type="button"
             onClick={onClose}
@@ -402,9 +404,8 @@ export default function EditNhanSuModal({ isOpen, onClose, plan, onSave }: EditN
           <button
             type="button"
             onClick={handleSubmit}
-            className="inline-flex items-center gap-1.5 px-6 py-2.5 text-xs font-bold text-white bg-[#2b2c7c] hover:bg-[#1e1f57] rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer border-0"
+            className="px-6 py-2.5 text-xs font-bold text-white bg-[#3b3dbf] hover:bg-[#2c2ea3] rounded-xl shadow-2xs transition-all active:scale-95 cursor-pointer border-0"
           >
-            <IconDeviceFloppy size={16} />
             Lưu thay đổi
           </button>
         </div>

@@ -123,10 +123,7 @@ export default function NhanSuDuAn() {
           setIsViewModalOpen(false);
           setViewingPlan(null);
         }} 
-        onEdit={() => {
-          setEditingPlan(viewingPlan);
-          setIsEditModalOpen(true);
-        }}
+        onPlanUpdate={handleSaveEdit}
       />
     );
   }

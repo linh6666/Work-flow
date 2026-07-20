@@ -9,10 +9,12 @@ import {
   IconAdjustmentsHorizontal
 } from '@tabler/icons-react';
 import TemplateModal from './modal/QuanLyTemplate';
+import TaoHopDongModal from './modal/TaoHopDong';
 
 export default function HopDong() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isTaoHopDongModalOpen, setIsTaoHopDongModalOpen] = useState(false);
 
   return (
     <div className="p-5 md:p-6 space-y-5 animate-fade-in text-slate-700 w-full">
@@ -41,6 +43,7 @@ export default function HopDong() {
 
           <button
             type="button"
+            onClick={() => setIsTaoHopDongModalOpen(true)}
             className="flex items-center gap-1.5 px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
           >
             <IconPlus size={16} />
@@ -130,6 +133,12 @@ export default function HopDong() {
       <TemplateModal
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
+      />
+
+      {/* Modal Tạo Hợp đồng mới */}
+      <TaoHopDongModal
+        isOpen={isTaoHopDongModalOpen}
+        onClose={() => setIsTaoHopDongModalOpen(false)}
       />
     </div>
   );

@@ -33,19 +33,19 @@ export default function XoaMauModal({ isOpen, onClose, template, onConfirm }: Xo
           Bạn có chắc muốn xóa mục <strong className="font-bold text-slate-900">"{template.title}"</strong>? Hành động này không thể hoàn tác.
         </p>
 
-        {/* Footer Buttons */}
-        <div className="pt-2 flex items-center justify-end gap-3">
+        {/* Footer Buttons - Increased size & color #406c89 */}
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
+            className="px-5 py-2.5 bg-white border border-slate-200/90 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
           >
             Hủy
           </button>
           <button
             type="button"
             onClick={handleConfirmDelete}
-            className="px-5 py-2 bg-[#EF4444] hover:bg-[#DC2626] text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-xs"
+            className="px-5 py-2.5 bg-[#406c89] hover:bg-[#345972] text-white text-xs sm:text-sm font-semibold rounded-xl transition-colors cursor-pointer shadow-xs"
           >
             Xóa
           </button>

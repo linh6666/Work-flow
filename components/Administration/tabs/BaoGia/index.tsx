@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import ThemBaoGiaModal from './modal/ThemBaoGiaModal';
+import XoaBaoGiaModal from './modal/XoaBaoGia';
 import {
   IconPlus,
   IconSearch,
@@ -572,42 +573,13 @@ export default function BaoGia() {
         </div>
       )}
 
-      {/* ─── MODAL: XÁC NHẬN XÓA ─────────────────────────────────────────── */}
-      {isDeleteModalOpen && deletingItem && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col transform transition-all animate-scale-up">
-            <div className="p-5 flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shrink-0">
-                <IconTrashX size={20} />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-bold text-slate-800">Xóa báo giá</h3>
-                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-                  Bạn có chắc chắn muốn xóa báo giá <span className="font-bold text-slate-700">{deletingItem.soBg}</span>? 
-                  Hành động này không thể hoàn tác.
-                </p>
-              </div>
-            </div>
-            
-            <div className="bg-slate-50 px-5 py-3.5 flex items-center justify-end gap-2 border-t border-slate-200/50">
-              <button
-                type="button"
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="px-3.5 py-1.8 bg-white border border-slate-200 text-slate-500 text-xs font-bold rounded-lg hover:bg-slate-100 cursor-pointer"
-              >
-                Hủy
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmDelete}
-                className="px-3.5 py-1.8 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg cursor-pointer"
-              >
-                Đồng ý xóa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ─── MODAL: XÁC NHẬN XÓA BÁO GIÁ (Folder riêng XoaBaoGia) ───────── */}
+      <XoaBaoGiaModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        deletingItem={deletingItem}
+        onConfirm={handleConfirmDelete}
+      />
 
       {/* ─── MODAL: QUẢN LÝ TEMPLATE ──────────────────────────────────────── */}
       {isTemplateModalOpen && (

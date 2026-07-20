@@ -10,7 +10,9 @@ import {
   IconFileText,
   IconPaperclip,
   IconArrowRight,
-  IconArrowLeft
+  IconDownload,
+  IconChevronDown,
+  IconCheck
 } from '@tabler/icons-react';
 
 import ThongTinChungTab from './tabs/ThongTinChung';
@@ -30,6 +32,8 @@ type TabType = typeof TAB_ORDER[number];
 
 export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('info');
+  const [ngonNgu, setNgonNgu] = useState<'VN' | 'GB' | 'VNGB'>('VN');
+  const [mauHopDongCoSan, setMauHopDongCoSan] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -73,18 +77,11 @@ export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongM
   const tongSauThue = afterDiscount + vatVal;
 
   const currentTabIndex = TAB_ORDER.indexOf(activeTab);
-  const isFirstTab = currentTabIndex === 0;
   const isLastTab = currentTabIndex === TAB_ORDER.length - 1;
 
   const handleNext = () => {
     if (!isLastTab) {
       setActiveTab(TAB_ORDER[currentTabIndex + 1]);
-    }
-  };
-
-  const handleBack = () => {
-    if (!isFirstTab) {
-      setActiveTab(TAB_ORDER[currentTabIndex - 1]);
     }
   };
 
@@ -157,6 +154,88 @@ export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongM
           >
             <IconX size={18} />
           </button>
+        </div>
+
+        {/* TOP BANNER ABOVE TABS: Ngôn ngữ HĐ & Tạo từ mẫu hợp đồng có sẵn */}
+        <div className="px-6 pt-4 pb-3 space-y-3.5 border-b border-slate-100 bg-white shrink-0 select-none">
+          {/* Row 1: Ngôn ngữ HĐ */}
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-slate-600 shrink-0">Ngôn ngữ HĐ:</span>
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setNgonNgu('VN')}
+                className={`px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+                  ngonNgu === 'VN'
+                    ? 'bg-[#3b38c2] text-white font-bold shadow-xs'
+                    : 'bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 font-semibold shadow-2xs'
+                }`}
+              >
+                <span className="text-[10px] opacity-80 uppercase font-mono">VN</span>
+                <span>Tiếng Việt</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setNgonNgu('GB')}
+                className={`px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+                  ngonNgu === 'GB'
+                    ? 'bg-[#3b38c2] text-white font-bold shadow-xs'
+                    : 'bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 font-semibold shadow-2xs'
+                }`}
+              >
+                <span className="text-[10px] opacity-80 uppercase font-mono">GB</span>
+                <span>Tiếng Anh</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setNgonNgu('VNGB')}
+                className={`px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+                  ngonNgu === 'VNGB'
+                    ? 'bg-[#3b38c2] text-white font-bold shadow-xs'
+                    : 'bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 font-semibold shadow-2xs'
+                }`}
+              >
+                <span className="text-[10px] opacity-80 uppercase font-mono">VNGB</span>
+                <span>Việt - Anh</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Row 2: Card Green Accent - TẠO TỪ MẪU HỢP ĐỒNG CÓ SẴN */}
+          <div className="bg-[#f0fdf4]/90 border border-[#86efac] rounded-2xl p-4 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs tracking-wide uppercase">
+              <div className="flex items-center gap-1 text-emerald-700">
+                <IconDownload size={16} />
+                <IconClipboardList size={16} />
+              </div>
+              <span>TẠO TỪ MẪU HỢP ĐỒNG CÓ SẴN</span>
+            </div>
+
+            <div className="relative">
+              <select
+                value={mauHopDongCoSan}
+                onChange={(e) => setMauHopDongCoSan(e.target.value)}
+                className="w-full text-xs bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer pr-9"
+              >
+                <option value="" disabled hidden>
+                  Chọn mẫu để tải nội dung hợp đồng...
+                </option>
+                <option value="mau-01">Mẫu 01: Hợp đồng sản xuất mô hình quy hoạch tổng thể</option>
+                <option value="mau-02">Mẫu 02: Hợp đồng chế tác sa bàn kiến trúc dự án</option>
+                <option value="mau-03">Mẫu 03: Hợp đồng sản xuất mô hình nội thất thương mại</option>
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                <IconChevronDown size={16} />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-medium pt-0.5">
+              <IconCheck size={16} className="text-emerald-600 shrink-0" />
+              <span>Nội dung hợp đồng sẽ được tải từ mẫu đã chọn</span>
+            </div>
+          </div>
         </div>
 
         {/* Top 5 Horizontal Tabs Navigation Bar */}
@@ -239,7 +318,7 @@ export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongM
 
         </div>
 
-        {/* Tab Form Content (Scrollable Middle) */}
+        {/* Tab Form Content (Scrollable Middle with hidden scrollbar) */}
         <form id="tao-hop-dong-form" onSubmit={handleSubmit} className="p-6 overflow-y-auto flex-1 space-y-5 bg-white [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           
           {/* TAB 1: THÔNG TIN CHUNG */}

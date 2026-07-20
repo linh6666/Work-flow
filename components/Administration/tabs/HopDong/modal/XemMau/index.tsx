@@ -8,11 +8,11 @@ interface XemMauModalProps {
   isOpen: boolean;
   onClose: () => void;
   template: ContractTemplateItem | null;
-  onDelete?: (id: string) => void;
+  onDeleteRequest?: (template: ContractTemplateItem) => void;
   onEdit?: (template: ContractTemplateItem) => void;
 }
 
-export default function XemMauModal({ isOpen, onClose, template, onDelete, onEdit }: XemMauModalProps) {
+export default function XemMauModal({ isOpen, onClose, template, onDeleteRequest, onEdit }: XemMauModalProps) {
   const [copied, setCopied] = useState(false);
 
   if (!isOpen || !template) return null;
@@ -27,7 +27,7 @@ export default function XemMauModal({ isOpen, onClose, template, onDelete, onEdi
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-fade-in">
-      {/* Modal Container */}
+      {/* Modal Card */}
       <div className="bg-white rounded-xl shadow-2xl border border-slate-100 w-full max-w-xl overflow-hidden animate-scale-up p-6 space-y-5">
         
         {/* Header Title & Close Button */}
@@ -125,8 +125,7 @@ export default function XemMauModal({ isOpen, onClose, template, onDelete, onEdi
           <button
             type="button"
             onClick={() => {
-              if (onDelete) onDelete(template.id);
-              onClose();
+              if (onDeleteRequest) onDeleteRequest(template);
             }}
             className="flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200/90 hover:bg-red-50 text-red-500 text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-2xs"
           >

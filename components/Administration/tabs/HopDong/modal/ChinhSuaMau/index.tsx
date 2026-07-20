@@ -1,39 +1,44 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IconX } from '@tabler/icons-react';
 import { ContractTemplateItem } from '../QuanLyTemplate';
 
-interface TaoMauMoiModalProps {
+interface ChinhSuaMauModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (newTemplate: ContractTemplateItem) => void;
+  template: ContractTemplateItem | null;
+  onSave: (updatedTemplate: ContractTemplateItem) => void;
 }
 
-export default function TaoMauMoiModal({ isOpen, onClose, onSave }: TaoMauMoiModalProps) {
+export default function ChinhSuaMauModal({ isOpen, onClose, template, onSave }: ChinhSuaMauModalProps) {
   const [tenMau, setTenMau] = useState('');
   const [ngonNgu, setNgonNgu] = useState('vi');
   const [moTa, setMoTa] = useState('');
   const [noiDung, setNoiDung] = useState('');
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (template) {
+      setTenMau(template.title);
+      setNgonNgu(template.lang);
+      setMoTa('');
+      setNoiDung('');
+    }
+  }, [template, isOpen]);
+
+  if (!isOpen || !template) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!tenMau.trim()) return;
 
-    const newTpl: ContractTemplateItem = {
-      id: `tpl-${Date.now()}`,
+    const updatedTpl: ContractTemplateItem = {
+      ...template,
       title: tenMau.trim().toUpperCase(),
       lang: ngonNgu === 'vi' ? 'vi' : 'en',
-      author: 'Thao Phung',
-      usedCount: 0,
     };
 
-    onSave(newTpl);
-    setTenMau('');
-    setMoTa('');
-    setNoiDung('');
+    onSave(updatedTpl);
     onClose();
   };
 
@@ -45,7 +50,7 @@ export default function TaoMauMoiModal({ isOpen, onClose, onSave }: TaoMauMoiMod
         {/* Header Title & Close Button */}
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-slate-900 tracking-tight">
-            Tạo mẫu mới
+            Chỉnh sửa mẫu
           </h2>
           <button
             type="button"

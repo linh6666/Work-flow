@@ -11,6 +11,8 @@ import {
 } from '@tabler/icons-react';
 import TaoMauMoiModal from '../TaoMauMoi';
 import XemMauModal from '../XemMau';
+import ChinhSuaMauModal from '../ChinhSuaMau';
+import XoaMauModal from '../XoaMau';
 
 export interface ContractTemplateItem {
   id: string;
@@ -28,7 +30,12 @@ interface TemplateModalProps {
 export default function QuanLyTemplateModal({ isOpen, onClose }: TemplateModalProps) {
   const [isTaoMauModalOpen, setIsTaoMauModalOpen] = useState(false);
   const [isXemMauModalOpen, setIsXemMauModalOpen] = useState(false);
+  const [isChinhSuaModalOpen, setIsChinhSuaModalOpen] = useState(false);
+  const [isXoaMauModalOpen, setIsXoaMauModalOpen] = useState(false);
+
   const [selectedTemplateForView, setSelectedTemplateForView] = useState<ContractTemplateItem | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<ContractTemplateItem | null>(null);
+  const [deletingTemplate, setDeletingTemplate] = useState<ContractTemplateItem | null>(null);
 
   const [templates, setTemplates] = useState<ContractTemplateItem[]>([
     {
@@ -55,8 +62,18 @@ export default function QuanLyTemplateModal({ isOpen, onClose }: TemplateModalPr
     setTemplates((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const handleRequestDelete = (tpl: ContractTemplateItem) => {
+    setDeletingTemplate(tpl);
+    setIsXoaMauModalOpen(true);
+  };
+
   const handleCreateNew = () => {
     setIsTaoMauModalOpen(true);
+  };
+
+  const handleEditTemplate = (tpl: ContractTemplateItem) => {
+    setEditingTemplate(tpl);
+    setIsChinhSuaModalOpen(true);
   };
 
   const handleViewTemplate = (tpl: ContractTemplateItem) => {
@@ -66,6 +83,10 @@ export default function QuanLyTemplateModal({ isOpen, onClose }: TemplateModalPr
 
   const handleSaveNewTemplate = (newTpl: ContractTemplateItem) => {
     setTemplates((prev) => [newTpl, ...prev]);
+  };
+
+  const handleSaveUpdatedTemplate = (updatedTpl: ContractTemplateItem) => {
+    setTemplates((prev) => prev.map((t) => (t.id === updatedTpl.id ? updatedTpl : t)));
   };
 
   return (
@@ -142,6 +163,7 @@ export default function QuanLyTemplateModal({ isOpen, onClose }: TemplateModalPr
                     <button
                       type="button"
                       title="Chỉnh sửa"
+                      onClick={() => handleEditTemplate(tpl)}
                       className="p-1 hover:text-slate-900 transition-colors cursor-pointer"
                     >
                       <IconPencil size={18} />
@@ -157,7 +179,7 @@ export default function QuanLyTemplateModal({ isOpen, onClose }: TemplateModalPr
                     <button
                       type="button"
                       title="Xóa"
-                      onClick={() => handleDelete(tpl.id)}
+                      onClick={() => handleRequestDelete(tpl)}
                       className="p-1 hover:text-red-500 transition-colors cursor-pointer"
                     >
                       <IconTrash size={18} />
@@ -182,19 +204,42 @@ export default function QuanLyTemplateModal({ isOpen, onClose }: TemplateModalPr
         </div>
       </div>
 
-      {/* Modal Tạo Mẫu Mới trong folder riêng */}
+      {/* 1. Modal Tạo Mẫu Mới trong folder riêng TaoMauMoi */}
       <TaoMauMoiModal
         isOpen={isTaoMauModalOpen}
         onClose={() => setIsTaoMauModalOpen(false)}
         onSave={handleSaveNewTemplate}
       />
 
-      {/* Modal Xem Mẫu Hợp Đồng trong folder riêng XemMau */}
+      {/* 2. Modal Chỉnh Sửa Mẫu trong folder riêng ChinhSuaMau */}
+      <ChinhSuaMauModal
+        isOpen={isChinhSuaModalOpen}
+        onClose={() => setIsChinhSuaModalOpen(false)}
+        template={editingTemplate}
+        onSave={handleSaveUpdatedTemplate}
+      />
+
+      {/* 3. Modal Xem Mẫu Hợp Đồng trong folder riêng XemMau */}
       <XemMauModal
         isOpen={isXemMauModalOpen}
         onClose={() => setIsXemMauModalOpen(false)}
         template={selectedTemplateForView}
-        onDelete={handleDelete}
+        onDeleteRequest={(templateToDelete) => {
+          setIsXemMauModalOpen(false);
+          handleRequestDelete(templateToDelete);
+        }}
+        onEdit={(templateToEdit) => {
+          setIsXemMauModalOpen(false);
+          handleEditTemplate(templateToEdit);
+        }}
+      />
+
+      {/* 4. Modal Xác Nhận Xóa Mẫu trong folder riêng XoaMau */}
+      <XoaMauModal
+        isOpen={isXoaMauModalOpen}
+        onClose={() => setIsXoaMauModalOpen(false)}
+        template={deletingTemplate}
+        onConfirm={handleDelete}
       />
     </>
   );

@@ -64,10 +64,10 @@ export default function DieuKhoanThanhToanTab({}: DieuKhoanThanhToanTabProps) {
       <div className="space-y-4 animate-fade-in text-xs text-slate-700">
         
         {/* BANNER 1: LẬP HỢP ĐỒNG THEO MẪU KHÁCH HÀNG GỬI */}
-        <div className="bg-[#fcf7ff] border border-[#e9d5ff] rounded-2xl p-4 sm:p-5 space-y-3 select-none">
+        <div className="bg-[#406c89]/5 border border-[#406c89]/20 rounded-2xl p-4 sm:p-5 space-y-3 select-none">
           
           {/* Title Row */}
-          <div className="flex items-center gap-2 text-purple-700 font-bold text-xs tracking-wide uppercase">
+          <div className="flex items-center gap-2 text-[#406c89] font-bold text-xs tracking-wide uppercase">
             <div className="flex items-center gap-1">
               <IconUpload size={16} />
               <IconCloudUpload size={16} />
@@ -76,13 +76,13 @@ export default function DieuKhoanThanhToanTab({}: DieuKhoanThanhToanTabProps) {
           </div>
 
           {/* Description */}
-          <p className="text-xs text-purple-600/90 leading-relaxed font-normal">
+          <p className="text-xs text-[#406c89]/90 leading-relaxed font-normal">
             Tải lên file hợp đồng mà Khách hàng gửi, AI sẽ trích xuất điều khoản và thông tin để bạn chỉnh sửa cho phù hợp hai bên.
           </p>
 
           {/* Upload Button */}
           <div>
-            <label className="px-4 py-2.5 bg-white border border-purple-300 text-purple-700 hover:bg-purple-50 rounded-xl text-xs font-semibold transition-colors shadow-2xs inline-flex items-center gap-2 cursor-pointer">
+            <label className="px-4 py-2.5 bg-white border border-[#406c89]/30 text-[#406c89] hover:bg-[#406c89]/10 rounded-xl text-xs font-semibold transition-colors shadow-2xs inline-flex items-center gap-2 cursor-pointer">
               <IconUpload size={16} />
               <span>Chọn file hợp đồng của Khách hàng</span>
               <input type="file" className="hidden" />
@@ -139,7 +139,7 @@ export default function DieuKhoanThanhToanTab({}: DieuKhoanThanhToanTabProps) {
                 <button
                   type="button"
                   title="AI Tối ưu"
-                  className="p-2 bg-white border border-purple-200 text-purple-600 hover:bg-purple-50 rounded-xl transition-colors cursor-pointer shadow-2xs"
+                  className="p-2 bg-white border border-[#406c89]/30 text-[#406c89] hover:bg-[#406c89]/10 rounded-xl transition-colors cursor-pointer shadow-2xs"
                 >
                   <IconWand size={16} />
                 </button>

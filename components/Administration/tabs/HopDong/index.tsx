@@ -105,7 +105,7 @@ export default function HopDong() {
         {/* Card 4: Tổng giá trị */}
         <div className="bg-white border border-slate-200/80 rounded-xl p-4 flex flex-col justify-between h-24 shadow-xs">
           <span className="text-xs font-semibold text-slate-400">Tổng giá trị</span>
-          <span className="text-2xl font-bold text-indigo-900">—</span>
+          <span className="text-2xl font-bold text-slate-800">—</span>
         </div>
       </div>
 

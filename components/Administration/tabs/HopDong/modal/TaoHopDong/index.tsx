@@ -167,7 +167,7 @@ export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongM
                 onClick={() => setNgonNgu('VN')}
                 className={`px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
                   ngonNgu === 'VN'
-                    ? 'bg-[#3b38c2] text-white font-bold shadow-xs'
+                    ? 'bg-[#406c89] text-white font-bold shadow-xs'
                     : 'bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 font-semibold shadow-2xs'
                 }`}
               >
@@ -180,7 +180,7 @@ export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongM
                 onClick={() => setNgonNgu('GB')}
                 className={`px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
                   ngonNgu === 'GB'
-                    ? 'bg-[#3b38c2] text-white font-bold shadow-xs'
+                    ? 'bg-[#406c89] text-white font-bold shadow-xs'
                     : 'bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 font-semibold shadow-2xs'
                 }`}
               >
@@ -193,7 +193,7 @@ export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongM
                 onClick={() => setNgonNgu('VNGB')}
                 className={`px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
                   ngonNgu === 'VNGB'
-                    ? 'bg-[#3b38c2] text-white font-bold shadow-xs'
+                    ? 'bg-[#406c89] text-white font-bold shadow-xs'
                     : 'bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 font-semibold shadow-2xs'
                 }`}
               >
@@ -284,7 +284,7 @@ export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongM
                 : 'border-transparent text-slate-500 hover:text-slate-800 font-semibold -mb-px'
             }`}
           >
-            <IconCreditCard size={18} className="text-indigo-600" />
+            <IconCreditCard size={18} className={activeTab === 'payment' ? 'text-[#406c89]' : 'text-slate-400'} />
             <span>Tính tiền thanh toán</span>
           </button>
 

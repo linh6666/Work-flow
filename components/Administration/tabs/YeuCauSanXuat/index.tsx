@@ -12,6 +12,7 @@ import {
   IconTrash
 } from '@tabler/icons-react';
 import TaoYCSXModal from './modal/TaoYCSX';
+import ChinhSuaYCSXModal from './modal/ChinhSuaYCSX';
 
 export interface YcsxItem {
   id: string;
@@ -102,6 +103,8 @@ export default function YeuCauSanXuat() {
   const [ycsxList, setYcsxList] = useState<YcsxItem[]>(SAMPLE_YCSX_LIST);
   const [searchQuery, setSearchQuery] = useState('');
   const [isTaoModalOpen, setIsTaoModalOpen] = useState(false);
+  const [selectedItemToEdit, setSelectedItemToEdit] = useState<YcsxItem | null>(null);
+  const [isChinhSuaModalOpen, setIsChinhSuaModalOpen] = useState(false);
 
   const filteredList = ycsxList.filter(
     (item) =>
@@ -254,6 +257,10 @@ export default function YeuCauSanXuat() {
                       <div className="flex items-center gap-1 text-slate-400">
                         <button
                           type="button"
+                          onClick={() => {
+                            setSelectedItemToEdit(item);
+                            setIsChinhSuaModalOpen(true);
+                          }}
                           className="hover:text-[#406c89] transition-colors p-0.5 cursor-pointer"
                           title="Chỉnh sửa"
                         >
@@ -327,6 +334,18 @@ export default function YeuCauSanXuat() {
         onClose={() => setIsTaoModalOpen(false)}
         onSubmitSuccess={(newData) => {
           setYcsxList((prev) => [newData, ...prev]);
+        }}
+      />
+
+      {/* Chinh Sua YCSX Modal */}
+      <ChinhSuaYCSXModal
+        isOpen={isChinhSuaModalOpen}
+        itemData={selectedItemToEdit}
+        onClose={() => setIsChinhSuaModalOpen(false)}
+        onSaveSuccess={(updatedData) => {
+          setYcsxList((prev) =>
+            prev.map((item) => (item.id === updatedData.id ? updatedData : item))
+          );
         }}
       />
 

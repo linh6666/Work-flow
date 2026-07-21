@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import ThemBaoGiaModal from './modal/ThemBaoGiaModal';
 import XoaBaoGiaModal from './modal/XoaBaoGia';
+import QuanLyTemplateModal from './modal/QuanLyTemplate';
 import {
   IconPlus,
   IconSearch,
@@ -581,54 +582,11 @@ export default function BaoGia() {
         onConfirm={handleConfirmDelete}
       />
 
-      {/* ─── MODAL: QUẢN LÝ TEMPLATE ──────────────────────────────────────── */}
-      {isTemplateModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col transform transition-all animate-scale-up">
-            <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <IconTemplate className="text-[#BB8D38]" size={18} />
-                <h3 className="text-base font-bold text-slate-800">Quản lý Template Báo giá</h3>
-              </div>
-              <button onClick={() => setIsTemplateModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 cursor-pointer">
-                <IconX size={16} />
-              </button>
-            </div>
-            
-            <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-              <p className="text-xs text-slate-500 mb-2 leading-relaxed">
-                Danh sách các mẫu báo giá được cấu hình sẵn. Bạn có thể sử dụng các mẫu này để tăng tốc lập báo giá.
-              </p>
-              
-              <div className="space-y-3">
-                {MOCK_TEMPLATES.map((tmpl) => (
-                  <div key={tmpl.id} className="p-4 border border-slate-200/60 rounded-xl hover:bg-slate-50/50 hover:border-slate-300 transition-all flex flex-col gap-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-700">{tmpl.name}</span>
-                      <span className="text-[10px] font-bold text-[#BB8D38] bg-[#BB8D38]/10 px-2 py-0.5 rounded-full">Mẫu chuẩn</span>
-                    </div>
-                    <p className="text-xs text-slate-400">{tmpl.desc}</p>
-                    <div className="flex items-center justify-between mt-1 text-[11px] font-medium border-t border-slate-100 pt-2 text-slate-500">
-                      <span>Định giá ước lượng:</span>
-                      <span className="font-bold text-slate-700">~ VND {tmpl.cost}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
-              <button
-                type="button"
-                onClick={() => setIsTemplateModalOpen(false)}
-                className="px-4 py-2 bg-[#BB8D38] hover:bg-[#BB8D38]/90 text-white text-xs font-bold rounded-lg cursor-pointer"
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ─── MODAL: QUẢN LÝ TEMPLATE (Folder riêng QuanLyTemplate) ───────── */}
+      <QuanLyTemplateModal
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+      />
     </div>
   );
 }

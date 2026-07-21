@@ -11,6 +11,7 @@ import {
   IconCopy,
   IconTrash
 } from '@tabler/icons-react';
+import TaoYCSXModal from './modal/TaoYCSX';
 
 export interface YcsxItem {
   id: string;
@@ -100,6 +101,7 @@ const SAMPLE_YCSX_LIST: YcsxItem[] = [
 export default function YeuCauSanXuat() {
   const [ycsxList, setYcsxList] = useState<YcsxItem[]>(SAMPLE_YCSX_LIST);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isTaoModalOpen, setIsTaoModalOpen] = useState(false);
 
   const filteredList = ycsxList.filter(
     (item) =>
@@ -142,6 +144,7 @@ export default function YeuCauSanXuat() {
 
         <button
           type="button"
+          onClick={() => setIsTaoModalOpen(true)}
           className="flex items-center gap-1.5 px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
         >
           <IconPlus size={18} />
@@ -317,6 +320,15 @@ export default function YeuCauSanXuat() {
           </table>
         </div>
       </div>
+
+      {/* Tao YCSX Modal */}
+      <TaoYCSXModal
+        isOpen={isTaoModalOpen}
+        onClose={() => setIsTaoModalOpen(false)}
+        onSubmitSuccess={(newData) => {
+          setYcsxList((prev) => [newData, ...prev]);
+        }}
+      />
 
     </div>
   );

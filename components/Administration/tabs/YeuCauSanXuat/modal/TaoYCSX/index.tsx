@@ -120,71 +120,69 @@ export default function TaoYCSXModal({ isOpen, onClose, onSubmitSuccess }: TaoYC
           </button>
         </div>
 
-        {/* 3. Form Content Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5 [scrollbar-width:thin]">
+        {/* 3. Form Container */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
           
-          {/* TAB 1: THÔNG TIN CHUNG */}
-          {activeTab === 'thongTinChung' && (
-            <ThongTinChungTab
-              soYcsx={soYcsx}
-              setSoYcsx={setSoYcsx}
-              maDuAn={maDuAn}
-              setMaDuAn={setMaDuAn}
-              tenDuAn={tenDuAn}
-              setTenDuAn={setTenDuAn}
-              khachHang={khachHang}
-              setKhachHang={setKhachHang}
-              tyLe={tyLe}
-              setTyLe={setTyLe}
-              ngayBietTienDo={ngayBietTienDo}
-              setNgayBietTienDo={setNgayBietTienDo}
-              ngayGiaoHang={ngayGiaoHang}
-              setNgayGiaoHang={setNgayGiaoHang}
-              moTaChiTiet={moTaChiTiet}
-              setMoTaChiTiet={setMoTaChiTiet}
-            />
-          )}
+          {/* Form Content Body (Scrollable with hidden scrollbar) */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            
+            {/* TAB 1: THÔNG TIN CHUNG */}
+            {activeTab === 'thongTinChung' && (
+              <ThongTinChungTab
+                soYcsx={soYcsx}
+                setSoYcsx={setSoYcsx}
+                maDuAn={maDuAn}
+                setMaDuAn={setMaDuAn}
+                tenDuAn={tenDuAn}
+                setTenDuAn={setTenDuAn}
+                khachHang={khachHang}
+                setKhachHang={setKhachHang}
+                tyLe={tyLe}
+                setTyLe={setTyLe}
+                ngayBietTienDo={ngayBietTienDo}
+                setNgayBietTienDo={setNgayBietTienDo}
+                ngayGiaoHang={ngayGiaoHang}
+                setNgayGiaoHang={setNgayGiaoHang}
+                moTaChiTiet={moTaChiTiet}
+                setMoTaChiTiet={setMoTaChiTiet}
+              />
+            )}
 
-          {/* TAB 2: YÊU CẦU KỸ THUẬT */}
-          {activeTab === 'yeuCauKyThuat' && (
-            <YeuCauKyThuatTab
-              loaiMoHinh={loaiMoHinh}
-              setLoaiMoHinh={setLoaiMoHinh}
-              kichThuocSaBan={kichThuocSaBan}
-              setKichThuocSaBan={setKichThuocSaBan}
-              heThongDen={heThongDen}
-              setHeThongDen={setHeThongDen}
-              vatLieuChinh={vatLieuChinh}
-              setVatLieuChinh={setVatLieuChinh}
-            />
-          )}
+            {/* TAB 2: YÊU CẦU KỸ THUẬT */}
+            {activeTab === 'yeuCauKyThuat' && (
+              <YeuCauKyThuatTab />
+            )}
 
-          {/* TAB 3: TIẾN ĐỘ */}
-          {activeTab === 'tienDo' && (
-            <TienDoTab
-              ngayBietTienDo={ngayBietTienDo}
-              setNgayBietTienDo={setNgayBietTienDo}
-              ngayGiaoHang={ngayGiaoHang}
-              setNgayGiaoHang={setNgayGiaoHang}
-            />
-          )}
+            {/* TAB 3: TIẾN ĐỘ */}
+            {activeTab === 'tienDo' && (
+              <TienDoTab />
+            )}
 
-          {/* 4. Footer Buttons Inside Form */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3 select-none">
+          </div>
+
+          {/* 4. Fixed Footer Buttons (Always Visible at Bottom) */}
+          <div className="px-6 py-3.5 border-t border-slate-100 bg-white flex items-center justify-end gap-3 select-none shrink-0 shadow-2xs">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
+              className="px-5 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
             >
-              Hủy bỏ
+              Hủy
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
+            >
+              Lưu nháp
             </button>
 
             <button
               type="submit"
-              className="px-5 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs flex items-center gap-1.5"
+              className="px-6 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs"
             >
-              <IconCheck size={16} />
-              <span>Tạo YCSX mới</span>
+              Gửi duyệt
             </button>
           </div>
 

@@ -100,13 +100,13 @@ export default function DanhMucGiaTab({
     <div className="space-y-5 animate-fade-in text-[13px] text-slate-700">
       
       {/* 1. TOP SELECTION CARD (BLUE CONTAINER) */}
-      <div className="p-4 bg-[#f4f6ff]/50 border border-[#dbe0fe] rounded-xl space-y-2.5 select-none">
+      <div className="p-4 bg-[#406c89]/5 border border-[#406c89]/20 rounded-xl space-y-2.5 select-none">
         <div className="flex items-center gap-3">
           <span className="font-semibold text-slate-700 shrink-0">Loại báo giá:</span>
           <select
             value={loaiBaoGiaSelect}
             onChange={(e) => setLoaiBaoGiaSelect(e.target.value)}
-            className="flex-1 text-xs bg-white border border-slate-200 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] h-9 text-slate-800"
+            className="flex-1 text-xs bg-white border border-slate-200 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#406c89] h-9 text-slate-800"
           >
             <option value="Mô hình Quy hoạch">Báo giá Mô hình Quy hoạch</option>
             <option value="Mô hình Kiến trúc">Báo giá Mô hình Kiến trúc</option>
@@ -123,8 +123,8 @@ export default function DanhMucGiaTab({
           </button>
         </div>
         
-        <div className="flex items-center gap-2 text-xs text-[#3b2c9c] font-medium">
-          <IconFileText size={15} className="text-[#3b2c9c] shrink-0" />
+        <div className="flex items-center gap-2 text-xs text-[#406c89] font-medium">
+          <IconFileText size={15} className="text-[#406c89] shrink-0" />
           <span>Chọn loại báo giá phù hợp với ngôn ngữ Tiếng Việt — Nhấn <strong>Load</strong> để nạp chi tiết template</span>
         </div>
       </div>
@@ -188,7 +188,7 @@ export default function DanhMucGiaTab({
                   required
                   value={section.tenPhan}
                   onChange={(e) => onUpdateSectionName(section.id, e.target.value)}
-                  className="bg-white border border-slate-200 rounded px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] w-64 uppercase"
+                  className="bg-white border border-slate-200 rounded px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#406c89] w-64 uppercase"
                 />
               </div>
               <div className="flex items-center gap-3">
@@ -197,7 +197,7 @@ export default function DanhMucGiaTab({
                     type="checkbox"
                     checked={section.ckChecked}
                     onChange={(e) => onToggleSectionCk(section.id, e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-slate-300 text-[#3b2c9c] focus:ring-[#3b2c9c]"
+                    className="w-3.5 h-3.5 rounded border-slate-300 text-[#406c89] focus:ring-[#406c89]"
                   />
                   CK
                 </label>
@@ -242,7 +242,7 @@ export default function DanhMucGiaTab({
                         <input
                           type="checkbox"
                           defaultChecked
-                          className="w-3.5 h-3.5 rounded border-slate-300 text-[#3b2c9c] focus:ring-[#3b2c9c]"
+                          className="w-3.5 h-3.5 rounded border-slate-300 text-[#406c89] focus:ring-[#406c89]"
                         />
                       </div>
                       
@@ -254,7 +254,7 @@ export default function DanhMucGiaTab({
                           value={dong.congViec}
                           onChange={(e) => onUpdateRow(section.id, dong.id, 'congViec', e.target.value)}
                           placeholder="TÊN HẠNG MỤC"
-                          className="w-full text-xs bg-white border border-slate-200 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] text-slate-800"
+                          className="w-full text-xs bg-white border border-slate-200 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#406c89] text-slate-800"
                         />
                       </div>
 
@@ -265,7 +265,7 @@ export default function DanhMucGiaTab({
                           value={dong.loaiVatLieu}
                           onChange={(e) => onUpdateRow(section.id, dong.id, 'loaiVatLieu', e.target.value)}
                           placeholder="Mô tả..."
-                          className="w-full text-xs bg-white border border-slate-200 rounded px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] text-slate-700 leading-normal resize-none h-7 overflow-hidden"
+                          className="w-full text-xs bg-white border border-slate-200 rounded px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#406c89] text-slate-700 leading-normal resize-none h-7 overflow-hidden"
                         />
                       </div>
 
@@ -277,7 +277,7 @@ export default function DanhMucGiaTab({
                           required
                           value={dong.soLuong}
                           onChange={(e) => onUpdateRow(section.id, dong.id, 'soLuong', parseInt(e.target.value) || 1)}
-                          className="w-full text-xs bg-white border border-slate-200 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] text-slate-800 text-center h-8"
+                          className="w-full text-xs bg-white border border-slate-200 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#406c89] text-slate-800 text-center h-8"
                         />
                       </div>
 
@@ -288,7 +288,7 @@ export default function DanhMucGiaTab({
                           required
                           value={dong.donVi}
                           onChange={(e) => onUpdateRow(section.id, dong.id, 'donVi', e.target.value)}
-                          className="w-full text-xs bg-white border border-slate-200 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] text-slate-800 text-center h-8"
+                          className="w-full text-xs bg-white border border-slate-200 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#406c89] text-slate-800 text-center h-8"
                         />
                       </div>
 
@@ -300,7 +300,7 @@ export default function DanhMucGiaTab({
                           required
                           value={dong.donGia}
                           onChange={(e) => onUpdateRow(section.id, dong.id, 'donGia', parseFloat(e.target.value) || 0)}
-                          className="w-full text-xs bg-white border border-slate-200 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] text-slate-800 text-right h-8"
+                          className="w-full text-xs bg-white border border-slate-200 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#406c89] text-slate-800 text-right h-8"
                         />
                       </div>
 
@@ -327,7 +327,7 @@ export default function DanhMucGiaTab({
                   <button
                     type="button"
                     onClick={() => onAddRow(section.id)}
-                    className="flex items-center gap-1 text-[11px] font-bold text-[#3b2c9c] hover:underline cursor-pointer"
+                    className="flex items-center gap-1 text-[11px] font-bold text-[#406c89] hover:underline cursor-pointer"
                   >
                     <span className="text-sm font-bold">+</span>
                     Thêm dòng
@@ -341,18 +341,18 @@ export default function DanhMucGiaTab({
 
       {/* 4. TOTAL BEFORE TAX BOX */}
       {sections.length > 0 && (
-        <div className="p-4 border border-indigo-100 bg-[#f8f9ff]/80 rounded-xl w-[260px] ml-auto text-right space-y-1 select-none">
+        <div className="p-4 border border-[#406c89]/20 bg-[#406c89]/5 rounded-xl w-[260px] ml-auto text-right space-y-1 select-none">
           <div className="text-[10px] font-bold text-slate-400 tracking-wider">TỔNG GIÁ TRỊ TRƯỚC THUẾ</div>
-          <div className="text-xl font-black text-[#3b2c9c]">
+          <div className="text-xl font-black text-[#406c89]">
             VNĐ {subtotal.toLocaleString('vi-VN')}
           </div>
         </div>
       )}
 
       {/* 5. PRICE CALCULATION SUMMARY CARD */}
-      <div className="p-5 border border-[#dbe0fe] bg-white rounded-xl space-y-4">
+      <div className="p-5 border border-[#406c89]/20 bg-white rounded-xl space-y-4">
         {/* Toggle label */}
-        <div className="text-[#3b2c9c] font-semibold text-xs flex items-center gap-2 cursor-pointer select-none">
+        <div className="text-[#406c89] font-semibold text-xs flex items-center gap-2 cursor-pointer select-none">
           <span>▶ — Tùy chỉnh nhãn dòng tổng tiền</span>
         </div>
 
@@ -363,7 +363,7 @@ export default function DanhMucGiaTab({
               type="checkbox"
               checked={chietKhauChecked}
               onChange={(e) => setChietKhauChecked(e.target.checked)}
-              className="w-3.5 h-3.5 rounded border-slate-300 text-[#3b2c9c] focus:ring-[#3b2c9c]"
+              className="w-3.5 h-3.5 rounded border-slate-300 text-[#406c89] focus:ring-[#406c89]"
             />
             Chiết khấu (%)
           </label>
@@ -372,7 +372,7 @@ export default function DanhMucGiaTab({
               type="checkbox"
               checked={sauChietKhauChecked}
               onChange={(e) => setSauChietKhauChecked(e.target.checked)}
-              className="w-3.5 h-3.5 rounded border-slate-300 text-[#3b2c9c] focus:ring-[#3b2c9c]"
+              className="w-3.5 h-3.5 rounded border-slate-300 text-[#406c89] focus:ring-[#406c89]"
             />
             Sau chiết khấu
           </label>
@@ -400,7 +400,7 @@ export default function DanhMucGiaTab({
                   max="100"
                   value={chietKhauPercent}
                   onChange={(e) => setChietKhauPercent(parseFloat(e.target.value) || 0)}
-                  className="w-16 h-7 text-center border border-slate-200 bg-white rounded focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] text-xs font-bold text-slate-700"
+                  className="w-16 h-7 text-center border border-slate-200 bg-white rounded focus:outline-none focus:ring-1 focus:ring-[#406c89] text-xs font-bold text-slate-700"
                 />
               </div>
               <span className="text-right text-slate-800 font-bold text-[13px]">-VNĐ {discountVal.toLocaleString('vi-VN')}</span>
@@ -428,7 +428,7 @@ export default function DanhMucGiaTab({
               max="100"
               value={vatPercent}
               onChange={(e) => setVatPercent(parseFloat(e.target.value) || 0)}
-              className="w-16 h-7 text-center border border-slate-200 bg-white rounded focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] text-xs font-bold text-slate-700"
+              className="w-16 h-7 text-center border border-slate-200 bg-white rounded focus:outline-none focus:ring-1 focus:ring-[#406c89] text-xs font-bold text-slate-700"
             />
           </div>
           <span className="text-right text-slate-800 font-bold text-[13px]">VNĐ {vatVal.toLocaleString('vi-VN')}</span>
@@ -441,7 +441,7 @@ export default function DanhMucGiaTab({
         <div className="grid grid-cols-[1fr_80px_100px] items-center text-xs font-bold pt-1">
           <span className="text-left text-slate-800 font-bold text-[13px] uppercase">TỔNG GIÁ TRỊ SAU THUẾ</span>
           <span></span>
-          <span className="text-right text-base font-extrabold text-[#3b2c9c]">
+          <span className="text-right text-base font-extrabold text-[#406c89]">
             VNĐ {tongSauThue.toLocaleString('vi-VN')}
           </span>
         </div>

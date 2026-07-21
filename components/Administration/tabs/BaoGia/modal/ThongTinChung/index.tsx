@@ -99,7 +99,7 @@ export default function ThongTinChungTab({
               onClick={() => setNgonNgu('vi')}
               className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                 ngonNgu === 'vi'
-                  ? 'bg-[#3b2c9c] border-[#3b2c9c] text-white shadow-sm'
+                  ? 'bg-[#406c89] border-[#406c89] text-white shadow-sm'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -110,7 +110,7 @@ export default function ThongTinChungTab({
               onClick={() => setNgonNgu('en')}
               className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                 ngonNgu === 'en'
-                  ? 'bg-[#3b2c9c] border-[#3b2c9c] text-white shadow-sm'
+                  ? 'bg-[#406c89] border-[#406c89] text-white shadow-sm'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -121,7 +121,7 @@ export default function ThongTinChungTab({
               onClick={() => setNgonNgu('vi-en')}
               className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                 ngonNgu === 'vi-en'
-                  ? 'bg-[#3b2c9c] border-[#3b2c9c] text-white shadow-sm'
+                  ? 'bg-[#406c89] border-[#406c89] text-white shadow-sm'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >

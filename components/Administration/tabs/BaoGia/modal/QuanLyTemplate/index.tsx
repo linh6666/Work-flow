@@ -1,5 +1,6 @@
 "use client";
 
+
 import React, { useState } from 'react';
 import {
   IconX,
@@ -16,6 +17,7 @@ import {
   IconClock,
   IconShieldCheck
 } from '@tabler/icons-react';
+import ChinhSuaTemplateModal from './modal/ChinhSuaTemplate';
 
 export interface BaoGiaTemplateItem {
   id: string;
@@ -34,6 +36,9 @@ export interface SavedTemplateItem {
   author: string;
   categoryCount: string;
   duAnMau?: string;
+  tyLe?: string;
+  kichThuoc?: string;
+  loaiBaoGia?: string;
   itemSummary: string;
   productionTime: string;
   warrantyPeriod: string;
@@ -191,6 +196,8 @@ export default function QuanLyTemplateModal({
   onSelectTemplate,
 }: QuanLyTemplateModalProps) {
   const [savedTemplates, setSavedTemplates] = useState<SavedTemplateItem[]>(INITIAL_SAVED_TEMPLATES);
+  const [editingTemplate, setEditingTemplate] = useState<SavedTemplateItem | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -205,6 +212,19 @@ export default function QuanLyTemplateModal({
 
   const handleDeleteSaved = (id: string) => {
     setSavedTemplates((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleOpenEdit = (item: SavedTemplateItem) => {
+    setEditingTemplate(item);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = (updatedItem: SavedTemplateItem) => {
+    setSavedTemplates((prev) =>
+      prev.map((t) => (t.id === updatedItem.id ? updatedItem : t))
+    );
+    setIsEditModalOpen(false);
+    setEditingTemplate(null);
   };
 
   return (
@@ -241,7 +261,7 @@ export default function QuanLyTemplateModal({
           {/* SECTION 1: NẠP MẪU HỆ THỐNG - TIẾNG ANH */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base">
-              <div className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+              <div className="w-6 h-6 rounded-lg bg-[#406c89]/10 text-[#406c89] flex items-center justify-center shrink-0">
                 <IconWorld size={16} />
               </div>
               <span>Nạp mẫu Hệ thống - Tiếng Anh</span>
@@ -264,14 +284,14 @@ export default function QuanLyTemplateModal({
                     </p>
                   </div>
 
-                  {/* Right Action Button (+ Nạp) - Indigo Blue */}
+                  {/* Right Action Button (+ Nạp) - #406c89 */}
                   <button
                     type="button"
                     onClick={() => {
                       if (onSelectTemplate) onSelectTemplate(tmpl);
                       onClose();
                     }}
-                    className="flex items-center gap-1 px-4 py-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs shrink-0"
+                    className="flex items-center gap-1 px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs shrink-0"
                   >
                     <IconPlus size={14} />
                     <span>Nạp</span>
@@ -348,7 +368,7 @@ export default function QuanLyTemplateModal({
 
                       {/* Badges */}
                       <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                        <span className="bg-indigo-50 text-indigo-600 px-2.5 py-0.5 rounded-md text-[11px] font-semibold">
+                        <span className="bg-[#406c89]/10 text-[#406c89] px-2.5 py-0.5 rounded-md text-[11px] font-semibold">
                           {item.badgeTitle}
                         </span>
                         <span className="text-slate-400 font-mono text-[10px]">
@@ -371,7 +391,8 @@ export default function QuanLyTemplateModal({
                     <div className="flex items-center gap-2 flex-wrap shrink-0">
                       <button
                         type="button"
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-200/90 text-indigo-600 hover:bg-indigo-100 rounded-xl text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
+                        onClick={() => handleOpenEdit(item)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[#406c89]/10 border border-[#406c89]/30 text-[#406c89] hover:bg-[#406c89]/20 rounded-xl text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
                       >
                         <IconPencil size={14} />
                         <span>Chỉnh sửa</span>
@@ -450,6 +471,17 @@ export default function QuanLyTemplateModal({
         </div>
 
       </div>
+
+      {/* Edit Template Sub-Modal */}
+      <ChinhSuaTemplateModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingTemplate(null);
+        }}
+        template={editingTemplate}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 }

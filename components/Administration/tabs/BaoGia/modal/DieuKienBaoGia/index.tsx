@@ -48,7 +48,7 @@ export default function DieuKienBaoGiaTab({
             required
             value={thoiGianSanXuat}
             onChange={(e) => setThoiGianSanXuat(parseInt(e.target.value) || 60)}
-            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3b2c9c]"
+            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#406c89]"
           />
           <span className="text-[10px] text-slate-400 font-medium mt-1 block">
             Kể từ ngày tạm ứng và nhận đầy đủ bản vẽ
@@ -62,7 +62,7 @@ export default function DieuKienBaoGiaTab({
             required
             value={baoHanhThang}
             onChange={(e) => setBaoHanhThang(parseInt(e.target.value) || 18)}
-            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3b2c9c]"
+            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#406c89]"
           />
           <span className="text-[10px] text-slate-400 font-medium mt-1 block">
             Kể từ ngày bàn giao mô hình
@@ -77,7 +77,7 @@ export default function DieuKienBaoGiaTab({
           value={phuongThucThanhToan}
           onChange={(e) => setPhuongThucThanhToan(e.target.value)}
           rows={3}
-          className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3b2c9c]"
+          className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#406c89]"
         />
       </div>
 
@@ -118,7 +118,7 @@ export default function DieuKienBaoGiaTab({
                     value={item.tieuDe}
                     onChange={(e) => onUpdateDieuKien(item.id, 'tieuDe', e.target.value)}
                     placeholder={`Ví dụ: ${idx + 1}. Báo giá dựa trên hồ sơ`}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] text-slate-800 font-semibold"
+                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#406c89] text-slate-800 font-semibold"
                   />
                 </div>
 
@@ -131,7 +131,7 @@ export default function DieuKienBaoGiaTab({
                     onChange={(e) => onUpdateDieuKien(item.id, 'noiDung', e.target.value)}
                     rows={4}
                     placeholder="Mô tả nội dung chi tiết của điều kiện..."
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3b2c9c] text-slate-700 leading-relaxed"
+                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#406c89] text-slate-700 leading-relaxed"
                   />
                 </div>
               </div>

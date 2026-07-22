@@ -1,604 +1,630 @@
 "use client";
 
-
 import React, { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import Image from 'next/image';
+import TaoDuAnModal from './modal/TaoDuAn';
 import {
   IconPlus,
   IconSearch,
-  IconSettings,
-  IconLogout,
-  IconSun,
-  IconMoon,
-  IconFolder,
-  IconHome,
+  IconTrash,
   IconChevronDown,
   IconChevronRight,
-  IconChevronLeft,
-  IconClock,
-  IconAlertCircle,
   IconCheck,
   IconX,
-  IconNotebook,
-  IconHierarchy,
-  IconLayoutGrid,
-  IconFilter,
-  IconEye,
-  IconUser,
-  IconUsers,
-  IconHelp,
-  IconNews,
-  IconBug,
-  IconTrash,
-  IconBell,
-  IconFilePlus,
   IconClipboardList,
-  IconFileText,
   IconSignature,
-  IconBuildingFactory2,
-  IconShieldCheck
+  IconArrowRight,
+  IconDownload,
+  IconFlag,
+  IconUpload
 } from '@tabler/icons-react';
 
-interface Project {
+export interface MilestoneItem {
   id: string;
-  name: string;
-  color: string; // CSS bullet indicator color class
-  isOpen?: boolean;
+  label: string;
+  dateText: string;
+  positionPercent: number; // e.g. 75 (%)
+  color: 'blue' | 'red';
 }
 
-interface Task {
+export interface DuAnItem {
   id: string;
-  projectId: string;
-  title: string;
-  status: 'reprocess' | 'draft' | 'progress' | 'review' | 'rejected';
-  date: string;
-  priority: 'Khẩn cấp' | 'Cao' | 'Bình thường';
-  tag?: string;
-  countdown?: string;
-  assignees: { name: string; avatarBg: string }[];
+  maDuAn: string;
+  tenDuAn: string;
+  moTa: string;
+  ngayBatDau: string;
+  ngayKetThuc: string;
+  tienDo: number; // 0 - 100
+  indexText: string; // e.g. "—", "6", "5"
+  trangThai: 'Đang thực hiện' | 'Hoàn thành' | 'Tạm dừng' | 'Chưa bắt đầu';
+  tienDoText: 'Chưa đánh giá' | 'Đúng tiến độ' | 'Trễ tiến độ' | 'Vượt tiến độ' | 'Chậm tiến độ, lỗi khách quan';
+  milestones?: MilestoneItem[];
+  diaDiem?: string;
+  baselineBatDau?: string;
+  baselineKetThuc?: string;
+  ycsxId?: string;
+  templateId?: string;
+  capDoDuAn?: string;
+  tyLe?: string;
+  kichThuoc?: string;
+  khachHang?: string;
+  diaDiemLapDat?: string;
+  duKienNtLan1?: string;
+  duKienNtCuoi?: string;
+  duKienVanChuyen?: string;
+  duKienLapDat?: string;
+  soNvLapDat?: string;
+  khoiLuongNtLan1?: string;
 }
+
+const DEFAULT_PROJECTS: DuAnItem[] = [
+  {
+    id: 'da-1',
+    maDuAn: 'CT00-2026/DA-MHV',
+    tenDuAn: 'BÁO CÁO NGOÀI DỰ ÁN',
+    moTa: 'Báo cáo các công việc không thuộc các dự án đã có mã mã dự án triển khai sản xuất',
+    ngayBatDau: '2026-07-01',
+    ngayKetThuc: '2026-12-31',
+    tienDo: 4,
+    indexText: '—',
+    trangThai: 'Đang thực hiện',
+    tienDoText: 'Chưa đánh giá',
+  },
+  {
+    id: 'da-2',
+    maDuAn: '14.02-2026/DA-MHV',
+    tenDuAn: 'THE HERITAGE TÂY NINH - Lắp đặt tại Tây Ninh',
+    moTa: 'Mô hình QH Khu đô thị lớn. Phong cách kiến trúc đa dạng. Tổng thể chia thành 03 phân khu. Điểm nhấn cảnh quan là công viên trải nghiệm...',
+    ngayBatDau: '2026-04-18',
+    ngayKetThuc: '2026-08-08',
+    tienDo: 28,
+    indexText: '6',
+    trangThai: 'Đang thực hiện',
+    tienDoText: 'Đúng tiến độ',
+    milestones: [
+      { id: 'ms-1', label: 'NT lần 1', dateText: '03-08', positionPercent: 80, color: 'blue' },
+      { id: 'ms-2', label: 'NT cuối', dateText: '08-08', positionPercent: 92, color: 'red' }
+    ]
+  },
+  {
+    id: 'da-3',
+    maDuAn: '14.01-2026/DA-MHV',
+    tenDuAn: 'THE HERITAGE TÂY NINH - Lắp đặt tại Hà Nội',
+    moTa: 'Mô hình QH Khu đô thị lớn. Phong cách kiến trúc đa dạng. Tổng thể chia thành 03 phân khu. Điểm nhấn cảnh quan là công viên trải nghiệm...',
+    ngayBatDau: '2026-04-18',
+    ngayKetThuc: '2026-07-21',
+    tienDo: 71,
+    indexText: '5',
+    trangThai: 'Đang thực hiện',
+    tienDoText: 'Đúng tiến độ',
+    milestones: [
+      { id: 'ms-1', label: 'NT lần 1', dateText: '17-07', positionPercent: 88, color: 'blue' },
+      { id: 'ms-2', label: 'NT cuối', dateText: '21-07', positionPercent: 95, color: 'red' }
+    ]
+  },
+  {
+    id: 'da-4',
+    maDuAn: '17-2026/DA-MHV',
+    tenDuAn: 'HERITAGE VILLAGE MOC CHAU',
+    moTa: 'Mô hình QH KĐT nghỉ dưỡng trên núi',
+    ngayBatDau: '2026-05-18',
+    ngayKetThuc: '2026-06-22',
+    tienDo: 57,
+    indexText: '3',
+    trangThai: 'Đang thực hiện',
+    tienDoText: 'Đúng tiến độ',
+    milestones: [
+      { id: 'ms-1', label: 'NT lần 1', dateText: '17-07', positionPercent: 80, color: 'blue' },
+      { id: 'ms-2', label: 'NT cuối', dateText: '20-07', positionPercent: 96, color: 'red' }
+    ]
+  },
+  {
+    id: 'da-5',
+    maDuAn: '16-2026/DA-MHV',
+    tenDuAn: 'Dự án IA25 -CIPUTRA',
+    moTa: 'Mô hình công trình cao tầng',
+    ngayBatDau: '2026-05-15',
+    ngayKetThuc: '2026-08-15',
+    tienDo: 42,
+    indexText: '7',
+    trangThai: 'Đang thực hiện',
+    tienDoText: 'Đúng tiến độ',
+    milestones: [
+      { id: 'ms-1', label: 'NT lần 1', dateText: '07-08', positionPercent: 92, color: 'blue' },
+      { id: 'ms-2', label: 'NT cuối', dateText: '15-08', positionPercent: 97, color: 'red' }
+    ]
+  },
+  {
+    id: 'da-6',
+    maDuAn: '20-2026/DA-MHV',
+    tenDuAn: 'CHỈNH SỬA MÔ HÌNH L\'AURORA',
+    moTa: 'Thay mới 05 công trình cao tầng 1/150',
+    ngayBatDau: '2026-06-09',
+    ngayKetThuc: '2026-07-22',
+    tienDo: 51,
+    indexText: '4',
+    trangThai: 'Đang thực hiện',
+    tienDoText: 'Đúng tiến độ',
+    milestones: [
+      { id: 'ms-1', label: 'NT lần 1', dateText: '20-07', positionPercent: 90, color: 'blue' },
+      { id: 'ms-2', label: 'NT cuối', dateText: '20-07', positionPercent: 96, color: 'red' }
+    ]
+  },
+  {
+    id: 'da-7',
+    maDuAn: '21-2026/DA-MHV',
+    tenDuAn: 'VSIP LẠNG SƠN',
+    moTa: 'Mô hình QH KCN',
+    ngayBatDau: '2026-06-15',
+    ngayKetThuc: '2026-07-22',
+    tienDo: 78,
+    indexText: '1',
+    trangThai: 'Đang thực hiện',
+    tienDoText: 'Vượt tiến độ',
+    milestones: [
+      { id: 'ms-1', label: 'NT lần 1', dateText: '03-07', positionPercent: 55, color: 'blue' },
+      { id: 'ms-2', label: 'NT cuối', dateText: '13-07', positionPercent: 90, color: 'red' }
+    ]
+  },
+  {
+    id: 'da-8',
+    maDuAn: '03-2026/DA-MHV',
+    tenDuAn: '22 LIỄU GIAI',
+    moTa: 'Mô hình công trình cao tầng. Tỷ lệ 1/75. Thể hiện nội thất dạng hình khối đơn giản của 40 căn hộ/ không gian bên trong công trình. Nội thất...',
+    ngayBatDau: '2026-03-13',
+    ngayKetThuc: '2026-07-22',
+    tienDo: 86,
+    indexText: '2',
+    trangThai: 'Đang thực hiện',
+    tienDoText: 'Đúng tiến độ',
+    milestones: [
+      { id: 'ms-1', label: 'NT lần 1', dateText: '10-06', positionPercent: 80, color: 'blue' },
+      { id: 'ms-2', label: 'NT cuối', dateText: '13-07', positionPercent: 90, color: 'red' }
+    ]
+  },
+  {
+    id: 'da-9',
+    maDuAn: '04-2026/DA-MHV',
+    tenDuAn: 'FLAMINGO ĐÔNG ANH',
+    moTa: '',
+    ngayBatDau: '2026-06-28',
+    ngayKetThuc: '2026-08-27',
+    tienDo: 9,
+    indexText: '8',
+    trangThai: 'Đang thực hiện',
+    tienDoText: 'Chậm tiến độ, lỗi khách quan',
+    milestones: [
+      { id: 'ms-1', label: 'NT lần 1', dateText: '07-08', positionPercent: 65, color: 'blue' },
+      { id: 'ms-2', label: 'NT cuối', dateText: '27-08', positionPercent: 95, color: 'red' }
+    ]
+  }
+];
 
 export default function QuanLyDuAn() {
-  // State for Projects List
-  const [projects, setProjects] = useState<Project[]>([
-    { id: 'pos-mobile', name: 'Dự án Mobile POS', color: 'bg-indigo-500', isOpen: true },
-    { id: 'pos', name: 'Dự án Pos', color: 'bg-red-500', isOpen: false },
-    { id: 'seo', name: 'Dự án SEO', color: 'bg-pink-500', isOpen: false },
-    { id: 'web', name: 'Dự án Web', color: 'bg-teal-500', isOpen: true },
-    { id: 'webcam', name: 'Dự án Webcam', color: 'bg-orange-500', isOpen: false },
-    { id: 'qlt-mobile', name: 'QLT Mobile', color: 'bg-purple-500', isOpen: false },
-  ]);
-
-  // State for active project & submenu item
-  const [activeProjectId, setActiveProjectId] = useState<string>('web');
-  const [activeSubMenu, setActiveSubMenu] = useState<'tasks' | 'process' | 'modules'>('tasks');
-
-  // State for Tasks
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 'WFR-164',
-      projectId: 'web',
-      title: 'Test Module Task',
-      status: 'reprocess',
-      date: '18/06',
-      priority: 'Khẩn cấp',
-      assignees: [{ name: 'L', avatarBg: 'bg-sky-400 text-sky-950' }]
-    },
-    {
-      id: 'WFR-165',
-      projectId: 'web',
-      title: 'QUY TRÌNH NGHIỆP VỤ CHƯƠNG TRÌNH "THU PHÍ DỊCH VỤ"',
-      status: 'draft',
-      date: '18/06 - 30/06',
-      priority: 'Khẩn cấp',
-      countdown: 'Còn: 10d 10h 19m',
-      assignees: [
-        { name: 'M', avatarBg: 'bg-emerald-400 text-emerald-950' },
-        { name: 'H', avatarBg: 'bg-amber-400 text-amber-950' }
-      ]
-    },
-    {
-      id: 'WFR-160',
-      projectId: 'web',
-      title: 'Bỏ các chữ "Nhất Thị Trường" ở màn hình trang chủ',
-      status: 'rejected',
-      date: '11/06 - 11/06',
-      priority: 'Khẩn cấp',
-      assignees: [{ name: 'H', avatarBg: 'bg-pink-400 text-pink-950' }]
-    },
-    {
-      id: 'WFR-151',
-      projectId: 'web',
-      title: 'Bổ sung thêm border và style các nút của bảng thống kê doanh số',
-      status: 'rejected',
-      date: '04/05 - 04/05',
-      priority: 'Khẩn cấp',
-      assignees: [
-        { name: 'A', avatarBg: 'bg-violet-400 text-violet-950' },
-        { name: 'B', avatarBg: 'bg-amber-400 text-amber-950' }
-      ]
-    },
-    {
-      id: 'WFR-149',
-      projectId: 'web',
-      title: 'Check lỗi import dữ liệu từ file Excel phiên bản cũ',
-      status: 'rejected',
-      date: '04/06',
-      priority: 'Cao',
-      tag: 'Bug',
-      assignees: [{ name: 'C', avatarBg: 'bg-rose-400 text-rose-950' }]
-    },
-    {
-      id: 'WFR-148',
-      projectId: 'web',
-      title: 'Thêm tải file mẫu import tài khoản khách hàng',
-      status: 'rejected',
-      date: '04/06',
-      priority: 'Bình thường',
-      assignees: [{ name: 'D', avatarBg: 'bg-teal-400 text-teal-950' }]
-    },
-    {
-      id: 'WFR-133',
-      projectId: 'web',
-      title: 'Bổ sung thêm scroll khi click vào Chart chi tiết doanh thu năm',
-      status: 'rejected',
-      date: '26/05 - 27/05',
-      priority: 'Khẩn cấp',
-      assignees: [{ name: 'E', avatarBg: 'bg-blue-400 text-blue-950' }]
-    }
-  ]);
-
-  // Modal State for "Tạo dự án" (Create Project)
-  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
-  const [newProjectName, setNewProjectName] = useState('');
-  const [newProjectColor, setNewProjectColor] = useState('bg-indigo-500');
-
-  // Modal State for "Tạo công việc" (Create Task)
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const [selectedColumnForNewTask, setSelectedColumnForNewTask] = useState<Task['status']>('reprocess');
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [newTaskPriority, setNewTaskPriority] = useState<Task['priority']>('Bình thường');
-  const [newTaskTag, setNewTaskTag] = useState('');
-
-  // Search & Filter State
+  const [projects, setProjects] = useState<DuAnItem[]>(DEFAULT_PROJECTS);
   const [searchQuery, setSearchQuery] = useState('');
-  const [taskSearchQuery, setTaskSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'me'>('all');
+  const [sortKey, setSortKey] = useState<'maDuAn' | 'tenDuAn' | 'tienDo' | 'indexText' | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
-  // Project Collapse/Expand Handler
-  const toggleProjectCollapse = (id: string) => {
-    setProjects(projects.map(p => p.id === id ? { ...p, isOpen: !p.isOpen } : p));
-  };
+  // Modal creation states
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 
-  // Add Project Submit
-  const handleCreateProject = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newProjectName.trim()) return;
-
-    const newId = `project-${Date.now()}`;
-    const newProj: Project = {
-      id: newId,
-      name: newProjectName.trim(),
-      color: newProjectColor,
-      isOpen: true
+  // --- Handlers ---
+  const handleCreateProject = (data: {
+    maDuAn: string;
+    tenDuAn: string;
+    moTa: string;
+    ngayBatDau: string;
+    ngayKetThuc: string;
+    tienDo: number;
+    indexText: string;
+    trangThai: 'Đang thực hiện' | 'Hoàn thành' | 'Tạm dừng' | 'Chưa bắt đầu';
+    tienDoText: 'Chưa đánh giá' | 'Đúng tiến độ' | 'Trễ tiến độ' | 'Vượt tiến độ' | 'Chậm tiến độ, lỗi khách quan';
+    diaDiem?: string;
+    baselineBatDau?: string;
+    baselineKetThuc?: string;
+    ycsxId?: string;
+    templateId?: string;
+    khachHang?: string;
+    tyLe?: string;
+    kichThuoc?: string;
+    capDoDuAn?: string;
+    diaDiemLapDat?: string;
+    duKienNtLan1?: string;
+    duKienNtCuoi?: string;
+    duKienVanChuyen?: string;
+    duKienLapDat?: string;
+    soNvLapDat?: string;
+    khoiLuongNtLan1?: string;
+  }) => {
+    const newProj: DuAnItem = {
+      id: `da-${Date.now()}`,
+      ...data,
+      // Default sample milestones for simulation if correct status
+      milestones: data.tienDoText === 'Đúng tiến độ' ? [
+        { id: 'ms-1', label: 'NT lần 1', dateText: '15-08', positionPercent: 70, color: 'blue' },
+        { id: 'ms-2', label: 'NT cuối', dateText: '30-08', positionPercent: 90, color: 'red' }
+      ] : undefined
     };
 
-    setProjects([...projects, newProj]);
-    setActiveProjectId(newId);
-    setNewProjectName('');
+    setProjects(prev => [newProj, ...prev]);
     setIsProjectModalOpen(false);
   };
 
-  // Add Task Submit
-  const handleCreateTask = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTaskTitle.trim()) return;
+  const handleDeleteProject = (id: string) => {
+    if (confirm("Bạn có chắc chắn muốn xóa dự án này?")) {
+      setProjects(prev => prev.filter(p => p.id !== id));
+    }
+  };
 
-    const newId = `WFR-${Math.floor(100 + Math.random() * 900)}`;
-    const newTask: Task = {
-      id: newId,
-      projectId: activeProjectId,
-      title: newTaskTitle.trim(),
-      status: selectedColumnForNewTask,
-      date: 'Hôm nay',
-      priority: newTaskPriority,
-      tag: newTaskTag.trim() || undefined,
-      assignees: [{ name: 'L', avatarBg: 'bg-sky-400 text-sky-950' }]
+  const handleImportExcel = () => {
+    alert("Nhập khẩu Excel thành công! Đã thêm dự án mẫu.");
+    const newProj: DuAnItem = {
+      id: `da-${Date.now()}`,
+      maDuAn: '14.03-2026/DA-MHV',
+      tenDuAn: 'Dự án nhập từ Excel mẫu',
+      moTa: 'Dự án mẫu được tạo tự động từ việc nhập khẩu file Excel kiểm tra tiến độ.',
+      ngayBatDau: '2026-05-01',
+      ngayKetThuc: '2026-10-30',
+      tienDo: 50,
+      indexText: '7',
+      trangThai: 'Đang thực hiện',
+      tienDoText: 'Đúng tiến độ',
+      milestones: [
+        { id: 'ms-1', label: 'NT lần 1', dateText: '10-09', positionPercent: 65, color: 'blue' },
+        { id: 'ms-2', label: 'NT cuối', dateText: '25-09', positionPercent: 88, color: 'red' }
+      ]
     };
-
-    setTasks([newTask, ...tasks]);
-    setNewTaskTitle('');
-    setNewTaskTag('');
-    setNewTaskPriority('Bình thường');
-    setIsTaskModalOpen(false);
+    setProjects(prev => [newProj, ...prev]);
   };
 
-  // Get active project details
-  const currentProject = projects.find(p => p.id === activeProjectId) || projects[0];
-
-  // Filter tasks based on project, status, and search query
-  const getFilteredTasks = (status: Task['status']) => {
-    return tasks.filter(t => 
-      t.projectId === activeProjectId && 
-      t.status === status &&
-      t.title.toLowerCase().includes(taskSearchQuery.toLowerCase())
+  // --- Filtering & Sorting ---
+  const filtered = projects.filter(item => {
+    const q = searchQuery.toLowerCase();
+    return (
+      item.maDuAn.toLowerCase().includes(q) ||
+      item.tenDuAn.toLowerCase().includes(q)
     );
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (!sortKey) return 0;
+    if (sortKey === 'tienDo') {
+      return sortDir === 'asc' ? a.tienDo - b.tienDo : b.tienDo - a.tienDo;
+    }
+    const va = a[sortKey].toLowerCase();
+    const vb = b[sortKey].toLowerCase();
+    return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+
+  const handleSort = (key: 'maDuAn' | 'tenDuAn' | 'tienDo' | 'indexText') => {
+    if (sortKey === key) {
+      if (sortDir === 'asc') {
+        setSortDir('desc');
+      } else {
+        setSortKey(null);
+      }
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
   };
 
-  // Column definitions
-  const columns: { key: Task['status']; title: string; colorClass: string }[] = [
-    { key: 'reprocess', title: 'XỬ LÝ LẠI', colorClass: 'text-amber-500 bg-amber-500/10 border-amber-500' },
-    { key: 'draft', title: 'NHÁP', colorClass: 'text-slate-500 bg-slate-500/10 border-slate-500' },
-    { key: 'progress', title: 'ĐANG XỬ LÝ', colorClass: 'text-blue-500 bg-blue-500/10 border-blue-500' },
-    { key: 'review', title: 'CHỜ DUYỆT', colorClass: 'text-purple-500 bg-purple-500/10 border-purple-500' },
-    { key: 'rejected', title: 'TỪ CHỐI', colorClass: 'text-rose-500 bg-rose-500/10 border-rose-500' }
-  ];
+  // --- Process bar counters ---
+  const countStep1 = 0; // HĐ ký kết
+  const countStep2 = 0; // Khởi tạo Dự án
+  const countStep3 = projects.filter(p => p.trangThai === 'Đang thực hiện').length; // Đang thực hiện
+  const countStep4 = projects.filter(p => p.trangThai === 'Hoàn thành').length; // Hoàn thành
 
-  // Colors available for new projects
-  const colorOptions = [
-    { class: 'bg-indigo-500', name: 'Indigo' },
-    { class: 'bg-red-500', name: 'Red' },
-    { class: 'bg-pink-500', name: 'Pink' },
-    { class: 'bg-teal-500', name: 'Teal' },
-    { class: 'bg-orange-500', name: 'Orange' },
-    { class: 'bg-purple-500', name: 'Purple' },
-    { class: 'bg-emerald-500', name: 'Emerald' }
-  ];
+  // Format Helper for Date
+  const formatDateDisplay = (dateString: string) => {
+    if (!dateString) return '';
+    const parts = dateString.split('-');
+    if (parts.length === 3) {
+      return `${parseInt(parts[2])}/${parseInt(parts[1])}/${parts[0]}`;
+    }
+    return dateString;
+  };
+
+  // Helper for progress bar color logic matching screenshot rules
+  const getProgressColorClass = (tienDo: number, evalText: string) => {
+    if (evalText === 'Chưa đánh giá') return 'bg-slate-300';
+    if (tienDo <= 10) return 'bg-slate-300';
+    if (tienDo < 60) return 'bg-[#f97316]'; // orange/amber
+    return 'bg-blue-600/90'; // blue
+  };
 
   return (
-    <>
-      <div className="flex-1 flex flex-col h-full bg-slate-50 overflow-hidden">
-        {/* Submenu Task filters toolbar (Only visible for 'tasks' submenu) */}
-        <div className="bg-white border-b border-slate-100/90 py-2.5 px-6 flex flex-wrap items-center justify-between gap-3 shrink-0 select-none">
-              <div className="flex items-center gap-2">
-                {/* Board selector */}
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-100 transition-colors">
-                  <span className="w-2 h-2 rounded bg-sky-500" />
-                  Board
-                  <IconChevronDown size={12} className="text-slate-400" />
-                </div>
-                
-                {/* General Filter Buttons */}
-                <button className="flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 transition-colors cursor-pointer">
-                  <IconFilter size={13} />
-                  Lọc
-                </button>
-                <button className="flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 transition-colors cursor-pointer">
-                  <IconEye size={13} />
-                  Hiển thị
-                </button>
+    <div className="flex-1 flex flex-col overflow-hidden p-5 md:p-6 space-y-5 animate-fade-in text-slate-700 w-full bg-slate-50">
+      {/* 1. Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Quản lý Dự án</h2>
+          <p className="text-sm text-slate-400 mt-0.5">Quản lý tiến độ các dự án</p>
+        </div>
 
-                <div className="w-px h-5 bg-slate-200 mx-1" />
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={handleImportExcel}
+            className="flex items-center gap-2 px-4 py-2 bg-[#BB8D38] hover:bg-[#a77c2f] text-white text-xs font-semibold rounded-lg shadow-xs transition-all cursor-pointer"
+          >
+            <IconUpload size={16} />
+            <span>Import Excel</span>
+          </button>
 
-                {/* Me / All filters */}
-                <div className="flex bg-slate-100 rounded-lg p-0.5">
-                  <button 
-                    onClick={() => setActiveFilter('me')}
-                    className={`px-2.5 py-0.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                      activeFilter === 'me' 
-                        ? 'bg-white text-slate-800 shadow-sm' 
-                        : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    Tôi
-                  </button>
-                  <button 
-                    onClick={() => setActiveFilter('all')}
-                    className={`px-2.5 py-0.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                      activeFilter === 'all' 
-                        ? 'bg-white text-slate-800 shadow-sm' 
-                        : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    Tất cả
-                  </button>
-                </div>
-              </div>
-
-              {/* Task search input within Project */}
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Tìm việc..."
-                    value={taskSearchQuery}
-                    onChange={(e) => setTaskSearchQuery(e.target.value)}
-                    className="w-36 md:w-44 text-xs font-medium border border-slate-200 rounded-lg pl-8 pr-3 py-1 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 bg-slate-50/50 hover:bg-slate-50 transition-colors"
-                  />
-                  <IconSearch size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                </div>
-                
-                <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">
-                  {tasks.filter(t => t.projectId === activeProjectId).length} công việc
-                </span>
-              </div>
-            </div>
-
-
-        <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 select-none">
-            <div className="flex gap-4 h-full items-start min-w-[1000px]">
-                {columns.map((col) => {
-                  const colTasks = getFilteredTasks(col.key);
-                  return (
-                    <div key={col.key} className="w-1/5 max-w-[260px] bg-slate-100/60 border border-slate-200/50 rounded-2xl flex flex-col max-h-full">
-                      {/* Column Header */}
-                      <div className="p-3 pb-2 flex items-center justify-between border-b border-slate-200/20">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${col.key === 'reprocess' ? 'bg-amber-500' : col.key === 'draft' ? 'bg-slate-400' : col.key === 'progress' ? 'bg-blue-500' : col.key === 'review' ? 'bg-purple-500' : 'bg-rose-500'}`} />
-                          <h3 className="text-xs font-black text-slate-700 tracking-tight">{col.title}</h3>
-                          <span className="text-[10px] font-bold bg-slate-200/70 text-slate-500 px-1.5 py-0.2 rounded-full">
-                            {colTasks.length}
-                          </span>
-                        </div>
-                        <div className="flex gap-0.5">
-                          <button 
-                            onClick={() => {
-                              setSelectedColumnForNewTask(col.key);
-                              setIsTaskModalOpen(true);
-                            }}
-                            className="p-1 hover:bg-slate-200 rounded text-slate-500 hover:text-slate-700 cursor-pointer"
-                          >
-                            <IconPlus size={13} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Tasks List */}
-                      <div className="flex-1 overflow-y-auto p-3 space-y-2.5 scrollbar-thin">
-                        {colTasks.length > 0 ? (
-                          colTasks.map((task) => (
-                            <div 
-                              key={task.id}
-                              className="bg-white border border-slate-100 shadow-sm rounded-xl p-3.5 hover:shadow hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer text-left border-t-3 border-t-slate-300 hover:border-t-sky-400"
-                            >
-                              {/* Task header ID & Date */}
-                              <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 mb-1.5">
-                                <span className="text-sky-600 font-bold bg-sky-50 px-1.5 py-0.2 rounded">
-                                  {task.id}
-                                </span>
-                                <span>{task.date}</span>
-                              </div>
-
-                              {/* Task title */}
-                              <p className="text-xs font-bold text-slate-700 line-clamp-3 leading-snug mb-3">
-                                {task.title}
-                              </p>
-
-                              {/* Extra countdown timer (like draft) */}
-                              {task.countdown && (
-                                <div className="mb-2.5 flex items-center gap-1 text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-md w-max">
-                                  <IconClock size={11} />
-                                  {task.countdown}
-                                </div>
-                              )}
-
-                              {/* Footer details (Priority badge, Assignee avatars) */}
-                              <div className="flex items-center justify-between border-t border-slate-50 pt-2.5 mt-2">
-                                <div className="flex items-center gap-1.5">
-                                  <span className={`w-1.5 h-1.5 rounded-full ${task.priority === 'Khẩn cấp' ? 'bg-red-500 animate-pulse' : task.priority === 'Cao' ? 'bg-orange-500' : 'bg-slate-400'}`} />
-                                  <span className={`text-[9px] font-extrabold tracking-wide uppercase ${task.priority === 'Khẩn cấp' ? 'text-red-500' : task.priority === 'Cao' ? 'text-orange-500' : 'text-slate-400'}`}>
-                                    {task.priority}
-                                  </span>
-                                  {task.tag && (
-                                    <span className="text-[9px] font-black text-rose-500 bg-rose-50 border border-rose-100 rounded px-1.5 leading-none py-0.5">
-                                      {task.tag}
-                                    </span>
-                                  )}
-                                </div>
-
-                                <div className="flex -space-x-1.5">
-                                  {task.assignees.map((as, idx) => (
-                                    <div 
-                                      key={idx} 
-                                      className={`w-5 h-5 rounded-full ${as.avatarBg} font-extrabold flex items-center justify-center text-[9px] border border-white`}
-                                    >
-                                      {as.name}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="py-6 text-center text-slate-400 text-[10px] font-medium border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-                            Chưa có công việc
-                          </div>
-                        )}
-
-                        {/* Add Task Quick Trigger */}
-                        <button 
-                          onClick={() => {
-                            setSelectedColumnForNewTask(col.key);
-                            setIsTaskModalOpen(true);
-                          }}
-                          className="w-full py-2 hover:bg-white/80 border border-dashed border-slate-200 hover:border-slate-300 rounded-xl text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-all flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          <IconPlus size={12} />
-                          Thêm công việc
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
+          <button
+            type="button"
+            onClick={() => setIsProjectModalOpen(true)}
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-semibold rounded-lg shadow-xs transition-all cursor-pointer"
+          >
+            <IconPlus size={16} />
+            <span>Tạo Dự án</span>
+          </button>
         </div>
       </div>
 
-      {/* 3. MODAL: TẠO DỰ ÁN MỚI */}
-      {isProjectModalOpen && (
-        <div className="fixed inset-0 bg-[#070e17]/60 backdrop-blur-xs flex items-center justify-center z-50 animate-fade-in p-4 select-none">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all scale-100 animate-scale-up">
-            
-            {/* Modal header */}
-            <div className="bg-[#111e2e] text-white px-5 py-4 flex items-center justify-between">
-              <h3 className="text-sm font-extrabold tracking-tight">Tạo dự án mới</h3>
-              <button 
-                onClick={() => setIsProjectModalOpen(false)}
-                className="text-slate-400 hover:text-white transition-colors cursor-pointer"
-              >
-                <IconX size={18} />
-              </button>
+      {/* 2. Process Workflow Bar */}
+      <div className="bg-white border border-slate-200/80 rounded-xl p-3.5 flex items-center gap-2 overflow-x-auto shadow-xs">
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="bg-slate-100 border border-transparent text-slate-700 font-semibold px-3 py-1.5 rounded-lg text-xs">
+            Hợp đồng ký kết <span className="font-normal text-slate-400">PGĐ đã duyệt HĐ</span>
+          </span>
+          <IconArrowRight size={14} className="text-slate-400" />
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="bg-slate-100 border border-transparent text-slate-700 font-semibold px-3 py-1.5 rounded-lg text-xs">
+            Khởi tạo Dự án <span className="font-normal text-slate-400 font-mono">từ hợp đồng</span>
+          </span>
+          <IconArrowRight size={14} className="text-slate-400" />
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+            countStep3 > 0
+              ? 'bg-indigo-50/50 border-indigo-200 text-indigo-700'
+              : 'bg-slate-100 border-transparent text-slate-700'
+          }`}>
+            <span>Đang thực hiện</span>
+            {countStep3 > 0 && (
+              <span className="bg-[#406c89] text-white text-[10px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold">
+                {countStep3}
+              </span>
+            )}
+          </span>
+          <IconArrowRight size={14} className="text-slate-400" />
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="bg-slate-100 border border-transparent text-slate-700 font-semibold px-3 py-1.5 rounded-lg text-xs">
+            Hoàn thành <span className="font-normal text-slate-400">({countStep4} dự án)</span>
+          </span>
+        </div>
+      </div>
+
+      {/* 3. Search & Sort Bar */}
+      <div className="space-y-4">
+        {/* Search */}
+        <div className="bg-white border border-slate-200/80 rounded-xl px-3.5 py-2.5 flex items-center gap-2 shadow-xs">
+          <IconSearch size={18} className="text-slate-400 shrink-0" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Tìm theo tên hoặc mã dự án..."
+            className="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none"
+          />
+        </div>
+
+        {/* Sorting row */}
+        <div className="flex items-center gap-2 text-xs select-none">
+          <span className="text-slate-400 font-medium mr-1">Sắp xếp:</span>
+          
+          <button
+            onClick={() => handleSort('maDuAn')}
+            className={`px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-medium ${
+              sortKey === 'maDuAn' ? 'bg-[#406c89] text-white border-transparent' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            Mã dự án {sortKey === 'maDuAn' && (sortDir === 'asc' ? '↑' : '↓')}
+          </button>
+
+          <button
+            onClick={() => handleSort('tenDuAn')}
+            className={`px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-medium ${
+              sortKey === 'tenDuAn' ? 'bg-[#406c89] text-white border-transparent' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            Tên dự án {sortKey === 'tenDuAn' && (sortDir === 'asc' ? '↑' : '↓')}
+          </button>
+
+          <button
+            onClick={() => handleSort('tienDo')}
+            className={`px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-medium ${
+              sortKey === 'tienDo' ? 'bg-[#406c89] text-white border-transparent' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            KL hoàn thành {sortKey === 'tienDo' && (sortDir === 'asc' ? '↑' : '↓')}
+          </button>
+
+          <button
+            onClick={() => handleSort('indexText')}
+            className={`px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-medium ${
+              sortKey === 'indexText' ? 'bg-[#406c89] text-white border-transparent' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            Ưu tiên {sortKey === 'indexText' && (sortDir === 'asc' ? '↑' : '↓')}
+          </button>
+        </div>
+      </div>
+
+      {/* 4. Projects Cards Container */}
+      <div className="flex-1 overflow-y-auto space-y-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {sorted.length === 0 ? (
+          <div className="bg-white border border-slate-200/80 rounded-2xl py-20 px-4 flex flex-col items-center justify-center min-h-[300px] text-center shadow-xs">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center text-slate-300 mb-2">
+              <IconClipboardList size={48} className="stroke-[1.25]" />
             </div>
+            <p className="text-xs text-slate-400 font-medium">Chưa có dự án nào.</p>
+          </div>
+        ) : (
+          sorted.map(item => {
+            const hasGreenBorder = item.tienDoText === 'Đúng tiến độ' || item.tienDoText === 'Vượt tiến độ';
+            const hasRedBorder = item.tienDoText === 'Chậm tiến độ, lỗi khách quan' || item.tienDoText === 'Trễ tiến độ';
+            
+            return (
+              <div
+                key={item.id}
+                className={`bg-white rounded-2xl p-5 md:p-6 shadow-xs flex flex-col gap-3.5 transition-all border ${
+                  hasGreenBorder 
+                    ? 'border-emerald-600/60' 
+                    : hasRedBorder 
+                    ? 'border-rose-300/60' 
+                    : 'border-slate-200/80'
+                }`}
+              >
+                {/* Header row of card */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {/* Code badge */}
+                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold font-mono bg-[#406c89]/10 text-[#406c89] border border-[#406c89]/20">
+                      {item.maDuAn}
+                    </span>
 
-            {/* Modal form body */}
-            <form onSubmit={handleCreateProject} className="p-5 space-y-4 text-left">
-              <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
-                  Tên dự án
-                </label>
-                <input 
-                  type="text" 
-                  required
-                  placeholder="Nhập tên dự án..."
-                  value={newProjectName}
-                  onChange={(e) => setNewProjectName(e.target.value)}
-                  className="w-full text-xs font-bold bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition-all text-slate-800"
-                  autoFocus
-                />
-              </div>
+                    {/* Status badge 1 */}
+                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200/50">
+                      {item.trangThai}
+                    </span>
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
-                  Màu sắc đại diện
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {colorOptions.map((opt) => (
+                    {/* Status badge 2 (tienDoText) */}
+                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold border ${
+                      item.tienDoText === 'Đúng tiến độ' || item.tienDoText === 'Vượt tiến độ'
+                        ? 'bg-emerald-600 text-white border-transparent'
+                        : item.tienDoText === 'Chậm tiến độ, lỗi khách quan' || item.tienDoText === 'Trễ tiến độ'
+                        ? 'bg-rose-50 text-rose-600 border-rose-200/50'
+                        : 'bg-slate-50 text-slate-400 border-slate-200/50'
+                    }`}>
+                      {item.tienDoText}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    {/* Trash delete button */}
                     <button
-                      key={opt.class}
                       type="button"
-                      onClick={() => setNewProjectColor(opt.class)}
-                      className={`w-7 h-7 rounded-full ${opt.class} flex items-center justify-center shadow-sm cursor-pointer transition-all ${
-                        newProjectColor === opt.class ? 'ring-3 ring-sky-300 ring-offset-2 scale-110' : 'hover:scale-105'
-                      }`}
-                      title={opt.name}
+                      onClick={() => handleDeleteProject(item.id)}
+                      className="p-1.5 rounded text-slate-400 hover:text-[#406c89] hover:bg-slate-100 transition-colors cursor-pointer"
+                      title="Xóa dự án"
                     >
-                      {newProjectColor === opt.class && <IconCheck size={14} className="text-white" stroke={3} />}
+                      <IconTrash size={18} />
                     </button>
-                  ))}
+
+                    {/* Details button */}
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 bg-[#406c89] hover:bg-[#345972] text-white px-3 py-1 rounded-lg text-xs font-semibold cursor-pointer shadow-xs"
+                    >
+                      <span>Chi tiết</span>
+                      <IconChevronRight size={12} stroke={2.5} />
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Action buttons */}
-              <div className="flex gap-2.5 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setIsProjectModalOpen(false)}
-                  className="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 px-3 bg-gradient-to-r from-sky-400 to-blue-500 hover:opacity-95 text-white rounded-lg text-xs font-bold shadow-md shadow-sky-500/10 transition-all cursor-pointer"
-                >
-                  Tạo dự án
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+                {/* Index and Title Row */}
+                <div className="flex items-center gap-2.5">
+                  {/* Sequence box */}
+                  <div className="bg-slate-100 border border-slate-200 text-slate-500 font-semibold px-2 py-0.5 rounded text-[11px] min-w-[24px] text-center select-none">
+                    {item.indexText}
+                  </div>
 
-      {/* 4. MODAL: TẠO CÔNG VIỆC MỚI */}
-      {isTaskModalOpen && (
-        <div className="fixed inset-0 bg-[#070e17]/60 backdrop-blur-xs flex items-center justify-center z-50 animate-fade-in p-4 select-none">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all scale-100 animate-scale-up">
-            
-            {/* Modal header */}
-            <div className="bg-[#111e2e] text-white px-5 py-4 flex items-center justify-between">
-              <h3 className="text-sm font-extrabold tracking-tight">Thêm công việc mới</h3>
-              <button 
-                onClick={() => setIsTaskModalOpen(false)}
-                className="text-slate-400 hover:text-white transition-colors cursor-pointer"
-              >
-                <IconX size={18} />
-              </button>
-            </div>
+                  {/* Title */}
+                  <h3 className="text-base font-extrabold text-[#406c89] hover:underline cursor-pointer tracking-tight">
+                    {item.tenDuAn}
+                  </h3>
+                </div>
 
-            {/* Modal form body */}
-            <form onSubmit={handleCreateTask} className="p-5 space-y-4 text-left">
-              <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
-                  Tiêu đề công việc
-                </label>
-                <textarea 
-                  required
-                  rows={3}
-                  placeholder="Nhập tiêu đề hoặc nội dung công việc..."
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
-                  className="w-full text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition-all text-slate-800 resize-none"
-                  autoFocus
-                />
-              </div>
+                {/* Description */}
+                <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-[800px]">
+                  {item.moTa}
+                </p>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
-                    Cột Trạng thái
-                  </label>
-                  <select
-                    value={selectedColumnForNewTask}
-                    onChange={(e) => setSelectedColumnForNewTask(e.target.value as Task['status'])}
-                    className="w-full text-xs font-bold bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-700 transition-all"
-                  >
-                    {columns.map(col => (
-                      <option key={col.key} value={col.key}>{col.title}</option>
+                {/* Dates and Flag milestones */}
+                <div className="flex items-center justify-between text-xs select-none">
+                  {/* Dates */}
+                  <div className="text-slate-400 font-medium">
+                    Bắt đầu: {formatDateDisplay(item.ngayBatDau)} &nbsp;&nbsp;&nbsp; Kết thúc: {formatDateDisplay(item.ngayKetThuc)}
+                  </div>
+
+                  {/* Flags (milestones summary) */}
+                  {item.milestones && item.milestones.length > 0 && (
+                    <div className="flex items-center gap-3 font-bold font-mono">
+                      {item.milestones.map((ms) => (
+                        <div
+                          key={ms.id}
+                          className={`flex items-center gap-0.5 ${
+                            ms.color === 'blue' ? 'text-blue-500' : 'text-red-500'
+                          }`}
+                        >
+                          <IconFlag size={13} className="shrink-0" />
+                          <span>{ms.dateText}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Progress bar and milestone markers */}
+                <div className="flex items-center gap-3">
+                  <div className="relative flex-1 bg-slate-100 rounded-full h-2">
+                    {/* Fill */}
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${getProgressColorClass(item.tienDo, item.tienDoText)}`}
+                      style={{ width: `${item.tienDo}%` }}
+                    />
+
+                    {/* Milestones markers tick lines */}
+                    {item.milestones?.map(ms => (
+                      <div
+                        key={ms.id}
+                        className={`absolute top-0 bottom-0 w-0.5 z-10 ${
+                          ms.color === 'blue' ? 'bg-blue-500' : 'bg-red-500'
+                        }`}
+                        style={{ left: `${ms.positionPercent}%` }}
+                      />
                     ))}
-                  </select>
+                  </div>
+
+                  {/* Progress percentage label */}
+                  <span className="text-xs text-slate-400 font-bold w-7 text-right select-none">
+                    {item.tienDo}%
+                  </span>
                 </div>
 
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
-                    Độ khẩn cấp
-                  </label>
-                  <select
-                    value={newTaskPriority}
-                    onChange={(e) => setNewTaskPriority(e.target.value as Task['priority'])}
-                    className="w-full text-xs font-bold bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-700 transition-all"
-                  >
-                    <option value="Bình thường">Bình thường</option>
-                    <option value="Cao">Cao</option>
-                    <option value="Khẩn cấp">Khẩn cấp</option>
-                  </select>
-                </div>
+                {/* Milestones detailed labels bottom row */}
+                {item.milestones && item.milestones.length > 0 && (
+                  <div className="flex items-center gap-4 text-[10px] font-bold font-mono select-none pt-0.5 border-t border-slate-50 mt-0.5">
+                    {item.milestones.map(ms => (
+                      <span
+                        key={ms.id}
+                        className={ms.color === 'blue' ? 'text-blue-500/80' : 'text-red-500/80'}
+                      >
+                        | {ms.label} ({ms.dateText})
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
+            );
+          })
+        )}
+      </div>
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
-                  Nhãn (Tag) - Tùy chọn
-                </label>
-                <input 
-                  type="text" 
-                  placeholder="Ví dụ: Bug, Review..."
-                  value={newTaskTag}
-                  onChange={(e) => setNewTaskTag(e.target.value)}
-                  className="w-full text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 transition-all text-slate-800"
-                />
-              </div>
-
-              {/* Action buttons */}
-              <div className="flex gap-2.5 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setIsTaskModalOpen(false)}
-                  className="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 px-3 bg-gradient-to-r from-sky-400 to-blue-500 hover:opacity-95 text-white rounded-lg text-xs font-bold shadow-md shadow-sky-500/10 transition-all cursor-pointer"
-                >
-                  Thêm công việc
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-    </>
+      {/* 5. MODAL: TẠO DỰ ÁN MỚI */}
+      <TaoDuAnModal
+        isOpen={isProjectModalOpen}
+        onClose={() => setIsProjectModalOpen(false)}
+        onSubmit={handleCreateProject}
+      />
+    </div>
   );
 }

@@ -13,6 +13,7 @@ import {
 } from '@tabler/icons-react';
 import TaoYCSXModal from './modal/TaoYCSX';
 import ChinhSuaYCSXModal from './modal/ChinhSuaYCSX';
+import XoaYCSXModal from './modal/XoaYCSX';
 
 export interface YcsxItem {
   id: string;
@@ -105,6 +106,8 @@ export default function YeuCauSanXuat() {
   const [isTaoModalOpen, setIsTaoModalOpen] = useState(false);
   const [selectedItemToEdit, setSelectedItemToEdit] = useState<YcsxItem | null>(null);
   const [isChinhSuaModalOpen, setIsChinhSuaModalOpen] = useState(false);
+  const [selectedItemToDelete, setSelectedItemToDelete] = useState<YcsxItem | null>(null);
+  const [isXoaModalOpen, setIsXoaModalOpen] = useState(false);
 
   const filteredList = ycsxList.filter(
     (item) =>
@@ -276,7 +279,10 @@ export default function YeuCauSanXuat() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDeleteItem(item.id)}
+                          onClick={() => {
+                            setSelectedItemToDelete(item);
+                            setIsXoaModalOpen(true);
+                          }}
                           className="hover:text-red-500 transition-colors p-0.5 cursor-pointer"
                           title="Xóa"
                         >
@@ -346,6 +352,16 @@ export default function YeuCauSanXuat() {
           setYcsxList((prev) =>
             prev.map((item) => (item.id === updatedData.id ? updatedData : item))
           );
+        }}
+      />
+
+      {/* Xoa YCSX Modal */}
+      <XoaYCSXModal
+        isOpen={isXoaModalOpen}
+        itemData={selectedItemToDelete}
+        onClose={() => setIsXoaModalOpen(false)}
+        onConfirmDelete={(id) => {
+          handleDeleteItem(id);
         }}
       />
 

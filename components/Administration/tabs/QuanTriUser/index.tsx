@@ -10,63 +10,16 @@ import {
   IconKey,
   IconLock
 } from '@tabler/icons-react';
-import { UserItem, RoleType, StatusType } from './types';
+import { UserItem, StatusType } from './types';
 import DanhSachTaiKhoan from './DanhSachTaiKhoan';
 import VaiTroPhanQuyen from './VaiTroPhanQuyen';
-
-const DEFAULT_USERS: UserItem[] = [
-  {
-    id: 'usr-1',
-    fullName: 'Nguyễn Khắc Hợp',
-    email: 'hopnk@mohingviet.vn',
-    username: 'hopnk1',
-    role: 'Superadmin',
-    status: 'Hoạt động',
-    createdDate: '2026-03-04',
-  },
-  {
-    id: 'usr-2',
-    fullName: 'Nguyễn Thị Mai',
-    email: 'maintt@mohingviet.vn',
-    username: 'maintt',
-    role: 'Admin',
-    status: 'Hoạt động',
-    createdDate: '2026-03-11',
-  },
-  {
-    id: 'usr-3',
-    fullName: 'Phùng Thị Thảo',
-    email: 'thaopt@mohingviet.vn',
-    username: 'thaopt',
-    role: 'Quản lý Kinh doanh',
-    status: 'Hoạt động',
-    createdDate: '2026-03-12',
-  },
-  {
-    id: 'usr-4',
-    fullName: 'Lê Công Chiến',
-    email: 'lecongchien2472002@gmail.com',
-    username: 'chienlc',
-    role: 'Nhân viên',
-    status: 'Hoạt động',
-    createdDate: '2026-03-15',
-  },
-  {
-    id: 'usr-5',
-    fullName: 'Trần Văn An',
-    email: 'antv@mohingviet.vn',
-    username: 'antv',
-    role: 'Nhân viên',
-    status: 'Tạm dừng',
-    createdDate: '2026-03-20',
-  }
-];
+import { DEFAULT_USERS, ROLE_OPTIONS } from './DanhSachTaiKhoan/constants';
 
 export default function QuanTriUser() {
   const [activeTab, setActiveTab] = useState<'users' | 'roles'>('users');
   const [users, setUsers] = useState<UserItem[]>(DEFAULT_USERS);
   const [search, setSearch] = useState('');
-  const [sortKey, setSortKey] = useState<'fullName' | 'role' | 'createdDate' | null>(null);
+  const [sortKey, setSortKey] = useState<'fullName' | 'email' | 'role' | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
   // Modal control states
@@ -78,7 +31,7 @@ export default function QuanTriUser() {
   const [formName, setFormName] = useState('');
   const [formEmail, setFormEmail] = useState('');
   const [formUsername, setFormUsername] = useState('');
-  const [formRole, setFormRole] = useState<RoleType>('Nhân viên');
+  const [formRoles, setFormRoles] = useState<string[]>([]);
   const [formStatus, setFormStatus] = useState<StatusType>('Hoạt động');
   const [formPassword, setFormPassword] = useState('');
 
@@ -92,7 +45,7 @@ export default function QuanTriUser() {
       fullName: formName.trim(),
       email: formEmail.trim(),
       username: formUsername.trim(),
-      role: formRole,
+      roles: formRoles.length > 0 ? formRoles : ['Quản trị viên hệ thống'],
       status: formStatus,
       createdDate: new Date().toISOString().split('T')[0],
     };
@@ -115,7 +68,7 @@ export default function QuanTriUser() {
               fullName: formName.trim(),
               email: formEmail.trim(),
               username: formUsername.trim(),
-              role: formRole,
+              roles: formRoles.length > 0 ? formRoles : ['Quản trị viên hệ thống'],
               status: formStatus,
             }
           : u
@@ -131,7 +84,7 @@ export default function QuanTriUser() {
     setFormName(user.fullName);
     setFormEmail(user.email);
     setFormUsername(user.username);
-    setFormRole(user.role);
+    setFormRoles(user.roles);
     setFormStatus(user.status);
     setFormPassword('');
   };
@@ -148,7 +101,7 @@ export default function QuanTriUser() {
     setFormName('');
     setFormEmail('');
     setFormUsername('');
-    setFormRole('Nhân viên');
+    setFormRoles([]);
     setFormStatus('Hoạt động');
     setFormPassword('');
   };
@@ -166,12 +119,17 @@ export default function QuanTriUser() {
   // Sort logic
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (!sortKey) return 0;
+    if (sortKey === 'role') {
+      const valA = (a.roles[0] || '').toLowerCase();
+      const valB = (b.roles[0] || '').toLowerCase();
+      return sortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    }
     const valA = a[sortKey].toLowerCase();
     const valB = b[sortKey].toLowerCase();
     return sortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
   });
 
-  const handleSort = (key: 'fullName' | 'role' | 'createdDate') => {
+  const handleSort = (key: 'fullName' | 'email' | 'role') => {
     if (sortKey === key) {
       setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
     } else {
@@ -234,7 +192,7 @@ export default function QuanTriUser() {
       </div>
 
       {/* 3. SCROLLABLE CONTENT */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-5 flex flex-col gap-4">
+      <div className="flex-1 overflow-hidden px-4 sm:px-8 py-5 flex flex-col gap-4 min-h-0">
         {activeTab === 'users' ? (
           <DanhSachTaiKhoan
             users={users}
@@ -329,20 +287,30 @@ export default function QuanTriUser() {
               </div>
 
               {/* Vai trò và Trạng thái */}
-              <div className="grid grid-cols-2 gap-3.5">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Vai trò</label>
-                  <select
-                    value={formRole}
-                    onChange={(e) => setFormRole(e.target.value as RoleType)}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-[#406c89] focus:border-[#406c89] text-slate-700"
-                  >
-                    <option value="Superadmin">Superadmin</option>
-                    <option value="Admin">Admin</option>
-                    <option value="Quản lý Kinh doanh">Quản lý Kinh doanh</option>
-                    <option value="Nhân viên">Nhân viên</option>
-                  </select>
+              <div className="space-y-3.5">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Vai trò hệ thống</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-slate-200 rounded-lg p-3 bg-slate-50 max-h-36 overflow-y-auto">
+                    {ROLE_OPTIONS.map(role => (
+                      <label key={role} className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={formRoles.includes(role)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormRoles(prev => [...prev, role]);
+                            } else {
+                              setFormRoles(prev => prev.filter(r => r !== role));
+                            }
+                          }}
+                          className="rounded text-[#406c89] focus:ring-[#406c89] w-3.5 h-3.5 border-slate-300"
+                        />
+                        <span className="truncate">{role}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
+
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Trạng thái</label>
                   <select
@@ -382,7 +350,7 @@ export default function QuanTriUser() {
         <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in border border-slate-100">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-              <h3 className="font-bold text-slate-800 text-sm">Chỉnh sửa thông tin</h3>
+              <h3 className="font-bold text-slate-800 text-sm">Chỉnh sửa thông tin / Vai trò</h3>
               <button onClick={() => setEditingUser(null)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
                 <IconX size={16} />
               </button>
@@ -438,20 +406,30 @@ export default function QuanTriUser() {
               </div>
 
               {/* Vai trò và Trạng thái */}
-              <div className="grid grid-cols-2 gap-3.5">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Vai trò</label>
-                  <select
-                    value={formRole}
-                    onChange={(e) => setFormRole(e.target.value as RoleType)}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-[#406c89] focus:border-[#406c89] text-slate-700"
-                  >
-                    <option value="Superadmin">Superadmin</option>
-                    <option value="Admin">Admin</option>
-                    <option value="Quản lý Kinh doanh">Quản lý Kinh doanh</option>
-                    <option value="Nhân viên">Nhân viên</option>
-                  </select>
+              <div className="space-y-3.5">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Vai trò hệ thống</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-slate-200 rounded-lg p-3 bg-slate-50 max-h-36 overflow-y-auto">
+                    {ROLE_OPTIONS.map(role => (
+                      <label key={role} className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={formRoles.includes(role)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormRoles(prev => [...prev, role]);
+                            } else {
+                              setFormRoles(prev => prev.filter(r => r !== role));
+                            }
+                          }}
+                          className="rounded text-[#406c89] focus:ring-[#406c89] w-3.5 h-3.5 border-slate-300"
+                        />
+                        <span className="truncate">{role}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
+
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Trạng thái</label>
                   <select

@@ -1,4 +1,3 @@
-export type RoleType = 'Superadmin' | 'Admin' | 'Quản lý Kinh doanh' | 'Nhân viên';
 export type StatusType = 'Hoạt động' | 'Tạm dừng';
 
 export interface UserItem {
@@ -6,7 +5,8 @@ export interface UserItem {
   fullName: string;
   email: string;
   username: string;
-  role: RoleType;
+  roles: string[];
   status: StatusType;
   createdDate: string;
+  isCurrentUser?: boolean;
 }

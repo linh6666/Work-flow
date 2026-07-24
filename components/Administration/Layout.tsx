@@ -38,7 +38,10 @@ import {
   IconFileText,
   IconSignature,
   IconBuildingFactory2,
-  IconShieldCheck
+  IconShieldCheck,
+  IconChartBar,
+  IconReportAnalytics,
+  IconKey
 } from '@tabler/icons-react';
 
 interface Project {
@@ -66,20 +69,37 @@ export default function AdministrationLayout({ children }: { children: React.Rea
   const pathParts = pathname.split('/');
   const tabFromPath = pathParts[pathParts.length - 1];
   
-  const menuIds = ['tong-quan', 'khach-hang', 'de-xuat-bao-gia', 'nhan-su-du-an', 'bao-gia', 'hop-dong', 'yeu-cau-san-xuat', 'quan-ly-du-an', 'quan-tri-user'];
+  const menuIds = [
+    'tong-quan',
+    'khach-hang',
+    'de-xuat-bao-gia',
+    'quan-ly-nhan-su',
+    'nhan-su-du-an',
+    'bao-gia',
+    'hop-dong',
+    'yeu-cau-san-xuat',
+    'quan-ly-du-an',
+    'tong-quat-du-an',
+    'bao-cao-tong-the',
+    'quan-tri-user',
+    'ma-tran-phan-quyen'
+  ];
   
-  const activeMenu = menuIds.includes(tabFromPath) ? tabFromPath : 'tong-quan';
+  const activeMenu = menuIds.includes(tabFromPath) ? (tabFromPath === 'nhan-su-du-an' ? 'quan-ly-nhan-su' : tabFromPath) : 'tong-quan';
 
   const menuItems = [
     { id: 'tong-quan', name: 'Tổng quan', icon: IconLayoutGrid },
     { id: 'khach-hang', name: 'Khách hàng', icon: IconUsers },
     { id: 'de-xuat-bao-gia', name: 'Đề xuất Báo giá', icon: IconFilePlus },
-    { id: 'nhan-su-du-an', name: 'Nhân sự Dự án', icon: IconClipboardList },
+    { id: 'quan-ly-nhan-su', name: 'Quản lý nhân sự', icon: IconClipboardList },
     { id: 'bao-gia', name: 'Báo giá', icon: IconFileText },
     { id: 'hop-dong', name: 'Hợp đồng', icon: IconSignature },
     { id: 'yeu-cau-san-xuat', name: 'Yêu cầu Sản xuất', icon: IconBuildingFactory2 },
     { id: 'quan-ly-du-an', name: 'Quản lý Dự án', icon: IconFolder },
+    { id: 'tong-quat-du-an', name: 'Tổng quát Dự án', icon: IconChartBar },
+    { id: 'bao-cao-tong-the', name: 'Báo cáo Tổng thể', icon: IconReportAnalytics },
     { id: 'quan-tri-user', name: 'Quản trị user', icon: IconShieldCheck },
+    { id: 'ma-tran-phan-quyen', name: 'Ma trận phân quyền', icon: IconKey },
   ];
 
   const currentMenuItem = menuItems.find(item => item.id === activeMenu) || menuItems[0];

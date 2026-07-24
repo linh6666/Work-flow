@@ -227,7 +227,7 @@ export default function BaoGia() {
   return (
     <div className="flex-1 flex flex-col bg-[#fafbfc] overflow-hidden select-none">
       {/* 1. STICKY HEADER */}
-      <div className="sticky top-0 z-10 bg-[#fafbfc] px-8 pt-6 pb-4 border-b border-slate-100 shrink-0">
+      <div className="sticky top-0 z-10 bg-[#fafbfc] px-4 sm:px-8 pt-6 pb-4 border-b border-slate-100 shrink-0">
         <div className="flex items-center gap-2.5 text-[#406c89] font-bold mb-2">
           <div className="w-9 h-9 rounded-lg bg-[#406c89]/10 border border-[#406c89]/20 flex items-center justify-center text-[#406c89]">
             <IconFileText size={20} />
@@ -261,7 +261,7 @@ export default function BaoGia() {
       </div>
 
       {/* 2. SCROLLABLE CONTENT */}
-      <div className="flex-1 overflow-y-auto px-8 py-5 flex flex-col gap-5">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-5 flex flex-col gap-5">
         
         {/* Process Flow Stepper */}
         <div className="bg-white border border-slate-200/50 rounded-xl p-3 flex flex-wrap items-center gap-3 shadow-xs">

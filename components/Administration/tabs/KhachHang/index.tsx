@@ -235,8 +235,8 @@ export default function KhachHang() {
   return (
     <div className="flex-1 flex flex-col bg-[#fafbfc] overflow-hidden select-none">
       {/* STICKY HEADER */}
-      <div className="sticky top-0 z-10 bg-[#fafbfc] px-8 pt-6 pb-4 border-b border-slate-100 shrink-0">
-        <div className="flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-[#fafbfc] px-4 sm:px-8 pt-6 pb-4 border-b border-slate-100 shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Quản lý Khách hàng (CRM)</h1>
             <p className="text-sm text-slate-500 mt-0.5">Danh sách và thông tin khách hàng</p>
@@ -244,7 +244,7 @@ export default function KhachHang() {
           <button
             id="btn-them-khach-hang"
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-bold rounded-lg shadow-sm transition-all cursor-pointer"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-bold rounded-lg shadow-sm transition-all cursor-pointer w-full sm:w-auto"
           >
             <IconPlus size={16} />
             Thêm khách hàng
@@ -253,11 +253,11 @@ export default function KhachHang() {
       </div>
 
       {/* SCROLLABLE CONTENT */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6">
         <div className="space-y-5">
 
         {/* STAT CARDS */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
             <p className="text-xs text-slate-400 font-semibold mb-1">Tổng khách hàng</p>
             <p className="text-2xl font-black text-slate-800">{total}</p>

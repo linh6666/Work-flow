@@ -417,7 +417,7 @@ export default function QuanLyDuAn() {
         </div>
 
         {/* Sorting row */}
-        <div className="flex items-center gap-2 text-xs select-none">
+        <div className="flex flex-wrap items-center gap-2 text-xs select-none">
           <span className="text-slate-400 font-medium mr-1">Sắp xếp:</span>
           
           <button
@@ -484,7 +484,7 @@ export default function QuanLyDuAn() {
                 }`}
               >
                 {/* Header row of card */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2 flex-wrap">
                     {/* Code badge */}
                     <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold font-mono bg-[#406c89]/10 text-[#406c89] border border-[#406c89]/20">
@@ -549,10 +549,11 @@ export default function QuanLyDuAn() {
                 </p>
 
                 {/* Dates and Flag milestones */}
-                <div className="flex items-center justify-between text-xs select-none">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs select-none">
                   {/* Dates */}
-                  <div className="text-slate-400 font-medium">
-                    Bắt đầu: {formatDateDisplay(item.ngayBatDau)} &nbsp;&nbsp;&nbsp; Kết thúc: {formatDateDisplay(item.ngayKetThuc)}
+                  <div className="text-slate-400 font-medium flex flex-wrap gap-x-4 gap-y-1">
+                    <span>Bắt đầu: {formatDateDisplay(item.ngayBatDau)}</span>
+                    <span>Kết thúc: {formatDateDisplay(item.ngayKetThuc)}</span>
                   </div>
 
                   {/* Flags (milestones summary) */}

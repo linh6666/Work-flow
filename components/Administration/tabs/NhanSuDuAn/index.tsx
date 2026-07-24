@@ -179,7 +179,7 @@ export default function NhanSuDuAn() {
       </div>
 
       {/* ── Scrollable Body ── */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 no-scrollbar">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4 no-scrollbar">
         
         {/* Workflow steps bar */}
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-100 bg-slate-50/60 flex-wrap text-[13px]">
@@ -237,7 +237,8 @@ export default function NhanSuDuAn() {
 
         {/* Table */}
         <div className="rounded-xl border border-slate-100 overflow-hidden shadow-xs">
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
                 <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wide">Số KH / Dự án</th>
@@ -334,7 +335,8 @@ export default function NhanSuDuAn() {
                 ))
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
 
       </div>

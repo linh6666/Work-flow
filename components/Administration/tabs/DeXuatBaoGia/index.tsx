@@ -179,7 +179,7 @@ export default function DeXuatBaoGia() {
     <div className="flex flex-col h-full bg-white">
 
       {/* ── Header ── */}
-      <div className="px-6 pt-5 pb-4 flex items-start justify-between border-b border-slate-100">
+      <div className="px-4 sm:px-6 pt-5 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100">
         <div>
           <h2 className="text-xl font-bold text-slate-800">Đề xuất Báo giá</h2>
           <p className="text-xs text-slate-400 mt-0.5">
@@ -189,7 +189,7 @@ export default function DeXuatBaoGia() {
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-white text-sm font-semibold shadow-sm transition-all cursor-pointer active:scale-95"
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-white text-sm font-semibold shadow-sm transition-all cursor-pointer active:scale-95 w-full sm:w-auto"
           style={{ backgroundColor: '#406c89' }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#345a74')}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#406c89')}
@@ -199,7 +199,7 @@ export default function DeXuatBaoGia() {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
 
         {/* ── Workflow steps ── */}
         <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-100 bg-slate-50/60 flex-wrap">
@@ -224,7 +224,7 @@ export default function DeXuatBaoGia() {
         </div>
 
         {/* ── Stats cards ── */}
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             { label: 'Tổng đề xuất',      value: total,     color: 'text-indigo-600' },
             { label: 'Chờ TP duyệt',      value: choTP,     color: 'text-amber-500'  },
@@ -272,7 +272,8 @@ export default function DeXuatBaoGia() {
 
         {/* ── Table ── */}
         <div className="rounded-xl border border-slate-100 overflow-hidden shadow-xs">
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
                 {[
@@ -381,7 +382,8 @@ export default function DeXuatBaoGia() {
                 })
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       </div>
 

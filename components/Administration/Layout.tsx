@@ -9,6 +9,7 @@ import {
   IconSearch,
   IconSettings,
   IconLogout,
+  IconMenu2,
   IconSun,
   IconMoon,
   IconFolder,
@@ -83,17 +84,30 @@ export default function AdministrationLayout({ children }: { children: React.Rea
 
   const currentMenuItem = menuItems.find(item => item.id === activeMenu) || menuItems[0];
 
-  // Sidebar Collapse State
+  // Sidebar States
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <div className="flex h-screen w-screen bg-slate-50 font-sans overflow-hidden text-slate-800 antialiased">
       
+      {/* Backdrop for Mobile Sidebar Drawer */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden transition-opacity duration-300"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* 1. LEFT SIDEBAR */}
-      <aside className={`${isSidebarCollapsed ? 'w-16' : 'w-64'} bg-white text-slate-700 flex flex-col h-full shrink-0 border-r border-slate-200 select-none z-20 transition-all duration-300`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 flex flex-col h-full bg-white text-slate-700 border-r border-slate-200 select-none transition-all duration-300 lg:relative lg:translate-x-0 shrink-0 ${
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      } ${
+        isSidebarCollapsed ? 'lg:w-16 w-64' : 'w-64'
+      }`}>
         
         {/* Workspace Brand Dropdown */}
-        <div className="px-0 py-2 border-b border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-colors cursor-pointer overflow-hidden">
+        <div className="relative px-0 py-2 border-b border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-colors cursor-pointer overflow-hidden">
           <Image 
             src="/logo/MHV_VN_SOLOGAN_H.png" 
             alt="Logo WorkFlow" 
@@ -102,6 +116,14 @@ export default function AdministrationLayout({ children }: { children: React.Rea
             className="h-[240px] w-full object-contain -my-[85px] scale-115" 
             priority 
           />
+          {/* Close button for Mobile Sidebar Drawer */}
+          <button 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="absolute top-3 right-3 lg:hidden p-1 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 rounded-full transition-colors cursor-pointer z-10"
+            title="Đóng menu"
+          >
+            <IconX size={16} />
+          </button>
         </div>
 
 
@@ -113,10 +135,13 @@ export default function AdministrationLayout({ children }: { children: React.Rea
             return (
               <button
                 key={item.id}
-                onClick={() => router.push(`/Administration/${item.id}`)}
-                className={`w-full flex items-center cursor-pointer ${
-                  isSidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3.5 py-2.5'
-                } rounded-lg text-white transition-all duration-150 ${
+                onClick={() => {
+                  router.push(`/Administration/${item.id}`);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center cursor-pointer gap-3 px-3.5 py-2.5 rounded-lg text-white transition-all duration-150 ${
+                  isSidebarCollapsed ? 'lg:justify-center lg:py-2.5 lg:px-0' : ''
+                } ${
                   isActive 
                     ? 'bg-[#BB8D38] font-bold shadow-sm' 
                     : 'bg-[#406c89] hover:bg-[#BB8D38] font-semibold'
@@ -124,11 +149,9 @@ export default function AdministrationLayout({ children }: { children: React.Rea
                 title={item.name}
               >
                 <Icon size={16} className="shrink-0 text-white" />
-                {!isSidebarCollapsed && (
-                  <span className="text-xs tracking-wide text-left">
-                    {item.name}
-                  </span>
-                )}
+                <span className={`text-xs tracking-wide text-left ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
+                  {item.name}
+                </span>
               </button>
             );
           })}
@@ -149,11 +172,15 @@ export default function AdministrationLayout({ children }: { children: React.Rea
 
           <a 
             href="/workspace-selection" 
-            className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center py-2' : 'gap-2 px-2 py-1.5'} hover:bg-[#BB8D38]/10 hover:text-[#BB8D38] rounded text-slate-500 text-xs font-semibold transition-all`}
+            className={`w-full flex items-center gap-2 px-2 py-1.5 hover:bg-[#BB8D38]/10 hover:text-[#BB8D38] rounded text-slate-500 text-xs font-semibold transition-all ${
+              isSidebarCollapsed ? 'lg:justify-center lg:px-0' : ''
+            }`}
             title="Đăng xuất"
           >
             <IconLogout size={14} className="shrink-0" />
-            {!isSidebarCollapsed && "Đăng xuất"}
+            <span className={isSidebarCollapsed ? 'lg:hidden block' : 'block'}>
+              Đăng xuất
+            </span>
           </a>
         </div>
       </aside>
@@ -165,9 +192,19 @@ export default function AdministrationLayout({ children }: { children: React.Rea
         <header className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between shrink-0 select-none z-15">
           {/* Breadcrumbs & Title */}
           <div className="flex items-center gap-2.5 text-xs text-slate-400 font-semibold">
+            {/* Mobile hamburger menu toggle */}
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden mr-1.5 p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition-colors cursor-pointer flex items-center justify-center"
+              title="Mở menu"
+            >
+              <IconMenu2 size={18} />
+            </button>
+
+            {/* Desktop sidebar toggle button */}
             <button 
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="mr-1.5 p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition-colors cursor-pointer flex items-center justify-center"
+              className="hidden lg:flex mr-1.5 p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition-colors cursor-pointer items-center justify-center"
               title={isSidebarCollapsed ? "Mở rộng menu" : "Thu gọn menu"}
             >
               {isSidebarCollapsed ? <IconChevronRight size={16} /> : <IconChevronLeft size={16} />}

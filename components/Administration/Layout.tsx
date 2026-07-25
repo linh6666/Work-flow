@@ -120,14 +120,14 @@ export default function AdministrationLayout({ children }: { children: React.Rea
       )}
 
       {/* 1. LEFT SIDEBAR */}
-      <aside className={`fixed inset-y-0 left-0 z-50 flex flex-col h-full bg-white text-slate-700 border-r border-slate-200 select-none transition-all duration-300 lg:relative lg:translate-x-0 shrink-0 ${
+      <aside className={`fixed inset-y-0 left-0 z-50 flex flex-col h-full bg-white text-slate-700 border-r border-slate-200/80 select-none transition-all duration-300 lg:relative lg:translate-x-0 shrink-0 ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       } ${
         isSidebarCollapsed ? 'lg:w-16 w-64' : 'w-64'
       }`}>
         
         {/* Workspace Brand Dropdown */}
-        <div className="relative px-0 py-2 border-b border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-colors cursor-pointer overflow-hidden">
+        <div className="relative px-0 py-2 border-b border-slate-100 flex items-center justify-center hover:bg-slate-50/80 transition-colors cursor-pointer overflow-hidden shrink-0">
           <Image 
             src="/logo/MHV_VN_SOLOGAN_H.png" 
             alt="Logo WorkFlow" 
@@ -146,9 +146,8 @@ export default function AdministrationLayout({ children }: { children: React.Rea
           </button>
         </div>
 
-
         {/* Projects Navigation List */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-2 scrollbar-thin scrollbar-thumb-slate-200">
+        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-200">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.id === activeMenu;
@@ -159,19 +158,38 @@ export default function AdministrationLayout({ children }: { children: React.Rea
                   router.push(`/Administration/${item.id}`);
                   setIsMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center cursor-pointer gap-3 px-3.5 py-2.5 rounded-lg text-white transition-all duration-150 ${
+                className={`w-full flex items-center justify-between cursor-pointer gap-2.5 px-3 py-2 rounded-xl text-left transition-all duration-200 group ${
                   isSidebarCollapsed ? 'lg:justify-center lg:py-2.5 lg:px-0' : ''
                 } ${
                   isActive 
-                    ? 'bg-[#BB8D38] font-bold shadow-sm' 
-                    : 'bg-[#406c89] hover:bg-[#BB8D38] font-semibold'
+                    ? 'bg-gradient-to-r from-[#406c89] to-[#345870] text-white font-bold shadow-md shadow-[#406c89]/20 border-l-4 border-[#BB8D38]' 
+                    : 'text-slate-650 hover:text-[#406c89] hover:bg-slate-100/90 font-semibold hover:translate-x-1'
                 }`}
                 title={item.name}
               >
-                <Icon size={16} className="shrink-0 text-white" />
-                <span className={`text-xs tracking-wide text-left ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
-                  {item.name}
-                </span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                    isActive 
+                      ? 'bg-white/15 text-white' 
+                      : 'bg-slate-100/80 text-slate-500 group-hover:bg-[#406c89]/10 group-hover:text-[#406c89]'
+                  }`}>
+                    <Icon size={15} className="stroke-[2.2]" />
+                  </div>
+                  <span className={`text-xs tracking-tight truncate ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
+                    {item.name}
+                  </span>
+                </div>
+
+                <IconChevronRight 
+                  size={14} 
+                  className={`shrink-0 transition-all ${
+                    isSidebarCollapsed ? 'lg:hidden' : 'block'
+                  } ${
+                    isActive 
+                      ? 'text-white/80' 
+                      : 'text-slate-350 group-hover:text-[#406c89] group-hover:translate-x-0.5'
+                  }`} 
+                />
               </button>
             );
           })}

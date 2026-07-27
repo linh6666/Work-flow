@@ -47,71 +47,71 @@ export default function TongQuan() {
   </h2>
 </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Card: Khách hàng */}
             <div 
               onClick={() => navigateTo('khach-hang')}
-              className="bg-white border border-slate-100 hover:border-slate-200 shadow-sm rounded-xl p-5 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between group"
+              className="bg-white border border-slate-100 hover:border-slate-200 shadow-sm rounded-lg p-3 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between group"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50/80 flex items-center justify-center text-indigo-500">
-                  <IconUsers size={18} />
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-6 h-6 rounded-md bg-indigo-50/80 flex items-center justify-center text-indigo-500">
+                  <IconUsers size={14} />
                 </div>
                 <IconArrowRight size={14} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all" />
               </div>
               <div>
-                <span className="text-xs font-semibold text-slate-400 block mb-1">Khách hàng</span>
-                <span className="text-2xl font-black text-indigo-600">4</span>
+                <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Khách hàng</span>
+                <span className="text-lg font-black text-indigo-600">4</span>
               </div>
             </div>
 
             {/* Card: Báo giá */}
             <div 
               onClick={() => navigateTo('bao-gia')}
-              className="bg-white border border-slate-100 hover:border-slate-200 shadow-sm rounded-xl p-5 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between group"
+              className="bg-white border border-slate-100 hover:border-slate-200 shadow-sm rounded-lg p-3 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between group"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 rounded-lg bg-amber-50/80 flex items-center justify-center text-amber-500">
-                  <IconFileText size={18} />
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-6 h-6 rounded-md bg-amber-50/80 flex items-center justify-center text-amber-500">
+                  <IconFileText size={14} />
                 </div>
                 <IconArrowRight size={14} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all" />
               </div>
               <div>
-                <span className="text-xs font-semibold text-slate-400 block mb-1">Báo giá</span>
-                <span className="text-2xl font-black text-amber-500">1</span>
+                <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Báo giá</span>
+                <span className="text-lg font-black text-amber-500">1</span>
               </div>
             </div>
 
             {/* Card: Hợp đồng */}
             <div 
               onClick={() => navigateTo('hop-dong')}
-              className="bg-white border border-slate-100 hover:border-slate-200 shadow-sm rounded-xl p-5 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between group"
+              className="bg-white border border-slate-100 hover:border-slate-200 shadow-sm rounded-lg p-3 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between group"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50/80 flex items-center justify-center text-emerald-500">
-                  <IconSignature size={18} />
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-6 h-6 rounded-md bg-emerald-50/80 flex items-center justify-center text-emerald-500">
+                  <IconSignature size={14} />
                 </div>
                 <IconArrowRight size={14} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all" />
               </div>
               <div>
-                <span className="text-xs font-semibold text-slate-400 block mb-1">Hợp đồng</span>
-                <span className="text-2xl font-black text-emerald-600">2</span>
+                <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Hợp đồng</span>
+                <span className="text-lg font-black text-emerald-600">2</span>
               </div>
             </div>
 
             {/* Card: Tổng giá trị HĐ */}
             <div 
-              className="bg-white border border-slate-100 shadow-sm rounded-xl p-5 flex flex-col justify-between"
+              className="bg-white border border-slate-100 shadow-sm rounded-lg p-3 flex flex-col justify-between"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-50/80 flex items-center justify-center text-blue-500">
-                  <IconTrendingUp size={18} />
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-6 h-6 rounded-md bg-blue-50/80 flex items-center justify-center text-blue-500">
+                  <IconTrendingUp size={14} />
                 </div>
                 <IconArrowRight size={14} className="text-slate-300/40" />
               </div>
               <div>
-                <span className="text-xs font-semibold text-slate-400 block mb-1">Tổng giá trị HĐ</span>
-                <span className="text-2xl font-black text-[#453AD4]">2.32 Tỷ</span>
+                <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Tổng giá trị HĐ</span>
+                <span className="text-lg font-black text-[#453AD4]">2.32 Tỷ</span>
               </div>
             </div>
           </div>
@@ -126,21 +126,21 @@ export default function TongQuan() {
   </h2>
 </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Card: Quản lý Tài chính */}
             <div 
-              className="bg-white border border-slate-100 shadow-sm rounded-xl p-5 flex flex-col justify-between relative overflow-hidden"
+              className="bg-white border border-slate-100 shadow-sm rounded-lg p-3 flex flex-col justify-between relative overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50/80 flex items-center justify-center text-emerald-500">
-                  <IconChartBar size={18} />
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-6 h-6 rounded-md bg-emerald-50/80 flex items-center justify-center text-emerald-500">
+                  <IconChartBar size={14} />
                 </div>
                 <IconArrowRight size={14} className="text-slate-300/40" />
               </div>
               <div className="mb-2">
-                <span className="text-xs font-semibold text-slate-400 block mb-1">Quản lý Tài chính</span>
-                {/* <span className="text-2xl font-black text-emerald-500">-</span> */}
-                <span className="text-2xl font-black text-emerald-500">──</span>
+                <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Quản lý Tài chính</span>
+                {/* <span className="text-lg font-black text-emerald-500">-</span> */}
+                <span className="text-lg font-black text-emerald-500">──</span>
               </div>
 {/* <div className="absolute bottom-0 left-0 w-1/2 h-1 bg-emerald-500 rounded-t-full" /> */}
             </div>
@@ -156,38 +156,38 @@ export default function TongQuan() {
   </h2>
 </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Card: Dự án */}
             <div 
               onClick={() => navigateTo('quan-ly-du-an')}
-              className="bg-white border border-slate-100 hover:border-slate-200 shadow-sm rounded-xl p-5 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between group"
+              className="bg-white border border-slate-100 hover:border-slate-200 shadow-sm rounded-lg p-3 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between group"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 rounded-lg bg-fuchsia-50/80 flex items-center justify-center text-fuchsia-500">
-                  <IconFolder size={18} />
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-6 h-6 rounded-md bg-fuchsia-50/80 flex items-center justify-center text-fuchsia-500">
+                  <IconFolder size={14} />
                 </div>
                 <IconArrowRight size={14} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all" />
               </div>
               <div>
-                <span className="text-xs font-semibold text-slate-400 block mb-1">Dự án</span>
-                <span className="text-2xl font-black text-fuchsia-600">3</span>
+                <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Dự án</span>
+                <span className="text-lg font-black text-fuchsia-600">3</span>
               </div>
             </div>
 
             {/* Card: Nhân sự Dự án */}
             <div 
               onClick={() => navigateTo('nhan-su-du-an')}
-              className="bg-white border border-slate-100 hover:border-slate-200 shadow-sm rounded-xl p-5 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between group relative overflow-hidden"
+              className="bg-white border border-slate-100 hover:border-slate-200 shadow-sm rounded-lg p-3 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between group relative overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50/80 flex items-center justify-center text-indigo-500">
-                  <IconUsers size={18} />
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-6 h-6 rounded-md bg-indigo-50/80 flex items-center justify-center text-indigo-500">
+                  <IconUsers size={14} />
                 </div>
                 <IconArrowRight size={14} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all" />
               </div>
               <div className="mb-2">
-                <span className="text-xs font-semibold text-slate-400 block mb-1">Nhân sự Dự án</span>
-  <span className="text-2xl font-black text-indigo-500">──</span>
+                <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Nhân sự Dự án</span>
+  <span className="text-lg font-black text-indigo-500">──</span>
               </div>
               {/* <div className="absolute bottom-0 left-5 right-5 h-1 bg-indigo-500 rounded-t-full" /> */}
             </div>

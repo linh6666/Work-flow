@@ -401,7 +401,7 @@ export default function QuanLyTaiChinh() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3">
         <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-xs">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
@@ -452,36 +452,39 @@ export default function QuanLyTaiChinh() {
       {/* Filter Bar */}
       <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-3 shadow-xs flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         {/* Search */}
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <IconSearch size={15} className="text-slate-400 shrink-0" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Tìm giao dịch hoặc dự án..."
-            className="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Filter Loại */}
-          <div className="flex gap-1 text-xs">
-            {(['Tất cả', 'Thu', 'Chi'] as const).map(l => (
-              <button key={l} onClick={() => setFilterLoai(l)} className={`px-2.5 py-1 rounded-lg border font-medium cursor-pointer transition-all ${
-                filterLoai === l ? 'bg-[#406c89] text-white border-transparent' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-              }`}>{l}</button>
-            ))}
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          {/* Search */}
+          <div className="flex items-center gap-2 flex-1 min-w-0 w-full sm:w-auto">
+            <IconSearch size={15} className="text-slate-400 shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Tìm giao dịch hoặc dự án..."
+              className="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none"
+            />
           </div>
 
-          {/* Filter Trạng thái */}
-          <div className="flex gap-1 text-xs">
-            {(['Tất cả', 'Đã thanh toán', 'Chờ thanh toán', 'Quá hạn'] as const).map(t => (
-              <button key={t} onClick={() => setFilterTrangThai(t)} className={`px-2.5 py-1 rounded-lg border font-medium cursor-pointer transition-all whitespace-nowrap ${
-                filterTrangThai === t ? 'bg-[#406c89] text-white border-transparent' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-              }`}>
-                {t === 'Tất cả' ? 'Tất cả TT' : t}
-              </button>
-            ))}
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+            {/* Filter Loại */}
+            <div className="flex gap-1 text-xs">
+              {(['Tất cả', 'Thu', 'Chi'] as const).map(l => (
+                <button key={l} onClick={() => setFilterLoai(l)} className={`px-2.5 py-1 rounded-lg border font-medium cursor-pointer transition-all ${
+                  filterLoai === l ? 'bg-[#406c89] text-white border-transparent' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                }`}>{l}</button>
+              ))}
+            </div>
+
+            {/* Filter Trạng thái */}
+            <div className="flex gap-1 text-xs flex-wrap">
+              {(['Tất cả', 'Đã thanh toán', 'Chờ thanh toán', 'Quá hạn'] as const).map(t => (
+                <button key={t} onClick={() => setFilterTrangThai(t)} className={`px-2.5 py-1 rounded-lg border font-medium cursor-pointer transition-all whitespace-nowrap ${
+                  filterTrangThai === t ? 'bg-[#406c89] text-white border-transparent' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                }`}>
+                  {t === 'Tất cả' ? 'Tất cả TT' : t}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -489,24 +492,26 @@ export default function QuanLyTaiChinh() {
       {/* Table */}
       <div className="flex-1 overflow-hidden bg-white border border-slate-200/80 rounded-xl shadow-xs flex flex-col">
         {/* Table Header */}
-        <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr_40px] gap-3 px-4 py-2.5 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wide bg-slate-50/80 rounded-t-xl shrink-0">
-          <span>Tên giao dịch</span>
-          <span>Danh mục</span>
-          <span>Dự án</span>
-          <span>Ngày</span>
-          <span>Số tiền</span>
-          <span></span>
+        <div className="overflow-x-auto shrink-0">
+          <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr_40px] gap-3 px-4 py-2.5 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wide bg-slate-50/80 rounded-t-xl min-w-[600px]">
+            <span>Tên giao dịch</span>
+            <span>Danh mục</span>
+            <span className="hidden sm:block">Dự án</span>
+            <span>Ngày</span>
+            <span>Số tiền</span>
+            <span></span>
+          </div>
         </div>
 
         {/* Table Body */}
-        <div className="flex-1 overflow-y-auto divide-y divide-slate-100 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 overflow-y-auto overflow-x-auto divide-y divide-slate-100 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {sorted.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+            <div className="flex flex-col items-center justify-center py-16 text-slate-400 min-w-[600px]">
               <IconFileText size={40} className="stroke-[1.25] mb-2" />
               <p className="text-xs font-medium">Không có giao dịch nào</p>
             </div>
           ) : sorted.map(gd => (
-            <div key={gd.id} className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr_40px] gap-3 px-4 py-3 items-center hover:bg-slate-50/60 transition-colors group">
+            <div key={gd.id} className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr_40px] gap-3 px-4 py-3 items-center hover:bg-slate-50/60 transition-colors group min-w-[600px]">
               {/* Tên */}
               <div className="flex items-center gap-2 min-w-0">
                 <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${gd.loai === 'Thu' ? 'bg-emerald-50' : 'bg-rose-50'}`}>

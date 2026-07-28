@@ -367,7 +367,7 @@ export default function QuanLyDuAn() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden p-5 md:p-6 space-y-4 animate-fade-in text-slate-700 w-full bg-slate-50">
+    <div className="flex-1 flex flex-col overflow-hidden p-3 sm:p-5 md:p-6 space-y-4 animate-fade-in text-slate-700 w-full bg-slate-50">
       {/* 1. Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -434,7 +434,7 @@ export default function QuanLyDuAn() {
       </div>
 
       {/* 3. Stats Cards */}
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
         <div className="bg-white border border-slate-200/80 rounded-lg px-3 py-2 shadow-xs">
           <p className="text-[10px] text-slate-500 font-medium">Tổng dự án</p>
           <p className="text-xl font-extrabold text-blue-600">{countTotal}</p>
@@ -512,8 +512,9 @@ export default function QuanLyDuAn() {
         </div>
 
         {/* Sorting row */}
-        <div className="flex flex-wrap items-center gap-2 text-xs select-none">
-          <span className="text-slate-400 font-medium">Sắp xếp:</span>
+        <div className="overflow-x-auto pb-0.5">
+          <div className="flex items-center gap-2 text-xs select-none min-w-max">
+            <span className="text-slate-400 font-medium shrink-0">Sắp xếp:</span>
           {sortButtons.map(({ key, label }) => (
             <button
               key={key}
@@ -527,6 +528,7 @@ export default function QuanLyDuAn() {
               {label}{sortKey === key && (sortDir === 'asc' ? ' ↑' : ' ↓')}
             </button>
           ))}
+          </div>
         </div>
       </div>
 

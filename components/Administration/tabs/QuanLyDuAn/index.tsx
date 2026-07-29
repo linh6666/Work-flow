@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import TaoDuAnModal from './modal/TaoDuAn';
+import QuanLyTemplateModal from './modal/QuanLyTemplate';
+import XoaDuAnModal from './modal/XoaDuAn';
 import {
   IconPlus,
   IconSearch,
@@ -10,6 +12,8 @@ import {
   IconClipboardList,
   IconArrowRight,
   IconFlag,
+  IconBooks,
+  IconCopy,
 } from '@tabler/icons-react';
 
 export interface MilestoneItem {
@@ -249,6 +253,14 @@ export default function QuanLyDuAn() {
 
   // Modal creation states
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingProject, setDeletingProject] = useState<DuAnItem | null>(null);
+
+  const handleOpenDeleteModal = (item: DuAnItem) => {
+    setDeletingProject(item);
+    setIsDeleteModalOpen(true);
+  };
 
   // --- Handlers ---
   const handleCreateProject = (data: {
@@ -367,348 +379,314 @@ export default function QuanLyDuAn() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden p-3 sm:p-5 md:p-6 space-y-4 animate-fade-in text-slate-700 w-full bg-slate-50">
-      {/* 1. Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Quản lý Dự án</h2>
-        </div>
-        <div className="flex items-center gap-3 self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => setIsProjectModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-sm font-semibold rounded-lg shadow-xs transition-all cursor-pointer"
-          >
-            <IconPlus size={16} />
-            <span>Tạo Dự án</span>
-          </button>
+    <div className="flex-1 flex flex-col overflow-hidden text-slate-700 w-full bg-slate-50">
+
+      {/* ══ ZONE 1: FIXED TOP HEADER ══ */}
+      <div className="shrink-0 bg-slate-50 border-b border-slate-200/80 px-4 sm:px-6 pt-4 pb-3 z-30 relative">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+          <h2 className="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Quản lý Dự án</h2>
+          <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none]">
+            <button
+              type="button"
+              onClick={() => setIsTemplateModalOpen(true)}
+              className="flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 bg-[#ba8e3a] hover:bg-[#a87d2f] text-white text-xs sm:text-sm font-semibold rounded-lg shadow-sm border border-[#a3792c] transition-all cursor-pointer whitespace-nowrap shrink-0"
+            >
+              <IconBooks size={16} />
+              <span>Quản lý Template DA</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsProjectModalOpen(true)}
+              className="flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs sm:text-sm font-semibold rounded-lg shadow-sm transition-all cursor-pointer whitespace-nowrap shrink-0"
+            >
+              <IconPlus size={15} />
+              <span>Tạo Dự án</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 2. Process Workflow Bar */}
-      <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-3 flex items-center gap-2 overflow-x-auto shadow-xs flex-wrap">
-        {/* Step 1 */}
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="bg-purple-50 border border-purple-200 text-purple-700 font-semibold px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
-            Tạo YCSX
-          </span>
-          <IconArrowRight size={14} className="text-slate-400" />
-        </div>
+      {/* ══ ZONE 2: SCROLLABLE BODY ══ */}
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-4 pb-6 space-y-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
-        {/* Step 2 */}
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="bg-orange-50 border border-orange-200 text-orange-600 font-semibold px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
-            PGD đã duyệt YCSX
-          </span>
-          <IconArrowRight size={14} className="text-slate-400" />
-        </div>
-
-        {/* Step 3 */}
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="bg-blue-50 border border-blue-200 text-blue-700 font-semibold px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
-            Khởi tạo Dự án từ YCSX
-          </span>
-          <IconArrowRight size={14} className="text-slate-400" />
-        </div>
-
-        {/* Step 4 - Active */}
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="flex items-center gap-1.5 bg-indigo-50 border border-indigo-300 text-indigo-700 font-semibold px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
+        {/* 1. Workflow Bar */}
+        <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-3 flex items-center gap-2 overflow-x-auto shadow-xs [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          {[
+            { label: 'Tạo YCSX', color: 'text-purple-700 bg-purple-50 border-purple-200' },
+            { label: 'PGD đã duyệt YCSX', color: 'text-orange-600 bg-orange-50 border-orange-200' },
+            { label: 'Khởi tạo Dự án từ YCSX', color: 'text-blue-700 bg-blue-50 border-blue-200' },
+          ].map((step, i) => (
+            <React.Fragment key={i}>
+              <span className={`${step.color} border font-semibold px-3 py-1.5 rounded-lg text-xs whitespace-nowrap shrink-0`}>
+                {step.label}
+              </span>
+              <IconArrowRight size={13} className="text-slate-300 shrink-0" />
+            </React.Fragment>
+          ))}
+          <span className="flex items-center gap-1.5 bg-indigo-50 border border-indigo-300 text-indigo-700 font-semibold px-3 py-1.5 rounded-lg text-xs whitespace-nowrap shrink-0">
             Đang thực hiện
-            <span className="bg-[#406c89] text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold leading-none">
-              {countDangThucHien}
-            </span>
+            <span className="bg-[#406c89] text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{countDangThucHien}</span>
           </span>
-          <IconArrowRight size={14} className="text-slate-400" />
-        </div>
-
-        {/* Step 5 */}
-        <div className="shrink-0">
-          <span className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 text-emerald-700 font-semibold px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
+          <IconArrowRight size={13} className="text-slate-300 shrink-0" />
+          <span className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 text-emerald-700 font-semibold px-3 py-1.5 rounded-lg text-xs whitespace-nowrap shrink-0">
             Hoàn thành
-            <span className="bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold leading-none">
-              {countHoanThanh}
-            </span>
+            <span className="bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{countHoanThanh}</span>
           </span>
         </div>
-      </div>
 
-      {/* 3. Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-        <div className="bg-white border border-slate-200/80 rounded-lg px-3 py-2 shadow-xs">
-          <p className="text-[10px] text-slate-500 font-medium">Tổng dự án</p>
-          <p className="text-xl font-extrabold text-blue-600">{countTotal}</p>
+        {/* 2. Stats Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          {[
+            { label: 'Tổng dự án', value: countTotal, color: 'text-[#406c89]' },
+            { label: 'Chờ khởi tạo', value: countChoKhoiTao, color: 'text-orange-500' },
+            { label: 'Đang thực hiện', value: countDangThucHien, color: 'text-orange-500' },
+            { label: 'Hoàn thành', value: countHoanThanh, color: 'text-emerald-600' },
+            { label: 'Tạm dừng', value: countTamDung, color: 'text-orange-400' },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-white border border-slate-200/80 rounded-lg px-3 py-2 shadow-xs">
+              <p className="text-[10px] text-slate-500 font-medium truncate">{stat.label}</p>
+              <p className={`text-xl font-extrabold ${stat.color}`}>{stat.value}</p>
+            </div>
+          ))}
         </div>
-        <div className="bg-white border border-slate-200/80 rounded-lg px-3 py-2 shadow-xs">
-          <p className="text-[10px] text-slate-500 font-medium">Chờ khởi tạo</p>
-          <p className="text-xl font-extrabold text-orange-500">{countChoKhoiTao}</p>
-        </div>
-        <div className="bg-white border border-slate-200/80 rounded-lg px-3 py-2 shadow-xs">
-          <p className="text-[10px] text-slate-500 font-medium">Đang thực hiện</p>
-          <p className="text-xl font-extrabold text-orange-500">{countDangThucHien}</p>
-        </div>
-        <div className="bg-white border border-slate-200/80 rounded-lg px-3 py-2 shadow-xs">
-          <p className="text-[10px] text-slate-500 font-medium">Hoàn thành</p>
-          <p className="text-xl font-extrabold text-emerald-600">{countHoanThanh}</p>
-        </div>
-        <div className="bg-white border border-slate-200/80 rounded-lg px-3 py-2 shadow-xs">
-          <p className="text-[10px] text-slate-500 font-medium">Tạm dừng</p>
-          <p className="text-xl font-extrabold text-orange-500">{countTamDung}</p>
-        </div>
-      </div>
 
-      {/* 4. Chờ khởi tạo theo Phòng ban */}
-      <div className="bg-white border border-slate-200/80 rounded-xl px-3.5 py-2.5 shadow-xs">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-bold text-slate-700">Chờ khởi tạo theo Phòng ban</p>
-          <p className="text-[10px] text-slate-500">
-            Tổng: <span className="font-bold text-orange-500">{countChoKhoiTao}</span> hồ sơ chưa tạo
+        {/* 3. Chờ khởi tạo theo Phòng ban */}
+        <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-3 shadow-xs">
+          <div className="flex items-center justify-between mb-2.5">
+            <p className="text-xs font-bold text-slate-700">Chờ khởi tạo theo Phòng ban</p>
+            <p className="text-[10px] text-slate-400">
+              Tổng: <span className="font-bold text-orange-500">{countChoKhoiTao}</span> hồ sơ chưa tạo
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {DEPARTMENTS.map(dept => {
+              const isSelected = selectedDept === dept.id;
+              const isZero = dept.count === 0;
+              return (
+                <button
+                  key={dept.id}
+                  type="button"
+                  onClick={() => setSelectedDept(isSelected ? null : dept.id)}
+                  className={`flex flex-col items-start px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer active:scale-95 ${
+                    isSelected ? 'bg-emerald-50 border-emerald-400'
+                    : isZero ? 'bg-green-50 border-green-200'
+                    : 'bg-rose-50 border-rose-200 hover:bg-orange-50 hover:border-orange-300'
+                  }`}
+                >
+                  <span className="text-[10px] font-medium leading-tight text-slate-600">{dept.name}</span>
+                  <span className={`text-base font-extrabold ${isSelected ? 'text-emerald-600' : isZero ? 'text-emerald-500' : 'text-orange-500'}`}>
+                    {dept.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[10px] text-slate-400 mt-2">
+            * Bấm vào ô phòng của bạn (nổi bật màu cam) để xem &amp; khởi tạo.
           </p>
         </div>
-        <div className="flex flex-wrap gap-1.5">
-          {DEPARTMENTS.map(dept => {
-            const isSelected = selectedDept === dept.id;
-            const isZero = dept.count === 0;
-            return (
-              <button
-                key={dept.id}
-                type="button"
-                onClick={() => setSelectedDept(isSelected ? null : dept.id)}
-                className={`flex flex-col items-start px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-emerald-50 border-emerald-400'
-                    : isZero
-                    ? 'bg-green-50 border-green-200'
-                    : 'bg-rose-50 border-rose-200 hover:bg-orange-50 hover:border-orange-300'
-                }`}
-              >
-                <span className="text-[10px] font-medium leading-tight text-slate-600">{dept.name}</span>
-                <span className={`text-base font-extrabold ${
-                  isSelected ? 'text-emerald-600' : isZero ? 'text-emerald-500' : 'text-orange-500'
-                }`}>
-                  {dept.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        <p className="text-[10px] text-slate-400 mt-2 leading-relaxed">
-          * Số dự án mà phòng ban chưa tạo Hồ sơ quản lý dự án. Bấm vào ô phòng của ban (nổi bật màu cam) để xem &amp; khởi tạo.
-        </p>
-      </div>
 
-      {/* 5. Search & Sort Bar */}
-      <div className="space-y-3">
-        {/* Search */}
-        <div className="bg-white border border-slate-200/80 rounded-xl px-3.5 py-2.5 flex items-center gap-2 shadow-xs">
-          <IconSearch size={18} className="text-slate-400 shrink-0" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên hoặc mã dự án..."
-            className="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
-          />
-        </div>
-
-        {/* Sorting row */}
-        <div className="overflow-x-auto pb-0.5">
-          <div className="flex items-center gap-2 text-xs select-none min-w-max">
-            <span className="text-slate-400 font-medium shrink-0">Sắp xếp:</span>
-          {sortButtons.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => handleSort(key)}
-              className={`px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-medium whitespace-nowrap ${
-                sortKey === key
-                  ? 'bg-[#406c89] text-white border-transparent'
-                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              {label}{sortKey === key && (sortDir === 'asc' ? ' ↑' : ' ↓')}
-            </button>
-          ))}
+        {/* 4. Search & Sort (In original position, sticky on scroll gaplessly) */}
+        <div className="sticky top-0 z-20 bg-slate-50 -mt-4 pt-2.5 pb-2.5 space-y-2 border-b border-slate-200/80 -mx-4 sm:-mx-6 px-4 sm:px-6 shadow-xs">
+          <div className="bg-white border border-slate-200/80 rounded-xl px-3.5 py-2 flex items-center gap-2 shadow-sm">
+            <IconSearch size={16} className="text-slate-400 shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tìm theo tên hoặc mã dự án..."
+              className="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
+            />
           </div>
-        </div>
-      </div>
-
-      {/* 6. Projects Cards Container */}
-      <div className="flex-1 overflow-y-auto space-y-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        {sorted.length === 0 ? (
-          <div className="bg-white border border-slate-200/80 rounded-2xl py-20 px-4 flex flex-col items-center justify-center min-h-[300px] text-center shadow-xs">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center text-slate-300 mb-2">
-              <IconClipboardList size={48} className="stroke-[1.25]" />
+          <div className="overflow-x-auto [scrollbar-width:none]">
+            <div className="flex items-center gap-1.5 text-xs select-none min-w-max">
+              <span className="text-slate-400 font-medium shrink-0">Sắp xếp:</span>
+              {sortButtons.map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => handleSort(key)}
+                  className={`px-2.5 py-1 rounded-lg border transition-all cursor-pointer font-medium whitespace-nowrap ${
+                    sortKey === key
+                      ? 'bg-[#406c89] text-white border-transparent'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  {label}{sortKey === key && (sortDir === 'asc' ? ' ↑' : ' ↓')}
+                </button>
+              ))}
             </div>
-            <p className="text-xs text-slate-400 font-medium">Chưa có dự án nào.</p>
           </div>
-        ) : (
-          sorted.map(item => {
-            const hasGreenBorder = item.tienDoText === 'Đúng tiến độ' || item.tienDoText === 'Vượt tiến độ';
-            const hasRedBorder = item.tienDoText === 'Chậm tiến độ, lỗi khách quan' || item.tienDoText === 'Trễ tiến độ';
+        </div>
 
-            return (
-              <div
-                key={item.id}
-                className={`bg-white rounded-2xl p-5 md:p-6 shadow-xs flex flex-col gap-3.5 transition-all border ${
-                  hasGreenBorder
-                    ? 'border-emerald-600/60'
-                    : hasRedBorder
-                    ? 'border-rose-300/60'
+        {/* 5. Project Cards */}
+        <div className="space-y-3 pb-4">
+
+          {sorted.length === 0 ? (
+            <div className="bg-white border border-slate-200/80 rounded-2xl py-20 flex flex-col items-center justify-center text-center shadow-xs">
+              <IconClipboardList size={48} className="text-slate-300 stroke-[1.25] mb-2" />
+              <p className="text-xs text-slate-400 font-medium">Chưa có dự án nào.</p>
+            </div>
+          ) : (
+            sorted.map(item => {
+              const hasGreenBorder = item.tienDoText === 'Đúng tiến độ' || item.tienDoText === 'Vượt tiến độ';
+              const hasRedBorder = item.tienDoText === 'Chậm tiến độ, lỗi khách quan' || item.tienDoText === 'Trễ tiến độ';
+              return (
+                <div
+                  key={item.id}
+                  className={`bg-white rounded-2xl p-5 shadow-xs flex flex-col gap-3 transition-all border ${
+                    hasGreenBorder ? 'border-emerald-500/50'
+                    : hasRedBorder ? 'border-rose-300/60'
                     : 'border-slate-200/80'
-                }`}
-              >
-                {/* Header row of card */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {/* Code badge */}
-                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold font-mono bg-[#406c89]/10 text-[#406c89] border border-[#406c89]/20">
-                      {item.maDuAn}
-                    </span>
-
-                    {/* Status badge 1 */}
-                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200/50">
-                      {item.trangThai}
-                    </span>
-
-                    {/* Status badge 2 (tienDoText) */}
-                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold border ${
-                      item.tienDoText === 'Đúng tiến độ' || item.tienDoText === 'Vượt tiến độ'
-                        ? 'bg-emerald-600 text-white border-transparent'
-                        : item.tienDoText === 'Chậm tiến độ, lỗi khách quan' || item.tienDoText === 'Trễ tiến độ'
-                        ? 'bg-rose-50 text-rose-600 border-rose-200/50'
+                  }`}
+                >
+                  {/* Card header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold font-mono bg-[#406c89]/10 text-[#406c89] border border-[#406c89]/20">
+                        {item.maDuAn}
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200/50">
+                        {item.trangThai}
+                      </span>
+                      <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold border ${
+                        hasGreenBorder ? 'bg-emerald-600 text-white border-transparent'
+                        : hasRedBorder ? 'bg-rose-50 text-rose-600 border-rose-200/50'
                         : 'bg-slate-50 text-slate-400 border-slate-200/50'
-                    }`}>
-                      {item.tienDoText}
-                    </span>
-
-                    {/* Khách hàng badge */}
-                    {item.khachHang && (
-                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-medium bg-slate-50 text-slate-500 border border-slate-200/50">
-                        {item.khachHang}
+                      }`}>
+                        {item.tienDoText}
                       </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2.5">
-                    {/* Trash delete button */}
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteProject(item.id)}
-                      className="p-1.5 rounded text-slate-400 hover:text-[#406c89] hover:bg-slate-100 transition-colors cursor-pointer"
-                      title="Xóa dự án"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                    </button>
-
-                    {/* Details button */}
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 bg-[#406c89] hover:bg-[#345972] text-white px-3 py-1 rounded-lg text-xs font-semibold cursor-pointer shadow-xs"
-                    >
-                      <span>Chi tiết</span>
-                      <IconChevronRight size={12} stroke={2.5} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Index and Title Row */}
-                <div className="flex items-center gap-2.5">
-                  {/* Sequence box */}
-                  <div className="bg-slate-100 border border-slate-200 text-slate-500 font-semibold px-2 py-0.5 rounded text-[11px] min-w-[24px] text-center select-none">
-                    {item.indexText}
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-base font-extrabold text-[#406c89] hover:underline cursor-pointer tracking-tight">
-                    {item.tenDuAn}
-                  </h3>
-                </div>
-
-                {/* Description */}
-                {item.moTa && (
-                  <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-[800px]">
-                    {item.moTa}
-                  </p>
-                )}
-
-                {/* Dates and Flag milestones */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs select-none">
-                  {/* Dates */}
-                  <div className="text-slate-400 font-medium flex flex-wrap gap-x-4 gap-y-1">
-                    <span>Bắt đầu: {formatDateDisplay(item.ngayBatDau)}</span>
-                    <span>Kết thúc: {formatDateDisplay(item.ngayKetThuc)}</span>
-                  </div>
-
-                  {/* Flags (milestones summary) */}
-                  {item.milestones && item.milestones.length > 0 && (
-                    <div className="flex items-center gap-3 font-bold font-mono">
-                      {item.milestones.map((ms) => (
-                        <div
-                          key={ms.id}
-                          className={`flex items-center gap-0.5 ${
-                            ms.color === 'blue' ? 'text-blue-500' : 'text-red-500'
-                          }`}
-                        >
-                          <IconFlag size={13} className="shrink-0" />
-                          <span>{ms.dateText}</span>
-                        </div>
-                      ))}
+                      {item.khachHang && (
+                        <span className="px-2.5 py-0.5 rounded-md text-[10px] font-medium bg-slate-50 text-slate-500 border border-slate-200/50">
+                          {item.khachHang}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
-
-                {/* Progress bar and milestone markers */}
-                <div className="flex items-center gap-3">
-                  <div className="relative flex-1 bg-slate-100 rounded-full h-2">
-                    {/* Fill */}
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${getProgressColorClass(item.tienDo, item.tienDoText)}`}
-                      style={{ width: `${item.tienDo}%` }}
-                    />
-
-                    {/* Milestones markers tick lines */}
-                    {item.milestones?.map(ms => (
-                      <div
-                        key={ms.id}
-                        className={`absolute top-0 bottom-0 w-0.5 z-10 ${
-                          ms.color === 'blue' ? 'bg-blue-500' : 'bg-red-500'
-                        }`}
-                        style={{ left: `${ms.positionPercent}%` }}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Progress percentage label */}
-                  <span className="text-xs text-slate-400 font-bold w-7 text-right select-none">
-                    {item.tienDo}%
-                  </span>
-                </div>
-
-                {/* Milestones detailed labels bottom row */}
-                {item.milestones && item.milestones.length > 0 && (
-                  <div className="flex items-center gap-4 text-[10px] font-bold font-mono select-none pt-0.5 border-t border-slate-50 mt-0.5">
-                    {item.milestones.map(ms => (
-                      <span
-                        key={ms.id}
-                        className={ms.color === 'blue' ? 'text-blue-500/80' : 'text-red-500/80'}
+                    <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const copied: DuAnItem = {
+                            ...item,
+                            id: `da-${Date.now()}`,
+                            maDuAn: `${item.maDuAn}-SAO`,
+                            tenDuAn: `${item.tenDuAn} (Bản sao)`,
+                          };
+                          setProjects(prev => [copied, ...prev]);
+                        }}
+                        className="p-1.5 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                        title="Sao chép dự án"
                       >
-                        | {ms.label} ({ms.dateText})
-                      </span>
-                    ))}
+                        <IconCopy size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDeleteModal(item)}
+                        className="p-1.5 rounded text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Xóa dự án"
+                      >
+                        <IconTrash size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 bg-[#406c89] hover:bg-[#345972] text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shadow-xs transition-all ml-1"
+                      >
+                        Chi tiết
+                        <IconChevronRight size={12} stroke={2.5} />
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
-            );
-          })
-        )}
+
+                  {/* Title row */}
+                  <div className="flex items-center gap-2.5">
+                    <div className="bg-slate-100 border border-slate-200 text-slate-500 font-semibold px-2 py-0.5 rounded text-[11px] min-w-[28px] text-center select-none shrink-0">
+                      {item.indexText}
+                    </div>
+                    <h3 className="text-sm font-extrabold text-[#406c89] hover:underline cursor-pointer tracking-tight leading-snug">
+                      {item.tenDuAn}
+                    </h3>
+                  </div>
+
+                  {/* Description */}
+                  {item.moTa && (
+                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{item.moTa}</p>
+                  )}
+
+                  {/* Dates */}
+                  <div className="flex items-center justify-between gap-2 text-xs text-slate-400">
+                    <div className="flex gap-4">
+                      <span>Bắt đầu: {formatDateDisplay(item.ngayBatDau)}</span>
+                      <span>Kết thúc: {formatDateDisplay(item.ngayKetThuc)}</span>
+                    </div>
+                  </div>
+
+                  {/* Progress bar + Milestones Displayed Directly ABOVE Tick Line */}
+                  <div className="space-y-1 pt-1">
+                    {/* Milestone Labels & Flags Positioned Directly ABOVE Ticks */}
+                    {item.milestones && item.milestones.length > 0 && (
+                      <div className="relative h-5 w-full pr-11">
+                        {item.milestones.map(ms => (
+                          <div
+                            key={ms.id}
+                            className={`absolute bottom-0 -translate-x-1/2 flex items-center gap-1 text-[11px] font-bold whitespace-nowrap ${
+                              ms.color === 'blue' ? 'text-blue-600' : 'text-red-500'
+                            }`}
+                            style={{ left: `${ms.positionPercent}%` }}
+                          >
+                            <IconFlag size={12} />
+                            <span>{ms.label}</span>
+                            <span className="font-mono text-[10px] text-slate-400">({ms.dateText})</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Progress Bar & Tick Lines */}
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-1 bg-slate-100 rounded-full h-2">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${getProgressColorClass(item.tienDo, item.tienDoText)}`}
+                          style={{ width: `${item.tienDo}%` }}
+                        />
+                        {item.milestones?.map(ms => (
+                          <div
+                            key={ms.id}
+                            className={`absolute top-0 bottom-0 w-0.5 z-10 -translate-x-1/2 ${
+                              ms.color === 'blue' ? 'bg-blue-600' : 'bg-red-500'
+                            }`}
+                            style={{ left: `${ms.positionPercent}%` }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-slate-400 font-bold w-8 text-right select-none">{item.tienDo}%</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
 
-      {/* MODAL: TẠO DỰ ÁN MỚI */}
+      {/* MODALS */}
       <TaoDuAnModal
         isOpen={isProjectModalOpen}
         onClose={() => setIsProjectModalOpen(false)}
         onSubmit={handleCreateProject}
       />
+
+      <QuanLyTemplateModal
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+      />
+
+      <XoaDuAnModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        project={deletingProject}
+        onConfirmDelete={(id) => setProjects(prev => prev.filter(p => p.id !== id))}
+      />
     </div>
   );
 }
+
+

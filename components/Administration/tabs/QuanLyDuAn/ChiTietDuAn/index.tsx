@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { DuAnItem } from '../index';
+import YeuCauSanXuatModal from '../modal/YeuCauSanXuat';
 import {
   IconArrowLeft,
   IconFlag,
@@ -35,6 +36,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
 
   const [isYcsxOpen, setIsYcsxOpen] = useState(false);
   const [isHoSoOpen, setIsHoSoOpen] = useState(true);
+  const [isYcsxModalOpen, setIsYcsxModalOpen] = useState(false);
 
   // Department report list matching user reference image exactly
   const departments = [
@@ -98,11 +100,11 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
       {/* 2. BODY CONTENT */}
       <div className="flex-1 px-4 sm:px-8 py-5 space-y-4">
 
-        {/* SECTION 1: YÊU CẦU SẢN XUẤT (ACCORDION) */}
+        {/* SECTION 1: YÊU CẦU SẢN XUẤT (ACCORDION & MODAL TRIGGER) */}
         <div className="bg-[#406c89]/10 border border-[#406c89]/20 rounded-2xl overflow-hidden shadow-2xs transition-all">
           <button
             type="button"
-            onClick={() => setIsYcsxOpen(!isYcsxOpen)}
+            onClick={() => setIsYcsxModalOpen(true)}
             className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[#406c89]/15 transition-all cursor-pointer"
           >
             <div className="flex items-center gap-2">
@@ -343,6 +345,13 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
         </div>
 
       </div>
+
+      {/* YÊU CẦU SẢN XUẤT MODAL */}
+      <YeuCauSanXuatModal
+        isOpen={isYcsxModalOpen}
+        onClose={() => setIsYcsxModalOpen(false)}
+        project={project}
+      />
 
     </div>
   );

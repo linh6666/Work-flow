@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import TaoDuAnModal from './modal/TaoDuAn';
 import QuanLyTemplateModal from './modal/QuanLyTemplate';
 import XoaDuAnModal from './modal/XoaDuAn';
+import ChiTietDuAn from './ChiTietDuAn';
 import {
   IconPlus,
   IconSearch,
@@ -246,6 +247,7 @@ type SortKeyType = 'maDuAn' | 'tenDuAn' | 'tienDo' | 'indexText' | 'trangThai' |
 
 export default function QuanLyDuAn() {
   const [projects, setProjects] = useState<DuAnItem[]>(DEFAULT_PROJECTS);
+  const [selectedProject, setSelectedProject] = useState<DuAnItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<SortKeyType>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
@@ -377,6 +379,15 @@ export default function QuanLyDuAn() {
     { key: 'ngayKetThuc', label: 'Ngày kết thúc' },
     { key: 'tienDoText', label: 'Đánh giá' },
   ];
+
+  if (selectedProject) {
+    return (
+      <ChiTietDuAn
+        project={selectedProject}
+        onBack={() => setSelectedProject(null)}
+      />
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden text-slate-700 w-full bg-slate-50">
@@ -588,6 +599,7 @@ export default function QuanLyDuAn() {
                       </button>
                       <button
                         type="button"
+                        onClick={() => setSelectedProject(item)}
                         className="flex items-center gap-1 bg-[#406c89] hover:bg-[#345972] text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shadow-xs transition-all ml-1"
                       >
                         Chi tiết
@@ -601,7 +613,10 @@ export default function QuanLyDuAn() {
                     <div className="bg-slate-100 border border-slate-200 text-slate-500 font-semibold px-2 py-0.5 rounded text-[11px] min-w-[28px] text-center select-none shrink-0">
                       {item.indexText}
                     </div>
-                    <h3 className="text-sm font-extrabold text-[#406c89] hover:underline cursor-pointer tracking-tight leading-snug">
+                    <h3
+                      onClick={() => setSelectedProject(item)}
+                      className="text-sm font-extrabold text-[#406c89] hover:underline cursor-pointer tracking-tight leading-snug"
+                    >
                       {item.tenDuAn}
                     </h3>
                   </div>

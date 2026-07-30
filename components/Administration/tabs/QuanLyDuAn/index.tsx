@@ -544,8 +544,8 @@ export default function QuanLyDuAn() {
               return (
                 <div
                   key={item.id}
-                  className={`bg-white rounded-2xl p-5 shadow-xs flex flex-col gap-3 transition-all border ${
-                    hasGreenBorder ? 'border-emerald-500/50'
+                  className={`bg-white rounded-2xl p-5 shadow-xs flex flex-col gap-2.5 transition-all border ${
+                    hasGreenBorder ? 'border-emerald-500/60'
                     : hasRedBorder ? 'border-rose-300/60'
                     : 'border-slate-200/80'
                   }`}
@@ -553,26 +553,22 @@ export default function QuanLyDuAn() {
                   {/* Card header */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold font-mono bg-[#406c89]/10 text-[#406c89] border border-[#406c89]/20">
+                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold font-mono bg-[#edeef9] text-[#2b357e] border border-[#d8dceb]">
                         {item.maDuAn}
                       </span>
-                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200/50">
+                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#fffbeb] text-[#d97706] border border-[#fde68a]">
                         {item.trangThai}
                       </span>
-                      <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold border ${
-                        hasGreenBorder ? 'bg-emerald-600 text-white border-transparent'
-                        : hasRedBorder ? 'bg-rose-50 text-rose-600 border-rose-200/50'
-                        : 'bg-slate-50 text-slate-400 border-slate-200/50'
+                      <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
+                        item.tienDoText === 'Vượt tiến độ' ? 'bg-[#2fa047] text-white'
+                        : hasGreenBorder ? 'bg-[#22863a] text-white'
+                        : hasRedBorder ? 'bg-rose-50 text-rose-600 border border-rose-200/50'
+                        : 'bg-slate-50 text-slate-400 border border-slate-200/50'
                       }`}>
                         {item.tienDoText}
                       </span>
-                      {item.khachHang && (
-                        <span className="px-2.5 py-0.5 rounded-md text-[10px] font-medium bg-slate-50 text-slate-500 border border-slate-200/50">
-                          {item.khachHang}
-                        </span>
-                      )}
                     </div>
-                    <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                       <button
                         type="button"
                         onClick={() => {
@@ -615,7 +611,7 @@ export default function QuanLyDuAn() {
                     </div>
                     <h3
                       onClick={() => setSelectedProject(item)}
-                      className="text-sm font-extrabold text-[#406c89] hover:underline cursor-pointer tracking-tight leading-snug"
+                      className="text-sm font-extrabold text-[#2b357e] hover:underline cursor-pointer tracking-tight leading-snug"
                     >
                       {item.tenDuAn}
                     </h3>
@@ -636,20 +632,19 @@ export default function QuanLyDuAn() {
 
                   {/* Progress bar + Milestones Displayed Directly ABOVE Tick Line */}
                   <div className="space-y-1 pt-1">
-                    {/* Milestone Labels & Flags Positioned Directly ABOVE Ticks */}
+                    {/* Milestone Flags Positioned Directly ABOVE Ticks */}
                     {item.milestones && item.milestones.length > 0 && (
-                      <div className="relative h-5 w-full pr-11">
+                      <div className="relative h-4 w-full pr-11">
                         {item.milestones.map(ms => (
                           <div
                             key={ms.id}
-                            className={`absolute bottom-0 -translate-x-1/2 flex items-center gap-1 text-[11px] font-bold whitespace-nowrap ${
-                              ms.color === 'blue' ? 'text-blue-600' : 'text-red-500'
+                            className={`absolute bottom-0 -translate-x-1/2 flex items-center gap-0.5 text-[11px] font-bold whitespace-nowrap ${
+                              ms.color === 'blue' ? 'text-blue-600' : 'text-rose-500'
                             }`}
                             style={{ left: `${ms.positionPercent}%` }}
                           >
                             <IconFlag size={12} />
-                            <span>{ms.label}</span>
-                            <span className="font-mono text-[10px] text-slate-400">({ms.dateText})</span>
+                            <span>{ms.dateText}</span>
                           </div>
                         ))}
                       </div>
@@ -659,7 +654,7 @@ export default function QuanLyDuAn() {
                     <div className="flex items-center gap-3">
                       <div className="relative flex-1 bg-slate-100 rounded-full h-2">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 ${getProgressColorClass(item.tienDo, item.tienDoText)}`}
+                          className={`h-full rounded-full transition-all duration-500 bg-[#3b5bfd]`}
                           style={{ width: `${item.tienDo}%` }}
                         />
                         {item.milestones?.map(ms => (
@@ -674,6 +669,19 @@ export default function QuanLyDuAn() {
                       </div>
                       <span className="text-xs text-slate-400 font-bold w-8 text-right select-none">{item.tienDo}%</span>
                     </div>
+
+                    {/* Milestone Bottom Legend */}
+                    {item.milestones && item.milestones.length > 0 && (
+                      <div className="flex items-center gap-4 text-[11px] pt-1">
+                        {item.milestones.map(ms => (
+                          <div key={ms.id} className="flex items-center gap-1 font-bold">
+                            <span className={`w-0.5 h-3 inline-block rounded-full ${ms.color === 'blue' ? 'bg-blue-600' : 'bg-red-500'}`} />
+                            <span className={ms.color === 'blue' ? 'text-blue-700' : 'text-rose-600'}>{ms.label}</span>
+                            <span className="text-slate-400 font-mono">({ms.dateText})</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               );

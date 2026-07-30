@@ -98,7 +98,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
       </div>
 
       {/* 2. BODY CONTENT */}
-      <div className="flex-1 px-4 sm:px-8 py-5 space-y-4">
+      <div className="flex-1 px-4 sm:px-8 py-5 pb-16 space-y-4">
 
         {/* SECTION 1: YÊU CẦU SẢN XUẤT (ACCORDION & MODAL TRIGGER) */}
         <div className="bg-[#406c89]/10 border border-[#406c89]/20 rounded-2xl overflow-hidden shadow-2xs transition-all">
@@ -257,8 +257,8 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
                     </button>
                   </div>
 
-                  {/* List of 9 Department Cards */}
-                  <div className="space-y-2.5">
+                  {/* List of 9 Department Cards (Scrollable without truncation) */}
+                  <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1.5 pb-3 [scrollbar-width:thin]">
                     {departments.map((dept, index) => (
                       <div
                         key={index}

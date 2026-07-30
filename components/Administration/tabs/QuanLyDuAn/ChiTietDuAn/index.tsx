@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { DuAnItem } from '../index';
 import YeuCauSanXuatModal from '../modal/YeuCauSanXuat';
+import LuuTemplateModal from '../modal/LuuTemplate';
 import {
   IconArrowLeft,
   IconFlag,
@@ -37,6 +38,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
   const [isYcsxOpen, setIsYcsxOpen] = useState(false);
   const [isHoSoOpen, setIsHoSoOpen] = useState(true);
   const [isYcsxModalOpen, setIsYcsxModalOpen] = useState(false);
+  const [isLuuTemplateOpen, setIsLuuTemplateOpen] = useState(false);
 
   // Department report list matching user reference image exactly
   const departments = [
@@ -250,6 +252,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
 
                     <button
                       type="button"
+                      onClick={() => setIsLuuTemplateOpen(true)}
                       className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all shrink-0 ml-auto"
                     >
                       <IconGridDots size={14} className="text-slate-500" />
@@ -350,6 +353,13 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
       <YeuCauSanXuatModal
         isOpen={isYcsxModalOpen}
         onClose={() => setIsYcsxModalOpen(false)}
+        project={project}
+      />
+
+      {/* LƯU TEMPLATE MODAL */}
+      <LuuTemplateModal
+        isOpen={isLuuTemplateOpen}
+        onClose={() => setIsLuuTemplateOpen(false)}
         project={project}
       />
 

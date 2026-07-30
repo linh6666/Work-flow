@@ -553,7 +553,7 @@ export default function QuanLyDuAn() {
                   {/* Card header */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold font-mono bg-[#edeef9] text-[#2b357e] border border-[#d8dceb]">
+                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold font-mono bg-[#406c89]/10 text-[#406c89] border border-[#406c89]/20">
                         {item.maDuAn}
                       </span>
                       <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#fffbeb] text-[#d97706] border border-[#fde68a]">
@@ -611,7 +611,7 @@ export default function QuanLyDuAn() {
                     </div>
                     <h3
                       onClick={() => setSelectedProject(item)}
-                      className="text-sm font-extrabold text-[#2b357e] hover:underline cursor-pointer tracking-tight leading-snug"
+                      className="text-sm font-extrabold text-[#406c89] hover:underline cursor-pointer tracking-tight leading-snug"
                     >
                       {item.tenDuAn}
                     </h3>
@@ -654,7 +654,7 @@ export default function QuanLyDuAn() {
                     <div className="flex items-center gap-3">
                       <div className="relative flex-1 bg-slate-100 rounded-full h-2">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 bg-[#3b5bfd]`}
+                          className={`h-full rounded-full transition-all duration-500 bg-[#406c89]`}
                           style={{ width: `${item.tienDo}%` }}
                         />
                         {item.milestones?.map(ms => (

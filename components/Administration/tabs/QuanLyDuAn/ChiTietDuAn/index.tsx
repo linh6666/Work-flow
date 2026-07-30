@@ -4,6 +4,12 @@ import React, { useState } from 'react';
 import { DuAnItem } from '../index';
 import YeuCauSanXuatModal from '../modal/YeuCauSanXuat';
 import LuuTemplateModal from '../modal/LuuTemplate';
+import ChiTietTienDoTab from './tabs/ChiTietTienDo';
+import BaoCaoTienDoTab from './tabs/BaoCaoTienDo';
+import NhanSuCongViecTab from './tabs/NhanSuCongViec';
+import ChiPhiPhongBanTab from './tabs/ChiPhiPhongBan';
+import PheDuyetBaoCaoTab from './tabs/PheDuyetBaoCao';
+import NghiemThuTab from './tabs/NghiemThu';
 import {
   IconArrowLeft,
   IconFlag,
@@ -239,107 +245,35 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
 
               {/* TAB CONTENT 1: CHI TIẾT TIẾN ĐỘ */}
               {activeTab === 'chi-tiet-tien-do' && (
-                <div className="space-y-3.5">
-                  
-                  {/* Banner Notification Note */}
-                  <div className="bg-[#406c89]/10 border border-[#406c89]/20 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
-                    <div className="flex items-center gap-2">
-                      <IconClipboardList size={16} className="text-[#406c89] shrink-0" />
-                      <span className="text-xs text-[#406c89] font-medium leading-relaxed">
-                        Bộ hồ sơ quản lý dự án theo phòng ban. Phòng Khai triển khởi tạo trước, sau đó các phòng khác lần lượt theo quy trình.
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setIsLuuTemplateOpen(true)}
-                      className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all shrink-0 ml-auto"
-                    >
-                      <IconGridDots size={14} className="text-slate-500" />
-                      <span>Lưu Template</span>
-                    </button>
-                  </div>
-
-                  {/* List of 9 Department Cards (Scrollable without truncation) */}
-                  <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1.5 pb-3 [scrollbar-width:thin]">
-                    {departments.map((dept, index) => (
-                      <div
-                        key={index}
-                        className="bg-white border border-slate-200/90 hover:border-slate-300 rounded-xl p-3.5 flex items-center justify-between gap-3 transition-all shadow-2xs"
-                      >
-                        {/* Left Side: Checkmark & Title */}
-                        <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 rounded-full border border-emerald-500 bg-emerald-50/70 text-emerald-600 flex items-center justify-center shrink-0">
-                            <IconCheck size={14} stroke={3} />
-                          </div>
-
-                          <div>
-                            <h4 className="font-bold text-xs text-slate-900">{dept.name}</h4>
-                            <p className="text-[11px] text-slate-400 font-medium mt-0.5">{dept.statusText}</p>
-                          </div>
-                        </div>
-
-                        {/* Right Side: Action Icons */}
-                        <div className="flex items-center gap-1 text-slate-400">
-                          <button
-                            type="button"
-                            className="p-1 rounded hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                            title="Ma trận"
-                          >
-                            <IconGridDots size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            className="p-1 rounded hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                            title="Tải xuống"
-                          >
-                            <IconDownload size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            className="p-1 rounded hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                            title="Sao chép"
-                          >
-                            <IconCopy size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            className="p-1 rounded hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                            title="Chi tiết"
-                          >
-                            <IconChevronDown size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                </div>
+                <ChiTietTienDoTab
+                  project={project}
+                  onOpenLuuTemplate={() => setIsLuuTemplateOpen(true)}
+                />
               )}
 
               {/* TAB CONTENT 2: BÁO CÁO TIẾN ĐỘ */}
               {activeTab === 'bao-cao-tien-do' && (
-                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center space-y-2">
-                  <IconTrendingUp size={36} className="text-[#406c89] mx-auto" />
-                  <h4 className="font-bold text-sm text-slate-800">Báo cáo Tiến độ thực hiện</h4>
-                  <p className="text-xs text-slate-500">Thống kê chỉ số tiến độ từng giai đoạn dự án {project.maDuAn}.</p>
-                </div>
+                <BaoCaoTienDoTab project={project} />
               )}
 
               {/* TAB CONTENT 3: NHÂN SỰ & CÔNG VIỆC */}
               {activeTab === 'nhan-su-cong-viec' && (
-                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center space-y-2">
-                  <IconUsers size={36} className="text-[#406c89] mx-auto" />
-                  <h4 className="font-bold text-sm text-slate-800">Nhân sự & Phân công Công việc</h4>
-                  <p className="text-xs text-slate-500">Danh sách nhân sự phụ trách các hạng mục công việc.</p>
-                </div>
+                <NhanSuCongViecTab project={project} />
               )}
 
-              {/* OTHER TABS */}
-              {(activeTab === 'chi-phi-phong-ban' || activeTab === 'phe-duyet' || activeTab === 'nghiem-thu') && (
-                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center text-xs text-slate-500">
-                  Nội dung tab <strong>{activeTab}</strong> đang được hiển thị.
-                </div>
+              {/* TAB CONTENT 4: CHI PHÍ PHÒNG BAN */}
+              {activeTab === 'chi-phi-phong-ban' && (
+                <ChiPhiPhongBanTab project={project} />
+              )}
+
+              {/* TAB CONTENT 5: PHÊ DUYỆT BÁO CÁO */}
+              {activeTab === 'phe-duyet' && (
+                <PheDuyetBaoCaoTab project={project} />
+              )}
+
+              {/* TAB CONTENT 6: NGHIỆM THU */}
+              {activeTab === 'nghiem-thu' && (
+                <NghiemThuTab project={project} />
               )}
 
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TaoDuAnModal from './modal/TaoDuAn';
 import QuanLyTemplateModal from './modal/QuanLyTemplate';
 import XoaDuAnModal from './modal/XoaDuAn';
@@ -253,6 +253,45 @@ export default function QuanLyDuAn() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
 
+  // Sync selected project strictly with URL query parameter (?id=...)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const checkUrlParam = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramId = urlParams.get('id');
+      if (paramId) {
+        const found = DEFAULT_PROJECTS.find(p => p.id === paramId || p.maDuAn === paramId);
+        setSelectedProject(found || null);
+      } else {
+        setSelectedProject(null);
+      }
+    };
+
+    checkUrlParam();
+
+    window.addEventListener('popstate', checkUrlParam);
+    return () => window.removeEventListener('popstate', checkUrlParam);
+  }, []);
+
+  const handleSelectProject = (item: DuAnItem) => {
+    setSelectedProject(item);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('id', item.id);
+      window.history.pushState({}, '', url.toString());
+    }
+  };
+
+  const handleBack = () => {
+    setSelectedProject(null);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('id');
+      window.history.pushState({}, '', url.toString());
+    }
+  };
+
   // Modal creation states
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
@@ -384,7 +423,7 @@ export default function QuanLyDuAn() {
     return (
       <ChiTietDuAn
         project={selectedProject}
-        onBack={() => setSelectedProject(null)}
+        onBack={handleBack}
       />
     );
   }
@@ -595,7 +634,7 @@ export default function QuanLyDuAn() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setSelectedProject(item)}
+                        onClick={() => handleSelectProject(item)}
                         className="flex items-center gap-1 bg-[#406c89] hover:bg-[#345972] text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shadow-xs transition-all ml-1"
                       >
                         Chi tiết
@@ -610,7 +649,7 @@ export default function QuanLyDuAn() {
                       {item.indexText}
                     </div>
                     <h3
-                      onClick={() => setSelectedProject(item)}
+                      onClick={() => handleSelectProject(item)}
                       className="text-sm font-extrabold text-[#406c89] hover:underline cursor-pointer tracking-tight leading-snug"
                     >
                       {item.tenDuAn}

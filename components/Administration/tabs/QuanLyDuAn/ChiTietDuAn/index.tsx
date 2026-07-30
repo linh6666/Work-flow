@@ -62,43 +62,43 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
   return (
     <div className="flex-1 flex flex-col bg-[#f4f6fa] min-h-screen select-none">
       
-      {/* 1. TOP HEADER */}
-      <div className="bg-[#f4f6fa] px-4 sm:px-8 py-4 border-b border-slate-200/60 shrink-0">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* 1. TOP HEADER (COMPACT) */}
+      <div className="bg-[#f4f6fa] px-4 sm:px-6 py-2.5 border-b border-slate-200/60 shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           
           {/* Back button & Title */}
-          <div className="flex items-start gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={onBack}
-              className="w-8 h-8 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-all cursor-pointer shadow-2xs shrink-0 mt-0.5"
+              className="w-7 h-7 rounded-md bg-white border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-all cursor-pointer shadow-2xs shrink-0"
               title="Quay lại"
             >
-              <IconArrowLeft size={16} />
+              <IconArrowLeft size={14} />
             </button>
 
             <div>
-              <span className="text-[11px] font-bold text-slate-400 font-mono tracking-tight block">
+              <span className="text-[10px] font-bold text-slate-400 font-mono tracking-tight block leading-none">
                 {project.maDuAn}
               </span>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-[#406c89] tracking-tight leading-tight">
+              <h1 className="text-base sm:text-lg font-extrabold text-[#406c89] tracking-tight leading-snug">
                 {project.tenDuAn}
               </h1>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">
+              <p className="text-[11px] text-slate-400 font-medium leading-none">
                 {project.tenDuAn}
               </p>
             </div>
           </div>
 
           {/* Right Badges */}
-          <div className="flex items-center gap-3 self-start sm:self-center">
-            <span className="px-5 py-2 rounded-full text-sm font-bold bg-[#fffbeb] text-[#9a6700] border border-[#fde68a] shadow-xs">
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-[#fffbeb] text-[#9a6700] border border-[#fde68a] shadow-2xs">
               {project.trangThai}
             </span>
 
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#f8fafc] border border-slate-200 text-sm font-medium text-[#406c89] shadow-xs">
-              <IconGauge size={18} className="text-slate-700" />
-              <span>Sức chứa/ngày: <strong className="font-extrabold text-[#406c89] ml-1">12h</strong></span>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-200 text-xs font-medium text-[#406c89] shadow-2xs">
+              <IconGauge size={15} className="text-slate-600" />
+              <span>Sức chứa/ngày: <strong className="font-extrabold text-[#406c89] ml-0.5">12h</strong></span>
             </div>
           </div>
 

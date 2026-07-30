@@ -31,7 +31,7 @@ export default function ChiTietTienDoTab({ project, onOpenLuuTemplate }: ChiTiet
   ];
 
   return (
-    <div className="space-y-3.5 animate-fade-in">
+    <div className="space-y-3.5 animate-fade-in max-h-[550px] overflow-y-auto pr-2 pb-8 [scrollbar-width:thin]">
       {/* Banner Notification Note */}
       <div className="bg-[#406c89]/10 border border-[#406c89]/20 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
@@ -51,8 +51,8 @@ export default function ChiTietTienDoTab({ project, onOpenLuuTemplate }: ChiTiet
         </button>
       </div>
 
-      {/* List of 9 Department Cards (Scrollable without truncation) */}
-      <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1.5 pb-3 [scrollbar-width:thin]">
+      {/* List of 9 Department Cards */}
+      <div className="space-y-2.5">
         {departments.map((dept, index) => (
           <div
             key={index}

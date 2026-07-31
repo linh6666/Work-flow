@@ -13,7 +13,7 @@ import {
   IconBuilding
 } from '@tabler/icons-react';
 import { DuAnItem } from '../../../index';
-import PheDuyetBaoCaoTab from '../PheDuyetBaoCao';
+import PheDuyetBaoCaoTab from './PheDuyetBaoCao';
 import BangTongHopNhanSuTab from '../BangTongHopNhanSu';
 
 interface NhanSuCongViecTabProps {

@@ -130,148 +130,153 @@ export default function BangTongHopNhanSuTab() {
 
   return (
     <div className="space-y-3">
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-auto select-none animate-fade-in font-sans max-h-[415px] relative">
-        <table className="w-full text-left text-xs border-collapse">
-          <thead className="sticky top-0 z-20 shadow-2xs">
-            <tr className="bg-[#f8fafc] text-slate-600 font-bold border-b border-slate-200/90 text-[11px]">
-              <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 w-14 text-center z-20">STT</th>
-              <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 min-w-[200px] z-20">Nhân sự</th>
-              <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 min-w-[140px] z-20">Phòng ban</th>
-              <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[90px] z-20">CV theo lịch</th>
-              <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[100px] z-20">Chưa triển khai</th>
-              <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[90px] z-20">Đã báo cáo</th>
-              <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[100px] z-20">Chưa báo cáo</th>
-              <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[95px] z-20">Báo cáo trễ</th>
-              <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 text-center min-w-[80px] text-rose-600 font-extrabold z-20">CV trễ</th>
-              <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[90px] z-20">Hành động</th>
-            </tr>
-          </thead>
+      {/* UNIFIED CARD CONTAINER WITH PERMANENTLY PINNED PAGINATION */}
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col max-h-[480px] relative font-sans">
+        {/* TABLE SCROLL CONTAINER */}
+        <div className="flex-1 overflow-auto relative select-none">
+          <table className="w-full text-left text-xs border-collapse min-w-[850px]">
+            <thead className="sticky top-0 z-20 shadow-2xs">
+              <tr className="bg-[#f8fafc] text-slate-600 font-bold border-b border-slate-200/90 text-[11px]">
+                <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 w-14 text-center z-20">STT</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 min-w-[200px] z-20">Nhân sự</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 min-w-[140px] z-20">Phòng ban</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[90px] z-20">CV theo lịch</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[100px] z-20">Chưa triển khai</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[90px] z-20">Đã báo cáo</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[100px] z-20">Chưa báo cáo</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[95px] z-20">Báo cáo trễ</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 text-center min-w-[80px] text-rose-600 font-extrabold z-20">CV trễ</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[90px] z-20">Hành động</th>
+              </tr>
+            </thead>
 
-          <tbody className="divide-y divide-slate-100">
-            {paginatedGroups.map((group, gIdx) => (
-              <React.Fragment key={gIdx}>
-                <tr className="bg-[#edf2f8] border-y border-slate-200/80">
-                  <td colSpan={10} className="py-2.5 px-4 font-extrabold text-[11px] text-[#2b5278] uppercase tracking-wider">
-                    {group.groupName}
-                  </td>
-                </tr>
-
-                {group.staffList.map((row) => (
-                  <tr key={row.stt} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 text-center text-slate-500 font-medium">
-                      {row.stt}
-                    </td>
-
-                    <td className="py-3 px-4 font-bold text-slate-800">
-                      {row.name}
-                    </td>
-
-                    <td className="py-3 px-4 text-slate-400 font-medium">
-                      {row.dept}
-                    </td>
-
-                    <td className="py-3 px-3 text-center font-medium text-emerald-600">
-                      {row.cvLich}
-                    </td>
-
-                    <td className="py-3 px-3 text-center font-semibold text-amber-600">
-                      {row.chuaTrienKhai > 0 ? (
-                        <div className="inline-flex items-center justify-center gap-1.5">
-                          <IconClock size={14} className="text-amber-500 shrink-0" />
-                          <span>{row.chuaTrienKhai}</span>
-                        </div>
-                      ) : (
-                        <span>0</span>
-                      )}
-                    </td>
-
-                    <td className="py-3 px-3 text-center font-medium text-emerald-600">
-                      {row.daBaoCao}
-                    </td>
-
-                    <td className="py-3 px-3 text-center font-semibold text-rose-600">
-                      {row.chuaBaoCao > 0 ? (
-                        <div className="inline-flex items-center justify-center gap-1.5">
-                          <IconAlertTriangle size={14} className="text-rose-500 shrink-0" />
-                          <span>{row.chuaBaoCao}</span>
-                        </div>
-                      ) : (
-                        <span>0</span>
-                      )}
-                    </td>
-
-                    <td className="py-3 px-3 text-center font-medium text-amber-600">
-                      {row.baoCaoTre}
-                    </td>
-
-                    <td className="py-3 px-4 text-center font-extrabold text-rose-600 text-sm">
-                      {row.cvTre > 0 ? row.cvTre : <span className="text-slate-400 font-medium text-xs">0</span>}
-                    </td>
-
-                    <td className="py-3 px-3 text-center">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenModal(row)}
-                        className="p-1.5 text-slate-500 hover:text-[#2b5278] hover:bg-slate-100 rounded-md transition-all cursor-pointer inline-flex items-center justify-center"
-                        title="Xem chi tiết"
-                      >
-                        <IconEye size={16} />
-                      </button>
+            <tbody className="divide-y divide-slate-100">
+              {paginatedGroups.map((group, gIdx) => (
+                <React.Fragment key={gIdx}>
+                  <tr className="bg-[#edf2f8] border-y border-slate-200/80">
+                    <td colSpan={10} className="py-2.5 px-4 font-extrabold text-[11px] text-[#2b5278] uppercase tracking-wider">
+                      {group.groupName}
                     </td>
                   </tr>
-                ))}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs select-none">
-        <div className="text-slate-500 font-medium">
-          Hiển thị <span className="font-bold text-slate-800">{startIndex + 1} - {Math.min(startIndex + pageSize, totalItems)}</span> trên <span className="font-bold text-slate-800">{totalItems}</span> nhân sự
+                  {group.staffList.map((row) => (
+                    <tr key={row.stt} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3 px-4 text-center text-slate-500 font-medium">
+                        {row.stt}
+                      </td>
+
+                      <td className="py-3 px-4 font-bold text-slate-800">
+                        {row.name}
+                      </td>
+
+                      <td className="py-3 px-4 text-slate-400 font-medium">
+                        {row.dept}
+                      </td>
+
+                      <td className="py-3 px-3 text-center font-medium text-emerald-600">
+                        {row.cvLich}
+                      </td>
+
+                      <td className="py-3 px-3 text-center font-semibold text-amber-600">
+                        {row.chuaTrienKhai > 0 ? (
+                          <div className="inline-flex items-center justify-center gap-1.5">
+                            <IconClock size={14} className="text-amber-500 shrink-0" />
+                            <span>{row.chuaTrienKhai}</span>
+                          </div>
+                        ) : (
+                          <span>0</span>
+                        )}
+                      </td>
+
+                      <td className="py-3 px-3 text-center font-medium text-emerald-600">
+                        {row.daBaoCao}
+                      </td>
+
+                      <td className="py-3 px-3 text-center font-semibold text-rose-600">
+                        {row.chuaBaoCao > 0 ? (
+                          <div className="inline-flex items-center justify-center gap-1.5">
+                            <IconAlertTriangle size={14} className="text-rose-500 shrink-0" />
+                            <span>{row.chuaBaoCao}</span>
+                          </div>
+                        ) : (
+                          <span>0</span>
+                        )}
+                      </td>
+
+                      <td className="py-3 px-3 text-center font-medium text-amber-600">
+                        {row.baoCaoTre}
+                      </td>
+
+                      <td className="py-3 px-4 text-center font-extrabold text-rose-600 text-sm">
+                        {row.cvTre > 0 ? row.cvTre : <span className="text-slate-400 font-medium text-xs">0</span>}
+                      </td>
+
+                      <td className="py-3 px-3 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenModal(row)}
+                          className="p-1.5 text-slate-500 hover:text-[#2b5278] hover:bg-slate-100 rounded-md transition-all cursor-pointer inline-flex items-center justify-center"
+                          title="Xem chi tiết"
+                        >
+                          <IconEye size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className={`p-1.5 rounded-lg border transition-all ${
-              currentPage === 1
-                ? 'border-slate-200 text-slate-300 cursor-not-allowed'
-                : 'border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer'
-            }`}
-          >
-            <IconChevronLeft size={16} />
-          </button>
+        {/* PERMANENTLY PINNED BOTTOM PAGINATION BAR RESPONSIVE */}
+        <div className="shrink-0 z-30 bg-white border-t border-slate-200/90 shadow-md px-3 sm:px-5 py-2.5 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs select-none">
+          <div className="text-slate-500 font-medium">
+            Hiển thị <span className="font-bold text-slate-800">{totalItems > 0 ? startIndex + 1 : 0} - {Math.min(startIndex + pageSize, totalItems)}</span> trên <span className="font-bold text-slate-800">{totalItems}</span> nhân sự
+          </div>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+          <div className="flex items-center gap-1.5">
             <button
-              key={pageNum}
               type="button"
-              onClick={() => setCurrentPage(pageNum)}
-              className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                currentPage === pageNum
-                  ? 'bg-[#2b5278] text-white shadow-2xs'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className={`p-1.5 rounded-lg border transition-all ${
+                currentPage === 1
+                  ? 'border-slate-200 text-slate-300 cursor-not-allowed'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer'
               }`}
             >
-              {pageNum}
+              <IconChevronLeft size={16} />
             </button>
-          ))}
 
-          <button
-            type="button"
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            className={`p-1.5 rounded-lg border transition-all ${
-              currentPage === totalPages
-                ? 'border-slate-200 text-slate-300 cursor-not-allowed'
-                : 'border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer'
-            }`}
-          >
-            <IconChevronRight size={16} />
-          </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              <button
+                key={pageNum}
+                type="button"
+                onClick={() => setCurrentPage(pageNum)}
+                className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  currentPage === pageNum
+                    ? 'bg-[#2b5278] text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
+                }`}
+              >
+                {pageNum}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={`p-1.5 rounded-lg border transition-all ${
+                currentPage === totalPages
+                  ? 'border-slate-200 text-slate-300 cursor-not-allowed'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer'
+              }`}
+            >
+              <IconChevronRight size={16} />
+            </button>
+          </div>
         </div>
       </div>
 

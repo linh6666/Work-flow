@@ -1,6 +1,17 @@
 "use client";
 
 import React, { useState } from 'react';
+import {
+  IconCheck,
+  IconX,
+  IconPencil,
+  IconTrash,
+  IconClock,
+  IconPhoto,
+  IconSearch,
+  IconChevronLeft,
+  IconChevronRight
+} from '@tabler/icons-react';
 import { DuAnItem } from '../../../index';
 
 interface TongHopBaoCaoTabProps {
@@ -8,223 +19,834 @@ interface TongHopBaoCaoTabProps {
 }
 
 export default function TongHopBaoCaoTab({ project }: TongHopBaoCaoTabProps) {
-  const [selectedDeptIndex, setSelectedDeptIndex] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-  // Department filter list matching image reference exactly
-  const deptPills = [
-    { name: 'Ban Giám đốc', hours: '18h' },
-    { name: 'Khối Văn phòng', hours: '48h' },
-    { name: 'Khai triển', hours: '150.5h' },
-    { name: 'Cắt', hours: '216h' },
-    { name: 'Ghép', hours: '854.5h' },
-    { name: 'Mộc Sơn', hours: '271h' },
-    { name: 'Điện', hours: '253h' },
-    { name: 'Cảnh Quan', hours: '796.1h' },
-    { name: 'Công nghệ và Thiết kế', hours: '57h' }
+  // Attached image paths generated for realistic rendering
+  const attachedImages = [
+    '/brain/ab38e360-4be8-41f4-86cf-1b37511dc4c4/architectural_landscape_1_1785484440040.png',
+    '/brain/ab38e360-4be8-41f4-86cf-1b37511dc4c4/architectural_landscape_2_1785484453363.png',
+    '/brain/ab38e360-4be8-41f4-86cf-1b37511dc4c4/architectural_landscape_3_1785484464781.png'
   ];
 
+  // 22 Sample reports matching user reference data exactly
+  const reportList = [
+    {
+      id: 1,
+      timeIndex: 'Lần 1',
+      creator: 'Phạm Thị Thu Trang',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Cảnh Quan',
+      taskTag: 'CV (dòng 27): DÁN PT+ TRANG TRÍ DÀN HOA TRÊN KHỐI ...',
+      status: 'Hoàn thành',
+      staffName: 'Sắm Thị Thúy',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '6h',
+      gioTt: '6h',
+      startTime: '25/07/2026',
+      endTime: '25/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '17:18:00 25/7/2026',
+      evaluation: '—',
+      note: '—',
+      images: attachedImages
+    },
+    {
+      id: 2,
+      timeIndex: 'Lần 1',
+      creator: 'Phùng Bích Thảo',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "QUẢN LÝ THIẾT KẾ CẢNH QUAN L'AURORA",
+      deptTag: 'Ban Giám đốc',
+      taskTag: 'CV (dòng 12): RÀ SOÁT BẢN VẼ MỘC SƠN & CẮT ...',
+      status: 'Đang triển khai',
+      staffName: 'Nguyễn Thanh Tuấn',
+      slDkDp: 2,
+      slTt: 2,
+      gioDk: '8h',
+      gioTt: '8h',
+      startTime: '25/07/2026',
+      endTime: '25/07/2026',
+      htInDay: '80%',
+      htLuyTien: '80%',
+      reportSystemTime: '18:05:00 25/7/2026',
+      evaluation: 'Đạt tiến độ đề ra',
+      note: 'Bổ sung nhân sự phòng Điện',
+      images: [attachedImages[0], attachedImages[1]]
+    },
+    {
+      id: 3,
+      timeIndex: 'Lần 2',
+      creator: 'Bùi Thị Duyên',
+      approvalStatus: 'Đã duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Khối Văn phòng',
+      taskTag: 'CV (dòng 5): TỔNG HỢP BÁO CÁO CHI PHÍ PHÒNG BAN ...',
+      status: 'Hoàn thành',
+      staffName: 'Trần Minh Anh',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '4h',
+      gioTt: '4h',
+      startTime: '24/07/2026',
+      endTime: '24/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '12:15:00 24/7/2026',
+      evaluation: 'Tốt',
+      note: 'Đã gửi mail tổng hợp',
+      images: [attachedImages[2]]
+    },
+    {
+      id: 4,
+      timeIndex: 'Lần 1',
+      creator: 'Lê Trung Hiếu',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Cắt',
+      taskTag: 'CV (dòng 8): CẮT LASER GỖ MÔ HÌNH KIẾN TRÚC ...',
+      status: 'Hoàn thành',
+      staffName: 'Lê Trung Hiếu',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '5h',
+      gioTt: '5h',
+      startTime: '24/07/2026',
+      endTime: '24/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '16:40:00 24/7/2026',
+      evaluation: 'Đạt',
+      note: '—',
+      images: [attachedImages[0]]
+    },
+    {
+      id: 5,
+      timeIndex: 'Lần 1',
+      creator: 'Đinh Đức Lợi',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Ghép',
+      taskTag: 'CV (dòng 15): GHÉP LẮP RÁP KHỐI ĐẾ TẦNG 1-3 ...',
+      status: 'Hoàn thành',
+      staffName: 'Đinh Đức Lợi',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '7h',
+      gioTt: '7h',
+      startTime: '25/07/2026',
+      endTime: '25/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '17:50:00 25/7/2026',
+      evaluation: '—',
+      note: '—',
+      images: [attachedImages[1]]
+    },
+    {
+      id: 6,
+      timeIndex: 'Lần 1',
+      creator: 'Lâm Vĩnh Hưng',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Điện',
+      taskTag: 'CV (dòng 20): ĐI ĐÈN LED ĐIỆN NHẸ MÔ HÌNH CẢNH QUAN ...',
+      status: 'Chưa hoàn thành',
+      staffName: 'Lâm Vĩnh Hưng',
+      slDkDp: 1,
+      slTt: 0,
+      gioDk: '6h',
+      gioTt: '4h',
+      startTime: '25/07/2026',
+      endTime: '26/07/2026',
+      htInDay: '66%',
+      htLuyTien: '66%',
+      reportSystemTime: '18:10:00 25/7/2026',
+      evaluation: 'Chậm',
+      note: 'Thiếu nguồn điện 12V',
+      images: []
+    },
+    {
+      id: 7,
+      timeIndex: 'Lần 2',
+      creator: 'Đào Văn Thọ',
+      approvalStatus: 'Đã duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Khai triển',
+      taskTag: 'CV (dòng 3): KHAI TRIỂN CHẮT LỌC HỒ SƠ BẢN VẼ MỘC ...',
+      status: 'Hoàn thành',
+      staffName: 'Đào Văn Thọ',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '8h',
+      gioTt: '8h',
+      startTime: '23/07/2026',
+      endTime: '23/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '17:00:00 23/7/2026',
+      evaluation: 'Xuất sắc',
+      note: '—',
+      images: [attachedImages[2]]
+    },
+    {
+      id: 8,
+      timeIndex: 'Lần 1',
+      creator: 'Hoàng Quyết Thắng',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Mộc Sơn',
+      taskTag: 'CV (dòng 19): CHÀ NHÁM SƠN PHỦ BÓNG KHỐI NHÀ MẪU ...',
+      status: 'Hoàn thành',
+      staffName: 'Hoàng Quyết Thắng',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '6h',
+      gioTt: '6h',
+      startTime: '25/07/2026',
+      endTime: '25/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '17:30:00 25/7/2026',
+      evaluation: 'Đạt',
+      note: '—',
+      images: [attachedImages[0]]
+    },
+    {
+      id: 9,
+      timeIndex: 'Lần 1',
+      creator: 'Đặng Quốc Nam',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Công nghệ và Thiết kế',
+      taskTag: 'CV (dòng 30): THIẾT KẾ MÔ PHỎNG 3D ÁNH SÁNG ĐÊM ...',
+      status: 'Hoàn thành',
+      staffName: 'Đặng Quốc Nam',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '7h',
+      gioTt: '7h',
+      startTime: '25/07/2026',
+      endTime: '25/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '17:45:00 25/7/2026',
+      evaluation: 'Tốt',
+      note: '—',
+      images: [attachedImages[1]]
+    },
+    {
+      id: 10,
+      timeIndex: 'Lần 2',
+      creator: 'Phạm Văn Thành',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Cảnh Quan',
+      taskTag: 'CV (dòng 28): LẮP ĐẶT CÂY XANH & HỒ BỔI TẦNG THƯỢNG ...',
+      status: 'Hoàn thành',
+      staffName: 'Vũ Thị Lan',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '5h',
+      gioTt: '5h',
+      startTime: '25/07/2026',
+      endTime: '25/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '18:00:00 25/7/2026',
+      evaluation: 'Đạt',
+      note: '—',
+      images: [attachedImages[2]]
+    },
+    // Items for Page 2
+    {
+      id: 11,
+      timeIndex: 'Lần 3',
+      creator: 'Phạm Thị Thu Trang',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Cảnh Quan',
+      taskTag: 'CV (dòng 29): SẮP XẾP ĐÈN TRANG TRÍ ĐẢO ĐÈN ...',
+      status: 'Đang triển khai',
+      staffName: 'Sắm Thị Thúy',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '4h',
+      gioTt: '4h',
+      startTime: '26/07/2026',
+      endTime: '26/07/2026',
+      htInDay: '50%',
+      htLuyTien: '50%',
+      reportSystemTime: '11:30:00 26/7/2026',
+      evaluation: '—',
+      note: 'Đang hoàn thiện phần chân đèn',
+      images: []
+    },
+    {
+      id: 12,
+      timeIndex: 'Lần 1',
+      creator: 'Nguyễn Đức Việt',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Ban Giám đốc',
+      taskTag: 'CV (dòng 1): PHÊ DUYỆT PHƯƠNG ÁN BIỆN PHÁP THI CÔNG ...',
+      status: 'Hoàn thành',
+      staffName: 'Nguyễn Đức Việt',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '3h',
+      gioTt: '3h',
+      startTime: '26/07/2026',
+      endTime: '26/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '14:20:00 26/7/2026',
+      evaluation: 'Xuất sắc',
+      note: 'Duyệt phương án 2',
+      images: [attachedImages[0]]
+    },
+    {
+      id: 13,
+      timeIndex: 'Lần 2',
+      creator: 'Phạm Thu Trang',
+      approvalStatus: 'Đã duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Khối Văn phòng',
+      taskTag: 'CV (dòng 6): LẬP KẾ HOẠCH MUA SẮM VẬT TƯ ĐÈN ...',
+      status: 'Hoàn thành',
+      staffName: 'Phạm Thu Trang',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '5h',
+      gioTt: '5h',
+      startTime: '26/07/2026',
+      endTime: '26/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '16:00:00 26/7/2026',
+      evaluation: 'Đạt',
+      note: '—',
+      images: []
+    },
+    {
+      id: 14,
+      timeIndex: 'Lần 1',
+      creator: 'Vũ Quốc Huy',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Cắt',
+      taskTag: 'CV (dòng 9): CẮT KHUÔN ĐẾ ALUMIUM BẢO VỆ MÔ HÌNH ...',
+      status: 'Hoàn thành',
+      staffName: 'Vũ Quốc Huy',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '6h',
+      gioTt: '6h',
+      startTime: '26/07/2026',
+      endTime: '26/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '17:10:00 26/7/2026',
+      evaluation: 'Tốt',
+      note: '—',
+      images: [attachedImages[1]]
+    },
+    {
+      id: 15,
+      timeIndex: 'Lần 1',
+      creator: 'Nguyễn Văn Hoàng',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Ghép',
+      taskTag: 'CV (dòng 16): GHÉP MÁI KÍNH CẢNH QUAN TẦNG THƯỢNG ...',
+      status: 'Đang triển khai',
+      staffName: 'Nguyễn Văn Hoàng',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '8h',
+      gioTt: '6h',
+      startTime: '26/07/2026',
+      endTime: '27/07/2026',
+      htInDay: '75%',
+      htLuyTien: '75%',
+      reportSystemTime: '17:40:00 26/7/2026',
+      evaluation: 'Đang làm',
+      note: 'Cần keo dán chuyên dụng',
+      images: []
+    },
+    {
+      id: 16,
+      timeIndex: 'Lần 2',
+      creator: 'Trịnh Hoàng Nam',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Điện',
+      taskTag: 'CV (dòng 21): KIỂM TRA HỆ THỐNG ĐIỆN ĐIỀU KHIỂN TỪ XA ...',
+      status: 'Hoàn thành',
+      staffName: 'Trịnh Hoàng Nam',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '5h',
+      gioTt: '5h',
+      startTime: '26/07/2026',
+      endTime: '26/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '18:15:00 26/7/2026',
+      evaluation: 'Tốt',
+      note: 'Hệ thống hoạt động ổn định',
+      images: [attachedImages[2]]
+    },
+    {
+      id: 17,
+      timeIndex: 'Lần 1',
+      creator: 'Ngô Tấn Phát',
+      approvalStatus: 'Đã duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Khai triển',
+      taskTag: 'CV (dòng 4): KHAI TRIỂN CHI TIẾT CẢNH QUAN SÂN VƯỜN ...',
+      status: 'Hoàn thành',
+      staffName: 'Ngô Tấn Phát',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '7h',
+      gioTt: '7h',
+      startTime: '26/07/2026',
+      endTime: '26/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '17:05:00 26/7/2026',
+      evaluation: 'Tốt',
+      note: '—',
+      images: []
+    },
+    {
+      id: 18,
+      timeIndex: 'Lần 1',
+      creator: 'Bùi Văn Tiến',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Mộc Sơn',
+      taskTag: 'CV (dòng 20): SƠN LÓT KHỐI ĐẾ CỐNG CHÍNH ...',
+      status: 'Hoàn thành',
+      staffName: 'Bùi Văn Tiến',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '4h',
+      gioTt: '4h',
+      startTime: '26/07/2026',
+      endTime: '26/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '16:50:00 26/7/2026',
+      evaluation: 'Đạt',
+      note: '—',
+      images: [attachedImages[0]]
+    },
+    {
+      id: 19,
+      timeIndex: 'Lần 1',
+      creator: 'Lê Thanh Tùng',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Công nghệ và Thiết kế',
+      taskTag: 'CV (dòng 31): IN 3D CÁC CHI TIẾT TRANG TRÍ TÍ HON ...',
+      status: 'Hoàn thành',
+      staffName: 'Lê Thanh Tùng',
+      slDkDp: 2,
+      slTt: 2,
+      gioDk: '8h',
+      gioTt: '8h',
+      startTime: '26/07/2026',
+      endTime: '26/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '18:30:00 26/7/2026',
+      evaluation: 'Xuất sắc',
+      note: 'In hoàn thành 100%',
+      images: [attachedImages[1]]
+    },
+    {
+      id: 20,
+      timeIndex: 'Lần 1',
+      creator: 'Vũ Thị Lan',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Cảnh Quan',
+      taskTag: 'CV (dòng 32): TRỒNG CỎ VÀ TRANG TRÍ THẢM THỰC VẬT ...',
+      status: 'Hoàn thành',
+      staffName: 'Vũ Thị Lan',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '6h',
+      gioTt: '6h',
+      startTime: '26/07/2026',
+      endTime: '26/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '17:55:00 26/7/2026',
+      evaluation: 'Đạt',
+      note: '—',
+      images: [attachedImages[2]]
+    },
+    // Items for Page 3
+    {
+      id: 21,
+      timeIndex: 'Lần 1',
+      creator: 'Nguyễn Thị Hoa',
+      approvalStatus: 'Đã duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Phòng Công nghệ và Thiết kế',
+      taskTag: 'CV (dòng 33): RÀ SOÁT KIỂM TRA CHẤT LƯỢNG MÔ HÌNH ...',
+      status: 'Hoàn thành',
+      staffName: 'Nguyễn Thị Hoa',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '5h',
+      gioTt: '5h',
+      startTime: '27/07/2026',
+      endTime: '27/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '15:10:00 27/7/2026',
+      evaluation: 'Tốt',
+      note: 'Mô hình đủ điều kiện bàn giao',
+      images: []
+    },
+    {
+      id: 22,
+      timeIndex: 'Lần 2',
+      creator: 'Phùng Bích Thảo',
+      approvalStatus: 'Chờ duyệt',
+      projectName: "CHỈNH SỬA MÔ HÌNH L'AURORA",
+      deptTag: 'Ban Giám đốc',
+      taskTag: 'CV (dòng 2): KÝ NGHIỆM THU BÀN GIAO MÔ HÌNH ...',
+      status: 'Hoàn thành',
+      staffName: 'Phùng Bích Thảo',
+      slDkDp: 1,
+      slTt: 1,
+      gioDk: '2h',
+      gioTt: '2h',
+      startTime: '27/07/2026',
+      endTime: '27/07/2026',
+      htInDay: '100%',
+      htLuyTien: '100%',
+      reportSystemTime: '16:30:00 27/7/2026',
+      evaluation: 'Hoàn hảo',
+      note: 'Khách hàng hài lòng',
+      images: [attachedImages[0]]
+    }
+  ];
+
+  // Search filter
+  const filteredReports = reportList.filter(
+    (r) =>
+      r.creator.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.staffName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.deptTag.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.taskTag.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Dynamic Pagination calculations
+  const totalItems = filteredReports.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedReports = filteredReports.slice(startIndex, startIndex + pageSize);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newSize = Number(e.target.value);
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
+
   return (
-    <div className="space-y-6 animate-fade-in text-slate-800 font-sans">
-      {/* 1. SECTION: TỔNG QUAN TOÀN DỰ ÁN — 2664.1H */}
-      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200/90 shadow-2xs space-y-4">
-        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-          TỔNG QUAN TOÀN DỰ ÁN — <span className="text-[#2b5278]">2664.1H</span>
-        </h3>
+    <div className="space-y-3 animate-fade-in font-sans text-slate-800 select-none">
+      {/* SEARCH AND SUMMARY STRIP BALANCED */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-white p-2.5 rounded-xl border border-slate-200/90 shadow-2xs">
+        <div className="relative flex-1 w-full sm:max-w-md">
+          <IconSearch size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="Tìm theo tên nhân sự, phòng ban, nội dung báo cáo..."
+            className="w-full pl-9 pr-3.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#2b5278] outline-none transition-all"
+          />
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          
-          {/* CHART 1: Phân bổ giờ theo Phòng ban (Solid Pie Chart) */}
-          <div className="border border-slate-200/80 rounded-xl p-4 bg-white flex flex-col items-center relative min-h-[300px]">
-            <h4 className="font-bold text-xs text-slate-700 self-center mb-2">
-              Phân bổ giờ theo Phòng ban
-            </h4>
-
-            <div className="relative w-full h-64 flex items-center justify-center">
-              <svg viewBox="0 0 240 240" className="w-64 h-64 overflow-visible">
-                {/* Pie Slices */}
-                {/* S1: Ghép 32% (Purple) */}
-                <path d="M 120 120 L 120 20 A 100 100 0 0 1 205.1 172.5 Z" fill="#7c3aed" />
-                {/* S2: Cắt 8% (Red) */}
-                <path d="M 120 120 L 205.1 172.5 A 100 100 0 0 1 167 208 Z" fill="#dc2626" />
-                {/* S3: Khai triển 6% (Green) */}
-                <path d="M 120 120 L 167 208 A 100 100 0 0 1 133 219 Z" fill="#16a34a" />
-                {/* S4: Khối Văn phòng 2% (Brown) */}
-                <path d="M 120 120 L 133 219 A 100 100 0 0 1 120 220 Z" fill="#b45309" />
-                {/* S5: Ban Giám đốc 1% (Slate) */}
-                <path d="M 120 120 L 120 220 A 100 100 0 0 1 113.7 219.8 Z" fill="#334155" />
-                {/* S6: Công nghệ và Thiết kế 2% (Lime) */}
-                <path d="M 120 120 L 113.7 219.8 A 100 100 0 0 1 101 218 Z" fill="#65a30d" />
-                {/* S7: Mộc Sơn 10% (Teal) */}
-                <path d="M 120 120 L 101 218 A 100 100 0 0 1 40 180 Z" fill="#0891b2" />
-                {/* S8: Điện 9% (Orange) */}
-                <path d="M 120 120 L 40 180 A 100 100 0 0 1 24.9 146.9 Z" fill="#ea580c" />
-                {/* S9: Cảnh Quan 30% (Blue) */}
-                <path d="M 120 120 L 24.9 146.9 A 100 100 0 0 1 120 20 Z" fill="#2563eb" />
-
-                {/* Labels Around Pie */}
-                <text x="180" y="30" fill="#7c3aed" fontSize="10" fontWeight="bold">Ghép: 32%</text>
-                <text x="210" y="110" fill="#dc2626" fontSize="10" fontWeight="bold">Cắt: 8%</text>
-                <text x="205" y="160" fill="#16a34a" fontSize="10" fontWeight="bold">Khai triển: 6%</text>
-                <text x="200" y="190" fill="#b45309" fontSize="9" fontWeight="bold">Khối Văn phòng: 2%</text>
-                <text x="195" y="205" fill="#334155" fontSize="8" fontWeight="bold">Ban Giám đốc: 1%</text>
-                <text x="190" y="220" fill="#65a30d" fontSize="9" fontWeight="bold">Công nghệ và Thiết kế: 2%</text>
-                <text x="20" y="200" fill="#0891b2" fontSize="10" fontWeight="bold">Mộc Sơn: 10%</text>
-                <text x="15" y="150" fill="#ea580c" fontSize="10" fontWeight="bold">Điện: 9%</text>
-                <text x="175" y="240" fill="#2563eb" fontSize="10" fontWeight="bold">Cảnh Quan: 30%</text>
-              </svg>
-
-              {/* Tooltip Box Overlay */}
-              <div className="absolute bottom-6 right-16 bg-white border border-slate-200 shadow-md rounded-md px-3 py-1.5 text-xs font-bold text-slate-800 pointer-events-none z-10">
-                Giờ KH : 253h
-              </div>
-            </div>
-          </div>
-
-          {/* CHART 2: So sánh khối lượng giữa Phòng ban (Bar Chart) */}
-          <div className="border border-slate-200/80 rounded-xl p-4 bg-white flex flex-col justify-between min-h-[300px]">
-            <h4 className="font-bold text-xs text-slate-700 self-center mb-2">
-              So sánh khối lượng giữa Phòng ban
-            </h4>
-
-            <div className="relative flex-1 flex items-end pt-6 pb-8">
-              {/* Y-Axis Ticks & Grid Lines */}
-              <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-8 text-[9px] font-medium text-slate-400">
-                {['1000h', '750h', '500h', '250h', '0h'].map((tick, i) => (
-                  <div key={i} className="flex items-center gap-2 w-full">
-                    <span className="w-8 text-right shrink-0">{tick}</span>
-                    <div className="flex-1 border-b border-dashed border-slate-200" />
-                  </div>
-                ))}
-              </div>
-
-              {/* Bars Container */}
-              <div className="w-full h-full flex items-end justify-around pl-10 pr-2 z-10">
-                {[
-                  { name: 'Ban Giám đốc', h: 18, color: '#334155', heightPct: 4 },
-                  { name: 'Khối Văn phòng', h: 48, color: '#b45309', heightPct: 7 },
-                  { name: 'Khai triển', h: 150.5, color: '#16a34a', heightPct: 18 },
-                  { name: 'Cắt', h: 216, color: '#dc2626', heightPct: 24 },
-                  { name: 'Ghép', h: 854.5, color: '#7c3aed', heightPct: 86 },
-                  { name: 'Mộc Sơn', h: 271, color: '#0891b2', heightPct: 28 },
-                  { name: 'Điện', h: 253, color: '#ea580c', heightPct: 26 },
-                  { name: 'Cảnh Quan', h: 796.1, color: '#2563eb', heightPct: 80 },
-                  { name: 'Công nghệ và Thiết kế', h: 57, color: '#65a30d', heightPct: 8 }
-                ].map((bar, idx) => (
-                  <div key={idx} className="flex flex-col items-center flex-1 h-full justify-end group">
-                    <div
-                      className="w-full max-w-[22px] rounded-t-xs transition-all cursor-pointer hover:brightness-110"
-                      style={{ height: `${bar.heightPct}%`, backgroundColor: bar.color }}
-                      title={`${bar.name}: ${bar.h}h`}
-                    />
-                    <div className="absolute bottom-0 text-[8px] font-bold text-slate-500 whitespace-nowrap -rotate-[35deg] origin-top-left translate-y-3">
-                      {bar.name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 text-xs font-semibold">
+          <span className="bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-lg font-bold text-[11px] sm:text-xs">
+            Chờ duyệt: {reportList.filter((r) => r.approvalStatus === 'Chờ duyệt').length}
+          </span>
+          <span className="bg-emerald-100 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg font-bold text-[11px] sm:text-xs">
+            Đã duyệt: {reportList.filter((r) => r.approvalStatus === 'Đã duyệt').length}
+          </span>
         </div>
       </div>
 
-      {/* 2. SECTION: CHI TIẾT THEO PHÒNG BAN */}
-      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200/90 shadow-2xs space-y-4">
-        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-          CHI TIẾT THEO PHÒNG BAN
-        </h3>
+      {/* UNIFIED CONTAINER FOR TABLE & PERMANENTLY PINNED PAGINATION */}
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col max-h-[480px] relative">
+        {/* TABLE SCROLL CONTAINER */}
+        <div className="flex-1 overflow-auto relative">
+          <table className="w-full text-left text-xs border-collapse min-w-[920px]">
+            {/* HEADER ROW STICKY TOP */}
+            <thead className="sticky top-0 z-20 shadow-2xs">
+              <tr className="bg-[#f8fafc] text-slate-600 font-bold border-b border-slate-200/90 text-[11px]">
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-3 text-center min-w-[65px] z-20">Lần</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-3.5 min-w-[160px] z-20">Nhân sự</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-3.5 min-w-[140px] z-20">Phòng ban</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-3.5 min-w-[210px] z-20">Công việc</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-3 text-center min-w-[105px] z-20">Trạng thái</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-2.5 text-center min-w-[75px] z-20">SL (DK/TT)</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-2.5 text-center min-w-[75px] z-20">Giờ (DK/TT)</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-3 text-center min-w-[95px] z-20">Bắt đầu - Kết thúc</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-2.5 text-center min-w-[85px] z-20">%HT / Lũy tiến</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-3 text-center min-w-[115px] z-20">Thời gian lập BC</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-2.5 text-center min-w-[65px] z-20">Hình ảnh</th>
+                <th className="sticky top-0 bg-[#f8fafc] py-2.5 px-3 text-center min-w-[105px] z-20">Hành động</th>
+              </tr>
+            </thead>
 
-        {/* Department Pills */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {deptPills.map((dept, idx) => {
-            const isActive = idx === selectedDeptIndex;
-            return (
+            {/* TABLE BODY */}
+            <tbody className="divide-y divide-slate-100">
+              {paginatedReports.map((r) => (
+                <tr key={r.id} className="hover:bg-slate-50/80 transition-colors">
+                  {/* LẦN */}
+                  <td className="py-2.5 px-3 text-center font-bold text-[#2b5278]">
+                    <span className="bg-[#edf4f9] px-2 py-0.5 rounded text-[11px]">
+                      {r.timeIndex}
+                    </span>
+                  </td>
+
+                  {/* NHÂN SỰ */}
+                  <td className="py-2.5 px-3.5">
+                    <div className="font-bold text-slate-800 text-xs">{r.creator}</div>
+                    <div className="text-[10px] text-purple-600 font-medium mt-0.5">
+                      Thực hiện: {r.staffName}
+                    </div>
+                  </td>
+
+                  {/* PHÒNG BAN */}
+                  <td className="py-2.5 px-3.5 text-slate-600 font-medium">
+                    <span className="bg-purple-50 text-purple-700 border border-purple-200/80 px-2 py-0.5 rounded text-[11px] font-bold inline-block">
+                      {r.deptTag}
+                    </span>
+                  </td>
+
+                  {/* CÔNG VIỆC */}
+                  <td className="py-2.5 px-3.5">
+                    <div className="font-semibold text-emerald-700 text-[11px] leading-tight max-w-[250px] truncate" title={r.taskTag}>
+                      {r.taskTag}
+                    </div>
+                    <div className="text-[10px] text-slate-400 font-medium mt-0.5">
+                      {r.projectName}
+                    </div>
+                  </td>
+
+                  {/* TRẠNG THÁI */}
+                  <td className="py-2.5 px-3 text-center">
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                        {r.status}
+                      </span>
+                      <span className="bg-amber-100 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded-full border border-amber-200">
+                        {r.approvalStatus}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* SL (DK/TT) */}
+                  <td className="py-2.5 px-2.5 text-center font-bold text-slate-700 text-xs">
+                    <span>{r.slDkDp}</span> / <span className="text-emerald-600">{r.slTt}</span>
+                  </td>
+
+                  {/* GIỜ (DK/TT) */}
+                  <td className="py-2.5 px-2.5 text-center font-bold text-slate-700 text-xs">
+                    <span>{r.gioDk}</span> / <span className="text-amber-600">{r.gioTt}</span>
+                  </td>
+
+                  {/* BẮT ĐẦU - KẾT THÚC */}
+                  <td className="py-2.5 px-3 text-center text-slate-500 font-medium text-[11px]">
+                    <div>{r.startTime}</div>
+                    <div className="text-indigo-600 font-semibold">{r.endTime}</div>
+                  </td>
+
+                  {/* %HT / LŨY TIẾN */}
+                  <td className="py-2.5 px-2.5 text-center font-extrabold text-indigo-600 text-xs">
+                    <div>{r.htInDay}</div>
+                    <div className="text-[10px] text-purple-500 font-bold">{r.htLuyTien} LT</div>
+                  </td>
+
+                  {/* THỜI GIAN LẬP BC */}
+                  <td className="py-2.5 px-3 text-center text-amber-800 font-semibold text-[11px]">
+                    <div className="flex items-center justify-center gap-1">
+                      <IconClock size={13} className="text-amber-600 shrink-0" />
+                      <span>{r.reportSystemTime}</span>
+                    </div>
+                  </td>
+
+                  {/* HÌNH ÁNH */}
+                  <td className="py-2.5 px-2.5 text-center">
+                    {r.images && r.images.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedImage(r.images[0])}
+                        className="inline-flex items-center justify-center gap-1 bg-slate-100 hover:bg-[#2b5278] hover:text-white text-slate-600 border border-slate-200 px-2 py-0.5 rounded text-xs font-bold transition-all cursor-pointer"
+                        title="Xem hình ảnh"
+                      >
+                        <IconPhoto size={13} />
+                        <span>{r.images.length}</span>
+                      </button>
+                    ) : (
+                      <span className="text-slate-300 text-xs">—</span>
+                    )}
+                  </td>
+
+                  {/* HÀNH ĐỘNG BALANCED */}
+                  <td className="py-2.5 px-3 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        type="button"
+                        className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 flex items-center justify-center transition-all cursor-pointer"
+                        title="Duyệt"
+                      >
+                        <IconCheck size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        className="w-6 h-6 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200 flex items-center justify-center transition-all cursor-pointer"
+                        title="Từ chối"
+                      >
+                        <IconX size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200 flex items-center justify-center transition-all cursor-pointer"
+                        title="Sửa"
+                      >
+                        <IconPencil size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        className="w-6 h-6 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200 flex items-center justify-center transition-all cursor-pointer"
+                        title="Xóa"
+                      >
+                        <IconTrash size={12} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* PERMANENTLY PINNED BOTTOM PAGINATION BAR BALANCED */}
+        <div className="shrink-0 z-30 bg-white border-t border-slate-200/90 shadow-md px-4 py-2 sm:py-2.5 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs select-none">
+          {/* SUMMARY INFO & PAGE SIZE SELECTOR */}
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-slate-500 font-medium text-center sm:text-left">
+            <div>
+              Hiển thị <span className="font-bold text-slate-800">{totalItems > 0 ? startIndex + 1 : 0} - {Math.min(startIndex + pageSize, totalItems)}</span> trên <span className="font-bold text-slate-800">{totalItems}</span> báo cáo
+            </div>
+
+            <div className="flex items-center gap-1 text-slate-600 bg-slate-50 border border-slate-200/90 px-2 py-0.5 rounded-lg text-xs">
+              <span>Hiển thị</span>
+              <select
+                value={pageSize}
+                onChange={handlePageSizeChange}
+                className="bg-transparent font-bold text-slate-800 outline-none cursor-pointer text-xs"
+              >
+                <option value={5}>5 / trang</option>
+                <option value={10}>10 / trang</option>
+                <option value={20}>20 / trang</option>
+              </select>
+            </div>
+          </div>
+
+          {/* CLICKABLE PAGE NUMBERS AND CHEVRONS */}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`p-1.5 rounded-lg border transition-all ${
+                currentPage === 1
+                  ? 'border-slate-200 text-slate-300 cursor-not-allowed'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer'
+              }`}
+              title="Trang trước"
+            >
+              <IconChevronLeft size={15} />
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
               <button
-                key={idx}
+                key={pageNum}
                 type="button"
-                onClick={() => setSelectedDeptIndex(idx)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-[#2b5278] text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
+                onClick={() => handlePageChange(pageNum)}
+                className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                  currentPage === pageNum
+                    ? 'bg-[#2b5278] text-white shadow-2xs font-black'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
                 }`}
               >
-                {dept.name} · {dept.hours}
+                {pageNum}
               </button>
-            );
-          })}
-        </div>
+            ))}
 
-        {/* Charts for Selected Department */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 pt-2">
-          
-          {/* CHART 3: Phân bổ giờ — Ban Giám đốc */}
-          <div className="border border-slate-200/80 rounded-xl p-4 bg-white flex flex-col items-center relative min-h-[280px]">
-            <h4 className="font-bold text-xs text-slate-700 self-center">
-              Phân bổ giờ — {deptPills[selectedDeptIndex]?.name || 'Ban Giám đốc'}
-            </h4>
-            <span className="text-[11px] text-slate-400 font-medium mb-2">Tổng: {deptPills[selectedDeptIndex]?.hours || '18h'}</span>
-
-            <div className="relative w-full h-56 flex items-center justify-center">
-              <svg viewBox="0 0 200 200" className="w-56 h-56 overflow-visible">
-                {/* Slices for Ban Giám đốc */}
-                <path d="M 100 100 L 100 20 A 80 80 0 0 1 176 124 Z" fill="#456585" />
-                <path d="M 100 100 L 176 124 A 80 80 0 0 1 147 164 Z" fill="#c93b2b" />
-                <path d="M 100 100 L 147 164 A 80 80 0 0 1 100 180 Z" fill="#2b8538" />
-                <path d="M 100 100 L 100 180 A 80 80 0 0 1 100 20 Z" fill="#c29035" />
-
-                {/* Labels */}
-                <text x="135" y="18" fill="#456585" fontSize="8" fontWeight="bold">Phùng Bích Thảo: 39%</text>
-                <text x="145" y="160" fill="#c93b2b" fontSize="7" fontWeight="bold">Nguyễn Thanh Tuấn, Phùng Bích T...</text>
-                <text x="105" y="192" fill="#2b8538" fontSize="8" fontWeight="bold">Nguyễn Đức Việt: 11%</text>
-                <text x="15" y="160" fill="#c29035" fontSize="8" fontWeight="bold">Nguyễn Thanh Tuấn: 39%</text>
-              </svg>
-            </div>
+            <button
+              type="button"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`p-1.5 rounded-lg border transition-all ${
+                currentPage === totalPages
+                  ? 'border-slate-200 text-slate-300 cursor-not-allowed'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer'
+              }`}
+              title="Trang tiếp"
+            >
+              <IconChevronRight size={15} />
+            </button>
           </div>
-
-          {/* CHART 4: So sánh khối lượng nhân sự — Ban Giám đốc */}
-          <div className="border border-slate-200/80 rounded-xl p-4 bg-white flex flex-col justify-between min-h-[280px]">
-            <h4 className="font-bold text-xs text-slate-700 self-center mb-4">
-              So sánh khối lượng nhân sự — {deptPills[selectedDeptIndex]?.name || 'Ban Giám đốc'}
-            </h4>
-
-            <div className="relative flex-1 flex items-end pt-4 pb-12">
-              {/* Y-Axis Ticks */}
-              <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-12 text-[9px] font-medium text-slate-400">
-                {['8h', '6h', '4h', '2h', '0h'].map((tick, i) => (
-                  <div key={i} className="flex items-center gap-2 w-full">
-                    <span className="w-5 text-right shrink-0">{tick}</span>
-                    <div className="flex-1 border-b border-dashed border-slate-200" />
-                  </div>
-                ))}
-              </div>
-
-              {/* Bars Container */}
-              <div className="w-full h-full flex items-end justify-around pl-8 pr-2 z-10">
-                {[
-                  { name: 'Phùng Bích Thảo', color: '#456585', heightPct: 88 },
-                  { name: 'Nguyễn Thanh Tuấn', color: '#c29035', heightPct: 88 },
-                  { name: 'Nguyễn Đức Việt', color: '#2b8538', heightPct: 25 },
-                  { name: 'Phùng Bích Thảo, Nguyễn Đức Việt', color: '#c93b2b', heightPct: 25 }
-                ].map((bar, idx) => (
-                  <div key={idx} className="flex flex-col items-center flex-1 h-full justify-end group">
-                    <div
-                      className="w-full max-w-[32px] rounded-t-xs transition-all cursor-pointer hover:brightness-110"
-                      style={{ height: `${bar.heightPct}%`, backgroundColor: bar.color }}
-                      title={bar.name}
-                    />
-                    <div className="absolute bottom-0 text-[8px] font-bold text-slate-500 whitespace-nowrap -rotate-[25deg] origin-top-left translate-y-4">
-                      {bar.name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
         </div>
-
       </div>
+
+      {/* FULLSCREEN IMAGE PREVIEW MODAL */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-3xl max-h-[85vh] bg-white p-2 rounded-2xl overflow-hidden shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 z-10 p-2 bg-slate-900/60 hover:bg-slate-900 text-white rounded-full transition-all cursor-pointer"
+            >
+              <IconX size={20} />
+            </button>
+            <img
+              src={selectedImage}
+              alt="Expanded Preview"
+              className="w-full h-full object-contain rounded-xl max-h-[80vh]"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

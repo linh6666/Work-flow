@@ -31,7 +31,7 @@ export default function ChiTietTienDoTab({ project, onOpenLuuTemplate }: ChiTiet
   ];
 
   return (
-    <div className="space-y-3.5 animate-fade-in max-h-[550px] overflow-y-auto pr-2 pb-8 [scrollbar-width:thin]">
+    <div className="space-y-3.5 animate-fade-in max-h-[600px] overflow-y-auto pr-2 pb-8">
       {/* Banner Notification Note */}
       <div className="bg-[#406c89]/10 border border-[#406c89]/20 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">

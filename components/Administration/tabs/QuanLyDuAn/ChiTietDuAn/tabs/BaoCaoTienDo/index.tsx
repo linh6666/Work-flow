@@ -163,7 +163,7 @@ export default function BaoCaoTienDoTab({ project }: BaoCaoTienDoTabProps) {
   ];
 
   return (
-    <div className="space-y-4 text-xs animate-fade-in select-none max-h-[550px] overflow-y-auto pr-2 pb-8 [scrollbar-width:thin]">
+    <div className="space-y-4 text-xs animate-fade-in select-none max-h-[600px] overflow-y-auto pr-2 pb-8">
       
       {/* 1. TOP ROW: 4 METRIC CARDS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">

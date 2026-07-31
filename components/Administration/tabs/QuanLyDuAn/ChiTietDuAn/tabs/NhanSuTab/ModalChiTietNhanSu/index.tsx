@@ -99,18 +99,18 @@ export default function ModalChiTietNhanSu({ isOpen, onClose, staffData }: Staff
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden select-none font-sans">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-2 sm:p-4 animate-fade-in">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden select-none font-sans">
         {/* MODAL HEADER */}
-        <div className="px-6 py-3.5 bg-[#f8fafc] border-b border-slate-200/90 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#edf4f9] text-[#2b5278] flex items-center justify-center font-extrabold text-sm border border-[#2b5278]/20">
+        <div className="px-3 sm:px-6 py-3 bg-[#f8fafc] border-b border-slate-200/90 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#edf4f9] text-[#2b5278] flex items-center justify-center font-extrabold text-xs sm:text-sm border border-[#2b5278]/20 shrink-0">
               {staffData.name.split(' ').pop()?.slice(0, 2).toUpperCase() || 'NS'}
             </div>
-            <div>
-              <h3 className="font-extrabold text-base text-slate-800 flex items-center gap-2">
-                <span>Chi tiết công việc - {staffData.name}</span>
-                <span className="text-xs font-semibold text-[#2b5278] bg-[#edf4f9] px-2.5 py-0.5 rounded-full">
+            <div className="min-w-0 truncate">
+              <h3 className="font-extrabold text-xs sm:text-base text-slate-800 flex flex-wrap items-center gap-1.5 sm:gap-2 truncate">
+                <span className="truncate">Chi tiết công việc - {staffData.name}</span>
+                <span className="text-[10px] sm:text-xs font-semibold text-[#2b5278] bg-[#edf4f9] px-2 py-0.5 rounded-full shrink-0">
                   {staffData.dept}
                 </span>
               </h3>
@@ -119,26 +119,26 @@ export default function ModalChiTietNhanSu({ isOpen, onClose, staffData }: Staff
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 rounded-xl transition-all cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 rounded-xl transition-all cursor-pointer shrink-0"
           >
-            <IconX size={20} />
+            <IconX size={18} />
           </button>
         </div>
 
-        {/* MODAL TABLE AREA */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-white">
-          <table className="w-full text-left text-xs border-collapse">
+        {/* MODAL TABLE AREA WITH RESPONSIVE SWIPE SCROLL */}
+        <div className="flex-1 overflow-auto p-2 sm:p-5 bg-white">
+          <table className="w-full text-left text-xs border-collapse min-w-[680px]">
             <thead>
               <tr className="bg-[#f8fafc] text-slate-600 font-bold border-b border-slate-200/90 text-xs">
-                <th className="py-3 px-4 min-w-[220px]">Công việc</th>
-                <th className="py-3 px-3 text-center min-w-[70px]">Bắt đầu</th>
-                <th className="py-3 px-3 text-center min-w-[70px]">Kết thúc</th>
-                <th className="py-3 px-3 text-center min-w-[50px]">KH</th>
-                <th className="py-3 px-3 text-center min-w-[70px]">Thực hiện</th>
-                <th className="py-3 px-3 text-center min-w-[60px]">%HT</th>
-                <th className="py-3 px-3 text-center min-w-[60px]">%ĐK</th>
-                <th className="py-3 px-4 text-center min-w-[90px]">Tiến độ</th>
-                <th className="py-3 px-4 text-center min-w-[120px]">Báo cáo</th>
+                <th className="py-2.5 px-3 min-w-[200px]">Công việc</th>
+                <th className="py-2.5 px-2 text-center min-w-[65px]">Bắt đầu</th>
+                <th className="py-2.5 px-2 text-center min-w-[65px]">Kết thúc</th>
+                <th className="py-2.5 px-2 text-center min-w-[45px]">KH</th>
+                <th className="py-2.5 px-2 text-center min-w-[65px]">Thực hiện</th>
+                <th className="py-2.5 px-2 text-center min-w-[55px]">%HT</th>
+                <th className="py-2.5 px-2 text-center min-w-[55px]">%ĐK</th>
+                <th className="py-2.5 px-3 text-center min-w-[85px]">Tiến độ</th>
+                <th className="py-2.5 px-3 text-center min-w-[110px]">Báo cáo</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

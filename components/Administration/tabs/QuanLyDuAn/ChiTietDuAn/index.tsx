@@ -60,7 +60,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
   ];
 
   return (
-    <div className="flex-1 flex flex-col bg-[#f4f6fa] min-h-screen select-none">
+    <div className="flex-1 flex flex-col bg-[#f4f6fa] max-h-screen overflow-y-auto select-none">
       
       {/* 1. TOP HEADER (COMPACT) */}
       <div className="bg-[#f4f6fa] px-4 sm:px-6 py-2.5 border-b border-slate-200/60 shrink-0">

@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from 'react';
 import {
   IconCheck,
@@ -10,7 +8,8 @@ import {
   IconPhoto,
   IconSearch,
   IconChevronLeft,
-  IconChevronRight
+  IconChevronRight,
+  IconRefresh
 } from '@tabler/icons-react';
 import { DuAnItem } from '../../../index';
 
@@ -23,6 +22,19 @@ export default function TongHopBaoCaoTab({ project }: TongHopBaoCaoTabProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  // Filter States matching reference image
+  const [approvalFilter, setApprovalFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState('all');
+  const [selectedStaffFilter, setSelectedStaffFilter] = useState('all');
+
+  const handleRefresh = () => {
+    setSearchQuery('');
+    setApprovalFilter('all');
+    setSelectedDeptFilter('all');
+    setSelectedStaffFilter('all');
+    setCurrentPage(1);
+  };
 
   // Attached image paths generated for realistic rendering
   const attachedImages = [
@@ -543,14 +555,31 @@ export default function TongHopBaoCaoTab({ project }: TongHopBaoCaoTabProps) {
     }
   ];
 
-  // Search filter
-  const filteredReports = reportList.filter(
-    (r) =>
+  // Comprehensive multi-criteria search & dropdown filtering logic
+  const filteredReports = reportList.filter((r) => {
+    const matchesSearch =
       r.creator.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.staffName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.deptTag.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.taskTag.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      r.taskTag.toLowerCase().includes(searchQuery.toLowerCase());
+
+    let matchesApproval = true;
+    if (approvalFilter === 'pending') matchesApproval = r.approvalStatus === 'Chờ duyệt';
+    else if (approvalFilter === 'approved') matchesApproval = r.approvalStatus === 'Đã duyệt';
+    else if (approvalFilter === 'rejected') matchesApproval = r.approvalStatus === 'Từ chối';
+
+    let matchesDept = true;
+    if (selectedDeptFilter !== 'all') {
+      matchesDept = r.deptTag.toLowerCase().includes(selectedDeptFilter.toLowerCase());
+    }
+
+    let matchesStaff = true;
+    if (selectedStaffFilter !== 'all') {
+      matchesStaff = r.creator === selectedStaffFilter || r.staffName === selectedStaffFilter;
+    }
+
+    return matchesSearch && matchesApproval && matchesDept && matchesStaff;
+  });
 
   // Dynamic Pagination calculations
   const totalItems = filteredReports.length;
@@ -572,9 +601,122 @@ export default function TongHopBaoCaoTab({ project }: TongHopBaoCaoTabProps) {
 
   return (
     <div className="space-y-3 animate-fade-in font-sans text-slate-800 select-none">
-      {/* SEARCH AND SUMMARY STRIP BALANCED */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-white p-2.5 rounded-xl border border-slate-200/90 shadow-2xs">
-        <div className="relative flex-1 w-full sm:max-w-md">
+      {/* TITLE & REFRESH BUTTON MATCHING SCREENSHOT REFERENCE */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-base sm:text-lg font-bold text-slate-800 tracking-tight">
+            Tổng hợp báo cáo công việc
+          </h2>
+          <span className="bg-[#f59e0b] text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-2xs">
+            {reportList.filter(r => r.approvalStatus === 'Chờ duyệt').length} chờ duyệt
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleRefresh}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200/90 rounded-lg hover:bg-slate-50 transition-all cursor-pointer shadow-2xs self-start sm:self-auto"
+        >
+          <IconRefresh size={15} className="text-slate-600" />
+          <span>Làm mới</span>
+        </button>
+      </div>
+
+      {/* FILTER CONTROL STRIP MATCHING SCREENSHOT REFERENCE */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-2.5 rounded-xl border border-slate-200/90 shadow-2xs">
+        
+        {/* SEGMENTED STATUS BUTTONS & DROPDOWNS */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          
+          {/* Segmented Status Pill Group */}
+          <div className="inline-flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/90 text-xs font-medium">
+            <button
+              type="button"
+              onClick={() => { setApprovalFilter('all'); setCurrentPage(1); }}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                approvalFilter === 'all'
+                  ? 'bg-[#3b49df] text-white font-bold shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 font-medium'
+              }`}
+            >
+              Tất cả
+            </button>
+            <button
+              type="button"
+              onClick={() => { setApprovalFilter('pending'); setCurrentPage(1); }}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                approvalFilter === 'pending'
+                  ? 'bg-[#3b49df] text-white font-bold shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 font-medium'
+              }`}
+            >
+              Chờ duyệt ({reportList.filter(r => r.approvalStatus === 'Chờ duyệt').length})
+            </button>
+            <button
+              type="button"
+              onClick={() => { setApprovalFilter('approved'); setCurrentPage(1); }}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                approvalFilter === 'approved'
+                  ? 'bg-[#3b49df] text-white font-bold shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 font-medium'
+              }`}
+            >
+              Đã duyệt ({reportList.filter(r => r.approvalStatus === 'Đã duyệt').length})
+            </button>
+            <button
+              type="button"
+              onClick={() => { setApprovalFilter('rejected'); setCurrentPage(1); }}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                approvalFilter === 'rejected'
+                  ? 'bg-[#3b49df] text-white font-bold shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 font-medium'
+              }`}
+            >
+              Từ chối (0)
+            </button>
+          </div>
+
+          {/* Department Select Dropdown */}
+          <select
+            value={selectedDeptFilter}
+            onChange={(e) => { setSelectedDeptFilter(e.target.value); setCurrentPage(1); }}
+            className="bg-white border border-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-xl outline-none cursor-pointer hover:border-slate-300 transition-all"
+          >
+            <option value="all">Tất cả phòng ban</option>
+            <option value="Ban Giám đốc">Ban Giám đốc</option>
+            <option value="Khối Văn phòng">Khối Văn phòng</option>
+            <option value="Phòng Khai triển">Phòng Khai triển</option>
+            <option value="Phòng Cắt">Phòng Cắt</option>
+            <option value="Phòng Ghép">Phòng Ghép</option>
+            <option value="Phòng Mộc Sơn">Phòng Mộc Sơn</option>
+            <option value="Phòng Điện">Phòng Điện</option>
+            <option value="Phòng Cảnh Quan">Phòng Cảnh Quan</option>
+            <option value="Phòng Công nghệ và Thiết kế">Phòng Công nghệ và Thiết kế</option>
+          </select>
+
+          {/* Staff Select Dropdown */}
+          <select
+            value={selectedStaffFilter}
+            onChange={(e) => { setSelectedStaffFilter(e.target.value); setCurrentPage(1); }}
+            className="bg-white border border-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-xl outline-none cursor-pointer hover:border-slate-300 transition-all"
+          >
+            <option value="all">Tất cả nhân sự</option>
+            <option value="Phạm Thị Thu Trang">Phạm Thị Thu Trang</option>
+            <option value="Phùng Bích Thảo">Phùng Bích Thảo</option>
+            <option value="Bùi Thị Duyên">Bùi Thị Duyên</option>
+            <option value="Lê Trung Hiếu">Lê Trung Hiếu</option>
+            <option value="Đinh Đức Lợi">Đinh Đức Lợi</option>
+            <option value="Lâm Vĩnh Hưng">Lâm Vĩnh Hưng</option>
+            <option value="Đào Văn Thọ">Đào Văn Thọ</option>
+            <option value="Hoàng Quyết Thắng">Hoàng Quyết Thắng</option>
+            <option value="Đặng Quốc Nam">Đặng Quốc Nam</option>
+            <option value="Vũ Thị Lan">Vũ Thị Lan</option>
+          </select>
+
+        </div>
+
+        {/* SEARCH INPUT */}
+        <div className="relative flex-1 w-full lg:max-w-xs">
           <IconSearch size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
@@ -583,19 +725,11 @@ export default function TongHopBaoCaoTab({ project }: TongHopBaoCaoTabProps) {
               setSearchQuery(e.target.value);
               setCurrentPage(1);
             }}
-            placeholder="Tìm theo tên nhân sự, phòng ban, nội dung báo cáo..."
-            className="w-full pl-9 pr-3.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#2b5278] outline-none transition-all"
+            placeholder="Tìm kiếm báo cáo..."
+            className="w-full pl-9 pr-3.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#3b49df] outline-none transition-all"
           />
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-2.5 text-xs font-semibold">
-          <span className="bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-lg font-bold text-[11px] sm:text-xs">
-            Chờ duyệt: {reportList.filter((r) => r.approvalStatus === 'Chờ duyệt').length}
-          </span>
-          <span className="bg-emerald-100 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg font-bold text-[11px] sm:text-xs">
-            Đã duyệt: {reportList.filter((r) => r.approvalStatus === 'Đã duyệt').length}
-          </span>
-        </div>
       </div>
 
       {/* UNIFIED CONTAINER FOR TABLE & PERMANENTLY PINNED PAGINATION */}

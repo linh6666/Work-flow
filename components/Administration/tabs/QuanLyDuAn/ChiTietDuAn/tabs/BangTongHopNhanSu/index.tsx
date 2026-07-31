@@ -1,220 +1,180 @@
 "use client";
 
 import React from 'react';
+import { IconChevronRight, IconClock, IconAlertTriangle, IconEye } from '@tabler/icons-react';
 
-interface StaffItem {
+interface StaffRowData {
+  stt: number;
   name: string;
-  tasks: number;
-  hours: string;
-  percent: string;
+  dept: string;
+  cvLich: number;
+  chuaTrienKhai: number;
+  daBaoCao: number;
+  chuaBaoCao: number;
+  baoCaoTre: number;
+  cvTre: number;
 }
 
-interface DeptSummary {
-  id: string;
-  name: string;
-  totalHoursStr: string;
-  color: string;
-  staffList: StaffItem[];
+interface DeptGroupData {
+  groupName: string;
+  staffList: StaffRowData[];
 }
 
 export default function BangTongHopNhanSuTab() {
-  const summaryData: DeptSummary[] = [
+  const deptGroups: DeptGroupData[] = [
     {
-      id: 'bgd',
-      name: 'Ban Giám đốc',
-      totalHoursStr: '16h tổng',
-      color: '#406c89',
+      groupName: 'BAN GIÁM ĐỐC',
       staffList: [
-        { name: 'Nguyễn Thanh Tuấn', tasks: 6, hours: '7h', percent: '43.8%' },
-        { name: 'Phùng Bích Thảo', tasks: 6, hours: '5h', percent: '31.3%' },
-        { name: 'Nguyễn Đức Việt', tasks: 2, hours: '2h', percent: '12.5%' },
-        { name: 'Nguyễn Thanh Tuấn, Phùng Bích Thảo, Nguyễn Đức Việt', tasks: 2, hours: '2h', percent: '12.5%' },
+        { stt: 1, name: 'Phùng Bích Thảo', dept: 'Ban Giám đốc', cvLich: 0, chuaTrienKhai: 6, daBaoCao: 0, chuaBaoCao: 6, baoCaoTre: 0, cvTre: 5 },
+        { stt: 2, name: 'Nguyễn Thanh Tuấn', dept: 'Ban Giám đốc', cvLich: 0, chuaTrienKhai: 6, daBaoCao: 0, chuaBaoCao: 6, baoCaoTre: 0, cvTre: 6 },
+        { stt: 3, name: 'Nguyễn Đức Việt', dept: 'Ban Giám đốc', cvLich: 0, chuaTrienKhai: 2, daBaoCao: 0, chuaBaoCao: 2, baoCaoTre: 0, cvTre: 2 },
+        { stt: 4, name: 'Nguyễn Thanh Tuấn, Phùng Bích Thảo, Nguyễn Đức Việt', dept: 'Ban Giám đốc', cvLich: 0, chuaTrienKhai: 2, daBaoCao: 0, chuaBaoCao: 2, baoCaoTre: 0, cvTre: 0 },
       ]
     },
     {
-      id: 'kvp',
-      name: 'Khối Văn phòng',
-      totalHoursStr: '63h tổng',
-      color: '#b45309',
+      groupName: 'KHỐI VĂN PHÒNG',
       staffList: [
-        { name: 'Bùi Thị Duyên', tasks: 50, hours: '63h', percent: '100.0%' },
+        { stt: 5, name: 'Bùi Thị Duyên', dept: 'Khối Văn phòng', cvLich: 0, chuaTrienKhai: 11, daBaoCao: 1, chuaBaoCao: 10, baoCaoTre: 1, cvTre: 8 },
       ]
     },
     {
-      id: 'pkt',
-      name: 'PB Khai triển',
-      totalHoursStr: '349.5h tổng',
-      color: '#16a34a',
+      groupName: 'PHÒNG CẮT',
       staffList: [
-        { name: 'Nguyễn Thanh Tuấn', tasks: 5, hours: '120h', percent: '34.3%' },
-        { name: 'Đào Văn Thọ', tasks: 14, hours: '110h', percent: '31.5%' },
-        { name: 'Trần Diễm My', tasks: 13, hours: '43.5h', percent: '12.4%' },
-        { name: 'Dương Việt Anh', tasks: 4, hours: '40h', percent: '11.4%' },
-        { name: 'Nguyễn Thiên Hương', tasks: 4, hours: '16h', percent: '4.6%' },
-        { name: 'Lê Quốc Long', tasks: 2, hours: '9h', percent: '2.6%' },
-        { name: 'Đào Văn Thọ, Dương Việt Anh, Phạm Tiến Thành', tasks: 1, hours: '8h', percent: '2.3%' },
-        { name: 'Phạm Tiến Thành', tasks: 2, hours: '3h', percent: '0.9%' },
+        { stt: 6, name: 'Lê Trung Hiếu', dept: 'Phòng Cắt', cvLich: 0, chuaTrienKhai: 2, daBaoCao: 1, chuaBaoCao: 1, baoCaoTre: 1, cvTre: 2 },
       ]
     },
     {
-      id: 'pcat',
-      name: 'PB Cắt',
-      totalHoursStr: '272h tổng',
-      color: '#dc2626',
+      groupName: 'PHÒNG GHÉP',
       staffList: [
-        { name: 'Lê Trung Hiếu', tasks: 18, hours: '68h', percent: '25.0%' },
-        { name: 'Máy 1 (CMH 1390-B-A)', tasks: 8, hours: '64h', percent: '23.5%' },
-        { name: 'Hoàng Hữu Vinh', tasks: 14, hours: '56h', percent: '20.6%' },
-        { name: 'Máy 4 (CMH 1390-B-A)', tasks: 6, hours: '48h', percent: '17.6%' },
-        { name: 'Nguyễn Tuấn Việt', tasks: 5, hours: '20h', percent: '7.4%' },
-        { name: 'Máy 2 (CMH 1390-B-A)', tasks: 2, hours: '16h', percent: '5.9%' },
+        { stt: 7, name: 'Đinh Đức Lợi', dept: 'Phòng Ghép', cvLich: 0, chuaTrienKhai: 1, daBaoCao: 0, chuaBaoCao: 1, baoCaoTre: 0, cvTre: 0 },
       ]
     },
     {
-      id: 'pghep',
-      name: 'PB Ghép',
-      totalHoursStr: '544h tổng',
-      color: '#7c3aed',
+      groupName: 'PHÒNG ĐIỆN',
       staffList: [
-        { name: 'Đỗ Thị Luyên', tasks: 20, hours: '182h', percent: '33.5%' },
-        { name: 'Đinh Đức Lợi', tasks: 20, hours: '154h', percent: '28.3%' },
-        { name: 'Nguyễn Quang Lợi', tasks: 10, hours: '68h', percent: '12.5%' },
-        { name: 'Đặng Văn Điệp', tasks: 10, hours: '60h', percent: '11.0%' },
-        { name: 'Nguyễn Quỳnh Châu', tasks: 4, hours: '36h', percent: '6.6%' },
-        { name: 'Ninh Quang Vinh', tasks: 5, hours: '36h', percent: '6.6%' },
-        { name: 'Nguyễn Phi Hùng', tasks: 1, hours: '8h', percent: '1.5%' },
+        { stt: 8, name: 'Lâm Vĩnh Hưng', dept: 'Phòng Điện', cvLich: 0, chuaTrienKhai: 1, daBaoCao: 0, chuaBaoCao: 1, baoCaoTre: 0, cvTre: 1 },
       ]
     },
     {
-      id: 'pmoc',
-      name: 'PB Mộc Sơn',
-      totalHoursStr: '40h tổng',
-      color: '#0891b2',
+      groupName: 'PHÒNG KHAI TRIỂN',
       staffList: [
-        { name: 'Hoàng Quyết Thắng', tasks: 18, hours: '23h', percent: '57.5%' },
-        { name: 'Quản Minh Hoàng', tasks: 17, hours: '10h', percent: '25.0%' },
-        { name: 'Đinh Hữu Sử', tasks: 2, hours: '7h', percent: '17.5%' },
+        { stt: 9, name: 'Đào Văn Thọ', dept: 'Phòng Khai triển', cvLich: 0, chuaTrienKhai: 4, daBaoCao: 2, chuaBaoCao: 2, baoCaoTre: 0, cvTre: 1 },
       ]
     },
     {
-      id: 'pdien',
-      name: 'PB Điện',
-      totalHoursStr: '102h tổng',
-      color: '#ea580c',
+      groupName: 'PHÒNG MỘC SƠN',
       staffList: [
-        { name: 'Lâm Vinh Hưng', tasks: 18, hours: '102h', percent: '100.0%' },
+        { stt: 10, name: 'Hoàng Quyết Thắng', dept: 'Phòng Mộc Sơn', cvLich: 0, chuaTrienKhai: 3, daBaoCao: 1, chuaBaoCao: 2, baoCaoTre: 0, cvTre: 2 },
       ]
     },
     {
-      id: 'pcq',
-      name: 'PB Cảnh Quan',
-      totalHoursStr: '191h tổng',
-      color: '#2563eb',
+      groupName: 'PHÒNG CẢNH QUAN',
       staffList: [
-        { name: 'Tống Thị Thu', tasks: 6, hours: '48h', percent: '25.1%' },
-        { name: 'Nguyễn Thị Hồng Ngọc', tasks: 1, hours: '48h', percent: '25.1%' },
-        { name: 'Sắm Thị Thủy', tasks: 7, hours: '43h', percent: '22.5%' },
-        { name: 'Đỗ Ngọc Duyên', tasks: 8, hours: '36h', percent: '18.8%' },
-        { name: 'Phạm Thị Thu Trang', tasks: 5, hours: '16h', percent: '8.4%' },
+        { stt: 11, name: 'Phạm Văn Thành', dept: 'Phòng Cảnh Quan', cvLich: 0, chuaTrienKhai: 5, daBaoCao: 2, chuaBaoCao: 3, baoCaoTre: 1, cvTre: 3 },
       ]
     },
     {
-      id: 'pcntk',
-      name: 'PB Công nghệ và Thiết kế',
-      totalHoursStr: '48h tổng',
-      color: '#65a30d',
+      groupName: 'PHÒNG CÔNG NGHỆ VÀ THIẾT KẾ',
       staffList: [
-        { name: 'Lưu Quốc Nhật', tasks: 2, hours: '14h', percent: '29.2%' },
-        { name: 'Cao Trường Thiên', tasks: 2, hours: '10h', percent: '20.8%' },
-        { name: 'Nguyễn Quang Triệu', tasks: 2, hours: '8h', percent: '16.7%' },
-        { name: 'Nguyễn Quang Linh', tasks: 1, hours: '8h', percent: '16.7%' },
-        { name: 'Tạ Hiền Trang', tasks: 1, hours: '8h', percent: '16.7%' },
+        { stt: 12, name: 'Đặng Quốc Nam', dept: 'Phòng Công nghệ và Thiết kế', cvLich: 0, chuaTrienKhai: 2, daBaoCao: 1, chuaBaoCao: 1, baoCaoTre: 0, cvTre: 1 },
       ]
     }
   ];
 
   return (
-    <div className="space-y-3 pt-2">
-      <h3 className="font-extrabold text-xs text-[#2b5278] uppercase tracking-wider px-1">
-        BẢNG TỔNG HỢP TẤT CẢ NHÂN SỰ
-      </h3>
+    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-auto select-none animate-fade-in font-sans max-h-[415px] relative">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="sticky top-0 z-20 shadow-2xs">
+          <tr className="bg-[#f8fafc] text-slate-600 font-bold border-b border-slate-200/90 text-[11px]">
+            <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 w-14 text-center z-20">STT</th>
+            <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 min-w-[200px] z-20">Nhân sự</th>
+            <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 min-w-[140px] z-20">Phòng ban</th>
+            <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[90px] z-20">CV theo lịch</th>
+            <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[100px] z-20">Chưa triển khai</th>
+            <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[90px] z-20">Đã báo cáo</th>
+            <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[100px] z-20">Chưa báo cáo</th>
+            <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[95px] z-20">Báo cáo trễ</th>
+            <th className="sticky top-0 bg-[#f8fafc] py-3 px-4 text-center min-w-[80px] text-rose-600 font-extrabold z-20">CV trễ</th>
+            <th className="sticky top-0 bg-[#f8fafc] py-3 px-3 text-center min-w-[90px] z-20">Hành động</th>
+          </tr>
+        </thead>
 
-      <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-2xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200/80 bg-slate-50/50">
-                <th className="py-2.5 px-4 font-bold w-48">PHÒNG BAN</th>
-                <th className="py-2.5 px-4 font-bold">NHÂN SỰ</th>
-                <th className="py-2.5 px-4 font-bold text-right w-28">CÔNG VIỆC</th>
-                <th className="py-2.5 px-4 font-bold text-right w-28">GIỜ KH</th>
-                <th className="py-2.5 px-4 font-bold text-right w-28">% / PHÒNG</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {summaryData.map((dept) => (
-                <React.Fragment key={dept.id}>
-                  {dept.staffList.map((staff, sIdx) => {
-                    const isFirst = sIdx === 0;
-                    return (
-                      <tr key={sIdx} className="hover:bg-slate-50/70 transition-colors">
-                        {/* Department Column (RowSpan on first item) */}
-                        {isFirst && (
-                          <td
-                            rowSpan={dept.staffList.length}
-                            className="py-3 px-4 align-top border-r border-slate-100 bg-white"
-                            style={{ borderLeft: `4px solid ${dept.color}` }}
-                          >
-                            <div className="font-extrabold text-slate-900 text-xs">
-                              {dept.name}
-                            </div>
-                            <div className="text-[11px] text-slate-400 font-medium mt-0.5">
-                              {dept.totalHoursStr}
-                            </div>
-                          </td>
-                        )}
+          <tbody className="divide-y divide-slate-100">
+            {deptGroups.map((group, gIdx) => (
+              <React.Fragment key={gIdx}>
+                <tr className="bg-[#edf2f8] border-y border-slate-200/80">
+                  <td colSpan={10} className="py-2.5 px-4 font-extrabold text-[11px] text-[#2b5278] uppercase tracking-wider">
+                    {group.groupName}
+                  </td>
+                </tr>
 
-                        {/* Staff Name */}
-                        <td className="py-2.5 px-4 font-semibold text-slate-700">
-                          {staff.name}
-                        </td>
+                {group.staffList.map((row) => (
+                  <tr key={row.stt} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 text-center text-slate-500 font-medium">
+                      {row.stt}
+                    </td>
 
-                        {/* Tasks Count */}
-                        <td className="py-2.5 px-4 text-right text-slate-600 font-medium">
-                          {staff.tasks}
-                        </td>
+                    <td className="py-3 px-4 font-bold text-slate-800">
+                      {row.name}
+                    </td>
 
-                        {/* Hours */}
-                        <td className="py-2.5 px-4 text-right text-slate-600 font-medium">
-                          {staff.hours}
-                        </td>
+                    <td className="py-3 px-4 text-slate-400 font-medium">
+                      {row.dept}
+                    </td>
 
-                        {/* Percentage */}
-                        <td className="py-2.5 px-4 text-right text-slate-600 font-medium">
-                          {staff.percent}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </React.Fragment>
-              ))}
+                    <td className="py-3 px-3 text-center font-medium text-emerald-600">
+                      {row.cvLich}
+                    </td>
 
-              {/* FOOTER TOTAL ROW */}
-              <tr className="bg-slate-50/90 font-bold border-t-2 border-slate-200">
-                <td colSpan={3} className="py-3 px-4 text-right text-slate-900 font-extrabold">
-                  Tổng toàn dự án:
-                </td>
-                <td className="py-3 px-4 text-right text-[#6366f1] font-extrabold text-xs">
-                  1625.5h
-                </td>
-                <td className="py-3 px-4 text-center text-slate-400 font-medium">
-                  —
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+                    <td className="py-3 px-3 text-center font-semibold text-amber-600">
+                      {row.chuaTrienKhai > 0 ? (
+                        <div className="inline-flex items-center justify-center gap-1.5">
+                          <IconClock size={14} className="text-amber-500 shrink-0" />
+                          <span>{row.chuaTrienKhai}</span>
+                        </div>
+                      ) : (
+                        <span>0</span>
+                      )}
+                    </td>
+
+                    <td className="py-3 px-3 text-center font-medium text-emerald-600">
+                      {row.daBaoCao}
+                    </td>
+
+                    <td className="py-3 px-3 text-center font-semibold text-rose-600">
+                      {row.chuaBaoCao > 0 ? (
+                        <div className="inline-flex items-center justify-center gap-1.5">
+                          <IconAlertTriangle size={14} className="text-rose-500 shrink-0" />
+                          <span>{row.chuaBaoCao}</span>
+                        </div>
+                      ) : (
+                        <span>0</span>
+                      )}
+                    </td>
+
+                    <td className="py-3 px-3 text-center font-medium text-amber-600">
+                      {row.baoCaoTre}
+                    </td>
+
+                    <td className="py-3 px-4 text-center font-extrabold text-rose-600 text-sm">
+                      {row.cvTre > 0 ? row.cvTre : <span className="text-slate-400 font-medium text-xs">0</span>}
+                    </td>
+
+                    <td className="py-3 px-3 text-center">
+                      <button
+                        type="button"
+                        className="p-1.5 text-slate-500 hover:text-[#2b5278] hover:bg-slate-100 rounded-md transition-all cursor-pointer inline-flex items-center justify-center"
+                        title="Xem chi tiết"
+                      >
+                        <IconEye size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
     </div>
   );
 }

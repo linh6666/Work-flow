@@ -14,6 +14,7 @@ import {
 } from '@tabler/icons-react';
 import { DuAnItem } from '../../../index';
 import PheDuyetBaoCaoTab from '../PheDuyetBaoCao';
+import BangTongHopNhanSuTab from '../BangTongHopNhanSu';
 
 interface NhanSuCongViecTabProps {
   project: DuAnItem;
@@ -79,7 +80,7 @@ export default function NhanSuCongViecTab({ project }: NhanSuCongViecTabProps) {
   const totalParticipation = Object.values(deptPercents).reduce((acc, curr) => acc + curr, 0);
 
   return (
-    <div className="space-y-5 text-xs animate-fade-in select-none max-h-[780px] overflow-y-auto pr-2 pb-8 [scrollbar-width:thin]">
+    <div className="space-y-5 text-xs animate-fade-in select-none max-h-[600px] overflow-y-auto pr-2 pb-8">
       
       {/* OUTER CARD: BÁO CÁO THAM GIA DỰ ÁN */}
       <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-2xs">
@@ -2171,8 +2172,9 @@ export default function NhanSuCongViecTab({ project }: NhanSuCongViecTabProps) {
         )}
 
         {/* SECTION: BÁO CÁO KHỐI LƯỢNG CÔNG VIỆC (ANALYTICS REPORT DASHBOARD) */}
-        <div className="pt-6 border-t-2 border-slate-200">
+        <div className="pt-6 border-t-2 border-slate-200 space-y-6">
           <PheDuyetBaoCaoTab project={project} />
+          <BangTongHopNhanSuTab />
         </div>
 
       </div>

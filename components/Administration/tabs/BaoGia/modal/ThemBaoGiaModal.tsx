@@ -5,7 +5,11 @@ import {
   IconX, 
   IconInfoCircle, 
   IconListDetails, 
-  IconReceipt 
+  IconReceipt,
+  IconPaperclip,
+  IconUpload,
+  IconTrash,
+  IconChevronUp
 } from '@tabler/icons-react';
 import { BaoGiaItem } from '../index';
 import ThongTinChungTab from './ThongTinChung';
@@ -25,8 +29,9 @@ export default function ThemBaoGiaModal({
   onSave,
   suggestedSoBg,
 }: ThemBaoGiaModalProps) {
-  // Active Tab: 'info' | 'items' | 'terms'
-  const [activeTab, setActiveTab] = useState<'info' | 'items' | 'terms'>('info');
+  // Active Tab: 'info' | 'items' | 'terms' | 'attachments'
+  const [activeTab, setActiveTab] = useState<'info' | 'items' | 'terms' | 'attachments'>('info');
+  const [danhSachFile, setDanhSachFile] = useState<File[]>([]);
 
   // --- Tab 1: Thông tin chung states ---
   const [ngonNgu, setNgonNgu] = useState('vi');
@@ -107,6 +112,7 @@ export default function ThemBaoGiaModal({
       setChietKhauPercent(0);
       setVatPercent(8);
       setSections([]);
+      setDanhSachFile([]);
 
       setThoiGianSanXuat(60);
       setBaoHanhThang(18);
@@ -127,6 +133,17 @@ export default function ThemBaoGiaModal({
   }, [isOpen, suggestedSoBg]);
 
   if (!isOpen) return null;
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setDanhSachFile(prev => [...prev, ...filesArray]);
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setDanhSachFile(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleAddSection = () => {
     const newSection: BaoGiaSection = {
@@ -416,6 +433,23 @@ export default function ThemBaoGiaModal({
             <IconReceipt size={16} />
             <span>Điều kiện báo giá</span>
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('attachments')}
+            className={`py-3 flex items-center gap-1.5 border-b-2 text-xs font-bold transition-all cursor-pointer focus:outline-none ${
+              activeTab === 'attachments'
+                ? 'border-[#406c89] text-[#406c89]'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <IconPaperclip size={16} />
+            <span>Hồ sơ đính kèm</span>
+            {danhSachFile.length > 0 && (
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-[#406c89]/10 text-[#406c89]">
+                {danhSachFile.length}
+              </span>
+            )}
+          </button>
         </div>
         
         {/* Scrollable Modal Content */}
@@ -502,6 +536,59 @@ export default function ThemBaoGiaModal({
             />
           )}
 
+          {/* TAB 4: HỒ SƠ ĐÍNH KÈM */}
+          {activeTab === 'attachments' && (
+            <div className="p-4 rounded-xl border border-slate-200/80 bg-[#f8fafc]/60 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
+                <h5 className="text-xs font-bold text-slate-800">
+                  Tài liệu / Hình ảnh đính kèm (phục vụ phê duyệt)
+                </h5>
+                <IconChevronUp size={16} className="text-slate-400" />
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <h6 className="text-xs font-bold text-slate-800">
+                    Tài liệu / Hình ảnh đính kèm (phục vụ phê duyệt)
+                  </h6>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Tải lên bản vẽ, hồ sơ, hình ảnh tham khảo... để phục vụ phê duyệt báo giá.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer">
+                    <IconUpload size={14} className="text-[#406c89]" />
+                    <span>Chọn tệp để tải lên</span>
+                    <input type="file" multiple className="hidden" onChange={handleFileUpload} />
+                  </label>
+                </div>
+
+                {/* File list preview */}
+                {danhSachFile.length > 0 && (
+                  <div className="space-y-2 pt-2 border-t border-slate-200/50">
+                    {danhSachFile.map((file, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-2.5 bg-white border border-slate-200 rounded-lg text-xs">
+                        <div className="flex items-center gap-2 truncate">
+                          <IconPaperclip size={14} className="text-[#406c89] shrink-0" />
+                          <span className="font-medium text-slate-700 truncate max-w-[450px]">{file.name}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(idx)}
+                          className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer transition-colors"
+                          title="Xóa tệp"
+                        >
+                          <IconTrash size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* Modal Footer */}
@@ -518,7 +605,7 @@ export default function ThemBaoGiaModal({
               Hủy
             </button>
             
-            {activeTab !== 'terms' ? (
+            {activeTab !== 'attachments' ? (
               <button
                 type="button"
                 onClick={() => {
@@ -531,6 +618,8 @@ export default function ThemBaoGiaModal({
                     setActiveTab('items');
                   } else if (activeTab === 'items') {
                     setActiveTab('terms');
+                  } else if (activeTab === 'terms') {
+                    setActiveTab('attachments');
                   }
                 }}
                 className="px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-lg transition-all cursor-pointer"
@@ -541,7 +630,7 @@ export default function ThemBaoGiaModal({
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="px-4 py-2 bg-[#406c89] hover:bg-[#406c89]/90 text-white text-xs font-bold rounded-lg transition-all cursor-pointer"
+                className="px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-lg transition-all cursor-pointer"
               >
                 Xác nhận
               </button>

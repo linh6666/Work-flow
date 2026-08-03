@@ -42,7 +42,7 @@ export default function DeleteConfirmModal({ isOpen, onClose, onConfirm, proposa
               onConfirm();
               onClose();
             }}
-            className="px-5 py-2 rounded-lg text-white text-sm font-semibold shadow-sm transition-all cursor-pointer bg-[#e54a4a] hover:bg-red-600 active:scale-95"
+            className="px-5 py-2 rounded-lg text-white text-sm font-semibold shadow-sm transition-all cursor-pointer bg-[#406c89] hover:bg-[#345972] active:scale-95"
           >
             Xóa
           </button>

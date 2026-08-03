@@ -124,7 +124,7 @@ export default function TrienKhaiChuaLamModal({ isOpen, onClose, proposal, onUpd
                   <button
                     type="button"
                     onClick={handleStartStep2}
-                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-white text-xs font-semibold shadow-sm transition-all cursor-pointer active:scale-95 bg-[#4f46e5] hover:bg-[#3f37c9]"
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-white text-xs font-semibold shadow-sm transition-all cursor-pointer active:scale-95 bg-[#406c89] hover:bg-[#345972]"
                   >
                     <IconFileText size={14} />
                     Lập báo giá nháp

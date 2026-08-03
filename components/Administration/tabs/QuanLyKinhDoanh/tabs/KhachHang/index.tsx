@@ -22,9 +22,9 @@ import ThemKhachHangModal from './modal/ThemKhachHangModal';
 import SuaKhachHangModal from './modal-sua/SuaKhachHangModal';
 import XoaKhachHangModal from './modal-xoa/XoaKhachHangModal';
 
-import LapDxbgModal from '../../../KhachHang/modal-dxbg/LapDxbgModal';
-import LapBgModal from '../../../KhachHang/modal-bg/LapBgModal';
-import LapHdModal from '../../../KhachHang/modal-hd/LapHdModal';
+import LapDxbgModal from './modal-dxbg/LapDxbgModal';
+import LapBgModal from './modal-bg/LapBgModal';
+import LapHdModal from './modal-hd/LapHdModal';
 
 import { LoaiKhachHang, KhachHangItem } from '../../../KhachHang';
 
@@ -305,7 +305,7 @@ function LoaiBadge({ loai }: { loai: LoaiKhachHang }) {
   }
   if (loai === 'Tiềm năng') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-200 whitespace-nowrap">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-[#406c89] border border-sky-200 whitespace-nowrap">
         Tiềm năng
       </span>
     );
@@ -329,7 +329,7 @@ function Avatar({ name }: { name: string }) {
   const letter = words[words.length - 1]?.[0]?.toUpperCase() || 'C';
 
   return (
-    <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 font-bold text-xs flex items-center justify-center shrink-0 border border-indigo-100 shadow-2xs">
+    <div className="w-8 h-8 rounded-full bg-sky-50 text-[#406c89] font-bold text-xs flex items-center justify-center shrink-0 border border-sky-100 shadow-2xs">
       {letter}
     </div>
   );
@@ -451,7 +451,7 @@ export default function KhachHangTab() {
           <button
             type="button"
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-1 px-3 py-1.5 bg-[#345366] hover:bg-[#2b4454] text-white text-xs font-bold rounded-md shadow-2xs transition-all cursor-pointer"
+            className="flex items-center gap-1 px-3 py-1.5 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-md shadow-2xs transition-all cursor-pointer"
           >
             <IconPlus size={14} />
             <span>Thêm khách hàng</span>
@@ -463,7 +463,7 @@ export default function KhachHangTab() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0">
         <div className="bg-white border border-slate-200/80 rounded-lg p-3 shadow-2xs flex flex-col justify-center min-h-[64px]">
           <p className="text-[11px] text-slate-400 font-semibold mb-0.5">Tổng khách hàng</p>
-          <p className="text-xl font-black text-[#5046e5] tracking-tight">{totalCustomers}</p>
+          <p className="text-xl font-black text-[#406c89] tracking-tight">{totalCustomers}</p>
         </div>
 
         <div className="bg-white border border-slate-200/80 rounded-lg p-3 shadow-2xs flex flex-col justify-center min-h-[64px]">
@@ -494,7 +494,7 @@ export default function KhachHangTab() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Tìm theo tên, người liên hệ, SĐT..."
-          className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200/80 rounded-lg text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#345366] shadow-2xs transition-all"
+          className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200/80 rounded-lg text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#406c89] shadow-2xs transition-all"
         />
       </div>
 
@@ -564,8 +564,8 @@ export default function KhachHangTab() {
                     <span className="text-slate-400 text-[10px]">↕</span>
                   </button>
                 </th>
-                <th className="px-4 py-3 font-bold text-slate-600 text-xs text-right uppercase tracking-wider bg-slate-50 border-b border-slate-200">
-                  THAO TÁC
+                <th className="px-4 py-3 font-semibold text-slate-500 text-xs text-right bg-slate-50 border-b border-slate-200">
+                  Loại và thao tác
                 </th>
               </tr>
             </thead>
@@ -585,7 +585,7 @@ export default function KhachHangTab() {
                       <div className="flex items-center gap-3">
                         <Avatar name={kh.ten} />
                         <div className="min-w-0 max-w-[220px]">
-                          <p className="font-bold text-[#3730a3] hover:underline cursor-pointer leading-snug text-xs">
+                          <p className="font-bold text-[#406c89] hover:underline cursor-pointer leading-snug text-xs">
                             {kh.ten}
                           </p>
                           <p className="text-[10px] text-slate-400 font-medium mt-0.5">{kh.ma}</p>
@@ -650,7 +650,7 @@ export default function KhachHangTab() {
                         <button
                           type="button"
                           onClick={() => setDxbgCustomer(kh)}
-                          className="py-1 px-2.5 rounded-md border border-purple-200 text-purple-600 hover:bg-purple-50 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors bg-white cursor-pointer shadow-2xs whitespace-nowrap"
+                          className="py-1 px-2.5 rounded-md border border-sky-200 text-[#406c89] hover:bg-sky-50 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors bg-white cursor-pointer shadow-2xs whitespace-nowrap"
                         >
                           <IconFileDescription size={12} />
                           <span>Lập ĐXBG</span>
@@ -659,7 +659,7 @@ export default function KhachHangTab() {
                         <button
                           type="button"
                           onClick={() => setBgCustomer(kh)}
-                          className="py-1 px-2.5 rounded-md border border-blue-200 text-blue-600 hover:bg-blue-50 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors bg-white cursor-pointer shadow-2xs whitespace-nowrap"
+                          className="py-1 px-2.5 rounded-md border border-sky-200 text-[#406c89] hover:bg-sky-50 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors bg-white cursor-pointer shadow-2xs whitespace-nowrap"
                         >
                           <IconFileText size={12} />
                           <span>Lập BG</span>
@@ -707,7 +707,7 @@ export default function KhachHangTab() {
                 onClick={() => setCurrentPage(page)}
                 className={`w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer ${
                   currentPage === page
-                    ? 'bg-[#345366] text-white shadow-2xs'
+                    ? 'bg-[#406c89] text-white shadow-2xs'
                     : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >

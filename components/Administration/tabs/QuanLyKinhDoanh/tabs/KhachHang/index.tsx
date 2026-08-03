@@ -19,8 +19,8 @@ import {
 } from '@tabler/icons-react';
 
 import ThemKhachHangModal from './modal/ThemKhachHangModal';
-import SuaKhachHangModal from '../../../KhachHang/modal-sua/SuaKhachHangModal';
-import XoaKhachHangModal from '../../../KhachHang/modal-xoa/XoaKhachHangModal';
+import SuaKhachHangModal from './modal-sua/SuaKhachHangModal';
+import XoaKhachHangModal from './modal-xoa/XoaKhachHangModal';
 
 import LapDxbgModal from '../../../KhachHang/modal-dxbg/LapDxbgModal';
 import LapBgModal from '../../../KhachHang/modal-bg/LapBgModal';

@@ -18,7 +18,7 @@ import {
   IconSignature,
 } from '@tabler/icons-react';
 
-import ThemKhachHangModal from '../../../KhachHang/modal/ThemKhachHangModal';
+import ThemKhachHangModal from './modal/ThemKhachHangModal';
 import SuaKhachHangModal from '../../../KhachHang/modal-sua/SuaKhachHangModal';
 import XoaKhachHangModal from '../../../KhachHang/modal-xoa/XoaKhachHangModal';
 

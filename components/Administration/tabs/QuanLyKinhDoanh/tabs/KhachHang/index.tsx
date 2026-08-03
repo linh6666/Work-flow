@@ -479,6 +479,15 @@ export default function KhachHangTab() {
 
       {/* COMPACT SEARCH BAR */}
       <div className="relative shrink-0">
+        <style>{`
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `}</style>
         <IconSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
           type="text"
@@ -491,7 +500,7 @@ export default function KhachHangTab() {
 
       {/* CUSTOMER TABLE MATCHING SCREENSHOT EXACTLY */}
       <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-auto min-h-0">
+        <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
           <table className="w-full text-xs text-left border-collapse min-w-[880px]">
             <thead className="sticky top-0 z-10 bg-slate-50 shadow-2xs border-b border-slate-200">
               <tr className="bg-slate-50">

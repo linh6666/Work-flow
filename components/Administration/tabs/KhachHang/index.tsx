@@ -22,7 +22,7 @@ import {
 } from '@tabler/icons-react';
 
 // --- DATA TYPES ---
-export type LoaiKhachHang = 'Tiềm năng' | 'Thân thiết';
+export type LoaiKhachHang = 'Đang giao dịch' | 'Tiềm năng' | 'Thân thiết' | 'Không hoạt động';
 
 export interface KhachHangItem {
   id: string;

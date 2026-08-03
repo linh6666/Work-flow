@@ -9,7 +9,7 @@ import HopDong from "../../../components/Administration/tabs/HopDong";
 import YeuCauSanXuat from "../../../components/Administration/tabs/YeuCauSanXuat";
 import QuanTriUser from "../../../components/Administration/tabs/QuanTriUser";
 import QuanLyDuAn from "../../../components/Administration/tabs/QuanLyDuAn";
-import TongQuatDuAn from "../../../components/Administration/tabs/TongQuatDuAn";
+import QuanLyKinhDoanh from "../../../components/Administration/tabs/QuanLyKinhDoanh";
 import BaoCaoTongThe from "../../../components/Administration/tabs/BaoCaoTongThe";
 import MaTranPhanQuyen from "../../../components/Administration/tabs/MaTranPhanQuyen";
 import QuanLyTaiChinh from "../../../components/Administration/tabs/QuanLyTaiChinh";
@@ -30,7 +30,7 @@ export default async function AdministrationTabPage({ params }: { params: Promis
       return <QuanLyDuAn />;
     case 'tong-quat-du-an':
     case 'quan-ly-kinh-doanh':
-      return <TongQuatDuAn />;
+      return <QuanLyKinhDoanh />;
     case 'khach-hang':
       return <KhachHang />;
     case 'de-xuat-bao-gia':

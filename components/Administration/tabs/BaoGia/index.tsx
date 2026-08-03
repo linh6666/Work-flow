@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import ThemBaoGiaModal from './modal/ThemBaoGiaModal';
+import SuaBaoGiaModal from './modal/SuaBaoGia';
 import XoaBaoGiaModal from './modal/XoaBaoGia';
 import QuanLyTemplateModal from './modal/QuanLyTemplate';
 import {
@@ -364,34 +365,11 @@ export default function BaoGia() {
 
   const handleOpenEditModal = (item: BaoGiaItem) => {
     setEditingItem(item);
-    setFormSoBg(item.soBg);
-    setFormLoai(item.loai);
-    setFormKhachHang(item.khachHang);
-    setFormNgay(item.ngay);
-    setFormTongSauThue(item.tongSauThue.toString());
-    setFormTrangThai(item.trangThai);
     setIsEditModalOpen(true);
   };
 
-  const handleSaveEdit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingItem || !formSoBg.trim() || !formKhachHang.trim()) return;
-
-    setItems(prev =>
-      prev.map(i =>
-        i.id === editingItem.id
-          ? {
-              ...i,
-              soBg: formSoBg.trim(),
-              loai: formLoai,
-              khachHang: formKhachHang.trim(),
-              ngay: formNgay,
-              tongSauThue: parseFloat(formTongSauThue) || 0,
-              trangThai: formTrangThai,
-            }
-          : i
-      )
-    );
+  const handleSaveEditItem = (updatedItem: BaoGiaItem) => {
+    setItems(prev => prev.map(i => i.id === updatedItem.id ? updatedItem : i));
     setIsEditModalOpen(false);
     setEditingItem(null);
   };
@@ -851,113 +829,12 @@ export default function BaoGia() {
         suggestedSoBg={getSuggestedSoBg()}
       />
 
-      {isEditModalOpen && editingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 transition-all">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 flex flex-col p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-base font-bold text-slate-800">Chỉnh sửa Báo giá</h3>
-              <button
-                type="button"
-                onClick={() => setIsEditModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
-              >
-                <IconX size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveEdit} className="space-y-3 text-xs">
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Số BG</label>
-                <input
-                  type="text"
-                  value={formSoBg}
-                  onChange={(e) => setFormSoBg(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg border border-slate-200 bg-slate-50/60 focus:border-[#406c89] outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Khách hàng</label>
-                <input
-                  type="text"
-                  value={formKhachHang}
-                  onChange={(e) => setFormKhachHang(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg border border-slate-200 bg-slate-50/60 focus:border-[#406c89] outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Loại mô hình</label>
-                <select
-                  value={formLoai}
-                  onChange={(e) => setFormLoai(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg border border-slate-200 bg-white focus:border-[#406c89] outline-none"
-                >
-                  <option value="Mô hình Quy hoạch">Mô hình Quy hoạch</option>
-                  <option value="Mô hình Kiến trúc">Mô hình Kiến trúc</option>
-                  <option value="Mô hình Nội thất">Mô hình Nội thất</option>
-                  <option value="Lựa chọn Projection Mapping">Lựa chọn Projection Mapping</option>
-                  <option value="Masterplan Model Quotation (ENG)">Masterplan Model Quotation (ENG)</option>
-                  <option value="Building Model Quotation (ENG)">Building Model Quotation (ENG)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Ngày</label>
-                <input
-                  type="date"
-                  value={formNgay}
-                  onChange={(e) => setFormNgay(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg border border-slate-200 bg-slate-50/60 focus:border-[#406c89] outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Tổng sau thuế (VND)</label>
-                <input
-                  type="number"
-                  value={formTongSauThue}
-                  onChange={(e) => setFormTongSauThue(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg border border-slate-200 bg-slate-50/60 focus:border-[#406c89] outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Trạng thái</label>
-                <select
-                  value={formTrangThai}
-                  onChange={(e) => setFormTrangThai(e.target.value as BaoGiaItem['trangThai'])}
-                  className="w-full h-9 px-3 rounded-lg border border-slate-200 bg-white focus:border-[#406c89] outline-none"
-                >
-                  <option value="Bản nháp">Bản nháp</option>
-                  <option value="Đã gửi">Đã gửi</option>
-                  <option value="Đang theo dõi">Đang theo dõi</option>
-                  <option value="Đã chốt">Đã chốt</option>
-                  <option value="Đã từ chối">Đã từ chối</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="px-4 py-1.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 cursor-pointer"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#406c89] hover:bg-[#345972] text-white font-bold cursor-pointer"
-                >
-                  Lưu thay đổi
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <SuaBaoGiaModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveEditItem}
+        editingItem={editingItem}
+      />
 
       <XoaBaoGiaModal
         isOpen={isDeleteModalOpen}

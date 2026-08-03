@@ -204,11 +204,11 @@ export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongM
           </div>
 
           {/* Row 2: Card Green Accent - TẠO TỪ MẪU HỢP ĐỒNG CÓ SẴN */}
-          <div className="bg-[#f0fdf4]/90 border border-[#86efac] rounded-2xl p-4 space-y-2">
-            <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs tracking-wide uppercase">
+          <div className="bg-[#f0fdf4]/90 border border-[#86efac] rounded-xl p-2.5 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-[11px] tracking-wide uppercase">
               <div className="flex items-center gap-1 text-emerald-700">
-                <IconDownload size={16} />
-                <IconClipboardList size={16} />
+                <IconDownload size={13} />
+                <IconClipboardList size={13} />
               </div>
               <span>TẠO TỪ MẪU HỢP ĐỒNG CÓ SẴN</span>
             </div>
@@ -217,7 +217,7 @@ export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongM
               <select
                 value={mauHopDongCoSan}
                 onChange={(e) => setMauHopDongCoSan(e.target.value)}
-                className="w-full text-xs bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer pr-9"
+                className="w-full text-xs bg-white border border-slate-200/90 rounded-lg px-3 py-1.5 text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer pr-8"
               >
                 <option value="" disabled hidden>
                   Chọn mẫu để tải nội dung hợp đồng...
@@ -226,13 +226,13 @@ export default function TaoHopDongModal({ isOpen, onClose, onSave }: TaoHopDongM
                 <option value="mau-02">Mẫu 02: Hợp đồng chế tác sa bàn kiến trúc dự án</option>
                 <option value="mau-03">Mẫu 03: Hợp đồng sản xuất mô hình nội thất thương mại</option>
               </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                <IconChevronDown size={16} />
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                <IconChevronDown size={13} />
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-medium pt-0.5">
-              <IconCheck size={16} className="text-emerald-600 shrink-0" />
+            <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-medium">
+              <IconCheck size={13} className="text-emerald-600 shrink-0" />
               <span>Nội dung hợp đồng sẽ được tải từ mẫu đã chọn</span>
             </div>
           </div>

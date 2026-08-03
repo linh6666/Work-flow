@@ -29,6 +29,7 @@ export default async function AdministrationTabPage({ params }: { params: Promis
     case 'quan-ly-du-an':
       return <QuanLyDuAn />;
     case 'tong-quat-du-an':
+    case 'quan-ly-kinh-doanh':
       return <TongQuatDuAn />;
     case 'khach-hang':
       return <KhachHang />;

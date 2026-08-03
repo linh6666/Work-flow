@@ -81,13 +81,16 @@ export default function AdministrationLayout({ children }: { children: React.Rea
     'yeu-cau-san-xuat',
     'quan-ly-du-an',
     'tong-quat-du-an',
+    'quan-ly-kinh-doanh',
     'bao-cao-tong-the',
     'quan-ly-tai-chinh',
     'quan-tri-user',
     'ma-tran-phan-quyen'
   ];
   
-  const activeMenu = menuIds.includes(tabFromPath) ? (tabFromPath === 'nhan-su-du-an' ? 'quan-ly-nhan-su' : tabFromPath) : 'tong-quan';
+  const activeMenu = menuIds.includes(tabFromPath)
+    ? (tabFromPath === 'nhan-su-du-an' ? 'quan-ly-nhan-su' : (tabFromPath === 'tong-quat-du-an' ? 'quan-ly-kinh-doanh' : tabFromPath))
+    : 'tong-quan';
 
   const menuItems = [
     { id: 'tong-quan', name: 'Tổng quan', icon: IconLayoutGrid },
@@ -98,7 +101,7 @@ export default function AdministrationLayout({ children }: { children: React.Rea
     // { id: 'hop-dong', name: 'Hợp đồng', icon: IconSignature },
     // { id: 'yeu-cau-san-xuat', name: 'Yêu cầu Sản xuất', icon: IconBuildingFactory2 },
     { id: 'quan-ly-du-an', name: 'Quản lý Dự án', icon: IconFolder },
-    { id: 'tong-quat-du-an', name: 'Tổng quát Dự án', icon: IconChartBar },
+    { id: 'quan-ly-kinh-doanh', name: 'Quản lý kinh doanh', icon: IconChartBar },
     { id: 'quan-ly-tai-chinh', name: 'Quản lý Tài chính', icon: IconReportMoney },
     { id: 'bao-cao-tong-the', name: 'Báo cáo Tổng thể', icon: IconReportAnalytics },
     { id: 'quan-tri-user', name: 'Quản trị user', icon: IconShieldCheck },

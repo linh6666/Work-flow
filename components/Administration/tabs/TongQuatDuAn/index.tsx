@@ -38,7 +38,7 @@ export default function TongQuatDuAn() {
           <div>
             <div className="flex items-center gap-2 text-[#406c89]">
               <IconChartBar size={20} className="text-[#406c89] stroke-[2.25]" />
-              <span className="text-lg font-bold text-slate-900 tracking-tight">Tổng quát Dự án</span>
+              <span className="text-lg font-bold text-slate-900 tracking-tight">Quản lý kinh doanh</span>
             </div>
             <p className="text-xs text-slate-400 mt-1 font-medium">
               Thống kê tổng quan tiến độ, chi phí và trạng thái các dự án

@@ -53,7 +53,8 @@ export default function BaoCaoTienDo() {
   }, [projects, searchQuery, evaluationFilter]);
 
   return (
-    <div className="space-y-4 text-left font-sans select-none pb-6">
+    <div className="flex-1 flex flex-col min-h-0 space-y-2.5 text-left font-sans select-none overflow-hidden">
+
       {/* ── 1. KPI TOP METRICS ROW (6 Cards) ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
         {/* Card 1: Dự án ĐT */}
@@ -215,19 +216,21 @@ export default function BaoCaoTienDo() {
       </div>
 
       {/* ── 3. SUB-TAB CONTENT AREA ── */}
-      {subTab === 'table' ? (
-        <TongHopTienDo
-          projects={projects}
-          searchQuery={searchQuery}
-          evaluationFilter={evaluationFilter}
-        />
-      ) : (
-        <NhanXetChuNhiem
-          projects={projects}
-          searchQuery={searchQuery}
-          evaluationFilter={evaluationFilter}
-        />
-      )}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {subTab === 'table' ? (
+          <TongHopTienDo
+            projects={projects}
+            searchQuery={searchQuery}
+            evaluationFilter={evaluationFilter}
+          />
+        ) : (
+          <NhanXetChuNhiem
+            projects={projects}
+            searchQuery={searchQuery}
+            evaluationFilter={evaluationFilter}
+          />
+        )}
+      </div>
     </div>
   );
 }

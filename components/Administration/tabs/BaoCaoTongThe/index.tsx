@@ -163,7 +163,7 @@ export default function BaoCaoTongThe() {
       </div>
 
       {/* DYNAMIC TAB CONTENT AREA */}
-      <div className="flex-1 overflow-y-auto pt-2">
+      <div className="flex-1 flex flex-col min-h-0 pt-2 overflow-hidden">
         {renderActiveTabContent()}
       </div>
     </div>

@@ -1,54 +1,59 @@
 "use client";
 
-import React from 'react';
-import { IconChartBar, IconCheck, IconX, IconClock } from '@tabler/icons-react';
+import React, { useState } from 'react';
+import { IconAlertTriangle, IconClipboardList } from '@tabler/icons-react';
+
+import BaoCaoChoDuyet from './tabs/BaoCaoChoDuyet';
+import LichSuPheDuyet from './tabs/LichSuPheDuyet';
 
 export default function PheDuyetBaoCao() {
-  const reports = [
-    { title: 'Báo cáo Vật tư Phát sinh - Dự án VSIP', sender: 'Đội trưởng Thi công', date: '05/08/2026', priority: 'Cao', priorityColor: 'bg-rose-50 text-rose-600 border-rose-200' },
-    { title: 'Báo cáo Tiến độ Tuần 31 - Khối Kỹ thuật', sender: 'Trưởng phòng Kỹ thuật', date: '04/08/2026', priority: 'Trung bình', priorityColor: 'bg-amber-50 text-amber-600 border-amber-200' },
-    { title: 'Báo cáo Đề xuất Báo giá Flamingo', sender: 'Phòng Kinh doanh', date: '03/08/2026', priority: 'Thấp', priorityColor: 'bg-slate-50 text-slate-600 border-slate-200' },
-  ];
+  const [activeTab, setActiveTab] = useState<'canh-bao' | 'tong-hop'>('canh-bao');
 
   return (
-    <div className="space-y-4 text-left">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <IconChartBar size={16} className="text-[#406c89]" />
-          <h3 className="text-xs font-bold text-slate-800 tracking-tight">Danh sách Báo cáo chờ BGĐ Phê duyệt</h3>
+    <div className="flex-1 flex flex-col min-h-0 space-y-2 text-left font-sans select-none overflow-hidden">
+      {/* 2 SUB-TABS NAVIGATION BAR MATCHING EXACT USER SCREENSHOTS */}
+      <div className="border-b border-slate-200/80 pt-1 shrink-0 bg-white px-2 rounded-t-xl shadow-2xs">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          {/* TAB 1: Cảnh báo công việc quá hạn / chưa báo cáo (1784) */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('canh-bao')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t-md text-xs transition-all cursor-pointer border-b-2 whitespace-nowrap shrink-0 ${
+              activeTab === 'canh-bao'
+                ? 'bg-[#fff1f2] text-[#b91c1c] border-[#b91c1c] font-bold'
+                : 'bg-[#fef2f2]/40 text-[#991b1b] hover:bg-[#fef2f2] border-transparent font-medium'
+            }`}
+          >
+            <IconAlertTriangle size={14} className="text-[#b91c1c] shrink-0" />
+            <span>Cảnh báo công việc quá hạn / chưa báo cáo (1784)</span>
+          </button>
+
+          {/* TAB 2: Tổng hợp Báo cáo công việc — toàn bộ dự án [138 chờ duyệt] */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('tong-hop')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-t-md text-xs transition-all cursor-pointer border-b-2 whitespace-nowrap shrink-0 ${
+              activeTab === 'tong-hop'
+                ? 'bg-[#ebf3f8] text-[#406c89] border-[#406c89] font-bold'
+                : 'bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100/60 border-transparent font-medium'
+            }`}
+          >
+            <IconClipboardList size={14} className={activeTab === 'tong-hop' ? 'text-[#406c89]' : 'text-slate-500'} />
+            <span>Tổng hợp Báo cáo công việc — toàn bộ dự án</span>
+            <span className="bg-[#f59e0b] text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-2xs">
+              138 chờ duyệt
+            </span>
+          </button>
         </div>
-        <span className="text-[11px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-          Chờ duyệt: {reports.length}
-        </span>
       </div>
 
-      <div className="divide-y divide-slate-100 bg-white border border-slate-200/80 rounded-lg shadow-2xs">
-        {reports.map((r, idx) => (
-          <div key={idx} className="p-3 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <h4 className="text-xs font-bold text-slate-800">{r.title}</h4>
-                <span className={`text-[10px] font-bold px-2 py-0.2 rounded border ${r.priorityColor}`}>
-                  Mức độ: {r.priority}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400">
-                Gửi bởi: <span className="text-slate-600 font-medium">{r.sender}</span> • Ngày gửi: {r.date}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button className="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded cursor-pointer transition-colors">
-                <IconCheck size={13} />
-                Duyệt
-              </button>
-              <button className="flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 text-[11px] font-bold rounded cursor-pointer transition-colors border border-slate-200">
-                <IconX size={13} />
-                Từ chối
-              </button>
-            </div>
-          </div>
-        ))}
+      {/* SUB-TAB CONTENT AREA */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {activeTab === 'canh-bao' ? (
+          <BaoCaoChoDuyet />
+        ) : (
+          <LichSuPheDuyet />
+        )}
       </div>
     </div>
   );

@@ -1,42 +1,97 @@
 "use client";
 
-import React from 'react';
-import { IconUsers, IconBriefcase, IconChecklist } from '@tabler/icons-react';
+import React, { useState } from 'react';
+import {
+  IconChartBar,
+  IconUsers,
+  IconAward,
+  IconFolder,
+} from '@tabler/icons-react';
+
+import TongHopPhongBan from './tabs/TongHopPhongBan';
+import TopNhanSuSystem from './tabs/TopNhanSuSystem';
+import TheoTungDuAn from './tabs/TheoTungDuAn';
+import PercentTheoDuAn from './tabs/PercentTheoDuAn';
+import PercentTopNhanSu from './tabs/PercentTopNhanSu';
 
 export default function NhanSuCongViec() {
-  const departments = [
-    { name: 'Khối Thiết kế & Ý tưởng', staffCount: 12, totalTasks: 45, completedTasks: 38, efficiency: '84%' },
-    { name: 'Khối Sản xuất & Chế tạo', staffCount: 18, totalTasks: 62, completedTasks: 51, efficiency: '82%' },
-    { name: 'Khối Kinh doanh & Dự án', staffCount: 8, totalTasks: 28, completedTasks: 25, efficiency: '89%' },
-    { name: 'Phòng Hành chính Nhân sự', staffCount: 5, totalTasks: 19, completedTasks: 18, efficiency: '94%' },
-  ];
+  const [activeTab, setActiveTab] = useState<
+    'tong-hop-phong-ban' | 'top-nhan-su' | 'theo-tung-du-an' | 'percent-theo-du-an' | 'percent-top-nhan-su'
+  >('tong-hop-phong-ban');
+
+  const tabs = [
+    {
+      id: 'tong-hop-phong-ban',
+      label: 'Tổng hợp theo Phòng ban',
+      icon: IconChartBar,
+      iconColor: 'text-[#406c89]',
+    },
+    {
+      id: 'top-nhan-su',
+      label: 'Top nhân sự (toàn hệ thống)',
+      icon: IconUsers,
+      iconColor: 'text-emerald-600',
+    },
+    {
+      id: 'theo-tung-du-an',
+      label: 'Khối lượng — Theo từng Dự án',
+      icon: IconFolder,
+      iconColor: 'text-indigo-600',
+    },
+    {
+      id: 'percent-theo-du-an',
+      label: '% Tham gia — Theo từng Dự án',
+      icon: IconAward,
+      iconColor: 'text-purple-600',
+    },
+    {
+      id: 'percent-top-nhan-su',
+      label: '% Tham gia — Top nhân sự',
+      icon: IconAward,
+      iconColor: 'text-emerald-600',
+    },
+  ] as const;
 
   return (
-    <div className="space-y-4 text-left">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <IconUsers size={16} className="text-[#406c89]" />
-          <h3 className="text-xs font-bold text-slate-800 tracking-tight">Phân bổ Nhân sự & Công việc Phòng ban</h3>
+    <div className="flex-1 flex flex-col min-h-0 space-y-2 text-left font-sans select-none overflow-hidden">
+      {/* 5 SUB-TABS NAVIGATION BAR MATCHING SCREENSHOT EXACTLY */}
+      <div className="border-b border-slate-200/80 pt-1 shrink-0 bg-white px-2 rounded-t-xl shadow-2xs">
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t-md text-xs transition-all cursor-pointer border-b-2 whitespace-nowrap shrink-0 ${
+                  isActive
+                    ? 'bg-[#ebf3f8] text-[#406c89] border-[#406c89] font-semibold'
+                    : 'bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100/60 border-transparent font-normal'
+                }`}
+              >
+                <Icon size={14} className={isActive ? 'text-[#406c89]' : tab.iconColor} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
-        <span className="text-[11px] text-slate-400 font-medium">Tổng cộng: 43 Nhân sự</span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {departments.map((dep, idx) => (
-          <div key={idx} className="bg-white border border-slate-200/80 rounded-lg p-3.5 shadow-2xs hover:border-slate-300 transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-slate-800">{dep.name}</h4>
-              <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-[#406c89] rounded-full">
-                {dep.staffCount} Nhân sự
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
-              <span>Nhiệm vụ được giao: <strong className="text-slate-700">{dep.totalTasks}</strong></span>
-              <span>Đã xong: <strong className="text-emerald-600">{dep.completedTasks}</strong></span>
-              <span>Hiệu suất: <strong className="text-indigo-600">{dep.efficiency}</strong></span>
-            </div>
-          </div>
-        ))}
+      {/* SUB-TAB CONTENT AREA */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {activeTab === 'tong-hop-phong-ban' ? (
+          <TongHopPhongBan />
+        ) : activeTab === 'top-nhan-su' ? (
+          <TopNhanSuSystem />
+        ) : activeTab === 'theo-tung-du-an' ? (
+          <TheoTungDuAn />
+        ) : activeTab === 'percent-theo-du-an' ? (
+          <PercentTheoDuAn />
+        ) : (
+          <PercentTopNhanSu />
+        )}
       </div>
     </div>
   );

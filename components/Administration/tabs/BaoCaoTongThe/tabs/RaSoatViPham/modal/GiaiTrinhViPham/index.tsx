@@ -32,15 +32,15 @@ export default function GiaiTrinhViPhamModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs font-sans">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/80 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-left">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-xs font-sans overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/80 w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-left my-auto">
         {/* HEADER */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 rounded-lg bg-[#406c89]/10 text-[#406c89]">
               <IconMessageDots size={20} />
             </div>
-            <h3 className="text-base font-extrabold text-slate-800 tracking-tight">
+            <h3 className="text-sm sm:text-base font-extrabold text-slate-800 tracking-tight">
               Giải trình lý do vi phạm
             </h3>
           </div>
@@ -55,7 +55,7 @@ export default function GiaiTrinhViPhamModal({
         </div>
 
         {/* BODY FORM */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {/* INFO CARD BOX */}
           <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl p-4 text-xs space-y-2.5">
             <div className="flex items-start">

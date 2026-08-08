@@ -136,7 +136,7 @@ export default function RaSoatViPham() {
   const paginated = filtered.slice(startIndex, endIndex);
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 space-y-3 text-left font-sans select-none overflow-hidden">
+    <div className="flex-1 flex flex-col min-h-0 space-y-3 text-left font-sans select-none overflow-y-auto md:overflow-hidden pr-0.5">
       {/* TOP HEADER ROW */}
       <div className="flex flex-wrap items-center justify-between gap-3 shrink-0 py-0.5">
         <div className="flex flex-wrap items-center gap-2.5">
@@ -158,26 +158,26 @@ export default function RaSoatViPham() {
       </div>
 
       {/* STATUS FILTER TABS */}
-      <div className="flex items-center gap-1 bg-slate-100/60 p-1 rounded-xl w-fit shrink-0">
+      <div className="flex items-center gap-1 bg-slate-100/60 p-1 rounded-xl w-full sm:w-fit shrink-0 overflow-x-auto">
         <button
           type="button"
           onClick={() => { setActiveTab('cho-xu-ly'); setCurrentPage(1); }}
-          className={`px-3.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer ${activeTab === 'cho-xu-ly' ? 'bg-white text-slate-800 font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900 font-medium'}`}
+          className={`px-3.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap ${activeTab === 'cho-xu-ly' ? 'bg-white text-slate-800 font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900 font-medium'}`}
         >
           Chờ xử lý ({items.filter(i => i.status === 'Chờ xử lý').length})
         </button>
         <button
           type="button"
           onClick={() => { setActiveTab('da-chap-nhan'); setCurrentPage(1); }}
-          className={`px-3.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer ${activeTab === 'da-chap-nhan' ? 'bg-white text-slate-800 font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900 font-medium'}`}
+          className={`px-3.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap ${activeTab === 'da-chap-nhan' ? 'bg-white text-slate-800 font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900 font-medium'}`}
         >
           Đã chấp nhận ({items.filter(i => i.status === 'Đã chấp nhận').length})
         </button>
       </div>
 
       {/* DROPDOWN FILTERS */}
-      <div className="flex flex-wrap items-center gap-3 shrink-0 py-1">
-        <div className="flex items-center gap-1.5 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1.5 shadow-2xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-wrap items-center gap-2.5 sm:gap-3 shrink-0 py-1">
+        <div className="flex items-center justify-between sm:justify-start gap-1.5 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1.5 shadow-2xs w-full sm:w-auto">
           <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">Theo loại vi phạm:</span>
           <select value={selectedType} onChange={(e) => { setSelectedType(e.target.value); setCurrentPage(1); }} className="bg-transparent text-xs text-slate-800 font-bold focus:outline-none cursor-pointer max-w-[220px]">
             <option value="tat-ca">Tất cả</option>
@@ -190,7 +190,7 @@ export default function RaSoatViPham() {
         </div>
 
         {/* Select: Theo nhân sự */}
-        <div className="flex items-center gap-1.5 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1.5 shadow-2xs">
+        <div className="flex items-center justify-between sm:justify-start gap-1.5 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1.5 shadow-2xs w-full sm:w-auto">
           <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">Theo nhân sự:</span>
           <select value={selectedStaff} onChange={(e) => { setSelectedStaff(e.target.value); setCurrentPage(1); }} className="bg-transparent text-xs text-slate-800 font-bold focus:outline-none cursor-pointer max-w-[200px]">
             <option value="tat-ca">Tất cả nhân sự</option>
@@ -220,7 +220,7 @@ export default function RaSoatViPham() {
             <option value="Nguyễn Minh Hiếu">Nguyễn Minh Hiếu</option>
           </select>
         </div>
-        <div className="flex items-center gap-1.5 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1.5 shadow-2xs">
+        <div className="flex items-center justify-between sm:justify-start gap-1.5 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1.5 shadow-2xs w-full sm:w-auto">
           <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">Theo mức độ:</span>
           <select value={selectedSeverity} onChange={(e) => { setSelectedSeverity(e.target.value); setCurrentPage(1); }} className="bg-transparent text-xs text-slate-800 font-bold focus:outline-none cursor-pointer">
             <option value="tat-ca">Tất cả</option>
@@ -230,7 +230,7 @@ export default function RaSoatViPham() {
             <option value="TÍCH CỰC">TÍCH CỰC</option>
           </select>
         </div>
-        <div className="flex items-center gap-1.5 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1.5 shadow-2xs">
+        <div className="flex items-center justify-between sm:justify-start gap-1.5 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1.5 shadow-2xs w-full sm:w-auto">
           <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">Theo phòng ban:</span>
           <select value={selectedDept} onChange={(e) => { setSelectedDept(e.target.value); setCurrentPage(1); }} className="bg-transparent text-xs text-slate-800 font-bold focus:outline-none cursor-pointer">
             <option value="tat-ca">Tất cả phòng ban</option>
@@ -247,8 +247,8 @@ export default function RaSoatViPham() {
       </div>
 
       {/* TABLE CONTAINER */}
-      <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200/80 rounded-xl shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
+      <div className="flex-1 flex flex-col min-h-[350px] md:min-h-0 bg-white border border-slate-200/80 rounded-xl shadow-2xs overflow-hidden">
+        <div className="flex-1 overflow-auto min-h-0">
           <table className="w-full text-xs text-left border-collapse min-w-[1050px]">
             <thead className="sticky top-0 z-10 bg-slate-50/90 backdrop-blur-xs border-b border-slate-200">
               <tr className="text-slate-600 font-bold text-[11px]">

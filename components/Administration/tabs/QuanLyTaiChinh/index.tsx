@@ -79,6 +79,6 @@ export default function QuanLyTaiChinh() {
           <DeXuatDuyetChiTab />
         )}
       </div>
-folder riêng chứ không phải file riêng nhé    </div>
+    </div>
   );
 }

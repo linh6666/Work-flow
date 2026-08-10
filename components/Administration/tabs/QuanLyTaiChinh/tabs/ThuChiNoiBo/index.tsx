@@ -3,17 +3,18 @@
 import React, { useState } from 'react';
 import {
   IconPlus,
-  IconSearch,
   IconTrendingUp,
   IconTrendingDown,
-  IconWallet,
-  IconClock,
+  IconScale,
   IconTrash,
   IconArrowUpRight,
   IconArrowDownRight,
   IconFileText,
   IconX,
   IconCheck,
+  IconUpload,
+  IconDownload,
+  IconRefresh,
 } from '@tabler/icons-react';
 import {
   GiaoDichItem,
@@ -223,6 +224,10 @@ export default function ThuChiNoiBoTab() {
   const [filterTrangThai, setFilterTrangThai] = useState<'Tất cả' | TrangThaiThanhToan>('Tất cả');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filterLoaiSo, setFilterLoaiSo] = useState('Thực tế');
+  const [filterNam, setFilterNam] = useState('Năm 2021');
+  const [filterKy, setFilterKy] = useState('Cả năm');
+  const [filterNguoi, setFilterNguoi] = useState('Tất cả người mua');
 
   const tongThu = data.filter((g) => g.loai === 'Thu' && g.trangThai === 'Đã thanh toán').reduce((s, g) => s + g.soTien, 0);
   const tongChi = data.filter((g) => g.loai === 'Chi' && g.trangThai === 'Đã thanh toán').reduce((s, g) => s + g.soTien, 0);
@@ -249,113 +254,184 @@ export default function ThuChiNoiBoTab() {
     if (confirm('Xoá giao dịch này?')) setData((prev) => prev.filter((g) => g.id !== id));
   };
 
+  const handleDeleteAll = () => {
+    if (confirm('Xoá tất cả giao dịch?')) setData([]);
+  };
+
   const trangThaiConfig = {
     'Đã thanh toán': 'bg-emerald-50 text-emerald-600 border-emerald-200',
     'Chờ thanh toán': 'bg-amber-50 text-amber-600 border-amber-200',
     'Quá hạn': 'bg-rose-50 text-rose-600 border-rose-200',
   };
 
+  const selectCls = "border border-slate-200 rounded-md px-2 py-1 text-[11px] text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer appearance-none pr-6 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E')] bg-no-repeat bg-[right_6px_center]";
+
   return (
     <div className="flex-1 flex flex-col min-h-0 space-y-4 overflow-hidden">
+      {/* Toolbar */}
+      <div className="bg-white border border-slate-200/80 rounded-xl shadow-xs shrink-0">
+        {/* Row 1: Filters */}
+        <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-slate-100 flex-wrap">
+          <select value={filterLoaiSo} onChange={(e) => setFilterLoaiSo(e.target.value)} className={selectCls}>
+            <option>Thực tế</option>
+            <option>Kế hoạch</option>
+          </select>
+          <select value={filterNam} onChange={(e) => setFilterNam(e.target.value)} className={selectCls}>
+            {[2021, 2022, 2023, 2024, 2025, 2026].map((y) => (
+              <option key={y}>Năm {y}</option>
+            ))}
+          </select>
+          <select value={filterKy} onChange={(e) => setFilterKy(e.target.value)} className={selectCls}>
+            <option>Cả năm</option>
+            <option>Quý 1</option>
+            <option>Quý 2</option>
+            <option>Quý 3</option>
+            <option>Quý 4</option>
+            {Array.from({ length: 12 }, (_, i) => (
+              <option key={i + 1}>Tháng {i + 1}</option>
+            ))}
+          </select>
+          <select value={filterNguoi} onChange={(e) => setFilterNguoi(e.target.value)} className={selectCls}>
+            <option>Tất cả người mua</option>
+            <option>Khách hàng A</option>
+            <option>Khách hàng B</option>
+          </select>
+        </div>
+
+        {/* Row 2: Action Buttons */}
+        <div className="flex items-center gap-1.5 px-3 py-1.5 flex-wrap">
+          {/* Import Thu Chi */}
+          <button
+            type="button"
+            className="flex items-center gap-1 px-2 py-1 rounded-md border border-[#406c89] text-[#406c89] text-[11px] font-semibold hover:bg-[#406c89]/5 cursor-pointer transition-colors"
+          >
+            <IconUpload size={13} />
+            Import Thu Chi
+          </button>
+
+          {/* Import Cân Đối */}
+          <button
+            type="button"
+            className="flex items-center gap-1 px-2 py-1 rounded-md border border-amber-400 text-amber-500 text-[11px] font-semibold hover:bg-amber-50 cursor-pointer transition-colors"
+          >
+            <IconUpload size={13} />
+            Import Cân Đối
+          </button>
+
+          {/* Export */}
+          <button
+            type="button"
+            className="flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
+          >
+            <IconDownload size={13} />
+            Export
+          </button>
+
+          {/* Import */}
+          <button
+            type="button"
+            className="flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
+          >
+            <IconUpload size={13} />
+            Import
+          </button>
+
+          {/* Làm mới */}
+          <button
+            type="button"
+            onClick={() => { setFilterLoai('Tất cả'); setFilterTrangThai('Tất cả'); setSearchQuery(''); }}
+            className="flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
+          >
+            <IconRefresh size={13} />
+            Làm mới
+          </button>
+
+          {/* Xóa tất cả */}
+          <button
+            type="button"
+            onClick={handleDeleteAll}
+            className="flex items-center gap-1 px-2 py-1 rounded-md border border-rose-200 text-rose-500 text-[11px] font-semibold hover:bg-rose-50 cursor-pointer transition-colors"
+          >
+            <IconTrash size={13} />
+            Xóa tất cả
+          </button>
+
+          {/* Thêm khoản */}
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2d4a63] text-white text-[11px] font-bold hover:bg-[#1e3448] cursor-pointer transition-colors ml-auto"
+          >
+            <IconPlus size={13} />
+            Thêm khoản
+          </button>
+        </div>
+      </div>
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3 shrink-0">
-        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
-              <IconTrendingUp size={15} className="text-emerald-500" />
-            </div>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Tổng thu</p>
+      <div className="grid grid-cols-3 gap-3 shrink-0">
+        {/* Tổng Thu */}
+        <div className="bg-white border border-slate-200/80 rounded-xl shadow-xs px-4 py-3">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <IconTrendingUp size={14} className="text-emerald-500" />
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Tổng thu</p>
           </div>
-          <p className="text-xl font-extrabold text-emerald-600">{formatCurrency(tongThu)}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Đã nhận thanh toán</p>
+          <p className="text-lg font-extrabold text-emerald-500">{formatCurrency(tongThu)}</p>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 rounded-lg bg-rose-50 flex items-center justify-center">
-              <IconTrendingDown size={15} className="text-rose-500" />
-            </div>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Tổng chi</p>
+        {/* Tổng Chi */}
+        <div className="bg-white border border-slate-200/80 rounded-xl shadow-xs px-4 py-3">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <IconTrendingDown size={14} className="text-rose-500" />
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Tổng chi</p>
           </div>
-          <p className="text-xl font-extrabold text-rose-500">{formatCurrency(tongChi)}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Đã thanh toán</p>
+          <p className="text-lg font-extrabold text-rose-500">{formatCurrency(tongChi)}</p>
         </div>
 
-        <div className="bg-white border border-emerald-200/50 rounded-xl p-4 shadow-xs bg-gradient-to-br from-white to-emerald-50/30">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
-              <IconWallet size={15} className="text-blue-500" />
-            </div>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Số dư</p>
+        {/* Cân Đối */}
+        <div className="bg-white border border-slate-200/80 rounded-xl shadow-xs px-4 py-3">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <IconScale size={14} className="text-amber-500" />
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Cân đối</p>
           </div>
-          <p className={`text-xl font-extrabold ${soDu >= 0 ? 'text-blue-600' : 'text-rose-600'}`}>
+          <p className={`text-lg font-extrabold ${soDu >= 0 ? 'text-amber-500' : 'text-rose-500'}`}>
             {formatCurrency(Math.abs(soDu))}
-          </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">{soDu >= 0 ? 'Dương' : 'Âm'}</p>
-        </div>
-
-        <div className="bg-white border border-amber-200/50 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
-              <IconClock size={15} className="text-amber-500" />
-            </div>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Chờ & Quá hạn</p>
-          </div>
-          <p className="text-xl font-extrabold text-amber-500">{formatCurrency(choThanhToan + quaHan)}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">
-            <span className="text-amber-500">{formatCurrency(choThanhToan)}</span> chờ ·{' '}
-            <span className="text-rose-500">{formatCurrency(quaHan)}</span> quá hạn
           </p>
         </div>
       </div>
 
-      {/* Filter Bar */}
-      <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-3 shadow-xs flex flex-col sm:flex-row gap-3 items-start sm:items-center shrink-0">
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center w-full">
-          <div className="flex items-center gap-2 flex-1 min-w-0 w-full sm:w-auto">
-            <IconSearch size={15} className="text-slate-400 shrink-0" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm giao dịch hoặc dự án..."
-              className="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-            <div className="flex gap-1 text-xs">
-              {(['Tất cả', 'Thu', 'Chi'] as const).map((l) => (
-                <button
-                  key={l}
-                  onClick={() => setFilterLoai(l)}
-                  className={`px-2.5 py-1 rounded-lg border font-medium cursor-pointer transition-all ${
-                    filterLoai === l
-                      ? 'bg-[#406c89] text-white border-transparent'
-                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex gap-1 text-xs flex-wrap">
-              {(['Tất cả', 'Đã thanh toán', 'Chờ thanh toán', 'Quá hạn'] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setFilterTrangThai(t)}
-                  className={`px-2.5 py-1 rounded-lg border font-medium cursor-pointer transition-all whitespace-nowrap ${
-                    filterTrangThai === t
-                      ? 'bg-[#406c89] text-white border-transparent'
-                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  {t === 'Tất cả' ? 'Tất cả TT' : t}
-                </button>
-              ))}
-            </div>
-          </div>
+      {/* Filter Loại / Trạng thái */}
+      <div className="bg-white border border-slate-200/80 rounded-xl px-3 py-2 shadow-xs flex items-center gap-2 flex-wrap shrink-0">
+        <div className="flex gap-1 text-[11px]">
+          {(['Tất cả', 'Thu', 'Chi'] as const).map((l) => (
+            <button
+              key={l}
+              onClick={() => setFilterLoai(l)}
+              className={`px-2 py-0.5 rounded-md border font-medium cursor-pointer transition-all ${
+                filterLoai === l
+                  ? 'bg-[#406c89] text-white border-transparent'
+                  : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+              }`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+        <div className="w-px h-4 bg-slate-200" />
+        <div className="flex gap-1 text-[11px] flex-wrap">
+          {(['Tất cả', 'Đã thanh toán', 'Chờ thanh toán', 'Quá hạn'] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setFilterTrangThai(t)}
+              className={`px-2 py-0.5 rounded-md border font-medium cursor-pointer transition-all whitespace-nowrap ${
+                filterTrangThai === t
+                  ? 'bg-[#406c89] text-white border-transparent'
+                  : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+              }`}
+            >
+              {t === 'Tất cả' ? 'Tất cả TT' : t}
+            </button>
+          ))}
         </div>
       </div>
 

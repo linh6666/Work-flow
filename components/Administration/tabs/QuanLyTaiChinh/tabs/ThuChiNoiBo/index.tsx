@@ -23,7 +23,7 @@ import {
   DEFAULT_DATA,
   formatCurrency,
   formatDate,
-} from '../types';
+} from '../../types';
 
 interface ModalProps {
   isOpen: boolean;

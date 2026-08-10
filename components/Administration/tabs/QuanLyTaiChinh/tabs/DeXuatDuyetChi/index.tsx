@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { formatCurrency } from '../types';
+import { formatCurrency } from '../../types';
 
 export default function DeXuatDuyetChiTab() {
   const deXuatData = [

@@ -42,7 +42,7 @@ export const formatVND = (n: number) =>
   n === 0 ? '0' : n.toLocaleString('vi-VN');
 
 // ─── Mock Data ────────────────────────────────────────────────────────
-const INITIAL_DATA: NhanSuItem[] = [
+export const INITIAL_DATA: NhanSuItem[] = [
   { id: '1', maNV: 'NV001', hoTen: 'Bùi Thị Duyên',        phongBan: 'Phòng Kinh doanh',             chucVu: 'Trưởng phòng Kinh doanh',        trangThai: 'Đang làm việc', bacLuong: 'Bậc 5',    mucLuongCung: 6500000, mucLuongMem: 5000000, tongTroCap: 500000,  thoiDiemTangLuong: '03/2024', thoiDiemTangBacBacLuongDuKien: '03/2025 — Bậc 6', ngayVao: '', gioiTinh: 'Nữ', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: '' },
   { id: '2', maNV: 'NV002', hoTen: 'Nguyễn Phú Quang',    phongBan: 'Phòng Khai triển',             chucVu: 'Trưởng phòng Khai triển',        trangThai: 'Đang làm việc', bacLuong: 'Bậc 6',    mucLuongCung: 7000000, mucLuongMem: 5500000, tongTroCap: 800000,  thoiDiemTangLuong: '08/2024', thoiDiemTangBacBacLuongDuKien: '08/2025 — Bậc 7', ngayVao: '', gioiTinh: 'Nam', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: '' },
   { id: '3', maNV: 'NV003', hoTen: 'Kỳ Anh',               phongBan: 'Phòng Cảnh Quan',              chucVu: 'Chuyên viên Cảnh quan',          trangThai: 'Đang làm việc', bacLuong: 'Bậc 3',    mucLuongCung: 4500000, mucLuongMem: 3000000, tongTroCap: 0,       thoiDiemTangLuong: '01/2025', thoiDiemTangBacBacLuongDuKien: '01/2026 — Bậc 4', ngayVao: '', gioiTinh: 'Nam', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: '' },

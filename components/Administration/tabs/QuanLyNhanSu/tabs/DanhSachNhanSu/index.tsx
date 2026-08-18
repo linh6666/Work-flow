@@ -23,12 +23,18 @@ export interface NhanSuItem {
   avatar?: string;
   phongBan: string;
   chucVu: string;
+  trangThai: string;
   bacLuong: string;
   mucLuongCung: number;
   mucLuongMem: number;
   tongTroCap: number;
   thoiDiemTangLuong: string;
   thoiDiemTangBacBacLuongDuKien: string;
+  ngayVao: string;
+  gioiTinh: string;
+  dienThoai: string;
+  email: string;
+  ghiChuLuong: string;
   ghiChu: string;
 }
 
@@ -37,14 +43,14 @@ export const formatVND = (n: number) =>
 
 // ─── Mock Data ────────────────────────────────────────────────────────
 const INITIAL_DATA: NhanSuItem[] = [
-  { id: '1', maNV: 'NV001', hoTen: 'Bùi Thị Duyên',        phongBan: 'Phòng Kinh doanh',             chucVu: 'Trưởng phòng Kinh doanh',        bacLuong: 'Bậc 5',    mucLuongCung: 6500000, mucLuongMem: 5000000, tongTroCap: 500000,  thoiDiemTangLuong: '03/2024', thoiDiemTangBacBacLuongDuKien: '03/2025 — Bậc 6', ghiChu: '' },
-  { id: '2', maNV: 'NV002', hoTen: 'Nguyễn Phú Quang',    phongBan: 'Phòng Khai triển',             chucVu: 'Trưởng phòng Khai triển',        bacLuong: 'Bậc 6',    mucLuongCung: 7000000, mucLuongMem: 5500000, tongTroCap: 800000,  thoiDiemTangLuong: '08/2024', thoiDiemTangBacBacLuongDuKien: '08/2025 — Bậc 7', ghiChu: '' },
-  { id: '3', maNV: 'NV003', hoTen: 'Kỳ Anh',               phongBan: 'Phòng Cảnh Quan',              chucVu: 'Chuyên viên Cảnh quan',          bacLuong: 'Bậc 3',    mucLuongCung: 4500000, mucLuongMem: 3000000, tongTroCap: 0,       thoiDiemTangLuong: '01/2025', thoiDiemTangBacBacLuongDuKien: '01/2026 — Bậc 4', ghiChu: '' },
-  { id: '4', maNV: 'NV004', hoTen: 'Bùi Phương Uyên',     phongBan: 'Phòng Điện',                   chucVu: 'Kỹ sư Điện & Chiếu sáng',       bacLuong: 'Bậc 4',    mucLuongCung: 5000000, mucLuongMem: 4000000, tongTroCap: 300000,  thoiDiemTangLuong: '11/2024', thoiDiemTangBacBacLuongDuKien: '11/2025 — Bậc 5', ghiChu: '' },
-  { id: '5', maNV: 'NV005', hoTen: 'Thao Phung',           phongBan: 'Phòng Mộc Sơn',                chucVu: 'KTV Sơn hoàn thiện',             bacLuong: 'Thử việc', mucLuongCung: 3120000, mucLuongMem: 3120000, tongTroCap: 0,       thoiDiemTangLuong: '—',       thoiDiemTangBacBacLuongDuKien: '05/2025 — Bậc 1', ghiChu: 'Đang thử việc' },
-  { id: '6', maNV: 'NV006', hoTen: 'Lê Hoàng Long',        phongBan: 'Phòng Cắt',                    chucVu: 'KTV Laser & CNC',                bacLuong: 'Bậc 2',    mucLuongCung: 4000000, mucLuongMem: 3000000, tongTroCap: 0,       thoiDiemTangLuong: '06/2024', thoiDiemTangBacBacLuongDuKien: '06/2025 — Bậc 3', ghiChu: '' },
-  { id: '7', maNV: 'NV007', hoTen: 'Trần Văn Mạnh',        phongBan: 'Lắp đặt',                      chucVu: 'Đội trưởng Lắp đặt',             bacLuong: 'Bậc 5',    mucLuongCung: 6000000, mucLuongMem: 4500000, tongTroCap: 1000000, thoiDiemTangLuong: '10/2024', thoiDiemTangBacBacLuongDuKien: '10/2025 — Bậc 6', ghiChu: '' },
-  { id: '8', maNV: 'NV008', hoTen: 'Phạm Minh Trang',      phongBan: 'Phòng Công nghệ và Thiết kế',  chucVu: 'Kiến trúc sư 3D',                bacLuong: 'Thử việc', mucLuongCung: 3120000, mucLuongMem: 3120000, tongTroCap: 0,       thoiDiemTangLuong: '—',       thoiDiemTangBacBacLuongDuKien: '06/2025 — Bậc 1', ghiChu: 'Đang thử việc' },
+  { id: '1', maNV: 'NV001', hoTen: 'Bùi Thị Duyên',        phongBan: 'Phòng Kinh doanh',             chucVu: 'Trưởng phòng Kinh doanh',        trangThai: 'Đang làm việc', bacLuong: 'Bậc 5',    mucLuongCung: 6500000, mucLuongMem: 5000000, tongTroCap: 500000,  thoiDiemTangLuong: '03/2024', thoiDiemTangBacBacLuongDuKien: '03/2025 — Bậc 6', ngayVao: '', gioiTinh: 'Nữ', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: '' },
+  { id: '2', maNV: 'NV002', hoTen: 'Nguyễn Phú Quang',    phongBan: 'Phòng Khai triển',             chucVu: 'Trưởng phòng Khai triển',        trangThai: 'Đang làm việc', bacLuong: 'Bậc 6',    mucLuongCung: 7000000, mucLuongMem: 5500000, tongTroCap: 800000,  thoiDiemTangLuong: '08/2024', thoiDiemTangBacBacLuongDuKien: '08/2025 — Bậc 7', ngayVao: '', gioiTinh: 'Nam', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: '' },
+  { id: '3', maNV: 'NV003', hoTen: 'Kỳ Anh',               phongBan: 'Phòng Cảnh Quan',              chucVu: 'Chuyên viên Cảnh quan',          trangThai: 'Đang làm việc', bacLuong: 'Bậc 3',    mucLuongCung: 4500000, mucLuongMem: 3000000, tongTroCap: 0,       thoiDiemTangLuong: '01/2025', thoiDiemTangBacBacLuongDuKien: '01/2026 — Bậc 4', ngayVao: '', gioiTinh: 'Nam', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: '' },
+  { id: '4', maNV: 'NV004', hoTen: 'Bùi Phương Uyên',     phongBan: 'Phòng Điện',                   chucVu: 'Kỹ sư Điện & Chiếu sáng',       trangThai: 'Đang làm việc', bacLuong: 'Bậc 4',    mucLuongCung: 5000000, mucLuongMem: 4000000, tongTroCap: 300000,  thoiDiemTangLuong: '11/2024', thoiDiemTangBacBacLuongDuKien: '11/2025 — Bậc 5', ngayVao: '', gioiTinh: 'Nữ', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: '' },
+  { id: '5', maNV: 'NV005', hoTen: 'Thao Phung',           phongBan: 'Phòng Mộc Sơn',                chucVu: 'KTV Sơn hoàn thiện',             trangThai: 'Thử việc',       bacLuong: 'Thử việc', mucLuongCung: 3120000, mucLuongMem: 3120000, tongTroCap: 0,       thoiDiemTangLuong: '—',       thoiDiemTangBacBacLuongDuKien: '05/2025 — Bậc 1', ngayVao: '', gioiTinh: 'Nữ', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: 'Đang thử việc' },
+  { id: '6', maNV: 'NV006', hoTen: 'Lê Hoàng Long',        phongBan: 'Phòng Cắt',                    chucVu: 'KTV Laser & CNC',                trangThai: 'Đang làm việc', bacLuong: 'Bậc 2',    mucLuongCung: 4000000, mucLuongMem: 3000000, tongTroCap: 0,       thoiDiemTangLuong: '06/2024', thoiDiemTangBacBacLuongDuKien: '06/2025 — Bậc 3', ngayVao: '', gioiTinh: 'Nam', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: '' },
+  { id: '7', maNV: 'NV007', hoTen: 'Trần Văn Mạnh',        phongBan: 'Lắp đặt',                      chucVu: 'Đội trưởng Lắp đặt',             trangThai: 'Đang làm việc', bacLuong: 'Bậc 5',    mucLuongCung: 6000000, mucLuongMem: 4500000, tongTroCap: 1000000, thoiDiemTangLuong: '10/2024', thoiDiemTangBacBacLuongDuKien: '10/2025 — Bậc 6', ngayVao: '', gioiTinh: 'Nam', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: '' },
+  { id: '8', maNV: 'NV008', hoTen: 'Phạm Minh Trang',      phongBan: 'Phòng Công nghệ và Thiết kế',  chucVu: 'Kiến trúc sư 3D',                trangThai: 'Thử việc',       bacLuong: 'Thử việc', mucLuongCung: 3120000, mucLuongMem: 3120000, tongTroCap: 0,       thoiDiemTangLuong: '—',       thoiDiemTangBacBacLuongDuKien: '06/2025 — Bậc 1', ngayVao: '', gioiTinh: 'Nữ', dienThoai: '', email: '', ghiChuLuong: '', ghiChu: 'Đang thử việc' },
 ];
 
 export const PHONG_BAN_LIST = [
@@ -61,6 +67,8 @@ export const PHONG_BAN_LIST = [
 ];
 
 export const BAC_LUONG_LIST = ['Thử việc', 'Bậc 1', 'Bậc 2', 'Bậc 3', 'Bậc 4', 'Bậc 5', 'Bậc 6', 'Bậc 7'];
+export const TRANG_THAI_LIST = ['Đang làm việc', 'Thử việc', 'Nghỉ phép', 'Nghỉ việc'];
+export const GIOI_TINH_LIST = ['Nam', 'Nữ', 'Khác'];
 
 export default function DanhSachNhanSuTab() {
   const tableContainerRef = useRef<HTMLDivElement>(null);

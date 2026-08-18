@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useRef } from 'react';
+import XoaNhanSuModal, { XoaNhanSuRef } from './modal/XoaNhanSu';
 import {
   IconSearch,
   IconDownload,
@@ -31,7 +32,7 @@ export interface NhanSuItem {
   ghiChu: string;
 }
 
-const formatVND = (n: number) =>
+export const formatVND = (n: number) =>
   n === 0 ? '0' : n.toLocaleString('vi-VN');
 
 // ─── Mock Data ────────────────────────────────────────────────────────
@@ -46,7 +47,7 @@ const INITIAL_DATA: NhanSuItem[] = [
   { id: '8', maNV: 'NV008', hoTen: 'Phạm Minh Trang',      phongBan: 'Phòng Công nghệ và Thiết kế',  chucVu: 'Kiến trúc sư 3D',                bacLuong: 'Thử việc', mucLuongCung: 3120000, mucLuongMem: 3120000, tongTroCap: 0,       thoiDiemTangLuong: '—',       thoiDiemTangBacBacLuongDuKien: '06/2025 — Bậc 1', ghiChu: 'Đang thử việc' },
 ];
 
-const PHONG_BAN_LIST = [
+export const PHONG_BAN_LIST = [
   'Phòng Kinh doanh',
   'Phòng Khai triển',
   'Phòng Cắt',
@@ -59,13 +60,14 @@ const PHONG_BAN_LIST = [
   'Kế toán & Hành chính',
 ];
 
-const BAC_LUONG_LIST = ['Thử việc', 'Bậc 1', 'Bậc 2', 'Bậc 3', 'Bậc 4', 'Bậc 5', 'Bậc 6', 'Bậc 7'];
+export const BAC_LUONG_LIST = ['Thử việc', 'Bậc 1', 'Bậc 2', 'Bậc 3', 'Bậc 4', 'Bậc 5', 'Bậc 6', 'Bậc 7'];
 
 export default function DanhSachNhanSuTab() {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollStart = useRef(0);
+  const xoaRef = useRef<XoaNhanSuRef>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
@@ -98,7 +100,6 @@ export default function DanhSachNhanSuTab() {
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<NhanSuItem | null>(null);
-  const [deletingItem, setDeletingItem] = useState<NhanSuItem | null>(null);
 
   // Form State
   const [formData, setFormData] = useState<Partial<NhanSuItem>>({
@@ -191,12 +192,7 @@ export default function DanhSachNhanSuTab() {
     }
   };
 
-  const handleDeleteConfirm = () => {
-    if (deletingItem) {
-      setData((prev) => prev.filter((i) => i.id !== deletingItem.id));
-      setDeletingItem(null);
-    }
-  };
+
 
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-white">
@@ -387,7 +383,7 @@ export default function DanhSachNhanSuTab() {
                             <button
                               type="button"
                               title="Xóa"
-                              onClick={() => setDeletingItem(item)}
+                              onClick={() => xoaRef.current?.open(item)}
                               className="p-1.5 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
                             >
                               <IconTrash size={13} />
@@ -651,35 +647,7 @@ export default function DanhSachNhanSuTab() {
       )}
 
       {/* ── Modal Xóa Nhân sự ── */}
-      {deletingItem && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-150 p-5 text-center">
-            <div className="w-11 h-11 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3">
-              <IconTrash size={22} />
-            </div>
-            <h4 className="text-sm font-bold text-slate-800 mb-1">Xác nhận xóa nhân sự</h4>
-            <p className="text-xs text-slate-500 mb-4">
-              Bạn có chắc chắn muốn xóa nhân sự <span className="font-bold text-slate-700">{deletingItem.hoTen}</span> ({deletingItem.maNV}) không?
-            </p>
-            <div className="flex items-center justify-center gap-2">
-              <button
-                type="button"
-                onClick={() => setDeletingItem(null)}
-                className="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold cursor-pointer transition"
-              >
-                Hủy bỏ
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteConfirm}
-                className="px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm cursor-pointer transition"
-              >
-                Xác nhận xóa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <XoaNhanSuModal ref={xoaRef} setData={setData} />
     </div>
   );
 }

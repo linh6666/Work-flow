@@ -23,6 +23,7 @@ export interface YcsxItem {
   soYcsx: string;
   tenDuAn: string;
   khachHang: string;
+  khachHangMaDa?: string;
   nguoiLap: string;
   tyLe: string;
   kichThuoc: string;

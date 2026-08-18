@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   IconSearch,
   IconDownload,
@@ -11,15 +11,10 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconX,
-  IconCheck,
   IconUser,
-  IconPhone,
-  IconMail,
 } from '@tabler/icons-react';
 
 // ─── Data Types ───────────────────────────────────────────────────────
-export type TrangThaiNhanSu = 'dang-lam-viec' | 'thu-viec' | 'tam-nghi' | 'da-nghi';
-
 export interface NhanSuItem {
   id: string;
   maNV: string;
@@ -27,111 +22,28 @@ export interface NhanSuItem {
   avatar?: string;
   phongBan: string;
   chucVu: string;
-  gioiTinh: 'Nam' | 'Nữ';
-  soDienThoai: string;
-  email: string;
-  ngayVaoLam: string;
-  trangThai: TrangThaiNhanSu;
+  bacLuong: string;
+  mucLuongCung: number;
+  mucLuongMem: number;
+  tongTroCap: number;
+  thoiDiemTangLuong: string;
+  thoiDiemTangBacBacLuongDuKien: string;
+  ghiChu: string;
 }
+
+const formatVND = (n: number) =>
+  n === 0 ? '0' : n.toLocaleString('vi-VN');
 
 // ─── Mock Data ────────────────────────────────────────────────────────
 const INITIAL_DATA: NhanSuItem[] = [
-  {
-    id: '1',
-    maNV: 'NV001',
-    hoTen: 'Bùi Thị Duyên',
-    phongBan: 'Phòng Kinh doanh',
-    chucVu: 'Trưởng phòng Kinh doanh',
-    gioiTinh: 'Nữ',
-    soDienThoai: '0981 234 567',
-    email: 'duyen.bt@mohinhtay.vn',
-    ngayVaoLam: '2023-03-15',
-    trangThai: 'dang-lam-viec',
-  },
-  {
-    id: '2',
-    maNV: 'NV002',
-    hoTen: 'Nguyễn Phú Quang',
-    phongBan: 'Phòng Khai triển',
-    chucVu: 'Trưởng phòng Khai triển',
-    gioiTinh: 'Nam',
-    soDienThoai: '0972 345 678',
-    email: 'quang.np@mohinhtay.vn',
-    ngayVaoLam: '2022-08-01',
-    trangThai: 'dang-lam-viec',
-  },
-  {
-    id: '3',
-    maNV: 'NV003',
-    hoTen: 'Kỳ Anh',
-    phongBan: 'Phòng Cảnh Quan',
-    chucVu: 'Chuyên viên Cảnh quan',
-    gioiTinh: 'Nam',
-    soDienThoai: '0912 456 789',
-    email: 'kyanh@mohinhtay.vn',
-    ngayVaoLam: '2024-01-10',
-    trangThai: 'dang-lam-viec',
-  },
-  {
-    id: '4',
-    maNV: 'NV004',
-    hoTen: 'Bùi Phương Uyên',
-    phongBan: 'Phòng Điện',
-    chucVu: 'Kỹ sư Điện & Chiếu sáng',
-    gioiTinh: 'Nữ',
-    soDienThoai: '0903 567 890',
-    email: 'uyen.bp@mohinhtay.vn',
-    ngayVaoLam: '2023-11-20',
-    trangThai: 'dang-lam-viec',
-  },
-  {
-    id: '5',
-    maNV: 'NV005',
-    hoTen: 'Thao Phung',
-    phongBan: 'Phòng Mộc Sơn',
-    chucVu: 'Kỹ thuật viên Sơn hoàn thiện',
-    gioiTinh: 'Nữ',
-    soDienThoai: '0964 678 901',
-    email: 'thao.phung@mohinhtay.vn',
-    ngayVaoLam: '2024-05-02',
-    trangThai: 'thu-viec',
-  },
-  {
-    id: '6',
-    maNV: 'NV006',
-    hoTen: 'Lê Hoàng Long',
-    phongBan: 'Phòng Cắt',
-    chucVu: 'Kỹ thuật viên Laser & CNC',
-    gioiTinh: 'Nam',
-    soDienThoai: '0935 789 012',
-    email: 'long.lh@mohinhtay.vn',
-    ngayVaoLam: '2023-06-12',
-    trangThai: 'dang-lam-viec',
-  },
-  {
-    id: '7',
-    maNV: 'NV007',
-    hoTen: 'Trần Văn Mạnh',
-    phongBan: 'Lắp đặt',
-    chucVu: 'Đội trưởng Lắp đặt công trình',
-    gioiTinh: 'Nam',
-    soDienThoai: '0946 890 123',
-    email: 'manh.tv@mohinhtay.vn',
-    ngayVaoLam: '2022-10-15',
-    trangThai: 'dang-lam-viec',
-  },
-  {
-    id: '8',
-    maNV: 'NV008',
-    hoTen: 'Phạm Minh Trang',
-    phongBan: 'Phòng Công nghệ và Thiết kế',
-    chucVu: 'Kiến trúc sư 3D',
-    gioiTinh: 'Nữ',
-    soDienThoai: '0927 901 234',
-    email: 'trang.pm@mohinhtay.vn',
-    ngayVaoLam: '2024-06-01',
-    trangThai: 'thu-viec',
-  },
+  { id: '1', maNV: 'NV001', hoTen: 'Bùi Thị Duyên',        phongBan: 'Phòng Kinh doanh',             chucVu: 'Trưởng phòng Kinh doanh',        bacLuong: 'Bậc 5',    mucLuongCung: 6500000, mucLuongMem: 5000000, tongTroCap: 500000,  thoiDiemTangLuong: '03/2024', thoiDiemTangBacBacLuongDuKien: '03/2025 — Bậc 6', ghiChu: '' },
+  { id: '2', maNV: 'NV002', hoTen: 'Nguyễn Phú Quang',    phongBan: 'Phòng Khai triển',             chucVu: 'Trưởng phòng Khai triển',        bacLuong: 'Bậc 6',    mucLuongCung: 7000000, mucLuongMem: 5500000, tongTroCap: 800000,  thoiDiemTangLuong: '08/2024', thoiDiemTangBacBacLuongDuKien: '08/2025 — Bậc 7', ghiChu: '' },
+  { id: '3', maNV: 'NV003', hoTen: 'Kỳ Anh',               phongBan: 'Phòng Cảnh Quan',              chucVu: 'Chuyên viên Cảnh quan',          bacLuong: 'Bậc 3',    mucLuongCung: 4500000, mucLuongMem: 3000000, tongTroCap: 0,       thoiDiemTangLuong: '01/2025', thoiDiemTangBacBacLuongDuKien: '01/2026 — Bậc 4', ghiChu: '' },
+  { id: '4', maNV: 'NV004', hoTen: 'Bùi Phương Uyên',     phongBan: 'Phòng Điện',                   chucVu: 'Kỹ sư Điện & Chiếu sáng',       bacLuong: 'Bậc 4',    mucLuongCung: 5000000, mucLuongMem: 4000000, tongTroCap: 300000,  thoiDiemTangLuong: '11/2024', thoiDiemTangBacBacLuongDuKien: '11/2025 — Bậc 5', ghiChu: '' },
+  { id: '5', maNV: 'NV005', hoTen: 'Thao Phung',           phongBan: 'Phòng Mộc Sơn',                chucVu: 'KTV Sơn hoàn thiện',             bacLuong: 'Thử việc', mucLuongCung: 3120000, mucLuongMem: 3120000, tongTroCap: 0,       thoiDiemTangLuong: '—',       thoiDiemTangBacBacLuongDuKien: '05/2025 — Bậc 1', ghiChu: 'Đang thử việc' },
+  { id: '6', maNV: 'NV006', hoTen: 'Lê Hoàng Long',        phongBan: 'Phòng Cắt',                    chucVu: 'KTV Laser & CNC',                bacLuong: 'Bậc 2',    mucLuongCung: 4000000, mucLuongMem: 3000000, tongTroCap: 0,       thoiDiemTangLuong: '06/2024', thoiDiemTangBacBacLuongDuKien: '06/2025 — Bậc 3', ghiChu: '' },
+  { id: '7', maNV: 'NV007', hoTen: 'Trần Văn Mạnh',        phongBan: 'Lắp đặt',                      chucVu: 'Đội trưởng Lắp đặt',             bacLuong: 'Bậc 5',    mucLuongCung: 6000000, mucLuongMem: 4500000, tongTroCap: 1000000, thoiDiemTangLuong: '10/2024', thoiDiemTangBacBacLuongDuKien: '10/2025 — Bậc 6', ghiChu: '' },
+  { id: '8', maNV: 'NV008', hoTen: 'Phạm Minh Trang',      phongBan: 'Phòng Công nghệ và Thiết kế',  chucVu: 'Kiến trúc sư 3D',                bacLuong: 'Thử việc', mucLuongCung: 3120000, mucLuongMem: 3120000, tongTroCap: 0,       thoiDiemTangLuong: '—',       thoiDiemTangBacBacLuongDuKien: '06/2025 — Bậc 1', ghiChu: 'Đang thử việc' },
 ];
 
 const PHONG_BAN_LIST = [
@@ -147,11 +59,37 @@ const PHONG_BAN_LIST = [
   'Kế toán & Hành chính',
 ];
 
+const BAC_LUONG_LIST = ['Thử việc', 'Bậc 1', 'Bậc 2', 'Bậc 3', 'Bậc 4', 'Bậc 5', 'Bậc 6', 'Bậc 7'];
+
 export default function DanhSachNhanSuTab() {
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollStart = useRef(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    startX.current = e.clientX;
+    scrollStart.current = tableContainerRef.current?.scrollLeft ?? 0;
+    if (tableContainerRef.current) tableContainerRef.current.style.cursor = 'grabbing';
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    const delta = e.clientX - startX.current;
+    if (tableContainerRef.current) {
+      tableContainerRef.current.scrollLeft = scrollStart.current - delta;
+    }
+  };
+
+  const stopDrag = () => {
+    isDragging.current = false;
+    if (tableContainerRef.current) tableContainerRef.current.style.cursor = 'default';
+  };
+
   const [data, setData] = useState<NhanSuItem[]>(INITIAL_DATA);
   const [search, setSearch] = useState('');
   const [filterPhongBan, setFilterPhongBan] = useState('ALL');
-  const [filterTrangThai, setFilterTrangThai] = useState('ALL');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -168,11 +106,13 @@ export default function DanhSachNhanSuTab() {
     hoTen: '',
     phongBan: PHONG_BAN_LIST[0],
     chucVu: '',
-    gioiTinh: 'Nam',
-    soDienThoai: '',
-    email: '',
-    ngayVaoLam: new Date().toISOString().split('T')[0],
-    trangThai: 'dang-lam-viec',
+    bacLuong: BAC_LUONG_LIST[0],
+    mucLuongCung: 0,
+    mucLuongMem: 0,
+    tongTroCap: 0,
+    thoiDiemTangLuong: '',
+    thoiDiemTangBacBacLuongDuKien: '',
+    ghiChu: '',
   });
 
   // Filtered data
@@ -185,15 +125,13 @@ export default function DanhSachNhanSuTab() {
         item.maNV.toLowerCase().includes(q) ||
         item.phongBan.toLowerCase().includes(q) ||
         item.chucVu.toLowerCase().includes(q) ||
-        item.soDienThoai.toLowerCase().includes(q) ||
-        item.email.toLowerCase().includes(q);
+        item.bacLuong.toLowerCase().includes(q);
 
       const matchPB = filterPhongBan === 'ALL' || item.phongBan === filterPhongBan;
-      const matchTT = filterTrangThai === 'ALL' || item.trangThai === filterTrangThai;
 
-      return matchSearch && matchPB && matchTT;
+      return matchSearch && matchPB;
     });
-  }, [data, search, filterPhongBan, filterTrangThai]);
+  }, [data, search, filterPhongBan]);
 
   const totalRecords = filteredData.length;
   const totalPages = Math.ceil(totalRecords / itemsPerPage) || 1;
@@ -215,11 +153,13 @@ export default function DanhSachNhanSuTab() {
       hoTen: '',
       phongBan: PHONG_BAN_LIST[0],
       chucVu: '',
-      gioiTinh: 'Nam',
-      soDienThoai: '',
-      email: '',
-      ngayVaoLam: new Date().toISOString().split('T')[0],
-      trangThai: 'dang-lam-viec',
+      bacLuong: BAC_LUONG_LIST[0],
+      mucLuongCung: 0,
+      mucLuongMem: 0,
+      tongTroCap: 0,
+      thoiDiemTangLuong: '',
+      thoiDiemTangBacBacLuongDuKien: '',
+      ghiChu: '',
     });
     setIsAddModalOpen(true);
   };
@@ -255,40 +195,6 @@ export default function DanhSachNhanSuTab() {
     if (deletingItem) {
       setData((prev) => prev.filter((i) => i.id !== deletingItem.id));
       setDeletingItem(null);
-    }
-  };
-
-  // Render Status Badge
-  const renderStatusBadge = (status: TrangThaiNhanSu) => {
-    switch (status) {
-      case 'dang-lam-viec':
-        return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            Đang làm việc
-          </span>
-        );
-      case 'thu-viec':
-        return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-            Thử việc
-          </span>
-        );
-      case 'tam-nghi':
-        return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold text-sky-700 bg-sky-50 border border-sky-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
-            Tạm nghỉ
-          </span>
-        );
-      case 'da-nghi':
-        return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold text-slate-500 bg-slate-100 border border-slate-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-            Đã nghỉ
-          </span>
-        );
     }
   };
 
@@ -346,113 +252,151 @@ export default function DanhSachNhanSuTab() {
       <div className="flex-1 min-h-0 px-5 py-3 flex flex-col">
         <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200 rounded-lg shadow-2xs overflow-hidden">
           {/* Table */}
-          <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
-            <table className="w-full text-xs text-left border-collapse">
+          <div
+            ref={tableContainerRef}
+            className="flex-1 overflow-auto min-h-0 no-scrollbar"
+            style={{ cursor: 'default', userSelect: 'none' }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={stopDrag}
+            onMouseLeave={stopDrag}
+          >
+            <table className="min-w-max w-full text-xs text-left border-collapse">
               <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200 shadow-2xs">
                 <tr>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mã NV</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs">Họ và tên</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Phòng ban</th>
+                  <th className="px-4 py-3 font-bold text-slate-500 text-xs whitespace-nowrap">STT</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Họ và tên</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Bậc lương</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mã nhân viên</th>
                   <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Chức vụ</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Giới tính</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Số điện thoại</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Email</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Ngày vào làm</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Trạng thái</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Phòng ban</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mức lương cứng</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mức lương mềm</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Tổng mức lương cơ bản</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Tổng trợ cấp</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Tổng thu nhập</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Thời điểm tăng lương</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Thời điểm tăng bậc & bậc lương dự kiến</th>
+                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Ghi chú</th>
                   <th className="px-4 py-3 font-bold text-slate-600 text-xs text-right whitespace-nowrap">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {paginatedData.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="text-center py-12 text-slate-400">
+                    <td colSpan={15} className="text-center py-12 text-slate-400">
                       <IconUser size={36} className="mx-auto mb-2 text-slate-300 stroke-1" />
                       <p className="font-semibold text-xs text-slate-600">Không tìm thấy nhân sự phù hợp</p>
                       <p className="text-[11px] text-slate-400 mt-0.5">Thử thay đổi từ khóa tìm kiếm</p>
                     </td>
                   </tr>
                 ) : (
-                  paginatedData.map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50/80 transition-colors group">
-                      {/* Mã NV */}
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap font-bold text-slate-700">
-                        {item.maNV}
-                      </td>
+                  paginatedData.map((item, idx) => {
+                    const tongCoBan = item.mucLuongCung + item.mucLuongMem;
+                    const tongThuNhap = tongCoBan + item.tongTroCap;
+                    return (
+                      <tr key={item.id} className="hover:bg-slate-50/80 transition-colors group">
+                        {/* STT */}
+                        <td className="px-4 py-3.5 align-middle text-slate-400 font-medium whitespace-nowrap">
+                          {startIndex + idx + 1}
+                        </td>
 
-                      {/* Họ và tên */}
-                      <td className="px-4 py-3.5 align-middle">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-indigo-50 text-indigo-700 font-bold flex items-center justify-center text-xs shrink-0 border border-indigo-100">
-                            {item.hoTen.charAt(0)}
+                        {/* Họ và tên */}
+                        <td className="px-4 py-3.5 align-middle whitespace-nowrap">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-full bg-indigo-50 text-indigo-700 font-bold flex items-center justify-center text-xs shrink-0 border border-indigo-100">
+                              {item.hoTen.charAt(0)}
+                            </div>
+                            <span className="font-bold text-slate-800 text-xs">{item.hoTen}</span>
                           </div>
-                          <span className="font-bold text-slate-800 text-xs">{item.hoTen}</span>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Phòng ban */}
-                      <td className="px-4 py-3.5 align-middle text-slate-600 font-medium whitespace-nowrap">
-                        {item.phongBan}
-                      </td>
+                        {/* Bậc lương */}
+                        <td className="px-4 py-3.5 align-middle whitespace-nowrap">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            {item.bacLuong}
+                          </span>
+                        </td>
 
-                      {/* Chức vụ */}
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">
-                        {item.chucVu}
-                      </td>
+                        {/* Mã NV */}
+                        <td className="px-4 py-3.5 align-middle whitespace-nowrap font-bold text-slate-700">
+                          {item.maNV}
+                        </td>
 
-                      {/* Giới tính */}
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">
-                        {item.gioiTinh}
-                      </td>
+                        {/* Chức vụ */}
+                        <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">
+                          {item.chucVu}
+                        </td>
 
-                      {/* Số điện thoại */}
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1">
-                          <IconPhone size={12} className="text-slate-400" />
-                          {item.soDienThoai}
-                        </span>
-                      </td>
+                        {/* Phòng ban */}
+                        <td className="px-4 py-3.5 align-middle text-slate-600 font-medium whitespace-nowrap">
+                          {item.phongBan}
+                        </td>
 
-                      {/* Email */}
-                      <td className="px-4 py-3.5 align-middle text-slate-500 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1">
-                          <IconMail size={12} className="text-slate-400" />
-                          {item.email}
-                        </span>
-                      </td>
+                        {/* Mức lương cứng */}
+                        <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap font-semibold text-slate-700">
+                          {formatVND(item.mucLuongCung)}
+                        </td>
 
-                      {/* Ngày vào làm */}
-                      <td className="px-4 py-3.5 align-middle text-slate-500 whitespace-nowrap">
-                        {item.ngayVaoLam}
-                      </td>
+                        {/* Mức lương mềm */}
+                        <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap font-semibold text-slate-700">
+                          {formatVND(item.mucLuongMem)}
+                        </td>
 
-                      {/* Trạng thái */}
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        {renderStatusBadge(item.trangThai)}
-                      </td>
+                        {/* Tổng mức lương cơ bản (computed) */}
+                        <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap font-semibold text-slate-700">
+                          {formatVND(tongCoBan)}
+                        </td>
 
-                      {/* Thao tác */}
-                      <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap">
-                        <div className="inline-flex items-center gap-1">
-                          <button
-                            type="button"
-                            title="Chỉnh sửa"
-                            onClick={() => handleOpenEdit(item)}
-                            className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
-                          >
-                            <IconPencil size={13} />
-                          </button>
-                          <button
-                            type="button"
-                            title="Xóa"
-                            onClick={() => setDeletingItem(item)}
-                            className="p-1.5 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
-                          >
-                            <IconTrash size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        {/* Tổng trợ cấp */}
+                        <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap text-slate-600">
+                          {formatVND(item.tongTroCap)}
+                        </td>
+
+                        {/* Tổng thu nhập (computed) */}
+                        <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap font-bold text-emerald-700">
+                          {formatVND(tongThuNhap)}
+                        </td>
+
+                        {/* Thời điểm tăng lương */}
+                        <td className="px-4 py-3.5 align-middle whitespace-nowrap text-slate-500">
+                          {item.thoiDiemTangLuong || '—'}
+                        </td>
+
+                        {/* Thời điểm tăng bậc & bậc lương dự kiến */}
+                        <td className="px-4 py-3.5 align-middle whitespace-nowrap text-slate-500">
+                          {item.thoiDiemTangBacBacLuongDuKien || '—'}
+                        </td>
+
+                        {/* Ghi chú */}
+                        <td className="px-4 py-3.5 align-middle text-slate-400 whitespace-nowrap">
+                          {item.ghiChu || '—'}
+                        </td>
+
+                        {/* Thao tác */}
+                        <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap">
+                          <div className="inline-flex items-center gap-1">
+                            <button
+                              type="button"
+                              title="Chỉnh sửa"
+                              onClick={() => handleOpenEdit(item)}
+                              className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                            >
+                              <IconPencil size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              title="Xóa"
+                              onClick={() => setDeletingItem(item)}
+                              className="p-1.5 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+                            >
+                              <IconTrash size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -505,7 +449,7 @@ export default function DanhSachNhanSuTab() {
       {/* ── Modal Thêm / Chỉnh sửa Nhân sự ── */}
       {(isAddModalOpen || editingItem) && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
             <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <h3 className="text-sm font-bold text-slate-800">
@@ -524,7 +468,8 @@ export default function DanhSachNhanSuTab() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSaveModal} className="p-5 space-y-3.5 text-xs">
+            <form onSubmit={handleSaveModal} className="p-5 space-y-3.5 text-xs max-h-[75vh] overflow-y-auto">
+              {/* Row 1: Mã NV + Họ và tên */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">Mã NV <span className="text-red-500">*</span></label>
@@ -550,6 +495,7 @@ export default function DanhSachNhanSuTab() {
                 </div>
               </div>
 
+              {/* Row 2: Phòng ban + Chức vụ */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">Phòng ban</label>
@@ -575,64 +521,106 @@ export default function DanhSachNhanSuTab() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Giới tính</label>
-                  <select
-                    value={formData.gioiTinh}
-                    onChange={(e) => setFormData({ ...formData, gioiTinh: e.target.value as 'Nam' | 'Nữ' })}
-                    className="w-full h-8 px-2 border border-slate-200 rounded-lg outline-none focus:border-indigo-400 bg-white"
-                  >
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Số điện thoại</label>
-                  <input
-                    type="text"
-                    value={formData.soDienThoai || ''}
-                    onChange={(e) => setFormData({ ...formData, soDienThoai: e.target.value })}
-                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                    placeholder="09xx xxx xxx"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={formData.email || ''}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                    placeholder="email@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Ngày vào làm</label>
-                  <input
-                    type="date"
-                    value={formData.ngayVaoLam || ''}
-                    onChange={(e) => setFormData({ ...formData, ngayVaoLam: e.target.value })}
-                    className="w-full h-8 px-2 border border-slate-200 rounded-lg outline-none focus:border-indigo-400 bg-white"
-                  />
-                </div>
-              </div>
-
+              {/* Row 3: Bậc lương */}
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Trạng thái làm việc</label>
+                <label className="block font-semibold text-slate-700 mb-1">Bậc lương</label>
                 <select
-                  value={formData.trangThai}
-                  onChange={(e) => setFormData({ ...formData, trangThai: e.target.value as TrangThaiNhanSu })}
+                  value={formData.bacLuong}
+                  onChange={(e) => setFormData({ ...formData, bacLuong: e.target.value })}
                   className="w-full h-8 px-2 border border-slate-200 rounded-lg outline-none focus:border-indigo-400 bg-white"
                 >
-                  <option value="dang-lam-viec">Đang làm việc</option>
-                  <option value="thu-viec">Thử việc</option>
-                  <option value="tam-nghi">Tạm nghỉ</option>
-                  <option value="da-nghi">Đã nghỉ</option>
+                  {BAC_LUONG_LIST.map((bl) => (
+                    <option key={bl} value={bl}>{bl}</option>
+                  ))}
                 </select>
+              </div>
+
+              {/* Row 4: Mức lương cứng + Mức lương mềm */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Mức lương cứng (VNĐ)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={formData.mucLuongCung ?? 0}
+                    onChange={(e) => setFormData({ ...formData, mucLuongCung: Number(e.target.value) })}
+                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Mức lương mềm (VNĐ)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={formData.mucLuongMem ?? 0}
+                    onChange={(e) => setFormData({ ...formData, mucLuongMem: Number(e.target.value) })}
+                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
+                  />
+                </div>
+              </div>
+
+              {/* Row 5: Tổng mức lương cơ bản (computed, readonly) + Tổng trợ cấp */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Tổng mức lương cơ bản</label>
+                  <div className="h-8 px-2.5 border border-slate-100 bg-slate-50 rounded-lg flex items-center font-semibold text-slate-600">
+                    {formatVND((formData.mucLuongCung ?? 0) + (formData.mucLuongMem ?? 0))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Tổng trợ cấp (VNĐ)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={formData.tongTroCap ?? 0}
+                    onChange={(e) => setFormData({ ...formData, tongTroCap: Number(e.target.value) })}
+                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
+                  />
+                </div>
+              </div>
+
+              {/* Row 6: Tổng thu nhập (computed, readonly) */}
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Tổng thu nhập</label>
+                <div className="h-8 px-2.5 border border-emerald-100 bg-emerald-50 rounded-lg flex items-center font-bold text-emerald-700">
+                  {formatVND((formData.mucLuongCung ?? 0) + (formData.mucLuongMem ?? 0) + (formData.tongTroCap ?? 0))}
+                </div>
+              </div>
+
+              {/* Row 7: Thời điểm tăng lương + Thời điểm tăng bậc */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Thời điểm tăng lương</label>
+                  <input
+                    type="text"
+                    value={formData.thoiDiemTangLuong || ''}
+                    onChange={(e) => setFormData({ ...formData, thoiDiemTangLuong: e.target.value })}
+                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
+                    placeholder="VD: 03/2025"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Tăng bậc & bậc lương dự kiến</label>
+                  <input
+                    type="text"
+                    value={formData.thoiDiemTangBacBacLuongDuKien || ''}
+                    onChange={(e) => setFormData({ ...formData, thoiDiemTangBacBacLuongDuKien: e.target.value })}
+                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
+                    placeholder="VD: 03/2026 — Bậc 6"
+                  />
+                </div>
+              </div>
+
+              {/* Row 8: Ghi chú */}
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Ghi chú</label>
+                <input
+                  type="text"
+                  value={formData.ghiChu || ''}
+                  onChange={(e) => setFormData({ ...formData, ghiChu: e.target.value })}
+                  className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
+                  placeholder="Ghi chú thêm..."
+                />
               </div>
 
               {/* Actions */}

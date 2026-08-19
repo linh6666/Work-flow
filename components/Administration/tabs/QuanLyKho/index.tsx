@@ -3,29 +3,42 @@
 import React, { useState } from 'react';
 import {
   IconBuildingWarehouse,
-  IconPackage,
-  IconArrowsTransferDown,
-  IconClipboardList,
+  IconTruckDelivery,
+  IconShoppingCart,
+  IconPuzzle,
+  IconTool,
   IconChartBar,
+  IconClipboardCheck,
 } from '@tabler/icons-react';
 
-import TonKhoTab from './tabs/TonKho';
-import NhapKhoTab from './tabs/NhapKho';
-import XuatKhoTab from './tabs/XuatKho';
-import KiemKeTab from './tabs/KiemKe';
-import BaoCaoKhoTab from './tabs/BaoCaoKho';
+import QuanLyNVLTab       from './tabs/QuanLyNVL';
+import QuanLyNCCTab       from './tabs/QuanLyNCC';
+import MuaNVLThangTab     from './tabs/MuaNVLThang';
+import PhuKienMHTab       from './tabs/QuanLyPhuKienMH';
+import MayMocTBTab        from './tabs/QuanLyMayMocTB';
+import KeHoachBaoCaoTab   from './tabs/KeHoachBaoCao';
+import PheDuyetDanhGiaTab from './tabs/PheDuyetDanhGia';
 
-type TabId = 'ton-kho' | 'nhap-kho' | 'xuat-kho' | 'kiem-ke' | 'bao-cao-kho';
+type TabId =
+  | 'quan-ly-nvl'
+  | 'quan-ly-ncc'
+  | 'mua-nvl-thang'
+  | 'quan-ly-phu-kien'
+  | 'quan-ly-may-moc'
+  | 'ke-hoach-bao-cao'
+  | 'phe-duyet-danh-gia';
 
 export default function QuanLyKho() {
-  const [activeTab, setActiveTab] = useState<TabId>('ton-kho');
+  const [activeTab, setActiveTab] = useState<TabId>('quan-ly-nvl');
 
   const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
-    { id: 'ton-kho',    label: 'Tồn kho',       icon: IconBuildingWarehouse },
-    { id: 'nhap-kho',   label: 'Nhập kho',       icon: IconPackage },
-    { id: 'xuat-kho',   label: 'Xuất kho',       icon: IconArrowsTransferDown },
-    { id: 'kiem-ke',    label: 'Kiểm kê',        icon: IconClipboardList },
-    { id: 'bao-cao-kho',label: 'Báo cáo Kho',    icon: IconChartBar },
+    { id: 'quan-ly-nvl',        label: 'Quản lý NVL',          icon: IconBuildingWarehouse },
+    { id: 'quan-ly-ncc',        label: 'Quản lý NCC',          icon: IconTruckDelivery     },
+    { id: 'mua-nvl-thang',      label: 'Mua NVL Tháng',        icon: IconShoppingCart      },
+    { id: 'quan-ly-phu-kien',   label: 'Quản lý Phụ kiện MH',  icon: IconPuzzle            },
+    { id: 'quan-ly-may-moc',    label: 'Quản lý máy móc TB',   icon: IconTool              },
+    { id: 'ke-hoach-bao-cao',   label: 'Kế hoạch & Báo cáo',   icon: IconChartBar          },
+    { id: 'phe-duyet-danh-gia', label: 'Phê duyệt & Đánh giá', icon: IconClipboardCheck    },
   ];
 
   return (
@@ -35,7 +48,7 @@ export default function QuanLyKho() {
         <div>
           <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Quản lý Kho</h2>
           <p className="text-xs font-medium text-slate-400 mt-0.5">
-            Tồn kho · Nhập kho · Xuất kho · Kiểm kê · Báo cáo kho
+            NVL · NCC · Mua NVL tháng · Phụ kiện MH · Máy móc TB · Kế hoạch & Báo cáo · Phê duyệt
           </p>
         </div>
 
@@ -67,11 +80,13 @@ export default function QuanLyKho() {
 
       {/* Dynamic Tab Content Area */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        {activeTab === 'ton-kho'     ? <TonKhoTab />     :
-         activeTab === 'nhap-kho'    ? <NhapKhoTab />    :
-         activeTab === 'xuat-kho'    ? <XuatKhoTab />    :
-         activeTab === 'kiem-ke'     ? <KiemKeTab />     :
-                                       <BaoCaoKhoTab />}
+        {activeTab === 'quan-ly-nvl'        ? <QuanLyNVLTab />        :
+         activeTab === 'quan-ly-ncc'        ? <QuanLyNCCTab />        :
+         activeTab === 'mua-nvl-thang'      ? <MuaNVLThangTab />      :
+         activeTab === 'quan-ly-phu-kien'   ? <PhuKienMHTab />        :
+         activeTab === 'quan-ly-may-moc'    ? <MayMocTBTab />         :
+         activeTab === 'ke-hoach-bao-cao'   ? <KeHoachBaoCaoTab />    :
+                                              <PheDuyetDanhGiaTab />}
       </div>
     </div>
   );

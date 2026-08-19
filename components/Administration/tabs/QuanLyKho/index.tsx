@@ -46,8 +46,8 @@ export default function QuanLyKho() {
       {/* Header & Sub-tabs */}
       <div className="space-y-3 shrink-0">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Quản lý Kho</h2>
-          <p className="text-xs font-medium text-slate-400 mt-0.5">
+          <h2 className="text-base font-extrabold text-slate-800 tracking-tight">Quản lý Kho</h2>
+          <p className="text-[10px] font-medium text-slate-400 mt-0.5">
             NVL · NCC · Mua NVL tháng · Phụ kiện MH · Máy móc TB · Kế hoạch & Báo cáo · Phê duyệt
           </p>
         </div>

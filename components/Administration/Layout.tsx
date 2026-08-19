@@ -43,7 +43,8 @@ import {
   IconReportAnalytics,
   IconReportMoney,
   IconKey,
-  IconBuildingWarehouse
+  IconBuildingWarehouse,
+  IconBriefcase
 } from '@tabler/icons-react';
 
 interface Project {
@@ -86,6 +87,7 @@ export default function AdministrationLayout({ children }: { children: React.Rea
     'bao-cao-tong-the',
     'quan-ly-tai-chinh',
     'quan-ly-kho',
+    'quan-ly-hanh-chinh',
     'quan-tri-user',
     'ma-tran-phan-quyen'
   ];
@@ -106,6 +108,7 @@ export default function AdministrationLayout({ children }: { children: React.Rea
     { id: 'quan-ly-kinh-doanh', name: 'Quản lý kinh doanh', icon: IconChartBar },
     { id: 'quan-ly-tai-chinh', name: 'Quản lý Tài chính', icon: IconReportMoney },
     { id: 'quan-ly-kho', name: 'Quản lý kho', icon: IconBuildingWarehouse },
+    { id: 'quan-ly-hanh-chinh', name: 'Quản lý hành chính', icon: IconBriefcase },
     { id: 'bao-cao-tong-the', name: 'Báo cáo Tổng thể', icon: IconReportAnalytics },
     { id: 'quan-tri-user', name: 'Quản trị user', icon: IconShieldCheck },
     { id: 'ma-tran-phan-quyen', name: 'Ma trận phân quyền', icon: IconKey },

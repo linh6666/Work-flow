@@ -174,7 +174,7 @@ export default function AdministrationLayout({ children }: { children: React.Rea
                   isSidebarCollapsed ? 'lg:justify-center lg:py-2.5 lg:px-0' : ''
                 } ${
                   isActive 
-                    ? 'bg-gradient-to-r from-[#406c89] to-[#345870] text-white font-bold shadow-md shadow-[#406c89]/20 border-l-4 border-[#BB8D38]' 
+                    ? 'bg-gradient-to-r from-[#406c89] to-[#345870] text-white font-bold shadow-md shadow-[#406c89]/20' 
                     : 'text-slate-650 hover:text-[#406c89] hover:bg-slate-100/90 font-semibold hover:translate-x-1'
                 }`}
                 title={item.name}

@@ -13,6 +13,7 @@ import QuanLyKinhDoanh from "../../../components/Administration/tabs/QuanLyKinhD
 import BaoCaoTongThe from "../../../components/Administration/tabs/BaoCaoTongThe";
 import MaTranPhanQuyen from "../../../components/Administration/tabs/MaTranPhanQuyen";
 import QuanLyTaiChinh from "../../../components/Administration/tabs/QuanLyTaiChinh";
+import QuanLyKho from "../../../components/Administration/tabs/QuanLyKho";
 
 export const metadata: Metadata = {
   title: "Quản lý công việc - WorkFlow",
@@ -52,6 +53,8 @@ export default async function AdministrationTabPage({ params }: { params: Promis
       return <BaoCaoTongThe />;
     case 'quan-ly-tai-chinh':
       return <QuanLyTaiChinh />;
+    case 'quan-ly-kho':
+      return <QuanLyKho />;
     default:
       return <TongQuan />;
   }

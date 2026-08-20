@@ -11,6 +11,8 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 
+import TaoLienHeModal from './modal/TaoLienHeModal';
+
 /* ─── Data Interface ────────────────────────────────────────────── */
 interface TransportContact {
   id: string;
@@ -82,12 +84,14 @@ const mockData: TransportContact[] = [
 
 /* ─── Component ───────────────────────────────────────────────── */
 export default function LienHeVanChuyenTab() {
+  const [dataList, setDataList] = useState<TransportContact[]>(mockData);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Filter logic
-  const filteredData = mockData.filter((item) => {
+  const filteredData = dataList.filter((item) => {
     const query = searchQuery.toLowerCase();
     return (
       item.donVi.toLowerCase().includes(query) ||
@@ -109,6 +113,13 @@ export default function LienHeVanChuyenTab() {
     setCurrentPage(1);
   };
 
+  const handleAddSubmit = (newContact: TransportContact) => {
+    setDataList((prev) => [
+      { ...newContact, stt: prev.length + 1 },
+      ...prev,
+    ]);
+  };
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden gap-3 bg-slate-50 p-1">
       {/* ── Top Bar Controls ── */}
@@ -128,6 +139,7 @@ export default function LienHeVanChuyenTab() {
         {/* Right: Create Button */}
         <button
           type="button"
+          onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-1 px-3.5 py-1.5 bg-[#406c89] text-white text-xs font-semibold rounded-lg hover:bg-[#345870] transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
         >
           <IconPlus size={14} />
@@ -204,6 +216,7 @@ export default function LienHeVanChuyenTab() {
                     <div className="flex items-center justify-center gap-2">
                       <button
                         type="button"
+                        onClick={() => setIsModalOpen(true)}
                         className="text-emerald-500 hover:text-emerald-600 transition-colors cursor-pointer"
                         title="Thêm"
                       >
@@ -341,6 +354,14 @@ export default function LienHeVanChuyenTab() {
           </div>
         </div>
       </div>
+
+      {/* ── Modal thêm liên hệ mới ── */}
+      <TaoLienHeModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmitSuccess={handleAddSubmit}
+      />
     </div>
   );
 }
+

@@ -98,17 +98,13 @@ export default function AdministrationLayout({ children }: { children: React.Rea
 
   const menuItems = [
     { id: 'tong-quan', name: 'Tổng quan', icon: IconLayoutGrid },
-    // { id: 'khach-hang', name: 'Khách hàng', icon: IconUsers },
-    // { id: 'de-xuat-bao-gia', name: 'Đề xuất Báo giá', icon: IconFilePlus },
+     { id: 'quan-ly-tai-chinh', name: 'Quản lý Tài chính', icon: IconReportMoney },
     { id: 'quan-ly-nhan-su', name: 'Quản lý nhân sự', icon: IconClipboardList },
-    // { id: 'bao-gia', name: 'Báo giá', icon: IconFileText },
-    // { id: 'hop-dong', name: 'Hợp đồng', icon: IconSignature },
-    // { id: 'yeu-cau-san-xuat', name: 'Yêu cầu Sản xuất', icon: IconBuildingFactory2 },
+      { id: 'quan-ly-kinh-doanh', name: 'Quản lý kinh doanh', icon: IconChartBar },
+      { id: 'quan-ly-kho', name: 'Quản lý kho', icon: IconBuildingWarehouse },
+      { id: 'quan-ly-hanh-chinh', name: 'Quản lý hành chính', icon: IconBriefcase },
     { id: 'quan-ly-du-an', name: 'Quản lý Dự án', icon: IconFolder },
-    { id: 'quan-ly-kinh-doanh', name: 'Quản lý kinh doanh', icon: IconChartBar },
-    { id: 'quan-ly-tai-chinh', name: 'Quản lý Tài chính', icon: IconReportMoney },
-    { id: 'quan-ly-kho', name: 'Quản lý kho', icon: IconBuildingWarehouse },
-    { id: 'quan-ly-hanh-chinh', name: 'Quản lý hành chính', icon: IconBriefcase },
+    
     { id: 'bao-cao-tong-the', name: 'Báo cáo Tổng thể', icon: IconReportAnalytics },
     { id: 'quan-tri-user', name: 'Quản trị user', icon: IconShieldCheck },
     { id: 'ma-tran-phan-quyen', name: 'Ma trận phân quyền', icon: IconKey },

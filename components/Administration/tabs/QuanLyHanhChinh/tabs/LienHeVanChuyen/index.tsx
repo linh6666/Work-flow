@@ -2,129 +2,343 @@
 
 import React, { useState } from 'react';
 import {
-  IconPhone,
   IconSearch,
-  IconDownload,
   IconPlus,
-  IconChevronDown,
-  IconMapPin,
-  IconMail,
+  IconPencil,
+  IconTrash,
+  IconSelector,
+  IconChevronLeft,
+  IconChevronRight,
 } from '@tabler/icons-react';
 
-/* ─── Mock data ─────────────────────────────────────────────── */
-const KHU_VUC = ['Tất cả khu vực', 'Miền Bắc', 'Miền Trung', 'Miền Nam', 'Quốc tế'];
+/* ─── Data Interface ────────────────────────────────────────────── */
+interface TransportContact {
+  id: string;
+  stt: number;
+  phuongThuc: string;
+  donVi: string;
+  nguoiLienHe: string;
+  sdt: string[];
+  email: string;
+}
 
-const mockLienHe = [
-  { ma: 'LH-001', ten_nha_xe: 'Công ty Vận tải Viettel Post',  khu_vuc: 'Miền Bắc', nguoi_lien_he: 'Nguyễn Văn Minh', sdt: '0988.123.456', email: 'minh.nv@viettelpost.vn', dia_chi: 'Hà Nội', trang_thai: 'Đối tác chiến lược' },
-  { ma: 'LH-002', ten_nha_xe: 'Chuyển phát nhanh Giao Hàng Nhanh', khu_vuc: 'Miền Nam', nguoi_lien_he: 'Trần Thị Thu',   sdt: '0903.987.654', email: 'thu.tt@ghn.vn',        dia_chi: 'TP.HCM', trang_thai: 'Đang hợp tác' },
-  { ma: 'LH-003', ten_nha_xe: 'Đội xe đường dài Bắc Nam Đạt Phát', khu_vuc: 'Miền Trung',nguoi_lien_he: 'Lê Hoàng Nam',  sdt: '0912.555.777', email: 'nam@datphatlogistics.com', dia_chi: 'Đà Nẵng', trang_thai: 'Đang hợp tác' },
-  { ma: 'LH-004', ten_nha_xe: 'Dịch vụ Vận tải Container Hải Phòng', khu_vuc: 'Miền Bắc', nguoi_lien_he: 'Phạm Đức Anh', sdt: '0936.444.888', email: 'anh.pd@hpcontainer.vn', dia_chi: 'Hải Phòng', trang_thai: 'Dự phòng' },
+/* ─── Mock Data matching design ────────────────────────────────── */
+const mockData: TransportContact[] = [
+  {
+    id: 'lh-1',
+    stt: 1,
+    phuongThuc: 'Chuyến hàng không/đường bộ',
+    donVi: 'Nasco',
+    nguoiLienHe: 'Anh Võ Tá Nam',
+    sdt: ['0904 998845', '0838355333'],
+    email: 'Võ Tá Nam <namvt@nascoexpress.com>',
+  },
+  {
+    id: 'lh-2',
+    stt: 2,
+    phuongThuc: 'Chuyến hàng không/đường bộ',
+    donVi: 'Nasco',
+    nguoiLienHe: 'Anh Bùi Minh Thiện',
+    sdt: ['0986 118 447'],
+    email: 'Bùi Minh Thiện <thienbm@nascoexpress.com>',
+  },
+  {
+    id: 'lh-3',
+    stt: 3,
+    phuongThuc: 'Chuyến hàng đường bộ (đi ghép hàng hoặc nguyên chuyến)',
+    donVi: 'Vận tải Toàn Nhất',
+    nguoiLienHe: 'Em Nhân',
+    sdt: ['0901.325.696'],
+    email: 'Nhan Phan <nhan.toannhat@gmail.com>',
+  },
+  {
+    id: 'lh-4',
+    stt: 4,
+    phuongThuc: 'Chuyến hàng nội thành',
+    donVi: 'Vận tải 24h',
+    nguoiLienHe: 'Anh Ngọ',
+    sdt: ['0962242424'],
+    email: '',
+  },
+  {
+    id: 'lh-5',
+    stt: 5,
+    phuongThuc: '',
+    donVi: 'Vận tải 24h',
+    nguoiLienHe: 'Kế toán',
+    sdt: ['0934500713'],
+    email: '',
+  },
+  {
+    id: 'lh-6',
+    stt: 6,
+    phuongThuc: 'Chuyến hàng đường bộ (đi nguyên chuyến)',
+    donVi: 'Tư nhân',
+    nguoiLienHe: 'Anh Chí',
+    sdt: ['0912064796'],
+    email: '',
+  },
 ];
 
-const STATUS_STYLE: Record<string, string> = {
-  'Đối tác chiến lược': 'bg-emerald-50 text-emerald-600',
-  'Đang hợp tác':        'bg-blue-50 text-blue-600',
-  'Dự phòng':            'bg-amber-50 text-amber-600',
-};
-
-/* ─── Component ─────────────────────────────────────────────── */
+/* ─── Component ───────────────────────────────────────────────── */
 export default function LienHeVanChuyenTab() {
-  const [search, setSearch] = useState('');
-  const [khuVuc, setKhuVuc] = useState('Tất cả khu vực');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-  const filtered = mockLienHe.filter((v) =>
-    (khuVuc === 'Tất cả khu vực' || v.khu_vuc === khuVuc) &&
-    (v.ten_nha_xe.toLowerCase().includes(search.toLowerCase()) ||
-     v.nguoi_lien_he.toLowerCase().includes(search.toLowerCase()) ||
-     v.sdt.includes(search))
-  );
+  // Filter logic
+  const filteredData = mockData.filter((item) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      item.donVi.toLowerCase().includes(query) ||
+      item.nguoiLienHe.toLowerCase().includes(query) ||
+      item.phuongThuc.toLowerCase().includes(query) ||
+      item.email.toLowerCase().includes(query) ||
+      item.sdt.some((phone) => phone.includes(query))
+    );
+  });
+
+  // Pagination logic
+  const totalItems = filteredData.length;
+  const totalPages = Math.ceil(totalItems / pageSize) || 1;
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedData = filteredData.slice(startIndex, startIndex + pageSize);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden gap-3">
-      {/* ── Header bar ── */}
-      <div className="flex items-center gap-3 shrink-0 flex-wrap">
-        <div className="flex items-center gap-2 mr-auto">
-          <IconPhone size={18} className="text-[#406c89] shrink-0" />
-          <span className="text-sm font-bold text-slate-700 whitespace-nowrap">
-            Danh bạ Liên hệ Vận chuyển — Đối tác &amp; Nhà xe
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors font-medium">
-            <IconDownload size={13} />
-            Xuất Excel
-          </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#406c89] text-white rounded-lg hover:bg-[#355a75] transition-colors font-semibold">
-            <IconPlus size={13} />
-            Thêm liên hệ
-          </button>
-        </div>
-      </div>
-
-      {/* ── Search + Filter row ── */}
-      <div className="flex items-center gap-2 shrink-0">
-        <div className="relative flex-1">
+    <div className="flex-1 flex flex-col overflow-hidden gap-3 bg-slate-50 p-1">
+      {/* ── Top Bar Controls ── */}
+      <div className="flex items-center justify-between gap-3 shrink-0">
+        {/* Left: Search Box */}
+        <div className="relative flex-1 max-w-xl">
           <IconSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm theo tên đơn vị vận chuyển, đầu mối liên hệ, SĐT..."
-            className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder="Tìm theo đơn vị, người liên hệ, SĐT..."
+            className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
           />
         </div>
-        <div className="relative shrink-0">
-          <select
-            value={khuVuc}
-            onChange={(e) => setKhuVuc(e.target.value)}
-            className="appearance-none pl-3 pr-8 py-2 text-xs border border-slate-200 rounded-lg bg-white text-slate-600 font-medium focus:outline-none focus:ring-2 focus:ring-[#406c89]/30 cursor-pointer"
-          >
-            {KHU_VUC.map((n) => <option key={n}>{n}</option>)}
-          </select>
-          <IconChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-        </div>
+
+        {/* Right: Create Button */}
+        <button
+          type="button"
+          className="flex items-center gap-1 px-3.5 py-1.5 bg-[#406c89] text-white text-xs font-semibold rounded-lg hover:bg-[#345870] transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
+        >
+          <IconPlus size={14} />
+          <span>Tạo mới</span>
+        </button>
       </div>
 
-      {/* ── Table ── */}
-      <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+      {/* ── Table Container Card ── */}
+      <div className="flex-1 bg-white rounded-xl border border-slate-200/80 shadow-xs flex flex-col overflow-hidden">
+        
+        {/* Banner Section Header */}
+        <div className="bg-[#ebf4f8] px-4 py-2.5 border-b border-slate-200/80 shrink-0">
+          <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-tight">
+            BẢNG THÔNG TIN LIÊN HỆ CỦA MỘT SỐ ĐƠN VỊ VẬN CHUYỂN HÀNG HÓA
+          </h3>
+        </div>
+
+        {/* Table Content */}
         <div className="overflow-auto flex-1">
-          <table className="w-full text-xs">
-            <thead className="bg-slate-50 sticky top-0 z-10">
+          <table className="w-full text-xs text-left border-collapse">
+            <thead className="bg-[#406c89] text-white sticky top-0 z-10">
               <tr>
-                {['Mã LH', 'Tên đơn vị / Nhà xe', 'Khu vực', 'Người liên hệ', 'Số điện thoại', 'Email', 'Địa bàn', 'Trạng thái'].map((h) => (
-                  <th key={h} className="text-left px-4 py-2.5 font-semibold text-slate-500 whitespace-nowrap border-b border-slate-100">{h}</th>
-                ))}
+                <th className="py-2.5 px-4 font-semibold text-center w-12 border-r border-[#406c89]/40">
+                  STT
+                </th>
+                <th className="py-2.5 px-4 font-semibold text-center whitespace-nowrap w-24 border-r border-[#406c89]/40">
+                  Thao tác
+                </th>
+                <th className="py-2.5 px-4 font-semibold whitespace-nowrap border-r border-[#406c89]/40">
+                  <div className="flex items-center gap-1 cursor-pointer select-none">
+                    <span>Phương thức chuyển hàng</span>
+                    <IconSelector size={13} className="text-white/70" />
+                  </div>
+                </th>
+                <th className="py-2.5 px-4 font-semibold whitespace-nowrap border-r border-[#406c89]/40">
+                  <div className="flex items-center gap-1 cursor-pointer select-none">
+                    <span>Đơn vị vận chuyển</span>
+                    <IconSelector size={13} className="text-white/70" />
+                  </div>
+                </th>
+                <th className="py-2.5 px-4 font-semibold whitespace-nowrap border-r border-[#406c89]/40">
+                  <div className="flex items-center gap-1 cursor-pointer select-none">
+                    <span>Người liên hệ</span>
+                    <IconSelector size={13} className="text-white/70" />
+                  </div>
+                </th>
+                <th className="py-2.5 px-4 font-semibold whitespace-nowrap border-r border-[#406c89]/40">
+                  <div className="flex items-center gap-1 cursor-pointer select-none">
+                    <span>SĐT</span>
+                    <IconSelector size={13} className="text-white/70" />
+                  </div>
+                </th>
+                <th className="py-2.5 px-4 font-semibold whitespace-nowrap">
+                  <div className="flex items-center gap-1 cursor-pointer select-none">
+                    <span>Email</span>
+                    <IconSelector size={13} className="text-white/70" />
+                  </div>
+                </th>
               </tr>
             </thead>
-            <tbody>
-              {filtered.map((v, i) => (
-                <tr key={v.ma} className={`border-b border-slate-50 hover:bg-slate-50/70 transition-colors ${i % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
-                  <td className="px-4 py-2.5 font-mono text-slate-500">{v.ma}</td>
-                  <td className="px-4 py-2.5 font-semibold text-slate-700">{v.ten_nha_xe}</td>
-                  <td className="px-4 py-2.5 text-slate-500">{v.khu_vuc}</td>
-                  <td className="px-4 py-2.5 font-medium text-slate-700">{v.nguoi_lien_he}</td>
-                  <td className="px-4 py-2.5 font-bold text-[#406c89]">{v.sdt}</td>
-                  <td className="px-4 py-2.5 text-slate-500">
-                    <span className="flex items-center gap-1 text-slate-500">
-                      <IconMail size={11} className="text-slate-400" />
-                      {v.email}
-                    </span>
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {paginatedData.map((row) => (
+                <tr
+                  key={row.id}
+                  className="hover:bg-slate-50/80 transition-colors"
+                >
+                  {/* STT */}
+                  <td className="py-3 px-4 text-center text-slate-500 font-medium whitespace-nowrap">
+                    {row.stt}
                   </td>
-                  <td className="px-4 py-2.5 text-slate-600">
-                    <span className="flex items-center gap-1 text-slate-600">
-                      <IconMapPin size={11} className="text-slate-400" />
-                      {v.dia_chi}
-                    </span>
+
+                  {/* Thao tác */}
+                  <td className="py-3 px-4 whitespace-nowrap">
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        className="text-emerald-500 hover:text-emerald-600 transition-colors cursor-pointer"
+                        title="Thêm"
+                      >
+                        <IconPlus size={15} className="stroke-[2.5]" />
+                      </button>
+                      <button
+                        type="button"
+                        className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                        title="Sửa"
+                      >
+                        <IconPencil size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        className="text-rose-400 hover:text-rose-600 transition-colors cursor-pointer"
+                        title="Xóa"
+                      >
+                        <IconTrash size={15} />
+                      </button>
+                    </div>
                   </td>
-                  <td className="px-4 py-2.5">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${STATUS_STYLE[v.trang_thai] ?? 'bg-slate-100 text-slate-500'}`}>
-                      {v.trang_thai}
-                    </span>
+
+                  {/* Phương thức chuyển hàng */}
+                  <td className="py-3 px-4 text-slate-700">
+                    {row.phuongThuc}
+                  </td>
+
+                  {/* Đơn vị vận chuyển */}
+                  <td className="py-3 px-4 font-bold text-slate-800 whitespace-nowrap">
+                    {row.donVi}
+                  </td>
+
+                  {/* Người liên hệ */}
+                  <td className="py-3 px-4 text-slate-700 font-medium whitespace-nowrap">
+                    {row.nguoiLienHe}
+                  </td>
+
+                  {/* SĐT */}
+                  <td className="py-3 px-4 text-slate-700 whitespace-nowrap">
+                    <div className="flex flex-col">
+                      {row.sdt.map((phone, idx) => (
+                        <span key={idx}>{phone}</span>
+                      ))}
+                    </div>
+                  </td>
+
+                  {/* Email */}
+                  <td className="py-3 px-4 text-slate-700 whitespace-nowrap">
+                    {row.email}
                   </td>
                 </tr>
               ))}
+
+              {filteredData.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-slate-400">
+                    Không tìm thấy dữ liệu liên hệ phù hợp.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
+        </div>
+
+        {/* ── Bottom Pagination Bar ── */}
+        <div className="shrink-0 z-10 bg-white border-t border-slate-200/90 px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs select-none">
+          <div className="flex items-center gap-3 text-slate-500 font-medium text-xs">
+            <div>
+              Hiển thị{' '}
+              <span className="font-bold text-slate-800">
+                {totalItems > 0 ? startIndex + 1 : 0} - {Math.min(startIndex + pageSize, totalItems)}
+              </span>{' '}
+              trên <span className="font-bold text-slate-800">{totalItems}</span> bản ghi
+            </div>
+            <div className="flex items-center gap-1.5 ml-2 border-l border-slate-200 pl-3">
+              <span>Hiển thị:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 text-xs text-slate-700 font-medium focus:outline-none cursor-pointer"
+              >
+                <option value={5}>5 bản ghi</option>
+                <option value={10}>10 bản ghi</option>
+                <option value={20}>20 bản ghi</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`p-1.5 rounded-lg border transition-all ${
+                currentPage === 1
+                  ? 'border-slate-200 text-slate-300 cursor-not-allowed'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer'
+              }`}
+              title="Trang trước"
+            >
+              <IconChevronLeft size={15} />
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              <button
+                key={pageNum}
+                type="button"
+                onClick={() => setCurrentPage(pageNum)}
+                className={`w-7 h-7 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center justify-center ${
+                  currentPage === pageNum
+                    ? 'bg-[#406c89] text-white shadow-2xs font-bold'
+                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200/80'
+                }`}
+              >
+                {pageNum}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className={`p-1.5 rounded-lg border transition-all ${
+                currentPage === totalPages
+                  ? 'border-slate-200 text-slate-300 cursor-not-allowed'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer'
+              }`}
+              title="Trang sau"
+            >
+              <IconChevronRight size={15} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

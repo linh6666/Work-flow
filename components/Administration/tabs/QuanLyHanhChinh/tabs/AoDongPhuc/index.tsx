@@ -2,71 +2,61 @@
 
 import React, { useState } from 'react';
 import {
-  IconCalendarEvent,
+  IconShirt,
   IconSearch,
   IconDownload,
   IconPlus,
   IconChevronDown,
-  IconMapPin,
 } from '@tabler/icons-react';
 
 /* ─── Mock data ─────────────────────────────────────────────── */
-const PHONG_BAN = ['Tất cả phòng ban', 'Ban giám đốc', 'P.Kinh doanh', 'P.Kỹ thuật', 'P.Nhân sự', 'P.Tài chính', 'P.Hành chính'];
+const PHONG_BAN = ['Tất cả phòng ban', 'P.Kinh doanh', 'P.Kỹ thuật', 'P.Nhân sự', 'P.Tài chính', 'P.Hành chính'];
 
-const mockCongTac = [
-  { ma: 'CT-001', nhan_vien: 'Nguyễn Văn An',   phong_ban: 'P.Kinh doanh', dia_diem: 'Hà Nội',        muc_dich: 'Gặp khách hàng DA-HN-01',       tu_ngay: '2026-08-10', den_ngay: '2026-08-12', so_ngay: 3, chi_phi: 4_500_000,  trang_thai: 'Đã hoàn thành' },
-  { ma: 'CT-002', nhan_vien: 'Trần Thị Bích',    phong_ban: 'P.Kỹ thuật',  dia_diem: 'Đà Nẵng',       muc_dich: 'Nghiệm thu công trình DA-DN-03',  tu_ngay: '2026-08-15', den_ngay: '2026-08-17', so_ngay: 3, chi_phi: 5_200_000,  trang_thai: 'Đang thực hiện' },
-  { ma: 'CT-003', nhan_vien: 'Lê Công Chiến',    phong_ban: 'Ban giám đốc', dia_diem: 'TP.HCM',        muc_dich: 'Họp đối tác chiến lược',          tu_ngay: '2026-08-18', den_ngay: '2026-08-19', so_ngay: 2, chi_phi: 3_800_000,  trang_thai: 'Đang thực hiện' },
-  { ma: 'CT-004', nhan_vien: 'Phạm Thị Dung',    phong_ban: 'P.Tài chính', dia_diem: 'Hà Nội',        muc_dich: 'Quyết toán dự án Q2',             tu_ngay: '2026-08-20', den_ngay: '2026-08-21', so_ngay: 2, chi_phi: 2_600_000,  trang_thai: 'Chờ duyệt'     },
-  { ma: 'CT-005', nhan_vien: 'Hoàng Minh Tuấn',  phong_ban: 'P.Kỹ thuật',  dia_diem: 'Hải Phòng',     muc_dich: 'Khảo sát dự án mới',              tu_ngay: '2026-08-22', den_ngay: '2026-08-23', so_ngay: 2, chi_phi: 3_100_000,  trang_thai: 'Chờ duyệt'     },
-  { ma: 'CT-006', nhan_vien: 'Võ Thị Lan',       phong_ban: 'P.Nhân sự',   dia_diem: 'Cần Thơ',       muc_dich: 'Tuyển dụng tại địa phương',       tu_ngay: '2026-08-25', den_ngay: '2026-08-26', so_ngay: 2, chi_phi: 2_900_000,  trang_thai: 'Đã duyệt'      },
-  { ma: 'CT-007', nhan_vien: 'Nguyễn Đức Hùng',  phong_ban: 'P.Kinh doanh',dia_diem: 'Đà Nẵng',       muc_dich: 'Ký hợp đồng khách hàng mới',     tu_ngay: '2026-08-28', den_ngay: '2026-08-29', so_ngay: 2, chi_phi: 4_200_000,  trang_thai: 'Đã duyệt'      },
+const mockAoDongPhuc = [
+  { ma: 'DP-001', nhan_vien: 'Nguyễn Văn An',   phong_ban: 'P.Kinh doanh', loai_ao: 'Áo sơ mi nam',   size: 'L',  so_luong: 2, ngay_cap: '2026-08-01', trang_thai: 'Đã cấp phát' },
+  { ma: 'DP-002', nhan_vien: 'Trần Thị Bích',    phong_ban: 'P.Kỹ thuật',  loai_ao: 'Áo polo nữ',    size: 'M',  so_luong: 3, ngay_cap: '2026-08-05', trang_thai: 'Đã cấp phát' },
+  { ma: 'DP-003', nhan_vien: 'Lê Công Chiến',    phong_ban: 'Ban giám đốc', loai_ao: 'Áo vest cao cấp', size: 'XL', so_luong: 1, ngay_cap: '2026-08-10', trang_thai: 'Chờ nhận'    },
+  { ma: 'DP-004', nhan_vien: 'Phạm Thị Dung',    phong_ban: 'P.Tài chính', loai_ao: 'Áo sơ mi nữ',   size: 'S',  so_luong: 2, ngay_cap: '2026-08-12', trang_thai: 'Đã cấp phát' },
+  { ma: 'DP-005', nhan_vien: 'Hoàng Minh Tuấn',  phong_ban: 'P.Kỹ thuật',  loai_ao: 'Áo bảo hộ lao động', size: 'L', so_luong: 2, ngay_cap: '2026-08-15', trang_thai: 'Chờ sản xuất' },
 ];
 
 const STATUS_STYLE: Record<string, string> = {
-  'Đã hoàn thành':  'bg-emerald-50 text-emerald-600',
-  'Đang thực hiện': 'bg-blue-50 text-blue-600',
-  'Chờ duyệt':      'bg-amber-50 text-amber-600',
-  'Đã duyệt':       'bg-purple-50 text-purple-600',
+  'Đã cấp phát':  'bg-emerald-50 text-emerald-600',
+  'Chờ nhận':     'bg-blue-50 text-blue-600',
+  'Chờ sản xuất': 'bg-amber-50 text-amber-600',
 };
 
 /* ─── Component ─────────────────────────────────────────────── */
-export default function CongTac() {
+export default function AoDongPhucTab() {
   const [search, setSearch]     = useState('');
   const [phongBan, setPhongBan] = useState('Tất cả phòng ban');
 
-  const filtered = mockCongTac.filter((v) =>
+  const filtered = mockAoDongPhuc.filter((v) =>
     (phongBan === 'Tất cả phòng ban' || v.phong_ban === phongBan) &&
     (v.nhan_vien.toLowerCase().includes(search.toLowerCase()) ||
-     v.dia_diem.toLowerCase().includes(search.toLowerCase()) ||
-     v.muc_dich.toLowerCase().includes(search.toLowerCase()))
+     v.loai_ao.toLowerCase().includes(search.toLowerCase()) ||
+     v.ma.toLowerCase().includes(search.toLowerCase()))
   );
-
-  const tongChiPhi = filtered.reduce((s, v) => s + v.chi_phi, 0);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden gap-3">
-
       {/* ── Header bar ── */}
       <div className="flex items-center gap-3 shrink-0 flex-wrap">
         <div className="flex items-center gap-2 mr-auto">
-          <IconCalendarEvent size={18} className="text-[#406c89] shrink-0" />
+          <IconShirt size={18} className="text-[#406c89] shrink-0" />
           <span className="text-sm font-bold text-slate-700 whitespace-nowrap">
-            Quản lý Công tác — Lịch đi công tác nhân viên
+            Quản lý Áo đồng phục — Cấp phát &amp; Khái toán
           </span>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="text-xs font-semibold text-slate-500 px-3 py-1.5 bg-slate-100 rounded-lg">
-            Tổng chi phí: <span className="text-[#406c89]">{tongChiPhi.toLocaleString()}đ</span>
-          </div>
           <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors font-medium">
             <IconDownload size={13} />
             Xuất Excel
           </button>
           <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#406c89] text-white rounded-lg hover:bg-[#355a75] transition-colors font-semibold">
             <IconPlus size={13} />
-            Tạo lịch công tác
+            Đăng ký đồng phục
           </button>
         </div>
       </div>
@@ -78,7 +68,7 @@ export default function CongTac() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm theo tên nhân viên, địa điểm, mục đích..."
+            placeholder="Tìm theo tên nhân viên, loại áo, mã cấp phát..."
             className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
           />
         </div>
@@ -100,7 +90,7 @@ export default function CongTac() {
           <table className="w-full text-xs">
             <thead className="bg-slate-50 sticky top-0 z-10">
               <tr>
-                {['Mã CT', 'Nhân viên', 'Phòng ban', 'Địa điểm', 'Mục đích', 'Từ ngày', 'Đến ngày', 'Số ngày', 'Chi phí', 'Trạng thái'].map((h) => (
+                {['Mã ĐK', 'Nhân viên', 'Phòng ban', 'Loại áo', 'Kích cỡ (Size)', 'Số lượng', 'Ngày cấp', 'Trạng thái'].map((h) => (
                   <th key={h} className="text-left px-4 py-2.5 font-semibold text-slate-500 whitespace-nowrap border-b border-slate-100">{h}</th>
                 ))}
               </tr>
@@ -111,17 +101,10 @@ export default function CongTac() {
                   <td className="px-4 py-2.5 font-mono text-slate-500">{v.ma}</td>
                   <td className="px-4 py-2.5 font-semibold text-slate-700 whitespace-nowrap">{v.nhan_vien}</td>
                   <td className="px-4 py-2.5 text-slate-500 whitespace-nowrap">{v.phong_ban}</td>
-                  <td className="px-4 py-2.5">
-                    <span className="flex items-center gap-1 text-slate-600 whitespace-nowrap">
-                      <IconMapPin size={11} className="text-slate-400" />
-                      {v.dia_diem}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2.5 text-slate-600 max-w-[200px] truncate">{v.muc_dich}</td>
-                  <td className="px-4 py-2.5 text-slate-400 whitespace-nowrap">{v.tu_ngay}</td>
-                  <td className="px-4 py-2.5 text-slate-400 whitespace-nowrap">{v.den_ngay}</td>
-                  <td className="px-4 py-2.5 font-medium text-slate-700 text-center">{v.so_ngay}</td>
-                  <td className="px-4 py-2.5 font-bold text-slate-700 text-right whitespace-nowrap">{v.chi_phi.toLocaleString()}đ</td>
+                  <td className="px-4 py-2.5 text-slate-600">{v.loai_ao}</td>
+                  <td className="px-4 py-2.5 font-bold text-slate-700">{v.size}</td>
+                  <td className="px-4 py-2.5 text-slate-600">{v.so_luong}</td>
+                  <td className="px-4 py-2.5 text-slate-400 whitespace-nowrap">{v.ngay_cap}</td>
                   <td className="px-4 py-2.5">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${STATUS_STYLE[v.trang_thai] ?? 'bg-slate-100 text-slate-500'}`}>
                       {v.trang_thai}

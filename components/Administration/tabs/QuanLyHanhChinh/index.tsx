@@ -3,30 +3,39 @@
 import React, { useState } from 'react';
 import {
   IconBriefcase,
-  IconFileText,
-  IconCalendarEvent,
-  IconCar,
-  IconTools,
-  IconClipboardCheck,
+  IconWallet,
+  IconShirt,
+  IconTruck,
+  IconDeviceDesktop,
+  IconPigMoney,
+  IconPhone,
 } from '@tabler/icons-react';
 
-import VanBanTab       from './tabs/VanBan';
-import CongTacTab      from './tabs/CongTac';
-import XeConTab        from './tabs/XeCon';
-import CoSoVatChatTab  from './tabs/CoSoVatChat';
-import TaiSanTab       from './tabs/TaiSan';
+import DeXuatHachToanTab   from './tabs/DeXuatHachToan';
+import AoDongPhucTab       from './tabs/AoDongPhuc';
+import XeVanChuyenTab      from './tabs/XeVanChuyen';
+import ThietBiVanPhongTab  from './tabs/ThietBiVanPhong';
+import QuyDuPhongTab       from './tabs/QuyDuPhong';
+import LienHeVanChuyenTab  from './tabs/LienHeVanChuyen';
 
-type TabId = 'van-ban' | 'cong-tac' | 'xe-con' | 'co-so-vat-chat' | 'tai-san';
+type TabId =
+  | 'de-xuat-hach-toan'
+  | 'ao-dong-phuc'
+  | 'xe-van-chuyen'
+  | 'thiet-bi-van-phong'
+  | 'quy-du-phong'
+  | 'lien-he-van-chuyen';
 
 export default function QuanLyHanhChinh() {
-  const [activeTab, setActiveTab] = useState<TabId>('van-ban');
+  const [activeTab, setActiveTab] = useState<TabId>('de-xuat-hach-toan');
 
   const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
-    { id: 'van-ban',        label: 'Văn bản',          icon: IconFileText       },
-    { id: 'cong-tac',      label: 'Công tác',          icon: IconCalendarEvent  },
-    { id: 'xe-con',        label: 'Xe con',             icon: IconCar            },
-    { id: 'co-so-vat-chat',label: 'Cơ sở vật chất',   icon: IconTools          },
-    { id: 'tai-san',       label: 'Tài sản',            icon: IconClipboardCheck },
+    { id: 'de-xuat-hach-toan',   label: 'Đề xuất & Hạch toán', icon: IconWallet        },
+    { id: 'ao-dong-phuc',       label: 'Áo đồng phục',       icon: IconShirt         },
+    { id: 'xe-van-chuyen',      label: 'Xe vận chuyển',      icon: IconTruck         },
+    { id: 'thiet-bi-van-phong', label: 'Thiết bị văn phòng', icon: IconDeviceDesktop },
+    { id: 'quy-du-phong',       label: 'Quỹ dự phòng',       icon: IconPigMoney      },
+    { id: 'lien-he-van-chuyen', label: 'Liên hệ vận chuyển', icon: IconPhone         },
   ];
 
   return (
@@ -38,7 +47,7 @@ export default function QuanLyHanhChinh() {
           <div>
             <h2 className="text-base font-extrabold text-slate-800 tracking-tight">Quản lý hành chính</h2>
             <p className="text-[10px] font-medium text-slate-400 mt-0.5">
-              Văn bản · Công tác · Xe con · Cơ sở vật chất · Tài sản
+              Đề xuất & Hạch toán · Áo đồng phục · Xe vận chuyển · Thiết bị văn phòng · Quỹ dự phòng · Liên hệ vận chuyển
             </p>
           </div>
         </div>
@@ -71,12 +80,14 @@ export default function QuanLyHanhChinh() {
 
       {/* Dynamic Tab Content Area */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        {activeTab === 'van-ban'         ? <VanBanTab />       :
-         activeTab === 'cong-tac'        ? <CongTacTab />      :
-         activeTab === 'xe-con'          ? <XeConTab />        :
-         activeTab === 'co-so-vat-chat'  ? <CoSoVatChatTab /> :
-                                           <TaiSanTab />}
+        {activeTab === 'de-xuat-hach-toan'   ? <DeXuatHachToanTab />   :
+         activeTab === 'ao-dong-phuc'        ? <AoDongPhucTab />       :
+         activeTab === 'xe-van-chuyen'       ? <XeVanChuyenTab />      :
+         activeTab === 'thiet-bi-van-phong'  ? <ThietBiVanPhongTab />  :
+         activeTab === 'quy-du-phong'        ? <QuyDuPhongTab />       :
+                                               <LienHeVanChuyenTab />}
       </div>
     </div>
   );
 }
+

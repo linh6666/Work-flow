@@ -400,11 +400,11 @@ export default function QuanLyDuAn() {
   };
 
   // Helper for progress bar color logic
-  const getProgressColorClass = (tienDo: number, evalText: string) => {
-    if (evalText === 'Chưa đánh giá') return 'bg-slate-300';
-    if (tienDo <= 10) return 'bg-slate-300';
-    if (tienDo < 60) return 'bg-[#f97316]';
-    return 'bg-blue-600/90';
+  const getProgressColorClass = (tienDo: number) => {
+    if (tienDo <= 30) return 'bg-[#FF0000]';
+    if (tienDo <= 60) return 'bg-[#22863a]';
+    if (tienDo <= 80) return 'bg-[#ba8e3a]';
+    return 'bg-[#406c89]';
   };
 
   const sortButtons: { key: NonNullable<SortKeyType>; label: string }[] = [
@@ -693,7 +693,7 @@ export default function QuanLyDuAn() {
                     <div className="flex items-center gap-3">
                       <div className="relative flex-1 bg-slate-100 rounded-full h-2">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 bg-[#406c89]`}
+                          className={`h-full rounded-full transition-all duration-500 ${getProgressColorClass(item.tienDo)}`}
                           style={{ width: `${item.tienDo}%` }}
                         />
                         {item.milestones?.map(ms => (

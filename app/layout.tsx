@@ -3,10 +3,11 @@ import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
 
 const nunito = Nunito_Sans({
-  subsets: ["latin"],
+  subsets: ["latin", "vietnamese"],
   weight: ["200", "300", "400", "500", "600", "700", "800"],
   style: ["normal", "italic"],
   variable: "--font-nunito",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -21,10 +22,10 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${nunito.variable} h-full antialiased`}
+      lang="vi"
+      className={`${nunito.variable} ${nunito.className} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
 }

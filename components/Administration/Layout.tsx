@@ -176,14 +176,14 @@ export default function AdministrationLayout({ children }: { children: React.Rea
                 title={item.name}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                  <div className={`w-7.5 h-7.5 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
                     isActive 
                       ? 'bg-white/15 text-white' 
                       : 'bg-slate-100/80 text-slate-500 group-hover:bg-[#406c89]/10 group-hover:text-[#406c89]'
                   }`}>
-                    <Icon size={15} className="stroke-[2.2]" />
+                    <Icon size={16} className="stroke-[2.2]" />
                   </div>
-                  <span className={`text-xs tracking-tight truncate ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
+                  <span className={`text-sm tracking-tight truncate ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
                     {item.name}
                   </span>
                 </div>

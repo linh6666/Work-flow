@@ -658,11 +658,11 @@ export default function QuanLyDuAn() {
 
                   {/* Description */}
                   {item.moTa && (
-                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{item.moTa}</p>
+                    <p className="text-xs text-slate-600 font-medium leading-relaxed line-clamp-2">{item.moTa}</p>
                   )}
 
                   {/* Dates */}
-                  <div className="flex items-center justify-between gap-2 text-xs text-slate-400">
+                  <div className="flex items-center justify-between gap-2 text-xs text-slate-600 font-medium">
                     <div className="flex gap-4">
                       <span>Bắt đầu: {formatDateDisplay(item.ngayBatDau)}</span>
                       <span>Kết thúc: {formatDateDisplay(item.ngayKetThuc)}</span>

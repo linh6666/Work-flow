@@ -1,73 +1,204 @@
 "use client";
 
-import React from 'react';
-import { IconFileText, IconFileSpreadsheet, IconBuildingBank } from '@tabler/icons-react';
+import React, { useState } from 'react';
+import {
+  IconTrendingUp,
+  IconTrendingDown,
+  IconScale,
+  IconRefresh,
+  IconCalendar,
+  IconStack2,
+  IconUsers,
+  IconFileText,
+  IconUserCircle,
+} from '@tabler/icons-react';
+
+import DoanhThuTheoNam from './tabs/DoanhThuTheoNam';
+import DoanhThuTheoLoaiDA from './tabs/DoanhThuTheoLoaiDA';
+import DoanhThuThucTeTheoKH from './tabs/DoanhThuThucTeTheoKH';
+import DoanhThuHopDongTheoKH from './tabs/DoanhThuHopDongTheoKH';
+import ChanDungKhachHang from './tabs/ChanDungKhachHang';
+
+type SubTabType = 'nam' | 'loai-da' | 'tt-kh' | 'hd-kh' | 'chan-dung-kh';
 
 export default function BaoCaoDoanhThuTab() {
+  const [selectedNam, setSelectedNam] = useState<string>('2026');
+  const [activeTab, setActiveTab] = useState<SubTabType>('nam');
+
+  // KPI Metrics
+  const doanhThu = 0;
+  const thuNoiBo = 0;
+  const chiNoiBo = 0;
+  const canDoiNB = 0;
+
+  const handleRefresh = () => {
+    setSelectedNam('2026');
+    setActiveTab('nam');
+  };
+
   return (
-    <div className="flex-1 overflow-y-auto space-y-4 pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center gap-2 mb-1">
-            <IconFileText size={16} className="text-[#406c89]" />
-            <p className="text-[11px] font-semibold text-slate-500">Thu từ Hợp đồng</p>
-          </div>
-          <p className="text-xl font-extrabold text-slate-800">1.560.000.000đ</p>
-          <p className="text-[10px] text-slate-400 mt-1">Chiếm 98% tổng thu</p>
+    <div className="flex-1 flex flex-col min-h-0 space-y-3 text-slate-700 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      {/* ── Top Bar: Năm báo cáo & Làm mới ── */}
+      <div className="shrink-0 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-slate-500">Năm báo cáo:</span>
+          <select
+            value={selectedNam}
+            onChange={(e) => setSelectedNam(e.target.value)}
+            className="bg-white border border-[#9333ea]/50 hover:border-[#9333ea] focus:border-[#9333ea] rounded-lg px-3 py-1 text-xs font-semibold text-slate-700 shadow-2xs focus:outline-none cursor-pointer transition-all"
+          >
+            <option value="2026">Năm 2026</option>
+            <option value="2025">Năm 2025</option>
+            <option value="2024">Năm 2024</option>
+            <option value="2023">Năm 2023</option>
+            <option value="2022">Năm 2022</option>
+            <option value="2021">Năm 2021</option>
+            <option value="2020">Năm 2020</option>
+            <option value="2019">Năm 2019</option>
+            <option value="2018">Năm 2018</option>
+          </select>
         </div>
-        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center gap-2 mb-1">
-            <IconFileSpreadsheet size={16} className="text-amber-500" />
-            <p className="text-[11px] font-semibold text-slate-500">Thu từ Báo giá lẻ</p>
+
+        <button
+          type="button"
+          onClick={handleRefresh}
+          className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition-all cursor-pointer"
+        >
+          <IconRefresh size={13} className="text-slate-500" />
+          <span>Làm mới</span>
+        </button>
+      </div>
+
+      {/* ── 4 KPI Summary Cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
+        {/* Card 1: DOANH THU */}
+        <div className="bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <IconTrendingUp size={15} className="text-emerald-600" />
+            <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">
+              DOANH THU {selectedNam}
+            </span>
           </div>
-          <p className="text-xl font-extrabold text-slate-800">15.000.000đ</p>
-          <p className="text-[10px] text-slate-400 mt-1">Dịch vụ tư vấn & phát sinh</p>
+          <p className="text-xl font-black text-emerald-700">
+            {doanhThu} <u className="underline decoration-emerald-700 font-bold text-lg">đ</u>
+          </p>
         </div>
-        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center gap-2 mb-1">
-            <IconBuildingBank size={16} className="text-emerald-500" />
-            <p className="text-[11px] font-semibold text-slate-500">Thu tài chính khác</p>
+
+        {/* Card 2: THU NỘI BỘ */}
+        <div className="bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <IconTrendingUp size={15} className="text-emerald-600" />
+            <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">
+              THU NỘI BỘ
+            </span>
           </div>
-          <p className="text-xl font-extrabold text-slate-800">0đ</p>
-          <p className="text-[10px] text-slate-400 mt-1">Lãi tiền gửi / Khác</p>
+          <p className="text-xl font-black text-emerald-700">
+            {thuNoiBo} <u className="underline decoration-emerald-700 font-bold text-lg">đ</u>
+          </p>
+        </div>
+
+        {/* Card 3: CHI NỘI BỘ */}
+        <div className="bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <IconTrendingDown size={15} className="text-[#dc2626]" />
+            <span className="text-[11px] font-bold text-[#dc2626] uppercase tracking-wide">
+              CHI NỘI BỘ
+            </span>
+          </div>
+          <p className="text-xl font-black text-[#dc2626]">
+            {chiNoiBo} <u className="underline decoration-[#dc2626] font-bold text-lg">đ</u>
+          </p>
+        </div>
+
+        {/* Card 4: CÂN ĐỐI NB */}
+        <div className="bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <IconScale size={15} className="text-[#b45309]" />
+            <span className="text-[11px] font-bold text-[#b45309] uppercase tracking-wide">
+              CÂN ĐỐI NB
+            </span>
+          </div>
+          <p className="text-xl font-black text-[#b45309]">
+            {canDoiNB} <u className="underline decoration-[#b45309] font-bold text-lg">đ</u>
+          </p>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-xs">
-        <h3 className="text-sm font-extrabold text-slate-800 mb-3">Chi tiết báo cáo doanh thu Quý 3/2026</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 text-slate-400 uppercase text-[10px] font-bold">
-              <tr>
-                <th className="p-2.5">Hạng mục</th>
-                <th className="p-2.5">Số lượng HĐ</th>
-                <th className="p-2.5">Doanh thu dự kiến</th>
-                <th className="p-2.5">Thực nhận</th>
-                <th className="p-2.5">Tỷ lệ hoàn thành</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-              <tr>
-                <td className="p-2.5 font-bold">Dự án Mô hình Kiến trúc</td>
-                <td className="p-2.5">4</td>
-                <td className="p-2.5">4.230.000.000đ</td>
-                <td className="p-2.5 text-emerald-600 font-bold">1.560.000.000đ</td>
-                <td className="p-2.5">
-                  <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 font-bold">36.8%</span>
-                </td>
-              </tr>
-              <tr>
-                <td className="p-2.5 font-bold">Dịch vụ Tư vấn Thiết kế</td>
-                <td className="p-2.5">2</td>
-                <td className="p-2.5">45.000.000đ</td>
-                <td className="p-2.5 text-emerald-600 font-bold">15.000.000đ</td>
-                <td className="p-2.5">
-                  <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 font-bold">33.3%</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      {/* ── Sub-tabs Navigation Bar ── */}
+      <div className="shrink-0 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab('nam')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'nam'
+              ? 'bg-[#3e566d] text-white shadow-2xs'
+              : 'bg-slate-100 hover:bg-slate-200/70 text-slate-600 hover:text-slate-800'
+          }`}
+        >
+          <IconCalendar size={14} />
+          <span>DT theo Năm</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('loai-da')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'loai-da'
+              ? 'bg-[#3e566d] text-white shadow-2xs'
+              : 'bg-slate-100 hover:bg-slate-200/70 text-slate-600 hover:text-slate-800'
+          }`}
+        >
+          <IconStack2 size={14} />
+          <span>DT theo Loại DA</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('tt-kh')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'tt-kh'
+              ? 'bg-[#3e566d] text-white shadow-2xs'
+              : 'bg-slate-100 hover:bg-slate-200/70 text-slate-600 hover:text-slate-800'
+          }`}
+        >
+          <IconUsers size={14} />
+          <span>DT thực tế theo KH</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('hd-kh')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'hd-kh'
+              ? 'bg-[#3e566d] text-white shadow-2xs'
+              : 'bg-slate-100 hover:bg-slate-200/70 text-slate-600 hover:text-slate-800'
+          }`}
+        >
+          <IconFileText size={14} />
+          <span>DT HĐ theo KH</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('chan-dung-kh')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'chan-dung-kh'
+              ? 'bg-[#3e566d] text-white shadow-2xs'
+              : 'bg-slate-100 hover:bg-slate-200/70 text-slate-600 hover:text-slate-800'
+          }`}
+        >
+          <IconUserCircle size={14} />
+          <span>Chân dung KH</span>
+        </button>
+      </div>
+
+      {/* ── Sub-tab Content Area ── */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {activeTab === 'nam' && <DoanhThuTheoNam selectedNam={selectedNam} />}
+        {activeTab === 'loai-da' && <DoanhThuTheoLoaiDA selectedNam={selectedNam} />}
+        {activeTab === 'tt-kh' && <DoanhThuThucTeTheoKH selectedNam={selectedNam} />}
+        {activeTab === 'hd-kh' && <DoanhThuHopDongTheoKH selectedNam={selectedNam} />}
+        {activeTab === 'chan-dung-kh' && <ChanDungKhachHang selectedNam={selectedNam} />}
       </div>
     </div>
   );

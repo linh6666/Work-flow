@@ -23,6 +23,8 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 import { formatDate } from '../../../../types';
+import ThemHopDongModal from './modals/ThemHopDong';
+import { NewHopDongForm } from './modals/types';
 
 interface HopDongItem {
   id: string;
@@ -435,19 +437,7 @@ export default function DanhSachHopDongTab() {
     setCurrentPage(1);
   }, [searchTerm, selectedNam, selectedThang]);
 
-  // New item state for Add Modal
-  const [newItem, setNewItem] = useState({
-    soHD: '',
-    subHD: 'HĐ-MHV',
-    tenCongTrinh: '',
-    tenKH: '',
-    maKH: '',
-    kichThuoc: '',
-    tyLe: '',
-    tongGTHD: '',
-    gtPhatSinh: '',
-    dtNamCu: '',
-  });
+
 
   const handleSort = (column: keyof HopDongItem) => {
     if (sortColumn === column) {
@@ -502,31 +492,28 @@ export default function DanhSachHopDongTab() {
   const tongDaThu = filteredData.reduce((acc, curr) => acc + curr.tongDaThu, 0);
   const tongConPhaiThu = filteredData.reduce((acc, curr) => acc + curr.conPhaiThu, 0);
 
-  const handleAddNewRow = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newItem.tenCongTrinh) return;
-
-    const valTong = parseFloat(newItem.tongGTHD) || 0;
-    const valPS = parseFloat(newItem.gtPhatSinh) || 0;
-    const valNC = parseFloat(newItem.dtNamCu) || 0;
+  const handleAddNewRow = (form: NewHopDongForm) => {
+    const valTong = parseFloat(form.tongGTHD) || 0;
+    const valPS = parseFloat(form.gtPhatSinh) || 0;
+    const valNC = parseFloat(form.dtNamCu) || 0;
 
     const created: HopDongItem = {
       id: `hd-${Date.now()}`,
       stt: dataList.length + 1,
-      soHD: newItem.soHD || '—',
-      subHD: newItem.subHD || 'HĐ-MHV',
-      tenCongTrinh: newItem.tenCongTrinh,
-      tenKH: newItem.tenKH || '—',
-      maKH: newItem.maKH || '—',
-      kichThuoc: newItem.kichThuoc || '—',
-      tyLe: newItem.tyLe || '—',
+      soHD: form.soHD || '—',
+      subHD: form.subHD || 'HĐ-MHV',
+      tenCongTrinh: form.tenCongTrinh,
+      tenKH: form.tenKH || '—',
+      maKH: form.maKH || '—',
+      kichThuoc: form.kichThuoc || '—',
+      tyLe: form.tyLe || '—',
       tongGTHD: valTong,
       gtPhatSinh: valPS,
       dtNamCu: valNC,
       tongDaThu: 0,
       conPhaiThu: valTong,
       ngayKy: new Date().toISOString().split('T')[0],
-      nam: 2019,
+      nam: new Date().getFullYear(),
       thang: new Date().getMonth() + 1,
       trangThai: 'Đang thu',
       cacDotThanhToan: [
@@ -536,7 +523,6 @@ export default function DanhSachHopDongTab() {
 
     setDataList([...dataList, created]);
     setShowAddModal(false);
-    setNewItem({ soHD: '', subHD: 'HĐ-MHV', tenCongTrinh: '', tenKH: '', maKH: '', kichThuoc: '', tyLe: '', tongGTHD: '', gtPhatSinh: '', dtNamCu: '' });
   };
 
   const handleSaveEdit = (e: React.FormEvent) => {
@@ -1103,159 +1089,12 @@ export default function DanhSachHopDongTab() {
         </div>
       )}
 
-      {/* Modal Add New Row */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50/50">
-              <h4 className="text-sm font-extrabold text-slate-800 flex items-center gap-2">
-                <IconPlus size={18} className="text-[#406c89]" />
-                Thêm dòng hợp đồng mới
-              </h4>
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
-                className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-              >
-                <IconX size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddNewRow} className="p-5 space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Số hợp đồng (*)</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ví dụ: 08-2019"
-                    value={newItem.soHD}
-                    onChange={(e) => setNewItem({ ...newItem, soHD: e.target.value })}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#406c89]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Mã phụ HĐ</label>
-                  <input
-                    type="text"
-                    placeholder="Ví dụ: HĐ-MHV"
-                    value={newItem.subHD}
-                    onChange={(e) => setNewItem({ ...newItem, subHD: e.target.value })}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#406c89]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Tên công trình (*)</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: DỰ ÁN SUNSHINE CRYSTAL RIVER"
-                  value={newItem.tenCongTrinh}
-                  onChange={(e) => setNewItem({ ...newItem, tenCongTrinh: e.target.value })}
-                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#406c89]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Tên khách hàng</label>
-                  <input
-                    type="text"
-                    placeholder="Tên đối tác / chủ đầu tư"
-                    value={newItem.tenKH}
-                    onChange={(e) => setNewItem({ ...newItem, tenKH: e.target.value })}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#406c89]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Mã khách hàng</label>
-                  <input
-                    type="text"
-                    placeholder="Ví dụ: VN00092"
-                    value={newItem.maKH}
-                    onChange={(e) => setNewItem({ ...newItem, maKH: e.target.value })}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#406c89]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Kích thước</label>
-                  <input
-                    type="text"
-                    placeholder="Ví dụ: 4800 x 2400"
-                    value={newItem.kichThuoc}
-                    onChange={(e) => setNewItem({ ...newItem, kichThuoc: e.target.value })}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#406c89]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Tỷ lệ</label>
-                  <input
-                    type="text"
-                    placeholder="Ví dụ: 1/100"
-                    value={newItem.tyLe}
-                    onChange={(e) => setNewItem({ ...newItem, tyLe: e.target.value })}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#406c89]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Tổng GT HĐ (VNĐ)</label>
-                  <input
-                    type="number"
-                    placeholder="0"
-                    value={newItem.tongGTHD}
-                    onChange={(e) => setNewItem({ ...newItem, tongGTHD: e.target.value })}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#406c89]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">GT Phát sinh</label>
-                  <input
-                    type="number"
-                    placeholder="0"
-                    value={newItem.gtPhatSinh}
-                    onChange={(e) => setNewItem({ ...newItem, gtPhatSinh: e.target.value })}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#406c89]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">DT Năm cũ</label>
-                  <input
-                    type="number"
-                    placeholder="0"
-                    value={newItem.dtNamCu}
-                    onChange={(e) => setNewItem({ ...newItem, dtNamCu: e.target.value })}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#406c89]"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg transition-colors cursor-pointer"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#406c89] hover:bg-[#33566e] text-white font-bold rounded-lg shadow-2xs transition-colors cursor-pointer"
-                >
-                  Lưu hợp đồng
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Modal Add New Row – extracted to modals/ThemHopDongModal.tsx */}
+      <ThemHopDongModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSubmit={handleAddNewRow}
+      />
 
       {/* Modal Edit Row */}
       {editingHD && (

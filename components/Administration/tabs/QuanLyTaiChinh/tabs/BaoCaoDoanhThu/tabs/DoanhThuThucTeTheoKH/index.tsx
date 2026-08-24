@@ -1,47 +1,52 @@
 "use client";
 
 import React from 'react';
-import { IconUsers, IconFileSpreadsheet } from '@tabler/icons-react';
+import { IconDownload, IconUpload, IconFileText } from '@tabler/icons-react';
 
 interface DoanhThuThucTeTheoKHProps {
-  selectedNam: string;
+  selectedNam?: string;
 }
 
-export default function DoanhThuThucTeTheoKH({ selectedNam }: DoanhThuThucTeTheoKHProps) {
+export default function DoanhThuThucTeTheoKH({ selectedNam = '2026' }: DoanhThuThucTeTheoKHProps) {
   return (
-    <div className="flex-1 flex flex-col min-h-0 space-y-3">
-      <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-2xs">
-        <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
-          <div className="flex items-center gap-2">
-            <IconUsers size={16} className="text-[#3e566d]" />
-            <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wide">
-              Doanh thu thực tế theo Khách hàng — Năm {selectedNam}
-            </h4>
-          </div>
-          <span className="text-[11px] text-slate-400 font-medium">Đơn vị: VNĐ</span>
+    <div className="flex-1 flex flex-col min-h-0 space-y-2.5">
+      {/* Action Buttons on top right */}
+      <div className="flex justify-end items-center gap-1.5 shrink-0">
+        <button
+          type="button"
+          className="flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-700 text-[11px] font-semibold rounded-lg shadow-2xs transition-all cursor-pointer"
+        >
+          <IconDownload size={13} className="text-slate-500" />
+          <span>Export</span>
+        </button>
+
+        <button
+          type="button"
+          className="flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-700 text-[11px] font-semibold rounded-lg shadow-2xs transition-all cursor-pointer"
+        >
+          <IconUpload size={13} className="text-slate-500" />
+          <span>Import</span>
+        </button>
+
+        <button
+          type="button"
+          className="flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-700 text-[11px] font-semibold rounded-lg shadow-2xs transition-all cursor-pointer"
+        >
+          <IconFileText size={13} className="text-slate-500" />
+          <span>Mẫu</span>
+        </button>
+      </div>
+
+      {/* Main Container */}
+      <div className="bg-white border border-slate-200/90 rounded-xl shadow-2xs overflow-hidden flex flex-col min-h-[160px]">
+        <div className="p-3.5 border-b border-slate-100 bg-slate-50/40">
+          <h3 className="text-xs font-bold text-slate-800">
+            Doanh thu thực tế theo khách hàng {selectedNam} (DOANH THU THỰC TẾ THEO KH)
+          </h3>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-50/80 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-100">
-                <th className="py-2.5 px-3">STT</th>
-                <th className="py-2.5 px-3">Tên Khách hàng / Đối tác</th>
-                <th className="py-2.5 px-3 text-center">Số HĐ</th>
-                <th className="py-2.5 px-3 text-right">Tổng GT HĐ</th>
-                <th className="py-2.5 px-3 text-right">Đã thực thu</th>
-                <th className="py-2.5 px-3 text-right">Còn nợ</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-600 text-[11px]">
-              <tr>
-                <td colSpan={6} className="py-8 text-center text-slate-400">
-                  <IconFileSpreadsheet size={28} className="mx-auto mb-1.5 text-slate-300" />
-                  <span>Chưa có dữ liệu thực thu khách hàng trong năm {selectedNam}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="flex-1 flex items-center justify-center p-8 text-center">
+          <p className="text-xs text-slate-500 font-normal">Chưa có dữ liệu.</p>
         </div>
       </div>
     </div>

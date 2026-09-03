@@ -1,341 +1,380 @@
 "use client";
 
-import React, { useState } from 'react';
-import {
-  IconTrendingUp,
-  IconTrendingDown,
-  IconScale,
-  IconRefresh,
-  IconDownload,
-  IconChartBar,
-  IconCheck,
-} from '@tabler/icons-react';
-import { formatCurrency } from '../../../../types';
+import React from 'react';
 
-export interface ItemCanDoi {
-  id: string;
-  loai: 'Thu' | 'Chi';
-  danhMuc: string;
-  keHoach: number;
-  thucTe: number;
-  ghiChu?: string;
+export interface CategoryItem {
+  name: string;
+  acc?: string;
+  dk?: string;
 }
 
-const INITIAL_CAN_DOI: ItemCanDoi[] = [
-  // CÁC KHOẢN THU
-  { id: 'cd-1', loai: 'Thu', danhMuc: 'Thu hợp đồng thi công & lắp đặt mô hình', keHoach: 1_800_000_000, thucTe: 1_560_000_000, ghiChu: 'Thu theo tiến độ hợp đồng' },
-  { id: 'cd-2', loai: 'Thu', danhMuc: 'Thu báo giá dịch vụ bảo trì mô hình', keHoach: 150_000_000, thucTe: 120_000_000, ghiChu: 'Các gói bảo trì định kỳ' },
-  { id: 'cd-3', loai: 'Thu', danhMuc: 'Thu khác (Tư vấn, bổ sung vật liệu)', keHoach: 50_000_000, thucTe: 45_000_000, ghiChu: 'Phát sinh tư vấn lẻ' },
+export interface CategoryGroup {
+  groupName: string;
+  items: CategoryItem[];
+}
 
-  // CÁC KHOẢN CHI
-  { id: 'cd-4', loai: 'Chi', danhMuc: 'Chi vật liệu mô hình (Gỗ, Mica, Đèn LED...)', keHoach: 420_000_000, thucTe: 385_000_000, ghiChu: 'NCC Minh Đức, Kim Phát' },
-  { id: 'cd-5', loai: 'Chi', danhMuc: 'Chi nhân công & Lương xưởng mộc sơn', keHoach: 550_000_000, thucTe: 512_000_000, ghiChu: 'Lương khối sản xuất' },
-  { id: 'cd-6', loai: 'Chi', danhMuc: 'Chi vận chuyển mô hình tận nơi', keHoach: 60_000_000, thucTe: 54_500_000, ghiChu: 'Xe tải chuyên dụng' },
-  { id: 'cd-7', loai: 'Chi', danhMuc: 'Chi lắp đặt & hoàn thiện công trình', keHoach: 90_000_000, thucTe: 82_000_000, ghiChu: 'Đội lắp đặt công trình' },
-  { id: 'cd-8', loai: 'Chi', danhMuc: 'Chi văn phòng & Điện nước quản lý', keHoach: 40_000_000, thucTe: 36_000_000, ghiChu: 'Chi phí vận hành VP' },
+const TABLE_GROUPS: CategoryGroup[] = [
+  {
+    groupName: 'Bảng lương',
+    items: [
+      { name: 'Lương cứng', dk: '11' },
+      { name: 'Lương kinh doanh (Lương mềm)', dk: '14' },
+      { name: 'Phụ cấp ăn trưa', dk: '12' },
+      { name: 'Trợ cấp xăng xe +dien thoai', dk: '19' },
+      { name: 'Bảo hiểm y tế - XH- that nghiep', dk: '13' },
+      { name: 'Lương làm thêm giờ', dk: '8' },
+      { name: 'Thưởng Kết quả Kinh doanh cuối năm', dk: '15' },
+      { name: 'Trợ cấp thai sản', dk: '9' },
+      { name: 'Thưởng lễ tết và các thưởng khác', dk: '16' },
+      { name: 'Trợ cấp nghề', dk: '18' },
+    ],
+  },
+  {
+    groupName: 'Tuyển dụng và đào tạo',
+    items: [
+      { name: 'Tuyển dụng NV', dk: '21' },
+      { name: 'Đào tạo NV - Trong nước', dk: '22' },
+      { name: 'Đào tạo NV - Nước ngoài', dk: '23' },
+    ],
+  },
+  {
+    groupName: 'Sử dụng các NVL khác có mức kiểm soát',
+    items: [
+      { name: 'Xăng/ Dầu', dk: '31' },
+      { name: 'Các chi phí vật liệu phụ khác', dk: '32' },
+      { name: 'Chi phí đóng gói hàng hoá', dk: '33' },
+      { name: 'Lưu kho bãi', dk: '34' },
+      { name: 'Chi phí khác', dk: '35' },
+    ],
+  },
+  {
+    groupName: 'Nguyên vật liệu mua mới',
+    items: [
+      { name: 'Sơn', dk: '41' },
+      { name: 'Mica', dk: '42' },
+      { name: 'Giấy', dk: '43' },
+      { name: 'Formech', dk: '44' },
+      { name: 'Đồ điện', dk: '45' },
+      { name: 'Công nghệ', dk: '451' },
+      { name: 'Kính', dk: '46' },
+      { name: 'Gỗ', dk: '47' },
+      { name: 'Bánh xe', dk: '471' },
+      { name: 'Laminate- đá', dk: '472' },
+      { name: 'Phay gỗ', dk: '473' },
+      { name: 'Sắt', dk: '48' },
+      { name: 'Các chất phụ gia', dk: '49' },
+      { name: 'Vật liệu kết dính', dk: '410' },
+      { name: 'Chi phí làm cây', dk: '411' },
+      { name: 'Các loại vật liệu phụ khác', dk: '412' },
+      { name: 'Chi phí mua hàng trung quốc', dk: '413' },
+      { name: 'Chi phí mua hàng Preiser, Busch- Đức', dk: '414' },
+      { name: 'Chi phí mua hàng UHU- Đức', dk: '415' },
+    ],
+  },
+  {
+    groupName: 'Công cụ dụng cụ',
+    items: [
+      { name: 'Mua mới công cụ', dk: '51' },
+      { name: 'Mua mới máy móc các loại', dk: '52' },
+      { name: 'Chi phí mua mới khác (bu long, ocvit, ...)', dk: '53' },
+      { name: 'Chi phí mua hàng Proxxon', dk: '54' },
+    ],
+  },
+  {
+    groupName: 'Chi phí văn phòng',
+    items: [
+      { name: 'Sách và ấn phẩm', dk: '61' },
+      { name: 'In ấn và photocopy', dk: '62' },
+      { name: 'Văn phòng phẩm', dk: '63' },
+      { name: 'Nhãn hiệu sản phẩm', dk: '64' },
+      { name: 'Các chi phí văn phòng khác', dk: '65' },
+      { name: 'Chi phí mua đồ văn phòng máy tính, bàn ghế, ...', dk: '66' },
+    ],
+  },
+  {
+    groupName: 'Thuế, phí và phụ phí',
+    items: [
+      { name: 'Thuế kinh doanh (Doanh thu)', dk: '71' },
+      { name: 'Chi phí quản lý hành chính (Thuế môn bài)', dk: '72' },
+      { name: 'Thuế nhập khẩu', dk: '73' },
+      { name: 'Thuế VAT đầu vào không khấu trừ được', dk: '74' },
+      { name: 'Các khoản thuế và phí khác', dk: '75' },
+      { name: 'Phí hoá đơn', dk: '76' },
+      { name: 'Nộp phạt thuế', dk: '77' },
+      { name: 'Thuế TNCN', dk: '78' },
+    ],
+  },
+  {
+    groupName: 'Vận chuyển hàng hoá',
+    items: [
+      { name: 'Chi phí vận chuyển hàng hoá nội địa', dk: '81' },
+      { name: 'Chi phí vận chuyển hàng hoá nước ngoài', dk: '82' },
+      { name: 'Các loại phí khác', dk: '83' },
+    ],
+  },
+  {
+    groupName: 'Phí cho các nhà dịch vụ chuyên nghiệp',
+    items: [
+      { name: 'Phí kiểm toán', dk: '91' },
+      { name: 'Các phí tư vấn hợp pháp', dk: '92' },
+      { name: 'Phí ngân hàng', dk: '93' },
+      { name: 'Phí mở L/C', dk: '94' },
+      { name: 'Chi phí xin giấy phép hoặc nhãn hiệu bản quyền', dk: '95' },
+      { name: 'Phí nghiên cứu và thăm dò dư luận', dk: '96' },
+      { name: 'Phí bảo hiểm (bao hiem xe o to)', dk: '97' },
+      { name: 'Phí kiểm tra chất lượng dịch vụ', dk: '98' },
+      { name: 'Các loại phí khác (bồi dưỡng quản lý thuế, và các bên khác)', dk: '99' },
+    ],
+  },
+  {
+    groupName: 'Truyền thông',
+    items: [
+      { name: 'Điện thoại', dk: '111' },
+      { name: 'Chuyển phát nhanh (Buu pham, buu kien, mo hinh)', dk: '112' },
+      { name: 'Các phí truyền thông khác (cuoc truyen hinh cap)', dk: '113' },
+    ],
+  },
+  {
+    groupName: 'Dịch vụ công cộng và thuê ngoài',
+    items: [
+      { name: 'Điện', dk: '121' },
+      { name: 'Nước', dk: '122' },
+      { name: 'Chi phí thuê văn phòng', dk: '123' },
+      { name: 'Các loại thuế khác', dk: '124' },
+      { name: 'Phí thuê dịch vụ làm mô hình bên ngoài', dk: '17' },
+      { name: 'Dịch vụ bảo vệ', dk: '125' },
+      { name: 'Trật tự và Môi trường', dk: '126' },
+      { name: 'Các chi phí dịch vụ công cộng khác', dk: '127' },
+    ],
+  },
+  {
+    groupName: 'Quyền lợi của Nhân viên và các Ưu đãi',
+    items: [
+      { name: 'Hồi sức đội ngũ NV (nghỉ mát)', dk: '131' },
+      { name: 'Ăn tối', dk: '132' },
+      { name: 'Đồng phục', dk: '133' },
+      { name: 'Tiệc chiêu đãi, chúc mừng, quà tặng nhân viên Tết', dk: '134' },
+      { name: 'Sinh nhật', dk: '1341' },
+      { name: 'Thuốc và dịch vụ y tế', dk: '135' },
+      { name: 'dịch vụ vệ sinh công cộng', dk: '136' },
+      { name: 'Các chi phí khác (Mua đồ lễ cúng 1,15 hàng tháng).', dk: '137' },
+    ],
+  },
+  {
+    groupName: 'Chi phí đi lại - Trong nước',
+    items: [
+      { name: 'Chi phí ở - Trong nước', dk: '141' },
+      { name: 'Chi phí ăn', dk: '142' },
+      { name: 'Vé máy bay - Trong nước', dk: '143' },
+      { name: 'Phương tiện đi lại & Taxi - Trong nước (Vạn Xuân & Taxi công tác)', dk: '144' },
+      { name: 'Các phụ phí đi lại - Trong nước', dk: '145' },
+    ],
+  },
+  {
+    groupName: 'Chi phí đi lại - Nước ngoài',
+    items: [
+      { name: 'Chi phí ở - Nước ngoài', dk: '151' },
+      { name: 'Vé máy bay - Nước ngoài', dk: '152' },
+      { name: 'Phương tiện đi lại & Taxi - Nước ngoài', dk: '153' },
+      { name: 'Các phụ phí đi lại - Nước ngoài', dk: '154' },
+      { name: 'Phí làm visa và liên quan', dk: '155' },
+      { name: 'Các chi phí đi lại khác - Nước ngoài', dk: '156' },
+    ],
+  },
+  {
+    groupName: 'Bán hàng và Marketing',
+    items: [
+      { name: 'Chi phí quảng cáo', dk: '161' },
+      { name: 'In ấn tờ rơi và catalogue', dk: '162' },
+      { name: 'Chi phí Quảng cáo Website & google ranking (Theo kế hoạch NS)', dk: '163' },
+      { name: 'Chi phí khuyến mãi', dk: '164' },
+      { name: 'Hỗ trợ đại lý hoạt động', dk: '165' },
+      { name: 'Các sự kiện / Dự án', dk: '166' },
+      { name: 'Tiếp khách', dk: '167' },
+      { name: 'Đào tạo khách hàng', dk: '168' },
+      { name: 'Chi phí bảo hành', dk: '169' },
+      { name: 'Chi phí triển lãm, trưng bày', dk: '1610' },
+    ],
+  },
+  {
+    groupName: 'Sửa chữa và bảo trì',
+    items: [
+      { name: 'Sửa chữa và bảo trì - Nhà xưởng và văn phòng (sua chua nha cua)', dk: '171' },
+      { name: 'Sửa chữa và bảo trì - Máy móc và thiết bị văn phòng (may tinh, ...)', dk: '172' },
+      { name: 'Sửa chữa và bảo trì - Phương tiện vận chuyển', dk: '173' },
+      { name: 'Sửa chữa và bảo trì - Thiết bị văn phòng & Đồ nội thất (camera)', dk: '174' },
+      { name: 'Sửa chữa và bảo trì - Máy cắt Laser và máy in 3D', dk: '175' },
+    ],
+  },
+  {
+    groupName: 'Phải trả người bán',
+    items: [
+      { name: 'Phải trả cho Người bán', dk: '181' },
+    ],
+  },
+  {
+    groupName: 'Chi phí',
+    items: [
+      { name: 'Đóng góp công ích & từ thiện', dk: '191' },
+      { name: 'Giải trí - thuê sân bóng', dk: '192' },
+      { name: 'Chi phí - ốm đau, cưới hỏi', dk: '193' },
+      { name: 'Bảo hiểm chi trả (thai sản, ốm đau)', dk: '197' },
+      { name: 'Mua tài sản cố định (Trả tiền lãi & gốc Mua ô tô HSBC)', dk: '194' },
+      { name: 'Bảo hiểm xe ô tô', dk: '195' },
+      { name: 'Quỹ dự phòng', dk: '196' },
+    ],
+  },
+  {
+    groupName: 'Cân đối',
+    items: [
+      { name: 'Bảng lương', acc: '6271' },
+      { name: 'Thưởng Kết quả Kinh doanh', dk: '15' },
+      { name: 'Tuyển dụng và đào tạo', acc: '6271' },
+      { name: 'Sử dụng các NVL khác có mức kiểm soát', acc: '6272' },
+      { name: 'Formex - decan', dk: '44' },
+      { name: 'Đồ điện- hệ thống ánh sáng Mh', dk: '45' },
+      { name: 'Laminate - đá', dk: '472' },
+      { name: 'Công cụ dụng cụ', acc: '6273' },
+      { name: 'Chi phí mua mới khác (bu long, ocvit, ...) bánh xe', dk: '53' },
+      { name: 'Chi phí văn phòng', acc: '6273' },
+      { name: 'Thuế, phí và phụ phí', acc: '6275' },
+      { name: 'Đầu vào GTGT', dk: '76' },
+      { name: 'Vận chuyển hàng hoá', acc: '6277' },
+      { name: 'Phí cho các nhà dịch vụ chuyên nghiệp', acc: '6277' },
+      { name: 'Các phí tư vấn hợp pháp-công chứng', dk: '92' },
+      { name: 'Chi phí xin giấy phép hoặc nhãn hiệu bản quyền - phí duy trì thầu qua mạng', dk: '95' },
+      { name: 'Lãi vay ngân hàng', dk: '96' },
+      { name: 'Phí bảo hiểm', dk: '97' },
+      { name: 'Chi phí quản lý bên Úc', dk: '100' },
+      { name: 'Truyền thông', acc: '6277' },
+      { name: 'Các phí truyền thông khác (cáp mạng)', dk: '113' },
+      { name: 'Dịch vụ công cộng và thuê ngoài', acc: '6277' },
+      { name: 'Quyền lợi của Nhân viên và các Ưu đãi', acc: '6278' },
+      { name: 'Chi phí đi lại - Trong nước', acc: '6278' },
+      { name: 'Các phụ phí đi công tác khác', dk: '145' },
+      { name: 'Chi phí đi lại - Nước ngoài', acc: '6278' },
+      { name: 'Bán hàng và Marketing', acc: '6278' },
+      { name: 'Chi phí triển lãm, trưng bày-quà tặng KH', dk: '1610' },
+      { name: 'Sửa chữa và bảo trì', acc: '6278' },
+      { name: 'Sửa chữa và bảo trì - Máy cắt Laser và máy in 3D, máy công cụ', dk: '175' },
+      { name: 'Phải trả người bán', acc: '0' },
+      { name: 'Chi phí', acc: '6278' },
+      { name: 'Mua tài sản cố định (Trả tiền lãi & gốc Mua ô tô )', dk: '194' },
+    ],
+  },
 ];
 
 export default function BangCanDoiThuChiTab() {
-  const [namFilter, setNamFilter] = useState('2026');
-  const [kyFilter, setKyFilter] = useState('Cả năm');
-  const [data] = useState<ItemCanDoi[]>(INITIAL_CAN_DOI);
-
-  const listThu = data.filter((item) => item.loai === 'Thu');
-  const listChi = data.filter((item) => item.loai === 'Chi');
-
-  const tongThuKeHoach = listThu.reduce((acc, cur) => acc + cur.keHoach, 0);
-  const tongThuThucTe = listThu.reduce((acc, cur) => acc + cur.thucTe, 0);
-  const percentThu = tongThuKeHoach > 0 ? (tongThuThucTe / tongThuKeHoach) * 100 : 0;
-
-  const tongChiKeHoach = listChi.reduce((acc, cur) => acc + cur.keHoach, 0);
-  const tongChiThucTe = listChi.reduce((acc, cur) => acc + cur.thucTe, 0);
-  const percentChi = tongChiKeHoach > 0 ? (tongChiThucTe / tongChiKeHoach) * 100 : 0;
-
-  const canDoiKeHoach = tongThuKeHoach - tongChiKeHoach;
-  const canDoiThucTe = tongThuThucTe - tongChiThucTe;
-
-  const selectCls =
-    "border border-slate-200 rounded-md px-2 py-0.5 text-[11px] text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer appearance-none pr-5 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E')] bg-no-repeat bg-[right_5px_center] h-6.5";
+  const namFilter = '2026';
+  const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 
   return (
     <div className="flex-1 flex flex-col min-h-0 space-y-3 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-0.5">
-      {/* Top Filter Toolbar */}
-      <div className="bg-white border border-slate-200/80 rounded-xl px-3 py-2 shadow-xs shrink-0 flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold text-slate-500">Năm báo cáo:</span>
-          <select value={namFilter} onChange={(e) => setNamFilter(e.target.value)} className={selectCls}>
-            {['2026', '2025', '2024', '2023'].map((y) => (
-              <option key={y} value={y}>
-                Năm {y}
-              </option>
-            ))}
-          </select>
-
-          <span className="text-[11px] font-semibold text-slate-500 ml-2">Kỳ cân đối:</span>
-          <select value={kyFilter} onChange={(e) => setKyFilter(e.target.value)} className={selectCls}>
-            <option value="Cả năm">Cả năm</option>
-            <option value="Quý 1">Quý 1</option>
-            <option value="Quý 2">Quý 2</option>
-            <option value="Quý 3">Quý 3</option>
-            <option value="Quý 4">Quý 4</option>
-          </select>
+      {/* Overview Stat Cards matching image */}
+      <div className="grid grid-cols-3 gap-3 shrink-0">
+        {/* Tồn đầu kỳ */}
+        <div className="bg-[#fefce8] border border-[#fef08a] rounded-xl px-4 py-3 shadow-2xs">
+          <p className="text-[11px] font-semibold text-[#854d0e] mb-1.5">
+            Tồn đầu kỳ ({namFilter})
+          </p>
+          <p className="text-lg font-bold text-[#713f12]">
+            0 <span className="underline decoration-1 underline-offset-2 font-semibold">đ</span>
+          </p>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            className="flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
-          >
-            <IconRefresh size={12} /> Làm mới
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2d4a63] text-white text-[11px] font-bold hover:bg-[#1e3448] cursor-pointer transition-colors"
-          >
-            <IconDownload size={12} /> Xuất Báo Cáo
-          </button>
+        {/* Thu – Chi trong năm */}
+        <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-xl px-4 py-3 shadow-2xs">
+          <p className="text-[11px] font-semibold text-[#1e40af] mb-1.5">
+            Thu – Chi trong năm
+          </p>
+          <p className="text-lg font-bold text-[#1e3a8a]">
+            0 <span className="underline decoration-1 underline-offset-2 font-semibold">đ</span>
+          </p>
+        </div>
+
+        {/* Tồn cuối kỳ */}
+        <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl px-4 py-3 shadow-2xs">
+          <p className="text-[11px] font-semibold text-[#15803d] mb-1.5">
+            Tồn cuối kỳ
+          </p>
+          <p className="text-lg font-bold text-[#14532d]">
+            0 <span className="underline decoration-1 underline-offset-2 font-semibold">đ</span>
+          </p>
         </div>
       </div>
 
-      {/* Overview Stat Cards */}
-      <div className="grid grid-cols-3 gap-2.5 shrink-0">
-        {/* Thu Card */}
-        <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-2.5 shadow-xs">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-1.5">
-              <IconTrendingUp size={15} className="text-emerald-500" />
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Cân đối Thu</p>
-            </div>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200">
-              {percentThu.toFixed(1)}% Đạt KH
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <p className="text-base font-extrabold text-emerald-600">{formatCurrency(tongThuThucTe)}</p>
-            <span className="text-[10px] text-slate-400">KH: {formatCurrency(tongThuKeHoach)}</span>
-          </div>
-          {/* Progress bar */}
-          <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
-            <div
-              className="bg-emerald-500 h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(percentThu, 100)}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Chi Card */}
-        <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-2.5 shadow-xs">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-1.5">
-              <IconTrendingDown size={15} className="text-rose-500" />
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Cân đối Chi</p>
-            </div>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 border border-rose-200">
-              {percentChi.toFixed(1)}% Ngân sách
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <p className="text-base font-extrabold text-rose-500">{formatCurrency(tongChiThucTe)}</p>
-            <span className="text-[10px] text-slate-400">KH: {formatCurrency(tongChiKeHoach)}</span>
-          </div>
-          {/* Progress bar */}
-          <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
-            <div
-              className="bg-rose-500 h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(percentChi, 100)}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Thặng dư / Cân đối Card */}
-        <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-2.5 shadow-xs">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-1.5">
-              <IconScale size={15} className="text-amber-500" />
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Cân đối Ròng (Thu - Chi)</p>
-            </div>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200">
-              Thặng dư
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <p className={`text-base font-extrabold ${canDoiThucTe >= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
-              {canDoiThucTe >= 0 ? '+' : ''}{formatCurrency(canDoiThucTe)}
-            </p>
-            <span className="text-[10px] text-slate-400">KH: {formatCurrency(canDoiKeHoach)}</span>
-          </div>
-          <div className="flex items-center gap-1 mt-1 text-[10px] text-emerald-600 font-semibold">
-            <IconCheck size={12} /> Tài chính hoạt động tích cực
-          </div>
-        </div>
-      </div>
-
-      {/* Main Table: Bảng Cân Đối Chi Tiết */}
-      <div className="bg-white border border-slate-200/80 rounded-xl shadow-xs overflow-hidden">
-        <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-          <div className="flex items-center gap-2">
-            <IconChartBar size={16} className="text-[#406c89]" />
-            <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wide">
-              Bảng Tổng Hợp Cân Đối Chi Tiết ({namFilter} - {kyFilter})
-            </h4>
-          </div>
-          <span className="text-[10px] text-slate-400 italic">Đơn vị tính: VNĐ</span>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[700px]">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/40 text-[10px] font-bold text-slate-400 uppercase tracking-wide">
-                <th className="py-2.5 px-4">STT & Danh Mục Hạch Toán</th>
-                <th className="py-2.5 px-3 text-right">Kế Hoạch</th>
-                <th className="py-2.5 px-3 text-right">Thực Tế</th>
-                <th className="py-2.5 px-3 text-right">Chênh Lệch (+/-)</th>
-                <th className="py-2.5 px-3 text-center">Tỷ Lệ (%)</th>
-                <th className="py-2.5 px-4">Tiến Độ / Đánh Giá</th>
+      {/* Main Table: Bảng Chi Phí / Cân Đối Chi Tiết */}
+      <div className="bg-white border border-slate-200/80 rounded-xl shadow-xs overflow-hidden flex flex-col flex-1 min-h-0">
+        <div className="overflow-x-auto flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <table className="w-full text-left border-collapse min-w-[1200px]">
+            <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200/80">
+              <tr className="text-[11px] font-bold text-slate-500">
+                <th className="py-2.5 px-4 min-w-[260px] text-slate-700">Nội dung / Định khoản</th>
+                <th className="py-2.5 px-2 text-center w-12 text-slate-400 font-semibold">Acc</th>
+                <th className="py-2.5 px-2 text-center w-12 text-slate-400 font-semibold">ĐK</th>
+                {months.map((m) => (
+                  <th key={m} className="py-2.5 px-2 text-center w-12 text-slate-400 font-semibold">
+                    {m}
+                  </th>
+                ))}
+                <th className="py-2.5 px-3 text-right w-24 text-slate-600 font-bold">Tổng cộng</th>
+                <th className="py-2.5 px-3 text-right w-16 text-slate-600 font-bold">Tỷ lệ</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-100 text-xs">
-              {/* SECTION I: CÁC KHOẢN THU */}
-              <tr className="bg-emerald-50/40 font-bold text-emerald-900 text-[11px]">
-                <td colSpan={6} className="py-2 px-4 uppercase tracking-wide text-emerald-800">
-                  I. CÁC KHOẢN THU (REVENUE)
-                </td>
-              </tr>
-              {listThu.map((item, idx) => {
-                const diff = item.thucTe - item.keHoach;
-                const pct = item.keHoach > 0 ? (item.thucTe / item.keHoach) * 100 : 0;
-                return (
-                  <tr key={item.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="py-2.5 px-4">
-                      <div className="flex items-center gap-2">
-                        <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[9px] flex items-center justify-center">
-                          {idx + 1}
-                        </span>
-                        <div>
-                          <p className="font-semibold text-slate-700 text-[11px]">{item.danhMuc}</p>
-                          {item.ghiChu && <p className="text-[9.5px] text-slate-400">{item.ghiChu}</p>}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-medium text-slate-500 text-[11px]">
-                      {formatCurrency(item.keHoach)}
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-bold text-emerald-600 text-[11px]">
-                      {formatCurrency(item.thucTe)}
-                    </td>
-                    <td className={`py-2.5 px-3 text-right font-bold text-[11px] ${diff >= 0 ? 'text-emerald-600' : 'text-amber-500'}`}>
-                      {diff >= 0 ? '+' : ''}{formatCurrency(diff)}
-                    </td>
-                    <td className="py-2.5 px-3 text-center font-semibold text-slate-600 text-[11px]">
-                      {pct.toFixed(1)}%
-                    </td>
-                    <td className="py-2.5 px-4 min-w-[140px]">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                          <div
-                            className="bg-emerald-500 h-full rounded-full"
-                            style={{ width: `${Math.min(pct, 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-[9.5px] font-semibold text-emerald-600">Đạt</span>
-                      </div>
-                    </td>
+              {TABLE_GROUPS.map((group, gIdx) => (
+                <React.Fragment key={gIdx}>
+                  {/* Category Group Header Row */}
+                  <tr className="bg-slate-50/60 font-bold text-slate-800 text-[11px]">
+                    <td className="py-2 px-4 text-slate-900 font-bold">{group.groupName}</td>
+                    <td className="py-2 px-2 text-center text-slate-400">—</td>
+                    <td className="py-2 px-2 text-center text-slate-400">—</td>
+                    {months.map((m) => (
+                      <td key={m} className="py-2 px-2 text-center text-slate-400">
+                        —
+                      </td>
+                    ))}
+                    <td className="py-2 px-3 text-right text-slate-400">—</td>
+                    <td className="py-2 px-3 text-right text-slate-500 font-semibold">0.0%</td>
                   </tr>
-                );
-              })}
 
-              {/* Subtotal Thu */}
-              <tr className="bg-emerald-50/20 font-bold text-slate-800 text-[11px]">
-                <td className="py-2 px-4 text-emerald-800">TỔNG CỘNG THU (I)</td>
-                <td className="py-2 px-3 text-right text-slate-600">{formatCurrency(tongThuKeHoach)}</td>
-                <td className="py-2 px-3 text-right text-emerald-600">{formatCurrency(tongThuThucTe)}</td>
-                <td className="py-2 px-3 text-right text-emerald-600">
-                  +{formatCurrency(tongThuThucTe - tongThuKeHoach)}
-                </td>
-                <td className="py-2 px-3 text-center text-emerald-700">{percentThu.toFixed(1)}%</td>
-                <td className="py-2 px-4"></td>
-              </tr>
+                  {/* Category Items Rows */}
+                  {group.items.map((item, iIdx) => (
+                    <tr key={iIdx} className="hover:bg-slate-50/80 transition-colors border-b border-slate-100/60">
+                      <td className="py-2 px-4 pl-7 text-slate-700 text-[11.5px] font-normal">
+                        {item.name}
+                      </td>
+                      <td className="py-2 px-2 text-center text-slate-500 text-[11px] font-mono">
+                        {item.acc || '—'}
+                      </td>
+                      <td className="py-2 px-2 text-center text-slate-500 text-[11px] font-mono">
+                        {item.dk || '—'}
+                      </td>
+                      {months.map((m) => (
+                        <td key={m} className="py-2 px-2 text-center text-slate-400 text-[11px]">
+                          —
+                        </td>
+                      ))}
+                      <td className="py-2 px-3 text-right text-slate-400 text-[11px]">—</td>
+                      <td className="py-2 px-3 text-right text-slate-500 text-[11px] font-medium">0.0%</td>
+                    </tr>
+                  ))}
+                </React.Fragment>
+              ))}
 
-              {/* SECTION II: CÁC KHOẢN CHI */}
-              <tr className="bg-rose-50/40 font-bold text-rose-900 text-[11px]">
-                <td colSpan={6} className="py-2 px-4 uppercase tracking-wide text-rose-800">
-                  II. CÁC KHOẢN CHI (EXPENSES)
-                </td>
-              </tr>
-              {listChi.map((item, idx) => {
-                const diff = item.thucTe - item.keHoach;
-                const pct = item.keHoach > 0 ? (item.thucTe / item.keHoach) * 100 : 0;
-                return (
-                  <tr key={item.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="py-2.5 px-4">
-                      <div className="flex items-center gap-2">
-                        <span className="w-4 h-4 rounded-full bg-rose-100 text-rose-700 font-bold text-[9px] flex items-center justify-center">
-                          {idx + 1}
-                        </span>
-                        <div>
-                          <p className="font-semibold text-slate-700 text-[11px]">{item.danhMuc}</p>
-                          {item.ghiChu && <p className="text-[9.5px] text-slate-400">{item.ghiChu}</p>}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-medium text-slate-500 text-[11px]">
-                      {formatCurrency(item.keHoach)}
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-bold text-rose-500 text-[11px]">
-                      {formatCurrency(item.thucTe)}
-                    </td>
-                    <td className={`py-2.5 px-3 text-right font-bold text-[11px] ${diff <= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
-                      {diff >= 0 ? '+' : ''}{formatCurrency(diff)}
-                    </td>
-                    <td className="py-2.5 px-3 text-center font-semibold text-slate-600 text-[11px]">
-                      {pct.toFixed(1)}%
-                    </td>
-                    <td className="py-2.5 px-4 min-w-[140px]">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                          <div
-                            className="bg-rose-500 h-full rounded-full"
-                            style={{ width: `${Math.min(pct, 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-[9.5px] font-semibold text-emerald-600">Trong NS</span>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-
-              {/* Subtotal Chi */}
-              <tr className="bg-rose-50/20 font-bold text-slate-800 text-[11px]">
-                <td className="py-2 px-4 text-rose-800">TỔNG CỘNG CHI (II)</td>
-                <td className="py-2 px-3 text-right text-slate-600">{formatCurrency(tongChiKeHoach)}</td>
-                <td className="py-2 px-3 text-right text-rose-500">{formatCurrency(tongChiThucTe)}</td>
-                <td className="py-2 px-3 text-right text-emerald-600">
-                  {formatCurrency(tongChiThucTe - tongChiKeHoach)}
-                </td>
-                <td className="py-2 px-3 text-center text-rose-700">{percentChi.toFixed(1)}%</td>
-                <td className="py-2 px-4"></td>
-              </tr>
-
-              {/* SECTION III: CHÊNH LỆCH CÂN ĐỐI RÒNG */}
-              <tr className="bg-slate-900 text-white font-extrabold text-xs">
-                <td className="py-3 px-4 uppercase tracking-wider text-amber-400">
-                  III. CHÊNH LỆCH CÂN ĐỐI (THU - CHI)
-                </td>
-                <td className="py-3 px-3 text-right text-slate-300">{formatCurrency(canDoiKeHoach)}</td>
-                <td className="py-3 px-3 text-right text-emerald-400">{formatCurrency(canDoiThucTe)}</td>
-                <td className="py-3 px-3 text-right text-amber-300">
-                  +{formatCurrency(canDoiThucTe - canDoiKeHoach)}
-                </td>
-                <td className="py-3 px-3 text-center text-emerald-300">
-                  {((canDoiThucTe / (canDoiKeHoach || 1)) * 100).toFixed(1)}%
-                </td>
-                <td className="py-3 px-4 text-[10px] font-normal text-slate-300">
-                  <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold">
-                    <IconCheck size={13} /> Thặng dư an toàn
-                  </span>
-                </td>
+              {/* Summary Footer Row */}
+              <tr className="bg-[#eef2ff] border-t-2 border-indigo-100 font-extrabold text-indigo-950 text-xs">
+                <td className="py-3 px-4 font-extrabold uppercase tracking-wider text-indigo-900">TỔNG CỘNG</td>
+                <td className="py-3 px-2 text-center text-indigo-400">—</td>
+                <td className="py-3 px-2 text-center text-indigo-400">—</td>
+                {months.map((m) => (
+                  <td key={m} className="py-3 px-2 text-center text-indigo-400">
+                    —
+                  </td>
+                ))}
+                <td className="py-3 px-3 text-right text-indigo-900 font-bold">0</td>
+                <td className="py-3 px-3 text-right text-indigo-950 font-extrabold">100%</td>
               </tr>
             </tbody>
           </table>

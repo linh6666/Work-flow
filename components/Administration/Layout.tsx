@@ -1,7 +1,7 @@
 "use client";
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import {
@@ -71,6 +71,14 @@ export default function AdministrationLayout({ children }: { children: React.Rea
   const pathname = usePathname();
   const pathParts = pathname.split('/');
   const tabFromPath = pathParts[pathParts.length - 1];
+
+  // Đọc email từ localStorage (lưu khi đăng nhập)
+  const [userEmail, setUserEmail] = useState('Chưa đăng nhập');
+  useEffect(() => {
+    const saved = localStorage.getItem('user_email');
+    if (saved) setUserEmail(saved);
+  }, []);
+  const userInitial = userEmail ? userEmail[0].toUpperCase() : 'U';
   
   const menuIds = [
     'tong-quan',
@@ -216,9 +224,12 @@ export default function AdministrationLayout({ children }: { children: React.Rea
             )}
           </div> */}
 
-          <a 
-            href="/workspace-selection" 
-            className={`w-full flex items-center gap-2 px-2 py-1.5 hover:bg-[#BB8D38]/10 hover:text-[#BB8D38] rounded text-slate-500 text-xs font-semibold transition-all ${
+          <button
+            onClick={() => {
+              localStorage.removeItem('user_email');
+              router.push('/sign-in');
+            }}
+            className={`w-full flex items-center gap-2 px-2 py-1.5 hover:bg-[#BB8D38]/10 hover:text-[#BB8D38] rounded text-slate-500 text-xs font-semibold transition-all cursor-pointer ${
               isSidebarCollapsed ? 'lg:justify-center lg:px-0' : ''
             }`}
             title="Đăng xuất"
@@ -227,7 +238,7 @@ export default function AdministrationLayout({ children }: { children: React.Rea
             <span className={isSidebarCollapsed ? 'lg:hidden block' : 'block'}>
               Đăng xuất
             </span>
-          </a>
+          </button>
         </div>
       </aside>
 
@@ -304,10 +315,10 @@ export default function AdministrationLayout({ children }: { children: React.Rea
             {/* User Account Button/Pill */}
             <div className="flex items-center gap-2 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100/50 transition-all cursor-pointer">
               <div className="w-5.5 h-5.5 rounded-full bg-sky-400/20 border border-sky-400/30 flex items-center justify-center text-[10px] font-bold text-sky-600 shrink-0">
-                L
+                {userInitial}
               </div>
-              <span className="text-[11px] font-semibold text-slate-600 truncate max-w-[180px] hidden sm:inline-block" title="lecongchien2472002@gmail.com">
-                lecongchien2472002@gmail.com
+              <span className="text-[11px] font-semibold text-slate-600 truncate max-w-[180px] hidden sm:inline-block" title={userEmail}>
+                {userEmail}
               </span>
             </div>
           </div>

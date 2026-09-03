@@ -15,7 +15,10 @@ import {
   IconUpload,
   IconDownload,
   IconRefresh,
+  IconBook,
 } from '@tabler/icons-react';
+import BangDinhKhoanTab from './tabs/BangDinhKhoan';
+import BangCanDoiThuChiTab from './tabs/BangCanDoiThuChi';
 import {
   GiaoDichItem,
   LoaiGiaoDich,
@@ -219,6 +222,7 @@ function ThemGiaoDichModal({ isOpen, onClose, onSubmit }: ModalProps) {
 }
 
 export default function ThuChiNoiBoTab() {
+  const [subTab, setSubTab] = useState<'dinh-khoan' | 'can-doi-thu-chi'>('dinh-khoan');
   const [data, setData] = useState<GiaoDichItem[]>(DEFAULT_DATA);
   const [filterLoai, setFilterLoai] = useState<'Tất cả' | 'Thu' | 'Chi'>('Tất cả');
   const [filterTrangThai, setFilterTrangThai] = useState<'Tất cả' | TrangThaiThanhToan>('Tất cả');
@@ -400,40 +404,36 @@ export default function ThuChiNoiBoTab() {
         </div>
       </div>
 
-      {/* Filter Loại / Trạng thái */}
-      <div className="bg-white border border-slate-200/80 rounded-xl px-3 py-2 shadow-xs flex items-center gap-2 flex-wrap shrink-0">
-        <div className="flex gap-1 text-[11px]">
-          {(['Tất cả', 'Thu', 'Chi'] as const).map((l) => (
-            <button
-              key={l}
-              onClick={() => setFilterLoai(l)}
-              className={`px-2 py-0.5 rounded-md border font-medium cursor-pointer transition-all ${
-                filterLoai === l
-                  ? 'bg-[#406c89] text-white border-transparent'
-                  : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-              }`}
-            >
-              {l}
-            </button>
-          ))}
-        </div>
-        <div className="w-px h-4 bg-slate-200" />
-        <div className="flex gap-1 text-[11px] flex-wrap">
-          {(['Tất cả', 'Đã thanh toán', 'Chờ thanh toán', 'Quá hạn'] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setFilterTrangThai(t)}
-              className={`px-2 py-0.5 rounded-md border font-medium cursor-pointer transition-all whitespace-nowrap ${
-                filterTrangThai === t
-                  ? 'bg-[#406c89] text-white border-transparent'
-                  : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-              }`}
-            >
-              {t === 'Tất cả' ? 'Tất cả TT' : t}
-            </button>
-          ))}
+      {/* Sub-tabs immediately below Stats Cards */}
+      <div className="bg-white border border-slate-200/80 rounded-xl px-3 py-1.5 shadow-xs flex items-center justify-between gap-2 flex-wrap shrink-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setSubTab('dinh-khoan')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              subTab === 'dinh-khoan'
+                ? 'bg-[#406c89] text-white shadow-xs'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+            }`}
+          >
+            <IconBook size={14} /> Bảng Định Khoản
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSubTab('can-doi-thu-chi')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              subTab === 'can-doi-thu-chi'
+                ? 'bg-[#406c89] text-white shadow-xs'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+            }`}
+          >
+            <IconScale size={14} /> Bảng Cân Đối Thu Chi
+          </button>
         </div>
       </div>
+
+      {subTab === 'can-doi-thu-chi' ? <BangCanDoiThuChiTab /> : <BangDinhKhoanTab />}
 
       {/* Table */}
       <div className="flex-1 overflow-hidden bg-white border border-slate-200/80 rounded-xl shadow-xs flex flex-col min-h-0">

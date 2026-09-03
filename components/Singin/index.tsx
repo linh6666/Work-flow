@@ -3,15 +3,17 @@
 import "../../app/globals.css";
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export default function PageLogin() {
+  const router = useRouter();
   const [username, setUsername] = useState('hopnk1');
   const [password, setPassword] = useState('12345678');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Đăng nhập với:", { username, password });
+    router.push('/Administration/tong-quan');
   };
 
   return (

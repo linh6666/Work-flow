@@ -3,6 +3,7 @@
 import "../../app/globals.css";
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface Workspace {
   id: string;
@@ -153,8 +154,10 @@ export default function WorkspaceSelection() {
     ws.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const router = useRouter();
+
   const handleSelectWorkspace = (workspace: Workspace) => {
-    alert(`Đã chọn không gian làm việc: ${workspace.name}`);
+    router.push('/Administration');
   };
 
   return (

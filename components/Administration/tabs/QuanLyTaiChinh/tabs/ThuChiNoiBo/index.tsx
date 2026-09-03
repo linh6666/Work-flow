@@ -222,7 +222,7 @@ function ThemGiaoDichModal({ isOpen, onClose, onSubmit }: ModalProps) {
 }
 
 export default function ThuChiNoiBoTab() {
-  const [subTab, setSubTab] = useState<'dinh-khoan' | 'can-doi-thu-chi'>('dinh-khoan');
+  const [subTab, setSubTab] = useState<'can-doi-thu-chi' | 'dinh-khoan'>('can-doi-thu-chi');
   const [data, setData] = useState<GiaoDichItem[]>(DEFAULT_DATA);
   const [filterLoai, setFilterLoai] = useState<'Tất cả' | 'Thu' | 'Chi'>('Tất cả');
   const [filterTrangThai, setFilterTrangThai] = useState<'Tất cả' | TrangThaiThanhToan>('Tất cả');
@@ -409,18 +409,6 @@ export default function ThuChiNoiBoTab() {
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <button
             type="button"
-            onClick={() => setSubTab('dinh-khoan')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              subTab === 'dinh-khoan'
-                ? 'bg-[#406c89] text-white shadow-xs'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
-            }`}
-          >
-            <IconBook size={14} /> Bảng Định Khoản
-          </button>
-
-          <button
-            type="button"
             onClick={() => setSubTab('can-doi-thu-chi')}
             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               subTab === 'can-doi-thu-chi'
@@ -429,6 +417,18 @@ export default function ThuChiNoiBoTab() {
             }`}
           >
             <IconScale size={14} /> Bảng Cân Đối Thu Chi
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSubTab('dinh-khoan')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              subTab === 'dinh-khoan'
+                ? 'bg-[#406c89] text-white shadow-xs'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+            }`}
+          >
+            <IconBook size={14} /> Bảng Định Khoản
           </button>
         </div>
       </div>

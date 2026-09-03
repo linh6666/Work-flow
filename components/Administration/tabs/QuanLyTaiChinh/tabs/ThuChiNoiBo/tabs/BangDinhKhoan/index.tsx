@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import {
   IconPlus,
   IconSearch,
-  IconDownload,
-  IconRefresh,
   IconCheck,
   IconX,
   IconScale,
@@ -374,26 +372,13 @@ export default function BangDinhKhoanTab() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => { setSearch(''); setFilterTk('Tất cả'); setFilterTrangThai('Tất cả'); }}
-            className="flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
-          >
-            <IconRefresh size={12} /> Làm mới
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
-          >
-            <IconDownload size={12} /> Export Excel
-          </button>
+        <div className="flex items-center gap-1.5 ml-auto">
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2d4a63] text-white text-[11px] font-bold hover:bg-[#1e3448] cursor-pointer transition-colors"
           >
-            <IconPlus size={12} /> Thêm bút toán
+            <IconPlus size={12} /> Thêm mã
           </button>
         </div>
       </div>

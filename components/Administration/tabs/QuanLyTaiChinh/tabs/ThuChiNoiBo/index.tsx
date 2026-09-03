@@ -264,14 +264,14 @@ export default function ThuChiNoiBoTab() {
     'Quá hạn': 'bg-rose-50 text-rose-600 border-rose-200',
   };
 
-  const selectCls = "border border-slate-200 rounded-md px-2 py-1 text-[11px] text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer appearance-none pr-6 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E')] bg-no-repeat bg-[right_6px_center]";
+  const selectCls = "border border-slate-200 rounded-md px-2 py-0.5 text-[11px] text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer appearance-none pr-5 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E')] bg-no-repeat bg-[right_5px_center] h-6.5";
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 space-y-4 overflow-hidden">
+    <div className="flex-1 flex flex-col min-h-0 space-y-3 overflow-hidden">
       {/* Toolbar */}
       <div className="bg-white border border-slate-200/80 rounded-xl shadow-xs shrink-0">
         {/* Row 1: Filters */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-slate-100 flex-wrap">
+        <div className="flex items-center gap-1 px-2.5 py-1 border-b border-slate-100 flex-wrap">
           <select value={filterLoaiSo} onChange={(e) => setFilterLoaiSo(e.target.value)} className={selectCls}>
             <option>Thực tế</option>
             <option>Kế hoạch</option>
@@ -299,40 +299,40 @@ export default function ThuChiNoiBoTab() {
         </div>
 
         {/* Row 2: Action Buttons */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 flex-wrap">
+        <div className="flex items-center gap-1 px-2.5 py-1 flex-wrap">
           {/* Import Thu Chi */}
           <button
             type="button"
-            className="flex items-center gap-1 px-2 py-1 rounded-md border border-[#406c89] text-[#406c89] text-[11px] font-semibold hover:bg-[#406c89]/5 cursor-pointer transition-colors"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-[#406c89] text-[#406c89] text-[11px] font-semibold hover:bg-[#406c89]/5 cursor-pointer transition-colors"
           >
-            <IconUpload size={13} />
+            <IconUpload size={12} />
             Import Thu Chi
           </button>
 
           {/* Import Cân Đối */}
           <button
             type="button"
-            className="flex items-center gap-1 px-2 py-1 rounded-md border border-amber-400 text-amber-500 text-[11px] font-semibold hover:bg-amber-50 cursor-pointer transition-colors"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-amber-400 text-amber-500 text-[11px] font-semibold hover:bg-amber-50 cursor-pointer transition-colors"
           >
-            <IconUpload size={13} />
+            <IconUpload size={12} />
             Import Cân Đối
           </button>
 
           {/* Export */}
           <button
             type="button"
-            className="flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
           >
-            <IconDownload size={13} />
+            <IconDownload size={12} />
             Export
           </button>
 
           {/* Import */}
           <button
             type="button"
-            className="flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
           >
-            <IconUpload size={13} />
+            <IconUpload size={12} />
             Import
           </button>
 
@@ -340,9 +340,9 @@ export default function ThuChiNoiBoTab() {
           <button
             type="button"
             onClick={() => { setFilterLoai('Tất cả'); setFilterTrangThai('Tất cả'); setSearchQuery(''); }}
-            className="flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-slate-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 cursor-pointer transition-colors"
           >
-            <IconRefresh size={13} />
+            <IconRefresh size={12} />
             Làm mới
           </button>
 
@@ -350,9 +350,9 @@ export default function ThuChiNoiBoTab() {
           <button
             type="button"
             onClick={handleDeleteAll}
-            className="flex items-center gap-1 px-2 py-1 rounded-md border border-rose-200 text-rose-500 text-[11px] font-semibold hover:bg-rose-50 cursor-pointer transition-colors"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-rose-200 text-rose-500 text-[11px] font-semibold hover:bg-rose-50 cursor-pointer transition-colors"
           >
-            <IconTrash size={13} />
+            <IconTrash size={12} />
             Xóa tất cả
           </button>
 
@@ -360,9 +360,9 @@ export default function ThuChiNoiBoTab() {
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2d4a63] text-white text-[11px] font-bold hover:bg-[#1e3448] cursor-pointer transition-colors ml-auto"
+            className="flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#2d4a63] text-white text-[11px] font-bold hover:bg-[#1e3448] cursor-pointer transition-colors ml-auto"
           >
-            <IconPlus size={13} />
+            <IconPlus size={12} />
             Thêm khoản
           </button>
         </div>

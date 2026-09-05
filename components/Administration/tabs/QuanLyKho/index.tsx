@@ -42,11 +42,11 @@ export default function QuanLyKho() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden p-5 md:p-6 space-y-4 text-slate-700 w-full bg-slate-50">
+    <div className="flex-1 flex flex-col overflow-hidden px-4 md:px-6 pt-2 md:pt-2.5 pb-4 space-y-3 text-slate-700 w-full bg-slate-50">
       {/* Header & Sub-tabs */}
-      <div className="space-y-3 shrink-0">
+      <div className="space-y-2 shrink-0">
         <div>
-          <h2 className="text-base font-extrabold text-slate-800 tracking-tight">Quản lý Kho</h2>
+          <h2 className="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Quản lý Kho</h2>
           <p className="text-[10px] font-medium text-slate-400 mt-0.5">
             NVL · NCC · Mua NVL tháng · Phụ kiện MH · Máy móc TB · Kế hoạch & Báo cáo · Phê duyệt
           </p>

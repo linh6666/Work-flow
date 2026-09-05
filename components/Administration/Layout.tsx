@@ -246,7 +246,7 @@ export default function AdministrationLayout({ children }: { children: React.Rea
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         
         {/* TOP HEADER */}
-        <header className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between shrink-0 select-none z-15">
+        <header className="h-10 bg-white border-b border-slate-100 px-4 flex items-center justify-between shrink-0 select-none z-15">
           {/* Breadcrumbs & Title */}
           <div className="flex items-center gap-2.5 text-xs text-slate-400 font-semibold">
             {/* Mobile hamburger menu toggle */}

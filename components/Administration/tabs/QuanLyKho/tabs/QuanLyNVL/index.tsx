@@ -15,7 +15,28 @@ import NhapKho from './tabs/NhapKho';
 import XuatKho from './tabs/XuatKho';
 import TonKho from './tabs/TonKho';
 
-const NHOM_HANG = ['Tất cả nhóm hàng', 'Gỗ công nghiệp', 'Kim loại', 'Sơn & hoá chất', 'Điện – điện tử', 'Gỗ & vật liệu xây dựng', 'Khác'];
+const NHOM_HANG = [
+  'Tất cả nhóm hàng',
+  'Giấy',
+  'Chất kết dính',
+  'Hệ thống ánh sáng',
+  'Công cụ dụng cụ',
+  'Linh kiện điện',
+  'Mica',
+  'Sơn',
+  'Chất phụ gia',
+  'Phụ liệu ngành mộc',
+  'Phụ liệu cảnh quan',
+  'Đóng gói hàng',
+  'NVL khác',
+  'ACRYLICOS VALLEJO',
+  'Gỗ công nghiệp',
+  'Kim loại',
+  'Sơn & hoá chất',
+  'Điện – điện tử',
+  'Gỗ & vật liệu xây dựng',
+  'Khác',
+];
 
 type SubTab = 'nhap-kho' | 'xuat-kho' | 'ton-kho';
 const YEARS = ['2024', '2025', '2026'];

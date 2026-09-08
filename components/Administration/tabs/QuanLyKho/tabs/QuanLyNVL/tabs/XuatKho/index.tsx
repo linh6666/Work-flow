@@ -2,6 +2,8 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { IconChevronLeft, IconChevronRight, IconPencil, IconTrash } from '@tabler/icons-react';
+import SuaVatTuModal from './modal/SuaVatTu';
+import XoaVatTuModal from './modal/XoaVatTu';
 
 export interface XuatKhoItem {
   stt: number;
@@ -962,6 +964,12 @@ export default function XuatKho({ search = '', nhom = 'Tất cả nhóm hàng' }
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
 
+  // Modal states for Sửa & Xóa
+  const [selectedItemForEdit, setSelectedItemForEdit] = useState<XuatKhoItem | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedItemForDelete, setSelectedItemForDelete] = useState<XuatKhoItem | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragInfo = useRef({
@@ -997,14 +1005,28 @@ export default function XuatKho({ search = '', nhom = 'Tất cả nhóm hàng' }
     setIsDragging(false);
   };
 
-  const handleDelete = (item: XuatKhoItem) => {
-    if (window.confirm(`Bạn có chắc chắn muốn xóa vật tư "${item.ten_hang}" (${item.ma_hang}) khỏi danh sách xuất kho?`)) {
-      setItems((prev) => prev.filter((x) => x !== item));
-    }
+  const handleOpenEdit = (item: XuatKhoItem) => {
+    setSelectedItemForEdit(item);
+    setIsEditModalOpen(true);
   };
 
-  const handleEdit = (item: XuatKhoItem) => {
-    alert(`Chỉnh sửa phiếu xuất kho cho vật tư: ${item.ten_hang} (${item.ma_hang})`);
+  const handleSaveEdit = (updatedItem: XuatKhoItem) => {
+    setItems((prev) =>
+      prev.map((x) => (x === selectedItemForEdit ? updatedItem : x))
+    );
+    setIsEditModalOpen(false);
+    setSelectedItemForEdit(null);
+  };
+
+  const handleOpenDelete = (item: XuatKhoItem) => {
+    setSelectedItemForDelete(item);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = (itemToDelete: XuatKhoItem) => {
+    setItems((prev) => prev.filter((x) => x !== itemToDelete));
+    setIsDeleteModalOpen(false);
+    setSelectedItemForDelete(null);
   };
 
   const filtered = items.filter((row) => {
@@ -1167,7 +1189,7 @@ export default function XuatKho({ search = '', nhom = 'Tất cả nhóm hàng' }
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleEdit(v);
+                          handleOpenEdit(v);
                         }}
                         className="p-1 text-[#406c89] hover:bg-[#406c89]/10 rounded transition-colors cursor-pointer"
                         title="Sửa"
@@ -1178,7 +1200,7 @@ export default function XuatKho({ search = '', nhom = 'Tất cả nhóm hàng' }
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(v);
+                          handleOpenDelete(v);
                         }}
                         className="p-1 text-[#406c89] hover:bg-[#406c89]/10 rounded transition-colors cursor-pointer"
                         title="Xóa"
@@ -1276,6 +1298,28 @@ export default function XuatKho({ search = '', nhom = 'Tất cả nhóm hàng' }
           </button>
         </div>
       </div>
+
+      {/* ── Modal Sửa Vật Tư ── */}
+      <SuaVatTuModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedItemForEdit(null);
+        }}
+        item={selectedItemForEdit}
+        onSave={handleSaveEdit}
+      />
+
+      {/* ── Modal Xóa Vật Tư ── */}
+      <XoaVatTuModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedItemForDelete(null);
+        }}
+        item={selectedItemForDelete}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

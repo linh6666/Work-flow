@@ -87,7 +87,7 @@ export default function TongHopTheoNam() {
       </div>
 
       {/* Table */}
-      <div className="overflow-auto flex-1 flex flex-col">
+      <div className="overflow-auto flex-1 flex flex-col no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <table className="w-full text-xs">
           <thead className="bg-slate-50 sticky top-0 z-10">
             <tr>

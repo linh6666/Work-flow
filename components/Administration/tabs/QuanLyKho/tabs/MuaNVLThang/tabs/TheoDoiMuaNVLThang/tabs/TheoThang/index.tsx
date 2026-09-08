@@ -63,7 +63,7 @@ export default function TheoThang() {
       </div>
 
       {/* Table */}
-      <div className="overflow-auto flex-1">
+      <div className="overflow-auto flex-1 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <table className="w-full text-xs">
           <thead className="bg-white sticky top-0 z-10 border-b border-slate-100">
             <tr>

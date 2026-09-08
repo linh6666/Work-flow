@@ -5,7 +5,7 @@ import TheoThang from './tabs/TheoThang';
 import TongHopTheoNam from './tabs/TongHopTheoNam';
 
 export default function TheoDoiMuaNVLThang() {
-  const [viewMode, setViewMode] = useState<'thang' | 'nam'>('nam');
+  const [viewMode, setViewMode] = useState<'thang' | 'nam'>('thang');
 
   return (
     <div className="flex-1 flex flex-col gap-3 overflow-hidden">

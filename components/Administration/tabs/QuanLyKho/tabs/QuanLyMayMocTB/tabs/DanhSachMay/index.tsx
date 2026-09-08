@@ -8,12 +8,13 @@ import {
   IconDownload,
   IconPlus,
   IconArrowsSort,
-  IconEye,
   IconEdit,
   IconTrash,
   IconChevronLeft,
   IconChevronRight,
 } from '@tabler/icons-react';
+import ModalSua from './ModalSua';
+import ModalXoa from './ModalXoa';
 
 export interface PhongBanMayItem {
   id: string;
@@ -457,6 +458,9 @@ export const mockDanhSachMayChiTiet: MayMocChiTietItem[] = [
 ];
 
 export default function DanhSachMay() {
+  const [machines, setMachines] = useState<MayMocChiTietItem[]>(mockDanhSachMayChiTiet);
+  const [editingItem, setEditingItem] = useState<MayMocChiTietItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<MayMocChiTietItem | null>(null);
   const [search, setSearch] = useState('');
   const [selectedPhong, setSelectedPhong] = useState('all');
   const [sortKey, setSortKey] = useState<keyof MayMocChiTietItem | ''>('');
@@ -517,8 +521,20 @@ export default function DanhSachMay() {
     item.ten_phong.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Xử lý lưu sau khi chỉnh sửa
+  const handleSaveEdit = (updatedItem: MayMocChiTietItem) => {
+    setMachines((prev) =>
+      prev.map((m) => (m.id === updatedItem.id ? updatedItem : m))
+    );
+  };
+
+  // Xử lý xác nhận xóa
+  const handleDeleteConfirm = (id: string) => {
+    setMachines((prev) => prev.filter((m) => m.id !== id));
+  };
+
   // Lọc và sắp xếp dữ liệu bảng máy móc chi tiết
-  const filteredMachines = mockDanhSachMayChiTiet
+  const filteredMachines = machines
     .filter((m) => {
       const matchSearch =
         m.ma_may.toLowerCase().includes(search.toLowerCase()) ||
@@ -551,21 +567,6 @@ export default function DanhSachMay() {
   const totalPages = Math.max(1, Math.ceil(filteredMachines.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
   const pagedMachines = filteredMachines.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-
-  // Tạo mảng số trang hiển thị (rút gọn nếu nhiều trang)
-  const getPageNumbers = () => {
-    const pages: (number | '...')[] = [];
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (safePage > 3) pages.push('...');
-      for (let i = Math.max(2, safePage - 1); i <= Math.min(totalPages - 1, safePage + 1); i++) pages.push(i);
-      if (safePage < totalPages - 2) pages.push('...');
-      pages.push(totalPages);
-    }
-    return pages;
-  };
 
   const renderSortTh = (
     label: string,
@@ -881,6 +882,7 @@ export default function DanhSachMay() {
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           type="button"
+                          onClick={() => setEditingItem(row)}
                           title="Chỉnh sửa"
                           className="p-1.5 rounded text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
                         >
@@ -888,6 +890,7 @@ export default function DanhSachMay() {
                         </button>
                         <button
                           type="button"
+                          onClick={() => setDeletingItem(row)}
                           title="Xóa"
                           className="p-1.5 rounded text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                         >
@@ -953,6 +956,22 @@ export default function DanhSachMay() {
           </div>
         </div>
       </div>
+
+      {/* Modal Sửa */}
+      <ModalSua
+        isOpen={!!editingItem}
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSave={handleSaveEdit}
+      />
+
+      {/* Modal Xóa */}
+      <ModalXoa
+        isOpen={!!deletingItem}
+        item={deletingItem}
+        onClose={() => setDeletingItem(null)}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 }

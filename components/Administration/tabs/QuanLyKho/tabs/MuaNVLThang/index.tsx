@@ -1,80 +1,55 @@
 "use client";
 
 import React, { useState } from 'react';
-import { IconPlus, IconSearch } from '@tabler/icons-react';
+import { IconShoppingCart } from '@tabler/icons-react';
 
-const mockXuatKho = [
-  { phieu: 'XK-2406001', ngay: '2026-08-14', du_an: 'Dự án cầu thang VP Hà Nội', tong: 22_100_000, trang_thai: 'Đã xuất' },
-  { phieu: 'XK-2406002', ngay: '2026-08-15', du_an: 'Nội thất showroom Q7',       tong: 14_560_000, trang_thai: 'Chờ duyệt' },
-  { phieu: 'XK-2406003', ngay: '2026-08-17', du_an: 'Sửa chữa kho B',             tong:  5_800_000, trang_thai: 'Đã xuất' },
-  { phieu: 'XK-2406004', ngay: '2026-08-19', du_an: 'Lắp đặt hệ thống điện P.2', tong:  9_300_000, trang_thai: 'Nháp' },
+import TheoDoiMuaNVLThang from './tabs/TheoDoiMuaNVLThang';
+import TheoDoiMuaNVLDuAn  from './tabs/TheoDoiMuaNVLDuAn';
+import DXDatHangNCC        from './tabs/DXDatHangNCC';
+
+type SubTab = 'theo-doi-thang' | 'theo-doi-du-an' | 'dx-dat-hang-ncc';
+
+const SUB_TABS: { id: SubTab; label: string }[] = [
+  { id: 'theo-doi-thang',   label: 'Theo dõi Mua NVL tháng' },
+  { id: 'theo-doi-du-an',   label: 'Theo dõi Mua NVL Dự án' },
+  { id: 'dx-dat-hang-ncc',  label: 'ĐX Đặt hàng từ NCC'     },
 ];
 
-const STATUS_COLOR: Record<string, string> = {
-  'Đã xuất':   'bg-emerald-50 text-emerald-600',
-  'Chờ duyệt': 'bg-amber-50 text-amber-600',
-  'Nháp':      'bg-slate-100 text-slate-500',
-};
-
-export default function XuatKhoTab() {
-  const [search, setSearch] = useState('');
-
-  const filtered = mockXuatKho.filter(
-    (p) =>
-      p.phieu.toLowerCase().includes(search.toLowerCase()) ||
-      p.du_an.toLowerCase().includes(search.toLowerCase())
-  );
+export default function MuaNVLThangTab() {
+  const [subTab, setSubTab] = useState<SubTab>('theo-doi-thang');
 
   return (
-    <div className="flex-1 flex flex-col gap-4 overflow-auto">
-      <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-        {/* Toolbar */}
-        <div className="flex items-center gap-2 p-3 border-b border-slate-100">
-          <div className="relative flex-1 max-w-sm">
-            <IconSearch size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm phiếu hoặc dự án..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
-            />
-          </div>
-          <button className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#406c89] text-white rounded-lg hover:bg-[#355a75] transition-colors font-semibold">
-            <IconPlus size={13} />
-            Tạo phiếu xuất
-          </button>
+    <div className="flex-1 flex flex-col gap-3 overflow-hidden">
+      {/* ── Header & Sub-tabs ── */}
+      <div className="flex flex-col gap-1.5 shrink-0 pb-0.5">
+        {/* Title */}
+        <div className="flex items-center gap-1.5">
+          <IconShoppingCart size={15} className="text-[#406c89] shrink-0" />
+          <span className="text-sm font-bold text-slate-800 tracking-tight">Mua NVL Tháng</span>
         </div>
 
-        <div className="overflow-auto flex-1">
-          <table className="w-full text-xs">
-            <thead className="bg-slate-50 sticky top-0 z-10">
-              <tr>
-                {['Số phiếu', 'Ngày xuất', 'Dự án / Mục đích', 'Tổng giá trị', 'Trạng thái', 'Thao tác'].map((h) => (
-                  <th key={h} className="text-left px-4 py-2.5 font-semibold text-slate-500 whitespace-nowrap border-b border-slate-100">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((p, i) => (
-                <tr key={p.phieu} className={`border-b border-slate-50 hover:bg-slate-50/70 transition-colors ${i % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
-                  <td className="px-4 py-2.5 font-mono text-[#406c89] font-semibold">{p.phieu}</td>
-                  <td className="px-4 py-2.5 text-slate-500">{p.ngay}</td>
-                  <td className="px-4 py-2.5 font-medium text-slate-700">{p.du_an}</td>
-                  <td className="px-4 py-2.5 font-bold text-slate-700">{p.tong.toLocaleString()}đ</td>
-                  <td className="px-4 py-2.5">
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${STATUS_COLOR[p.trang_thai]}`}>
-                      {p.trang_thai}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <button className="text-[#406c89] hover:underline font-medium">Chi tiết</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Sub-tab buttons */}
+        <div className="flex items-center gap-1 flex-wrap">
+          {SUB_TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setSubTab(t.id)}
+              className={`px-3 py-1 text-[11px] rounded-md transition-all cursor-pointer font-semibold ${
+                subTab === t.id
+                  ? 'bg-[#406c89] text-white shadow-sm'
+                  : 'bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
       </div>
+
+      {/* ── Tab content ── */}
+      {subTab === 'theo-doi-thang'  && <TheoDoiMuaNVLThang />}
+      {subTab === 'theo-doi-du-an'  && <TheoDoiMuaNVLDuAn />}
+      {subTab === 'dx-dat-hang-ncc' && <DXDatHangNCC />}
     </div>
   );
 }

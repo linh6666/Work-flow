@@ -15,6 +15,7 @@ import {
 } from '@tabler/icons-react';
 import ModalSua from './ModalSua';
 import ModalXoa from './ModalXoa';
+import ModalThem from './ModalThem';
 
 export interface PhongBanMayItem {
   id: string;
@@ -461,6 +462,7 @@ export default function DanhSachMay() {
   const [machines, setMachines] = useState<MayMocChiTietItem[]>(mockDanhSachMayChiTiet);
   const [editingItem, setEditingItem] = useState<MayMocChiTietItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<MayMocChiTietItem | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedPhong, setSelectedPhong] = useState('all');
   const [sortKey, setSortKey] = useState<keyof MayMocChiTietItem | ''>('');
@@ -531,6 +533,11 @@ export default function DanhSachMay() {
   // Xử lý xác nhận xóa
   const handleDeleteConfirm = (id: string) => {
     setMachines((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const handleCreate = (newItem: MayMocChiTietItem) => {
+    setMachines((prev) => [...prev, newItem]);
+    setIsCreateModalOpen(false);
   };
 
   // Lọc và sắp xếp dữ liệu bảng máy móc chi tiết
@@ -672,6 +679,7 @@ export default function DanhSachMay() {
           {/* Thêm máy */}
           <button
             type="button"
+            onClick={() => setIsCreateModalOpen(true)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs bg-[#406c89] text-white rounded-lg hover:bg-[#355a75] transition-colors font-medium cursor-pointer shadow-xs"
           >
             <IconPlus size={14} />
@@ -958,6 +966,13 @@ export default function DanhSachMay() {
       </div>
 
       {/* Modal Sửa */}
+      <ModalThem
+        key={isCreateModalOpen ? 'create-open' : 'create-closed'}
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleCreate}
+      />
+
       <ModalSua
         isOpen={!!editingItem}
         item={editingItem}

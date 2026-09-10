@@ -7,52 +7,52 @@ import {
   IconUpload,
   IconDownload,
   IconPlus,
-  IconEye,
+  IconEdit,
+  IconTrash,
   IconChevronLeft,
   IconChevronRight,
 } from '@tabler/icons-react';
 
 export interface PhieuSuaChuaItem {
   id: string;
-  ma_phieu: string;
-  thiet_bi: string;
-  mo_ta_su_co: string;
-  ngay_yeu_cau: string;
-  muc_do: 'Khẩn cấp' | 'Cao' | 'Bình thường';
-  chi_phi: number;
-  don_vi_sua: string;
-  trang_thai: 'Đang sửa chữa' | 'Chờ linh kiện' | 'Hoàn thành';
-  phong_ban: string;
+  phong_ban:           string;
+  ma_may:              string;
+  ten_may:             string;
+  nam:                 string;
+  ngay_bao_loi:        string;
+  tinh_trang_bao_loi:  string;
+  nguoi_bao_loi:       string;
+  phuong_an_xu_ly:     string;
+  ngay_thay_linh_kien: string;
+  noi_dung:            string;
+  don_vi_tinh:         string;
+  so_luong:            number;
+  don_gia:             number;
+  thue_vat:            number;
+  thanh_tien:          number;
+  ghi_chu:             string;
 }
 
+
 const mockSuaChua: PhieuSuaChuaItem[] = [
-  { id: '1',  ma_phieu: 'SC-2026-08-01', thiet_bi: 'Máy nén khí trục vít Puma 20HP',  mo_ta_su_co: 'Hỏng rơ le áp suất, áp lực không đạt chuẩn',   ngay_yeu_cau: '05/08/2026', muc_do: 'Khẩn cấp',   chi_phi: 4_500_000, don_vi_sua: 'Cty Cơ điện Tân Á',       trang_thai: 'Đang sửa chữa', phong_ban: 'Phòng Cát' },
-  { id: '2',  ma_phieu: 'SC-2026-07-02', thiet_bi: 'Máy khoan liên kết 6 giàn',        mo_ta_su_co: 'Kẹt mũi khoan trục ngang cụm số 3',             ngay_yeu_cau: '28/07/2026', muc_do: 'Cao',         chi_phi: 2_800_000, don_vi_sua: 'Đội kỹ thuật nội bộ',    trang_thai: 'Chờ linh kiện', phong_ban: 'Phòng Cảnh Quan' },
-  { id: '3',  ma_phieu: 'SC-2026-07-01', thiet_bi: 'Máy cưa bàn trượt Altendorf F45', mo_ta_su_co: 'Thay ray trượt dẫn hướng và căn chỉnh thước',   ngay_yeu_cau: '12/07/2026', muc_do: 'Bình thường', chi_phi: 6_200_000, don_vi_sua: 'Đại diện Hãng Altendorf', trang_thai: 'Hoàn thành',    phong_ban: 'Phòng ban quản lý' },
-  { id: '4',  ma_phieu: 'SC-2026-08-02', thiet_bi: 'Máy phun sơn áp lực cao',          mo_ta_su_co: 'Đầu phun bị tắc, áp lực phun yếu',              ngay_yeu_cau: '08/08/2026', muc_do: 'Cao',         chi_phi:   880_000, don_vi_sua: 'Đội kỹ thuật nội bộ',    trang_thai: 'Hoàn thành',    phong_ban: 'Phòng sơn' },
-  { id: '5',  ma_phieu: 'SC-2026-08-03', thiet_bi: 'Máy đánh nhám băng chạy',          mo_ta_su_co: 'Đứt băng nhám, hư trục căng',                    ngay_yeu_cau: '10/08/2026', muc_do: 'Bình thường', chi_phi:   360_000, don_vi_sua: 'Cty Cơ điện Tân Á',       trang_thai: 'Hoàn thành',    phong_ban: 'Phòng sơn' },
-  { id: '6',  ma_phieu: 'SC-2026-08-04', thiet_bi: 'Máy đục CNC 4 đầu',                mo_ta_su_co: 'Lỗi encoder trục Z, mất tọa độ',                 ngay_yeu_cau: '11/08/2026', muc_do: 'Khẩn cấp',   chi_phi: 1_290_000, don_vi_sua: 'Nhà sản xuất CNC',       trang_thai: 'Chờ linh kiện', phong_ban: 'Phòng mộc' },
-  { id: '7',  ma_phieu: 'SC-2026-08-05', thiet_bi: 'Xe nâng điện 2 tấn',               mo_ta_su_co: 'Pin chai, không đủ công suất nâng',               ngay_yeu_cau: '12/08/2026', muc_do: 'Cao',         chi_phi:   950_000, don_vi_sua: 'Cty Thiết bị nâng hạ',   trang_thai: 'Đang sửa chữa', phong_ban: 'Phòng khai triển' },
-  { id: '8',  ma_phieu: 'SC-2026-08-06', thiet_bi: 'Máy bào 4 mặt Weinig',             mo_ta_su_co: 'Trục dao bị lệch, bề mặt gỗ không đều',          ngay_yeu_cau: '13/08/2026', muc_do: 'Cao',         chi_phi:   382_500, don_vi_sua: 'Đại diện Weinig VN',      trang_thai: 'Chờ linh kiện', phong_ban: 'Phòng Mộc' },
-  { id: '9',  ma_phieu: 'SC-2026-08-07', thiet_bi: 'Máy dán cạnh tự động SCM',         mo_ta_su_co: 'Hỏng bộ phận làm nóng keo EVA',                  ngay_yeu_cau: '14/08/2026', muc_do: 'Bình thường', chi_phi:    35_000, don_vi_sua: 'Đội kỹ thuật nội bộ',    trang_thai: 'Hoàn thành',    phong_ban: 'Phòng Mộc Sơn' },
-  { id: '10', ma_phieu: 'SC-2026-08-08', thiet_bi: 'Máy cắt panel saw',                 mo_ta_su_co: 'Lưỡi cưa bị mẻ, đường cắt không thẳng',          ngay_yeu_cau: '15/08/2026', muc_do: 'Bình thường', chi_phi:    77_000, don_vi_sua: 'Đội kỹ thuật nội bộ',    trang_thai: 'Hoàn thành',    phong_ban: 'Phòng cắt' },
-  { id: '11', ma_phieu: 'SC-2026-08-09', thiet_bi: 'Băng tải con lăn',                  mo_ta_su_co: 'Con lăn số 7 bị kẹt, ảnh hưởng dây chuyền',      ngay_yeu_cau: '15/08/2026', muc_do: 'Cao',         chi_phi:   880_000, don_vi_sua: 'Đội kỹ thuật nội bộ',    trang_thai: 'Đang sửa chữa', phong_ban: 'Phòng Cát' },
-  { id: '12', ma_phieu: 'SC-2026-08-10', thiet_bi: 'Máy nén khí Bitzer',                mo_ta_su_co: 'Rò rỉ dầu bôi trơn ở mặt bích',                 ngay_yeu_cau: '16/08/2026', muc_do: 'Bình thường', chi_phi:     0,     don_vi_sua: 'Chưa xác định',           trang_thai: 'Chờ linh kiện', phong_ban: '(Chưa phân phòng)' },
-  { id: '13', ma_phieu: 'SC-2026-08-11', thiet_bi: 'Máy chà nhám thùng',                mo_ta_su_co: 'Động cơ chính phát ra tiếng ồn bất thường',       ngay_yeu_cau: '16/08/2026', muc_do: 'Bình thường', chi_phi:     0,     don_vi_sua: 'Chưa xác định',           trang_thai: 'Chờ linh kiện', phong_ban: '(Chưa phân phòng)' },
-  { id: '14', ma_phieu: 'SC-2026-08-12', thiet_bi: 'Máy phun UV tự động',               mo_ta_su_co: 'Đèn UV số 2 bị hỏng, năng suất giảm 50%',        ngay_yeu_cau: '17/08/2026', muc_do: 'Cao',         chi_phi:     0,     don_vi_sua: 'Chưa xác định',           trang_thai: 'Đang sửa chữa', phong_ban: 'Phòng ban quản lý' },
+  { id: '1',  phong_ban: 'Phòng Cát',          ma_may: 'MN-001', ten_may: 'Máy nén khí trục vít Puma 20HP',  nam: '2021', ngay_bao_loi: '05/08/2026', tinh_trang_bao_loi: 'Hỏng rơ le áp suất',         nguoi_bao_loi: 'Nguyễn Văn A', phuong_an_xu_ly: 'Thay rơ le mới',                    ngay_thay_linh_kien: '08/08/2026', noi_dung: 'Rơ le áp suất 20A',         don_vi_tinh: 'Cái',  so_luong: 1, don_gia: 4_500_000, thue_vat: 10, thanh_tien: 4_950_000, ghi_chu: '' },
+  { id: '2',  phong_ban: 'Phòng Cảnh Quan',    ma_may: 'MK-006', ten_may: 'Máy khoan liên kết 6 giàn',       nam: '2020', ngay_bao_loi: '28/07/2026', tinh_trang_bao_loi: 'Kẹt mũi khoan cụm 3',         nguoi_bao_loi: 'Trần Thị B',   phuong_an_xu_ly: 'Tháo, vệ sinh và tra dầu',         ngay_thay_linh_kien: '',              noi_dung: 'Mũi khoan trục ngang',      don_vi_tinh: 'Cái',  so_luong: 3, don_gia:   850_000, thue_vat: 10, thanh_tien: 2_805_000, ghi_chu: 'Chờ linh kiện' },
+  { id: '3',  phong_ban: 'Phòng ban quản lý',  ma_may: 'MC-045', ten_may: 'Máy cưa bàn trượt Altendorf F45', nam: '2019', ngay_bao_loi: '12/07/2026', tinh_trang_bao_loi: 'Ray trượt mòn',               nguoi_bao_loi: 'Lê Văn C',     phuong_an_xu_ly: 'Thay ray trượt và căn chỉnh thước', ngay_thay_linh_kien: '15/07/2026',    noi_dung: 'Ray trượt dẫn hướng',      don_vi_tinh: 'Bộ',   so_luong: 1, don_gia: 6_200_000, thue_vat: 10, thanh_tien: 6_820_000, ghi_chu: 'Hoàn thành' },
+  { id: '4',  phong_ban: 'Phòng sơn',          ma_may: 'PS-012', ten_may: 'Máy phun sơn áp lực cao',         nam: '2022', ngay_bao_loi: '08/08/2026', tinh_trang_bao_loi: 'Đầu phun tắc',               nguoi_bao_loi: 'Phạm Thị D',   phuong_an_xu_ly: 'Vệ sinh đầu phun',                 ngay_thay_linh_kien: '09/08/2026',    noi_dung: 'Đầu phun sơn',             don_vi_tinh: 'Cái',  so_luong: 1, don_gia:   880_000, thue_vat: 10, thanh_tien:   968_000, ghi_chu: '' },
+  { id: '5',  phong_ban: 'Phòng sơn',          ma_may: 'DN-021', ten_may: 'Máy đánh nhám băng chạy',         nam: '2020', ngay_bao_loi: '10/08/2026', tinh_trang_bao_loi: 'Đứt băng nhám',              nguoi_bao_loi: 'Nguyễn Văn E', phuong_an_xu_ly: 'Thay băng nhám, sửa trục căng',    ngay_thay_linh_kien: '11/08/2026',    noi_dung: 'Băng nhám 120 grit',       don_vi_tinh: 'Cuộn', so_luong: 2, don_gia:   180_000, thue_vat: 10, thanh_tien:   396_000, ghi_chu: '' },
+  { id: '6',  phong_ban: 'Phòng mộc',          ma_may: 'CNC-04', ten_may: 'Máy đục CNC 4 đầu',               nam: '2023', ngay_bao_loi: '11/08/2026', tinh_trang_bao_loi: 'Lỗi encoder trục Z',          nguoi_bao_loi: 'Trần Văn F',   phuong_an_xu_ly: 'Liên hệ nhà sản xuất',             ngay_thay_linh_kien: '',              noi_dung: 'Encoder trục Z',            don_vi_tinh: 'Cái',  so_luong: 1, don_gia: 1_290_000, thue_vat: 10, thanh_tien: 1_419_000, ghi_chu: 'Chờ linh kiện' },
+  { id: '7',  phong_ban: 'Phòng khai triển',   ma_may: 'XN-002', ten_may: 'Xe nâng điện 2 tấn',              nam: '2021', ngay_bao_loi: '12/08/2026', tinh_trang_bao_loi: 'Pin chai',                    nguoi_bao_loi: 'Lê Thị G',     phuong_an_xu_ly: 'Thay bộ pin mới',                  ngay_thay_linh_kien: '',              noi_dung: 'Bộ pin lithium 48V',        don_vi_tinh: 'Bộ',   so_luong: 1, don_gia:   950_000, thue_vat: 10, thanh_tien: 1_045_000, ghi_chu: 'Đang sửa' },
+  { id: '8',  phong_ban: 'Phòng Mộc',          ma_may: 'MB-008', ten_may: 'Máy bào 4 mặt Weinig',            nam: '2018', ngay_bao_loi: '13/08/2026', tinh_trang_bao_loi: 'Trục dao lệch',               nguoi_bao_loi: 'Phạm Văn H',   phuong_an_xu_ly: 'Cân chỉnh lại trục dao',           ngay_thay_linh_kien: '',              noi_dung: 'Vòng bi trục dao',          don_vi_tinh: 'Cái',  so_luong: 2, don_gia:   191_250, thue_vat: 10, thanh_tien:   420_750, ghi_chu: 'Chờ linh kiện' },
+  { id: '9',  phong_ban: 'Phòng Mộc Sơn',      ma_may: 'DC-009', ten_may: 'Máy dán cạnh tự động SCM',        nam: '2022', ngay_bao_loi: '14/08/2026', tinh_trang_bao_loi: 'Hỏng bộ làm nóng keo',        nguoi_bao_loi: 'Nguyễn Thị I', phuong_an_xu_ly: 'Thay điện trở nhiệt',              ngay_thay_linh_kien: '15/08/2026',    noi_dung: 'Điện trở nhiệt keo EVA',   don_vi_tinh: 'Cái',  so_luong: 1, don_gia:    35_000, thue_vat: 10, thanh_tien:    38_500, ghi_chu: 'Hoàn thành' },
+  { id: '10', phong_ban: 'Phòng cắt',          ma_may: 'CP-010', ten_may: 'Máy cắt panel saw',               nam: '2020', ngay_bao_loi: '15/08/2026', tinh_trang_bao_loi: 'Lưỡi cưa mẻ',                nguoi_bao_loi: 'Trần Văn J',   phuong_an_xu_ly: 'Thay lưỡi cưa mới',                ngay_thay_linh_kien: '15/08/2026',    noi_dung: 'Lưỡi cưa TCT 315mm',      don_vi_tinh: 'Cái',  so_luong: 1, don_gia:    77_000, thue_vat: 10, thanh_tien:    84_700, ghi_chu: 'Hoàn thành' },
+  { id: '11', phong_ban: 'Phòng Cát',          ma_may: 'BT-011', ten_may: 'Băng tải con lăn',                nam: '2019', ngay_bao_loi: '15/08/2026', tinh_trang_bao_loi: 'Con lăn số 7 kẹt',            nguoi_bao_loi: 'Lê Văn K',     phuong_an_xu_ly: 'Thay con lăn bị kẹt',              ngay_thay_linh_kien: '',              noi_dung: 'Con lăn thép mạ kẽm',      don_vi_tinh: 'Cái',  so_luong: 4, don_gia:   220_000, thue_vat: 10, thanh_tien:   968_000, ghi_chu: 'Đang sửa' },
+  { id: '12', phong_ban: '(Chưa phân phòng)',  ma_may: 'MN-012', ten_may: 'Máy nén khí Bitzer',              nam: '2017', ngay_bao_loi: '16/08/2026', tinh_trang_bao_loi: 'Rò rỉ dầu bôi trơn',          nguoi_bao_loi: '',             phuong_an_xu_ly: 'Chưa xác định',                    ngay_thay_linh_kien: '',              noi_dung: '',                          don_vi_tinh: '',     so_luong: 0, don_gia:         0, thue_vat: 10, thanh_tien:         0, ghi_chu: 'Chờ linh kiện' },
+  { id: '13', phong_ban: '(Chưa phân phòng)',  ma_may: 'CN-013', ten_may: 'Máy chà nhám thùng',              nam: '2018', ngay_bao_loi: '16/08/2026', tinh_trang_bao_loi: 'Động cơ tiếng ồn bất thường', nguoi_bao_loi: '',             phuong_an_xu_ly: 'Chưa xác định',                    ngay_thay_linh_kien: '',              noi_dung: '',                          don_vi_tinh: '',     so_luong: 0, don_gia:         0, thue_vat: 10, thanh_tien:         0, ghi_chu: 'Chờ linh kiện' },
+  { id: '14', phong_ban: 'Phòng ban quản lý',  ma_may: 'UV-014', ten_may: 'Máy phun UV tự động',             nam: '2023', ngay_bao_loi: '17/08/2026', tinh_trang_bao_loi: 'Đèn UV số 2 hỏng',            nguoi_bao_loi: 'Phạm Thị L',   phuong_an_xu_ly: 'Thay đèn UV mới',                  ngay_thay_linh_kien: '',              noi_dung: 'Đèn UV 400W',              don_vi_tinh: 'Cái',  so_luong: 1, don_gia:         0, thue_vat: 10, thanh_tien:         0, ghi_chu: 'Đang sửa' },
 ];
 
-const MUC_DO_STYLE: Record<PhieuSuaChuaItem['muc_do'], string> = {
-  'Khẩn cấp':   'bg-rose-50 text-rose-700 border-rose-300 font-bold',
-  'Cao':         'bg-amber-50 text-amber-700 border-amber-300 font-semibold',
-  'Bình thường': 'bg-slate-100 text-slate-700 border-slate-200',
-};
 
-const TRANG_THAI_STYLE: Record<PhieuSuaChuaItem['trang_thai'], string> = {
-  'Đang sửa chữa': 'bg-blue-50 text-blue-700 border-blue-300',
-  'Chờ linh kiện': 'bg-amber-50 text-amber-700 border-amber-300',
-  'Hoàn thành':    'bg-emerald-50 text-emerald-700 border-emerald-300',
-};
+
 
 export default function SuaChua() {
   const [search, setSearch]               = useState('');
@@ -89,9 +89,9 @@ export default function SuaChua() {
 
   // ── Card summary groups ─────────────────────────────────────────────────
   const phongGroups = [...new Set(mockSuaChua.map(p => p.phong_ban))].sort().map(pb => ({
-    phong_ban:    pb,
-    so_ban_ghi:   mockSuaChua.filter(p => p.phong_ban === pb).length,
-    tong_chi_phi: mockSuaChua.filter(p => p.phong_ban === pb).reduce((s, p) => s + p.chi_phi, 0),
+    phong_ban:       pb,
+    so_ban_ghi:      mockSuaChua.filter(p => p.phong_ban === pb).length,
+    tong_thanh_tien: mockSuaChua.filter(p => p.phong_ban === pb).reduce((s, p) => s + p.thanh_tien, 0),
   }));
 
   const filteredPhong = phongGroups.filter(g =>
@@ -101,10 +101,11 @@ export default function SuaChua() {
   // ── Table data ──────────────────────────────────────────────────────────
   const filtered = mockSuaChua.filter(p => {
     const matchSearch =
-      p.ma_phieu.toLowerCase().includes(search.toLowerCase())   ||
-      p.thiet_bi.toLowerCase().includes(search.toLowerCase())   ||
-      p.mo_ta_su_co.toLowerCase().includes(search.toLowerCase()) ||
-      p.phong_ban.toLowerCase().includes(search.toLowerCase());
+      p.ma_may.toLowerCase().includes(search.toLowerCase())              ||
+      p.ten_may.toLowerCase().includes(search.toLowerCase())             ||
+      p.tinh_trang_bao_loi.toLowerCase().includes(search.toLowerCase())  ||
+      p.phong_ban.toLowerCase().includes(search.toLowerCase())           ||
+      p.nguoi_bao_loi.toLowerCase().includes(search.toLowerCase());
     const matchPhong = selectedPhong === 'all' || p.phong_ban === selectedPhong;
     return matchSearch && matchPhong;
   });
@@ -174,7 +175,7 @@ export default function SuaChua() {
               </h4>
               <div className="flex items-center justify-between gap-1 mt-0.5">
                 <span className="text-[11px] text-slate-400">{g.so_ban_ghi} bản ghi</span>
-                <span className="text-xs font-bold text-[#406c89]">{g.tong_chi_phi.toLocaleString('vi-VN')} đ</span>
+                <span className="text-xs font-bold text-[#406c89]">{g.tong_thanh_tien.toLocaleString('vi-VN')} đ</span>
               </div>
             </div>
           ))}
@@ -195,51 +196,80 @@ export default function SuaChua() {
           <table className="w-full text-xs border-collapse">
             <thead className="bg-[#406c89] text-white sticky top-0 z-20 shadow-sm">
               <tr>
-                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap w-12 min-w-[48px]">STT</th>
-                <th className="text-left px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[130px] sticky left-0 z-30 bg-[#406c89] shadow-[3px_0_6px_rgba(0,0,0,0.15)]">Mã phiếu</th>
-                <th className="text-left px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[150px]">Phòng ban</th>
-                <th className="text-left px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[180px]">Thiết bị sự cố</th>
-                <th className="text-left px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[220px]">Mô tả hư hỏng</th>
-                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[90px]">Mức độ</th>
-                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[105px]">Ngày yêu cầu</th>
-                <th className="text-right px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[120px]">Chi phí ước tính</th>
-                <th className="text-left px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[170px]">Đơn vị thực hiện</th>
-                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[130px]">Trạng thái</th>
-                <th className="text-center px-3.5 py-2.5 font-bold text-xs text-white whitespace-nowrap sticky right-0 z-30 bg-[#406c89] shadow-[-3px_0_6px_rgba(0,0,0,0.15)] min-w-[90px] w-24">Hành động</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap w-10 min-w-[40px]">STT</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[140px]">Phòng ban quản lý</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[90px]">Mã máy</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[180px]">Tên máy</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[60px]">Năm</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[110px]">Ngày tháng báo lỗi</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[160px]">Tình trạng báo lỗi</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[120px]">Người báo lỗi</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[160px]">Phương án xử lý</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[115px]">Ngày thay linh kiện</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[160px]">Nội dung</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[85px]">Đơn vị tính</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[70px]">Số lượng</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[110px]">Đơn giá</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[80px]">Thuế VAT</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[110px]">Thành tiền</th>
+                <th className="text-center px-3 py-2.5 font-bold text-xs text-white border-r border-white/20 whitespace-nowrap min-w-[120px]">Ghi chú</th>
+                <th className="text-center px-3.5 py-2.5 font-bold text-xs text-white whitespace-nowrap sticky right-0 z-30 bg-[#406c89] shadow-[-3px_0_6px_rgba(0,0,0,0.15)] min-w-[80px] w-20">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {paged.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="text-center py-10 text-slate-400 italic">
-                    Không tìm thấy phiếu sửa chữa phù hợp với bộ lọc
+                  <td colSpan={18} className="text-center py-10 text-slate-400 italic">
+                    Không tìm thấy bản ghi phù hợp với bộ lọc
                   </td>
                 </tr>
               ) : (
                 paged.map((row, idx) => (
                   <tr key={row.id} className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors group">
-                    <td className="px-3 py-2.5 text-center text-slate-500 font-medium border-r border-slate-100 whitespace-nowrap">
+                    {/* STT */}
+                    <td className="px-2 py-2 text-center text-slate-500 font-medium border-r border-slate-100 whitespace-nowrap">
                       {(safePage - 1) * PAGE_SIZE + idx + 1}
                     </td>
-                    <td className="px-3.5 py-2.5 font-mono font-semibold text-[#406c89] border-r border-slate-200 whitespace-nowrap sticky left-0 z-10 bg-white group-hover:bg-slate-50 shadow-[3px_0_6px_rgba(0,0,0,0.06)]">
-                      {row.ma_phieu}
-                    </td>
-                    <td className="px-3.5 py-2.5 text-slate-700 font-medium border-r border-slate-100 whitespace-nowrap">{row.phong_ban}</td>
-                    <td className="px-3.5 py-2.5 text-slate-800 font-medium border-r border-slate-100 whitespace-nowrap">{row.thiet_bi}</td>
-                    <td className="px-3.5 py-2.5 text-slate-600 text-[11px] border-r border-slate-100 max-w-xs truncate" title={row.mo_ta_su_co}>{row.mo_ta_su_co}</td>
-                    <td className="px-3 py-2.5 text-center border-r border-slate-100 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-0.5 rounded text-[10px] border ${MUC_DO_STYLE[row.muc_do]}`}>{row.muc_do}</span>
-                    </td>
-                    <td className="px-3 py-2.5 text-center text-slate-600 border-r border-slate-100 whitespace-nowrap">{row.ngay_yeu_cau}</td>
-                    <td className="px-3 py-2.5 text-right font-bold text-[#406c89] border-r border-slate-100 whitespace-nowrap">{row.chi_phi.toLocaleString('vi-VN')} đ</td>
-                    <td className="px-3.5 py-2.5 text-slate-700 text-[11px] border-r border-slate-100 whitespace-nowrap truncate max-w-xs" title={row.don_vi_sua}>{row.don_vi_sua}</td>
-                    <td className="px-3 py-2.5 text-center border-r border-slate-100 whitespace-nowrap">
-                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${TRANG_THAI_STYLE[row.trang_thai]}`}>{row.trang_thai}</span>
-                    </td>
-                    <td className="px-3 py-2.5 text-center whitespace-nowrap sticky right-0 z-10 bg-white group-hover:bg-slate-50 shadow-[-3px_0_6px_rgba(0,0,0,0.06)] border-l border-slate-100">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <button type="button" title="Xem chi tiết" className="p-1.5 rounded text-slate-500 hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer">
-                          <IconEye size={14} />
+                    {/* Phòng ban quản lý */}
+                    <td className="px-3 py-2 text-slate-700 font-medium border-r border-slate-100 whitespace-nowrap">{row.phong_ban}</td>
+                    {/* Mã máy */}
+                    <td className="px-3 py-2 font-mono font-semibold text-[#406c89] border-r border-slate-100 whitespace-nowrap">{row.ma_may}</td>
+                    {/* Tên máy */}
+                    <td className="px-3 py-2 text-slate-800 font-medium border-r border-slate-100 whitespace-nowrap max-w-[200px] truncate" title={row.ten_may}>{row.ten_may}</td>
+                    {/* Năm */}
+                    <td className="px-2 py-2 text-center text-slate-600 border-r border-slate-100 whitespace-nowrap">{row.nam}</td>
+                    {/* Ngày báo lỗi */}
+                    <td className="px-3 py-2 text-center text-slate-600 border-r border-slate-100 whitespace-nowrap">{row.ngay_bao_loi}</td>
+                    {/* Tình trạng báo lỗi */}
+                    <td className="px-3 py-2 text-slate-600 text-[11px] border-r border-slate-100 whitespace-nowrap max-w-[180px] truncate" title={row.tinh_trang_bao_loi}>{row.tinh_trang_bao_loi}</td>
+                    {/* Người báo lỗi */}
+                    <td className="px-3 py-2 text-slate-700 border-r border-slate-100 whitespace-nowrap">{row.nguoi_bao_loi || <span className="text-slate-300 italic">—</span>}</td>
+                    {/* Phương án xử lý */}
+                    <td className="px-3 py-2 text-slate-600 text-[11px] border-r border-slate-100 whitespace-nowrap max-w-[180px] truncate" title={row.phuong_an_xu_ly}>{row.phuong_an_xu_ly}</td>
+                    {/* Ngày thay linh kiện */}
+                    <td className="px-3 py-2 text-center text-slate-600 border-r border-slate-100 whitespace-nowrap">{row.ngay_thay_linh_kien || <span className="text-slate-300 italic">—</span>}</td>
+                    {/* Nội dung */}
+                    <td className="px-3 py-2 text-slate-600 text-[11px] border-r border-slate-100 whitespace-nowrap max-w-[180px] truncate" title={row.noi_dung}>{row.noi_dung || <span className="text-slate-300 italic">—</span>}</td>
+                    {/* Đơn vị tính */}
+                    <td className="px-3 py-2 text-center text-slate-600 border-r border-slate-100 whitespace-nowrap">{row.don_vi_tinh || <span className="text-slate-300 italic">—</span>}</td>
+                    {/* Số lượng */}
+                    <td className="px-3 py-2 text-center text-slate-700 font-medium border-r border-slate-100 whitespace-nowrap">{row.so_luong > 0 ? row.so_luong : <span className="text-slate-300 italic">—</span>}</td>
+                    {/* Đơn giá */}
+                    <td className="px-3 py-2 text-right text-slate-700 font-medium border-r border-slate-100 whitespace-nowrap">{row.don_gia > 0 ? row.don_gia.toLocaleString('vi-VN') : <span className="text-slate-300 italic">—</span>}</td>
+                    {/* Thuế VAT */}
+                    <td className="px-3 py-2 text-center text-slate-600 border-r border-slate-100 whitespace-nowrap">{row.thue_vat}%</td>
+                    {/* Thành tiền */}
+                    <td className="px-3 py-2 text-right font-bold text-[#406c89] border-r border-slate-100 whitespace-nowrap">{row.thanh_tien > 0 ? row.thanh_tien.toLocaleString('vi-VN') : <span className="text-slate-300 italic font-normal">—</span>}</td>
+                    {/* Ghi chú */}
+                    <td className="px-3 py-2 text-slate-500 text-[11px] border-r border-slate-100 whitespace-nowrap">{row.ghi_chu || <span className="text-slate-300 italic">—</span>}</td>
+                    {/* Thao tác */}
+                    <td className="px-3 py-2 text-center whitespace-nowrap sticky right-0 z-10 bg-white group-hover:bg-slate-50 shadow-[-3px_0_6px_rgba(0,0,0,0.06)] border-l border-slate-100">
+                      <div className="flex items-center justify-center gap-1">
+                        <button type="button" title="Sửa" className="p-1.5 rounded text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer">
+                          <IconEdit size={14} />
+                        </button>
+                        <button type="button" title="Xóa" className="p-1.5 rounded text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
+                          <IconTrash size={14} />
                         </button>
                       </div>
                     </td>
@@ -258,7 +288,7 @@ export default function SuaChua() {
             {' '}-{' '}
             <span className="font-bold text-slate-700">{Math.min(safePage * PAGE_SIZE, filtered.length)}</span>
             {' '}trên tổng số{' '}
-            <span className="font-bold text-slate-700">{filtered.length}</span> phiếu sửa chữa
+            <span className="font-bold text-slate-700">{filtered.length}</span> bản ghi sửa chữa
           </div>
           <div className="flex items-center gap-1">
             <button

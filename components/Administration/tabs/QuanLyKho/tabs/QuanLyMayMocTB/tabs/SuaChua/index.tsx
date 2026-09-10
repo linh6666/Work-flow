@@ -12,6 +12,8 @@ import {
   IconChevronLeft,
   IconChevronRight,
 } from '@tabler/icons-react';
+import SuaChuaDeleteModal from './modals/ModalXoa';
+import SuaChuaEditModal from './modals/ModalSua';
 
 export interface PhieuSuaChuaItem {
   id: string;
@@ -55,9 +57,12 @@ const mockSuaChua: PhieuSuaChuaItem[] = [
 
 
 export default function SuaChua() {
+  const [suaChuaData, setSuaChuaData] = useState(mockSuaChua);
   const [search, setSearch]               = useState('');
   const [selectedPhong, setSelectedPhong] = useState('all');
   const [currentPage, setCurrentPage]     = useState(1);
+  const [editingItem, setEditingItem]     = useState<PhieuSuaChuaItem | null>(null);
+  const [deletingItem, setDeletingItem]   = useState<PhieuSuaChuaItem | null>(null);
   const PAGE_SIZE = 15;
 
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -86,12 +91,18 @@ export default function SuaChua() {
 
   const handleSearch = (val: string) => { setSearch(val); setCurrentPage(1); };
   const handlePhong  = (val: string) => { setSelectedPhong(val); setCurrentPage(1); };
+  const handleSaveEdit = (updatedItem: PhieuSuaChuaItem) => {
+    setSuaChuaData((items) => items.map((item) => item.id === updatedItem.id ? updatedItem : item));
+  };
+  const handleDeleteConfirm = (id: string) => {
+    setSuaChuaData((items) => items.filter((item) => item.id !== id));
+  };
 
   // ── Card summary groups ─────────────────────────────────────────────────
-  const phongGroups = [...new Set(mockSuaChua.map(p => p.phong_ban))].sort().map(pb => ({
+  const phongGroups = [...new Set(suaChuaData.map(p => p.phong_ban))].sort().map(pb => ({
     phong_ban:       pb,
-    so_ban_ghi:      mockSuaChua.filter(p => p.phong_ban === pb).length,
-    tong_thanh_tien: mockSuaChua.filter(p => p.phong_ban === pb).reduce((s, p) => s + p.thanh_tien, 0),
+    so_ban_ghi:      suaChuaData.filter(p => p.phong_ban === pb).length,
+    tong_thanh_tien: suaChuaData.filter(p => p.phong_ban === pb).reduce((s, p) => s + p.thanh_tien, 0),
   }));
 
   const filteredPhong = phongGroups.filter(g =>
@@ -99,7 +110,7 @@ export default function SuaChua() {
   );
 
   // ── Table data ──────────────────────────────────────────────────────────
-  const filtered = mockSuaChua.filter(p => {
+  const filtered = suaChuaData.filter(p => {
     const matchSearch =
       p.ma_may.toLowerCase().includes(search.toLowerCase())              ||
       p.ten_may.toLowerCase().includes(search.toLowerCase())             ||
@@ -135,7 +146,7 @@ export default function SuaChua() {
             className="px-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#406c89]/30 cursor-pointer font-medium"
           >
             <option value="all">Tất cả phòng ban</option>
-            {[...new Set(mockSuaChua.map(p => p.phong_ban))].sort().map(pb => (
+            {[...new Set(suaChuaData.map(p => p.phong_ban))].sort().map(pb => (
               <option key={pb} value={pb}>{pb}</option>
             ))}
           </select>
@@ -265,10 +276,10 @@ export default function SuaChua() {
                     {/* Thao tác */}
                     <td className="px-3 py-2 text-center whitespace-nowrap sticky right-0 z-10 bg-white group-hover:bg-slate-50 shadow-[-3px_0_6px_rgba(0,0,0,0.06)] border-l border-slate-100">
                       <div className="flex items-center justify-center gap-1">
-                        <button type="button" title="Sửa" className="p-1.5 rounded text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer">
+                        <button type="button" title="Sửa" onClick={() => setEditingItem(row)} className="p-1.5 rounded text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer">
                           <IconEdit size={14} />
                         </button>
-                        <button type="button" title="Xóa" className="p-1.5 rounded text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
+                        <button type="button" title="Xóa" onClick={() => setDeletingItem(row)} className="p-1.5 rounded text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
                           <IconTrash size={14} />
                         </button>
                       </div>
@@ -323,6 +334,21 @@ export default function SuaChua() {
           </div>
         </div>
       </div>
+
+      <SuaChuaEditModal
+        key={editingItem?.id ?? 'edit'}
+        isOpen={!!editingItem}
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSave={handleSaveEdit}
+      />
+
+      <SuaChuaDeleteModal
+        isOpen={!!deletingItem}
+        item={deletingItem}
+        onClose={() => setDeletingItem(null)}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 }

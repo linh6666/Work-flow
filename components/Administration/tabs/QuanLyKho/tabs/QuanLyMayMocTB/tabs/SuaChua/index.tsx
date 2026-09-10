@@ -14,6 +14,7 @@ import {
 } from '@tabler/icons-react';
 import SuaChuaDeleteModal from './modals/ModalXoa';
 import SuaChuaEditModal from './modals/ModalSua';
+import SuaChuaCreateModal from './modals/ModalThem';
 
 export interface PhieuSuaChuaItem {
   id: string;
@@ -63,6 +64,7 @@ export default function SuaChua() {
   const [currentPage, setCurrentPage]     = useState(1);
   const [editingItem, setEditingItem]     = useState<PhieuSuaChuaItem | null>(null);
   const [deletingItem, setDeletingItem]   = useState<PhieuSuaChuaItem | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const PAGE_SIZE = 15;
 
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -96,6 +98,10 @@ export default function SuaChua() {
   };
   const handleDeleteConfirm = (id: string) => {
     setSuaChuaData((items) => items.filter((item) => item.id !== id));
+  };
+  const handleCreate = (newItem: PhieuSuaChuaItem) => {
+    setSuaChuaData((items) => [...items, newItem]);
+    setIsCreateModalOpen(false);
   };
 
   // ── Card summary groups ─────────────────────────────────────────────────
@@ -162,7 +168,7 @@ export default function SuaChua() {
           <button type="button" className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium cursor-pointer shadow-xs">
             <IconDownload size={14} className="text-slate-600" /><span>Xuất Excel</span>
           </button>
-          <button type="button" className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs bg-[#406c89] text-white rounded-lg hover:bg-[#355a75] transition-colors font-medium cursor-pointer shadow-xs">
+          <button type="button" onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs bg-[#406c89] text-white rounded-lg hover:bg-[#355a75] transition-colors font-medium cursor-pointer shadow-xs">
             <IconPlus size={14} /><span>Thêm</span>
           </button>
         </div>
@@ -334,6 +340,13 @@ export default function SuaChua() {
           </div>
         </div>
       </div>
+
+      <SuaChuaCreateModal
+        key={isCreateModalOpen ? 'create-open' : 'create-closed'}
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleCreate}
+      />
 
       <SuaChuaEditModal
         key={editingItem?.id ?? 'edit'}

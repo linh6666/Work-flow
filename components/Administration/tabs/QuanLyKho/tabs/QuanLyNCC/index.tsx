@@ -14,6 +14,9 @@ import {
   IconUpload,
   IconUsers,
 } from '@tabler/icons-react';
+import ThemNCC, { NewSupplierData } from './modal/ThemNCC';
+import SuaNCC, { SupplierEditItem } from './modal/SuaNCC';
+import XoaNCC from './modal/XoaNCC';
 
 const mockNhapKho = [
   { phieu: 'NCC-001', nhom_nvl: 'VẬT LIỆU SƠN - KEO (15)', phan_loai: 'I', tan_suat: 'A', chat_luong: 5, gia_nvl: 'Tốt', tg_giao_dat: 'Đúng hạn', on_dinh: 'Tốt', uu_dai: 'Có', tt_toan: 'Đúng hạn', ma_ncc: 'NCC-TMN', ncc: 'Công ty Thép Miền Nam', dia_chi: 'TP. Hồ Chí Minh', sdt: '0901 234 567', nvl_cung_cap: 'Thép hộp, thép tấm', ghi_chu: 'Đối tác lâu năm', tong: 18_750_000, trang_thai: 'Đã duyệt' },
@@ -58,11 +61,17 @@ const supplierRows = [...mockNhapKho, ...extraSuppliers].sort(
 );
 
 export default function NhapKhoTab() {
+  const [suppliers, setSuppliers] = useState(supplierRows);
+  type SupplierRow = (typeof supplierRows)[number];
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Tất cả nhóm hàng');
   const [selectedType, setSelectedType] = useState('');
   const [selectedRating, setSelectedRating] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<SupplierRow | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const PAGE_SIZE = 20;
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const dragInfo = useRef({ isDown: false, startX: 0, scrollLeft: 0 });
@@ -94,7 +103,7 @@ export default function NhapKhoTab() {
     setIsDragging(false);
   };
 
-  const filtered = supplierRows.filter(
+  const filtered = suppliers.filter(
     (p) =>
       p.phieu.toLowerCase().includes(search.toLowerCase()) ||
       p.ncc.toLowerCase().includes(search.toLowerCase()) ||
@@ -111,6 +120,32 @@ export default function NhapKhoTab() {
 
   const handleCategoryChange = (value: string) => {
     setCategory(value);
+    setCurrentPage(1);
+  };
+
+  const handleCreateSupplier = (data: NewSupplierData) => {
+    const nextNumber = suppliers.length + 1;
+    setSuppliers((current) => [{
+      ...data,
+      phieu: `NCC-${String(nextNumber).padStart(3, '0')}`,
+      tong: 0,
+      trang_thai: 'Mới',
+    }, ...current]);
+    setCurrentPage(1);
+    setIsCreateModalOpen(false);
+  };
+
+  const handleEditSupplier = (item: SupplierEditItem) => {
+    setSuppliers((current) => current.map((supplier) => supplier.ma_ncc === item.ma_ncc ? { ...supplier, ...item } : supplier));
+    setIsEditModalOpen(false);
+    setSelectedSupplier(null);
+  };
+
+  const handleDeleteSupplier = () => {
+    if (!selectedSupplier) return;
+    setSuppliers((current) => current.filter((supplier) => supplier.ma_ncc !== selectedSupplier.ma_ncc));
+    setIsDeleteModalOpen(false);
+    setSelectedSupplier(null);
     setCurrentPage(1);
   };
 
@@ -132,7 +167,7 @@ export default function NhapKhoTab() {
             <button type="button" className="flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-[11px] font-semibold text-[#406c89] hover:bg-slate-50 transition-colors">
               <IconChartBar size={13} /> Báo cáo
             </button>
-            <button type="button" className="flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-[11px] font-semibold text-[#406c89] hover:bg-slate-50 transition-colors">
+            <button type="button" onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-[11px] font-semibold text-[#406c89] hover:bg-slate-50 transition-colors">
               <IconPlus size={13} /> Thêm NCC
             </button>
           </div>
@@ -287,8 +322,8 @@ export default function NhapKhoTab() {
                       <td className="border border-slate-200 px-2 py-2 whitespace-nowrap">{p.ghi_chu}</td>
                       <td className={`sticky right-0 z-20 min-w-[80px] overflow-hidden border-l border-slate-100 !bg-white px-3 py-2 text-center whitespace-nowrap shadow-[-3px_0_6px_rgba(0,0,0,0.06)] ${i % 2 === 0 ? '' : '!bg-slate-50/30'} group-hover:!bg-slate-50`}>
                         <div className="flex items-center justify-center gap-1">
-                          <button type="button" title="Sửa" className="text-slate-700 hover:text-[#406c89]"><IconEdit size={13} /></button>
-                          <button type="button" title="Xóa" className="text-red-400 hover:text-red-600"><IconTrash size={13} /></button>
+                          <button type="button" title="Sửa" onClick={() => { setSelectedSupplier(p); setIsEditModalOpen(true); }} className="text-slate-700 hover:text-[#406c89]"><IconEdit size={13} /></button>
+                          <button type="button" title="Xóa" onClick={() => { setSelectedSupplier(p); setIsDeleteModalOpen(true); }} className="text-red-400 hover:text-red-600"><IconTrash size={13} /></button>
                         </div>
                       </td>
                     </tr>
@@ -343,6 +378,20 @@ export default function NhapKhoTab() {
           </div>
         </div>
       </div>
+      <ThemNCC isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSave={handleCreateSupplier} />
+      <SuaNCC
+        key={selectedSupplier?.ma_ncc ?? 'closed'}
+        isOpen={isEditModalOpen}
+        item={selectedSupplier}
+        onClose={() => { setIsEditModalOpen(false); setSelectedSupplier(null); }}
+        onSave={handleEditSupplier}
+      />
+      <XoaNCC
+        isOpen={isDeleteModalOpen}
+        item={selectedSupplier}
+        onClose={() => { setIsDeleteModalOpen(false); setSelectedSupplier(null); }}
+        onConfirm={handleDeleteSupplier}
+      />
     </div>
   );
 }

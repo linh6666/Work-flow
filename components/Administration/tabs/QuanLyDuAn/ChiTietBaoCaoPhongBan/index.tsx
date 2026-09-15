@@ -14,10 +14,16 @@ import {
   IconEye,
   IconEdit,
   IconTrash,
+  IconMaximize,
+  IconArrowsDiff,
+  IconGridDots,
+  IconDeviceFloppy,
+  IconChevronDown,
+  IconBulb,
   IconUser,
   IconFilter,
-  IconChevronRight,
-  IconBuilding
+  IconChevronLeft,
+  IconChevronRight
 } from '@tabler/icons-react';
 
 export interface DepartmentItem {
@@ -54,16 +60,18 @@ export default function ChiTietBaoCaoPhongBan({
   onBack,
 }: ChiTietBaoCaoPhongBanProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedAssignee, setSelectedAssignee] = useState<string>('all');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
-  const [activeSubTab, setActiveSubTab] = useState<'reports' | 'members' | 'files'>('reports');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
 
-  // Comprehensive report items for selected department
+  // Sample reports for this department
   const sampleReports: ReportTask[] = [
     {
       id: 'rpt-1',
       code: 'BC-01/2026',
       title: 'Duyệt Kế hoạch Tổng thể & Ngân sách dự án triển khai Q3/2026',
-      assignee: 'Thảo Phùng',
+      assignee: 'Nguyễn Phú Quang',
       role: 'Trưởng ban',
       date: '12/07/2026',
       deadline: '15/07/2026',
@@ -77,7 +85,7 @@ export default function ChiTietBaoCaoPhongBan({
       id: 'rpt-2',
       code: 'BC-02/2026',
       title: 'Họp giao ban tiến độ & Phê duyệt phương án thi công kết cấu',
-      assignee: 'Thảo Phùng',
+      assignee: 'Nguyễn Phú Quang',
       role: 'Trưởng ban',
       date: '15/07/2026',
       deadline: '18/07/2026',
@@ -119,7 +127,7 @@ export default function ChiTietBaoCaoPhongBan({
       id: 'rpt-5',
       code: 'BC-05/2026',
       title: 'Báo cáo nghiệm thu kỹ thuật vật liệu đầu vào gỗ & chất sơn',
-      assignee: 'Nguyễn Văn Nam',
+      assignee: 'Nguyễn Phú Quang',
       role: 'Chuyên viên QC',
       date: '28/07/2026',
       deadline: '31/07/2026',
@@ -147,7 +155,7 @@ export default function ChiTietBaoCaoPhongBan({
       id: 'rpt-7',
       code: 'BC-07/2026',
       title: 'Kiểm tra chất lượng mộc & sơn bề mặt mẫu thử đợt cuối',
-      assignee: 'Phan Văn Hùng',
+      assignee: 'Nguyễn Phú Quang',
       role: 'Kỹ sư Giám sát',
       date: '05/08/2026',
       deadline: '08/08/2026',
@@ -159,456 +167,363 @@ export default function ChiTietBaoCaoPhongBan({
     },
   ];
 
-  // Department staff list
-  const sampleMembers = [
-    { name: 'Thảo Phùng', role: 'Trưởng phòng / Trưởng ban', email: 'thao.phung@company.vn', reportsCount: 12, avatarBg: 'bg-indigo-600' },
-    { name: 'Trần Diễm My', role: 'Phó phòng', email: 'my.tran@company.vn', reportsCount: 8, avatarBg: 'bg-emerald-600' },
-    { name: 'Nguyễn Văn Nam', role: 'Kỹ sư Giám sát', email: 'nam.nguyen@company.vn', reportsCount: 5, avatarBg: 'bg-blue-600' },
-    { name: 'Phan Văn Hùng', role: 'Chuyên viên Kỹ thuật', email: 'hung.phan@company.vn', reportsCount: 4, avatarBg: 'bg-amber-600' },
-  ];
-
-  // Filtered reports
+  // Filtering
   const filteredReports = sampleReports.filter((item) => {
     const matchSearch =
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.assignee.toLowerCase().includes(searchTerm.toLowerCase());
 
-    if (selectedStatusFilter === 'all') return matchSearch;
-    if (selectedStatusFilter === 'completed') return matchSearch && item.status === 'Hoàn thành';
-    if (selectedStatusFilter === 'in_progress') return matchSearch && item.status === 'Đang thực hiện';
-    if (selectedStatusFilter === 'pending') return matchSearch && item.status === 'Chờ duyệt';
-    return matchSearch;
+    const matchAssignee = selectedAssignee === 'all' || item.assignee === selectedAssignee;
+
+    let matchStatus = true;
+    if (selectedStatusFilter === 'Hoàn thành') matchStatus = item.status === 'Hoàn thành';
+    else if (selectedStatusFilter === 'Đang triển khai') matchStatus = item.status === 'Đang thực hiện';
+    else if (selectedStatusFilter === 'Chờ duyệt') matchStatus = item.status === 'Chờ duyệt';
+
+    return matchSearch && matchAssignee && matchStatus;
   });
 
   const totalCount = sampleReports.length;
   const completedCount = sampleReports.filter((r) => r.status === 'Hoàn thành').length;
   const inProgressCount = sampleReports.filter((r) => r.status === 'Đang thực hiện').length;
-  const pendingCount = sampleReports.filter((r) => r.status === 'Chờ duyệt').length;
   const totalHours = sampleReports.reduce((acc, r) => acc + r.actualHours, 0);
 
   return (
-    <div className="w-full min-h-screen bg-[#f4f6fa] p-4 sm:p-6 md:p-8 space-y-6 animate-fade-in select-none">
+    <div className="w-full min-h-screen bg-white p-4 sm:p-6 space-y-4 animate-fade-in select-none">
       
-      {/* 1. TOP FULL-WIDTH HEADER & BREADCRUMB */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* ROW 1: TITLE & TOP ACTION BUTTONS */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
         
-        <div className="space-y-2">
-          {/* Breadcrumb Navigation */}
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-            <button
-              type="button"
-              onClick={onBack}
-              className="hover:text-[#406c89] transition-colors flex items-center gap-1 cursor-pointer"
-            >
-              <IconArrowLeft size={14} />
-              <span>Quản lý Dự án</span>
-            </button>
-            <IconChevronRight size={12} className="text-slate-300" />
-            <span className="font-mono text-[#406c89] bg-[#406c89]/10 px-2 py-0.5 rounded font-bold">
-              {projectCode}
-            </span>
-            <IconChevronRight size={12} className="text-slate-300" />
-            <span className="text-slate-800 font-bold">{department.name}</span>
-          </div>
-
-          {/* Main Title & Department Tag */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="w-10 h-10 rounded-xl bg-[#406c89]/10 text-[#406c89] flex items-center justify-center font-bold shrink-0">
-              <IconBuilding size={22} />
-            </div>
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
-                Chi tiết Báo cáo Tiến độ — {department.name}
-              </h1>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Dự án: <strong className="text-slate-700">{projectName}</strong> · {department.statusText}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Header Buttons */}
-        <div className="flex items-center gap-2.5 self-start md:self-center shrink-0">
+        {/* Title & Subtitle with Back Button */}
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onBack}
-            className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-2xs transition-all"
+            className="w-7 h-7 rounded-md bg-white border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-all cursor-pointer shadow-2xs shrink-0"
+            title="Quay lại trang trước"
           >
-            <IconArrowLeft size={16} />
-            <span>Quay lại Dự án</span>
+            <IconArrowLeft size={14} />
+          </button>
+
+          <div>
+            <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug">
+              {department.name}
+            </h1>
+            <p className="text-[11px] text-slate-500 font-medium leading-none mt-0.5">
+              Người tạo: <span className="text-slate-700 font-semibold">Nguyễn Phú Quang</span> · <span className="text-slate-600">{department.statusText ? department.statusText.split('·')[0].trim() : 'Đang triển khai'}</span>
+            </p>
+          </div>
+        </div>
+
+        {/* 5 Top Right Action Buttons */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            type="button"
+            onClick={onBack}
+            className="px-2.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-md text-[11px] font-semibold text-slate-700 flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
+          >
+            <IconMaximize size={14} className="text-slate-600" />
+            <span>Toàn màn hình</span>
           </button>
 
           <button
             type="button"
-            className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-2xs transition-all"
+            className="px-2.5 py-1.5 bg-white border border-[#f5d089] hover:bg-amber-50/60 rounded-md text-[11px] font-semibold text-[#b45309] flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
           >
-            <IconDownload size={16} className="text-slate-500" />
-            <span>Xuất báo cáo Excel</span>
+            <IconArrowsDiff size={14} className="text-[#b45309]" />
+            <span>Di chuyển sang dự án</span>
           </button>
 
           <button
             type="button"
-            className="bg-[#406c89] hover:bg-[#32566e] text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-md shadow-[#406c89]/20 transition-all"
+            className="px-2.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-md text-[11px] font-semibold text-slate-700 flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
           >
-            <IconPlus size={16} />
-            <span>Tạo Báo cáo mới</span>
+            <IconTrash size={14} className="text-slate-600" />
+            <span>Thùng rác công việc</span>
+          </button>
+
+          <button
+            type="button"
+            className="px-2.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-md text-[11px] font-semibold text-slate-700 flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
+          >
+            <IconGridDots size={14} className="text-slate-600" />
+            <span>Lưu Template</span>
+          </button>
+
+          <button
+            type="button"
+            className="px-3.5 py-1.5 bg-[#9496f8] hover:bg-[#8385f5] text-white rounded-md text-[11px] font-bold flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
+          >
+            <IconDeviceFloppy size={14} />
+            <span>Lưu</span>
           </button>
         </div>
 
       </div>
 
-      {/* 2. FULL-WIDTH KPI DASHBOARD METRICS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ROW 2: FILTERS (SELECT PERSONNEL, SELECT STATUS, DATE RANGE) */}
+      <div className="flex flex-wrap items-center gap-2">
         
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Tổng báo cáo</p>
-            <h3 className="text-2xl font-black text-slate-900 mt-1">{totalCount} <span className="text-xs font-normal text-slate-400">hạng mục</span></h3>
-            <p className="text-[11px] text-emerald-600 font-semibold mt-1">100% cập nhật hệ thống</p>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-            <IconFileText size={24} />
-          </div>
+        {/* Select Personnel */}
+        <div className="relative">
+          <select
+            value={selectedAssignee}
+            onChange={(e) => setSelectedAssignee(e.target.value)}
+            className="appearance-none bg-white border border-slate-200 rounded-md pl-2.5 pr-7 py-1 text-[11px] font-medium text-slate-700 focus:outline-none focus:border-[#406c89] cursor-pointer shadow-2xs"
+          >
+            <option value="all">Tất cả nhân sự</option>
+            <option value="Nguyễn Phú Quang">Nguyễn Phú Quang</option>
+            <option value="Thảo Phùng">Thảo Phùng</option>
+            <option value="Trần Diễm My">Trần Diễm My</option>
+          </select>
+          <IconChevronDown size={13} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
         </div>
 
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Đã hoàn thành</p>
-            <h3 className="text-2xl font-black text-emerald-600 mt-1">{completedCount} <span className="text-xs font-normal text-slate-400">báo cáo</span></h3>
-            <p className="text-[11px] text-slate-400 font-medium mt-1">Tỷ lệ: {Math.round((completedCount/totalCount)*100)}%</p>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-            <IconCheck size={24} />
-          </div>
+        {/* Select Status */}
+        <div className="relative">
+          <select
+            value={selectedStatusFilter}
+            onChange={(e) => setSelectedStatusFilter(e.target.value)}
+            className="appearance-none bg-white border border-slate-200 rounded-md pl-2.5 pr-7 py-1 text-[11px] font-medium text-slate-700 focus:outline-none focus:border-[#406c89] cursor-pointer shadow-2xs"
+          >
+            <option value="all">Tất cả trạng thái</option>
+            <option value="Hoàn thành">Hoàn thành</option>
+            <option value="Đang triển khai">Đang triển khai</option>
+            <option value="Chờ duyệt">Chờ duyệt</option>
+          </select>
+          <IconChevronDown size={13} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
         </div>
 
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Đang triển khai</p>
-            <h3 className="text-2xl font-black text-amber-600 mt-1">{inProgressCount} <span className="text-xs font-normal text-slate-400">báo cáo</span></h3>
-            <p className="text-[11px] text-amber-600 font-semibold mt-1">Đúng tiến độ đề ra</p>
+        {/* Date Inputs Range */}
+        <div className="flex items-center gap-1">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="mm/dd/yyyy"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="bg-white border border-slate-200 rounded-md pl-2.5 pr-7 py-1 text-[11px] text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#406c89] w-28 shadow-2xs"
+            />
+            <IconCalendar size={13} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
-            <IconClock size={24} />
-          </div>
-        </div>
 
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Tổng giờ thực hiện</p>
-            <h3 className="text-2xl font-black text-indigo-600 mt-1">{totalHours}h <span className="text-xs font-normal text-slate-400">tổng cộng</span></h3>
-            <p className="text-[11px] text-slate-400 font-medium mt-1">Kế hoạch: 84h</p>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-            <IconCalendar size={24} />
+          <span className="text-slate-400 text-[11px] font-mono">→</span>
+
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="mm/dd/yyyy"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="bg-white border border-slate-200 rounded-md pl-2.5 pr-7 py-1 text-[11px] text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#406c89] w-28 shadow-2xs"
+            />
+            <IconCalendar size={13} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
         </div>
 
       </div>
 
-      {/* 3. MAIN CONTENT CONTAINER (TABS & TABLE) */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl shadow-sm overflow-hidden space-y-4 p-5 md:p-6">
-        
-        {/* SUB TABS & TOOLBAR */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-          
-          {/* Sub Navigation Tabs */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveSubTab('reports')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeSubTab === 'reports'
-                  ? 'bg-[#406c89] text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              Danh sách Báo cáo ({totalCount})
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => setActiveSubTab('members')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeSubTab === 'members'
-                  ? 'bg-[#406c89] text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              Nhân sự Phòng ban ({sampleMembers.length})
-            </button>
+      {/* ROW 3: ASSIGNED PERSONNEL TAG */}
+      <div className="flex items-center gap-1.5 text-[11px]">
+        <span className="font-semibold text-slate-600">Nhân sự:</span>
+        <span className="bg-[#335b75] text-white px-2.5 py-0.5 rounded-full text-[11px] font-bold inline-flex items-center gap-1 shadow-2xs">
+          Nguyễn Phú Quang
+        </span>
+      </div>
+
+      {/* ROW 4: LIGHTBULB BANNER NOTE */}
+      <div className="bg-[#f0f3ff] border border-[#d6dbff] rounded-lg px-3.5 py-2 flex items-center gap-2 text-[11px] text-[#5c68e2] font-medium leading-relaxed shadow-2xs">
+        <IconBulb size={16} className="text-[#5c68e2] shrink-0" />
+        <span>
+          Bạn có quyền bổ sung nhân sự từ các phòng ban khác vào form phòng <strong className="font-bold">{department.name}</strong> (xem tag [Phòng ban] trong danh sách chọn nhân sự).
+        </span>
+      </div>
+
+
+
+      {/* 3. WORK REPORT TABLE */}
+      
+        {/* Table Toolbar - HIDDEN */}
+        {/* <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+            <span>Danh sách công việc & Báo cáo</span>
+            <span className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-semibold">
+              {filteredReports.length}
+            </span>
+          </h3>
+
+          <div className="relative w-full sm:w-64">
+            <IconSearch size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Tìm kiếm mã, tên báo cáo..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#406c89] focus:bg-white transition-all"
+            />
           </div>
+        </div> */}
 
-          {/* Filter Badges & Search input */}
-          {activeSubTab === 'reports' && (
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              
-              {/* Filter Pills */}
-              <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto">
-                <button
-                  type="button"
-                  onClick={() => setSelectedStatusFilter('all')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    selectedStatusFilter === 'all'
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Tất cả
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedStatusFilter('completed')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    selectedStatusFilter === 'completed'
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Hoàn thành
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedStatusFilter('in_progress')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    selectedStatusFilter === 'in_progress'
-                      ? 'bg-amber-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Đang triển khai
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedStatusFilter('pending')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    selectedStatusFilter === 'pending'
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Chờ duyệt
-                </button>
-              </div>
+        {/* Data Table */}
+        <div className="overflow-x-auto border border-slate-100 rounded-xl">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+              <tr>
+                <th className="py-3 px-4">Mã BC</th>
+                <th className="py-3 px-4">Tên báo cáo / Nội dung công việc</th>
+                <th className="py-3 px-4">Người thực hiện</th>
+                <th className="py-3 px-4">Hạn chót</th>
+                <th className="py-3 px-4">Thời gian</th>
+                <th className="py-3 px-4 text-center">Tiến độ</th>
+                <th className="py-3 px-4">Trạng thái</th>
+                <th className="py-3 px-4 text-center">Tệp đính kèm</th>
+                <th className="py-3 px-4 text-right">Thao tác</th>
+              </tr>
+            </thead>
 
-              {/* Search Box */}
-              <div className="relative w-full sm:w-64 shrink-0">
-                <IconSearch size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm báo cáo, người tạo..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#406c89] focus:bg-white transition-all"
-                />
-              </div>
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+              {filteredReports.length > 0 ? (
+                filteredReports.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 font-mono font-bold text-[#406c89] whitespace-nowrap">
+                      {item.code}
+                    </td>
 
-            </div>
-          )}
+                    <td className="py-3 px-4 max-w-md">
+                      <p className="font-bold text-slate-900 leading-snug">{item.title}</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Ngày khởi tạo: {item.date}</p>
+                    </td>
 
-        </div>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-[#335b75] text-white flex items-center justify-center font-bold text-[10px] shrink-0">
+                          {item.assignee.slice(0, 1)}
+                        </div>
+                        <span>{item.assignee}</span>
+                      </div>
+                    </td>
 
-        {/* 4. SUB TAB CONTENT VIEW */}
-        {activeSubTab === 'reports' ? (
-          <div className="border border-slate-200/90 rounded-2xl overflow-hidden shadow-2xs">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                
-                {/* Header */}
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-                  <tr>
-                    <th className="py-3.5 px-4">Mã Báo Cáo</th>
-                    <th className="py-3.5 px-4">Tên Báo Cáo & Nội dung Hạng Mục</th>
-                    <th className="py-3.5 px-4">Người Thực Hiện</th>
-                    <th className="py-3.5 px-4">Hạn Chót</th>
-                    <th className="py-3.5 px-4">Số Giờ</th>
-                    <th className="py-3.5 px-4 text-center">Tiến Độ</th>
-                    <th className="py-3.5 px-4">Trạng Thái</th>
-                    <th className="py-3.5 px-4 text-center">Tệp đính kèm</th>
-                    <th className="py-3.5 px-4 text-right">Thao tác</th>
-                  </tr>
-                </thead>
+                    <td className="py-3 px-4 whitespace-nowrap text-slate-600">
+                      {item.deadline}
+                    </td>
 
-                {/* Body */}
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                  {filteredReports.length > 0 ? (
-                    filteredReports.map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50/90 transition-colors">
-                        
-                        {/* Code */}
-                        <td className="py-3.5 px-4 font-mono font-bold text-[#406c89] whitespace-nowrap">
-                          {item.code}
-                        </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <span className="font-bold text-slate-900">{item.actualHours}h</span>
+                      <span className="text-slate-400 text-[10px] ml-1">/ {item.plannedHours}h</span>
+                    </td>
 
-                        {/* Title */}
-                        <td className="py-3.5 px-4 max-w-md">
-                          <p className="font-bold text-slate-900 leading-snug">{item.title}</p>
-                          <p className="text-[11px] text-slate-400 mt-0.5">Ngày khởi tạo: {item.date}</p>
-                        </td>
-
-                        {/* Assignee */}
-                        <td className="py-3.5 px-4 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-[#406c89] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
-                              {item.assignee.slice(0, 1)}
-                            </div>
-                            <div>
-                              <p className="font-bold text-slate-800 leading-none">{item.assignee}</p>
-                              <span className="text-[10px] text-slate-400 leading-none">{item.role}</span>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Deadline */}
-                        <td className="py-3.5 px-4 whitespace-nowrap text-slate-600 font-medium">
-                          {item.deadline}
-                        </td>
-
-                        {/* Hours */}
-                        <td className="py-3.5 px-4 whitespace-nowrap">
-                          <span className="font-bold text-slate-900 text-sm">{item.actualHours}h</span>
-                          <span className="text-slate-400 text-[11px] ml-1">/ {item.plannedHours}h</span>
-                        </td>
-
-                        {/* Progress */}
-                        <td className="py-3.5 px-4 whitespace-nowrap min-w-[140px]">
-                          <div className="flex items-center gap-2.5">
-                            <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
-                              <div
-                                className={`h-full rounded-full transition-all duration-300 ${
-                                  item.progress === 100
-                                    ? 'bg-emerald-500'
-                                    : item.progress >= 70
-                                    ? 'bg-[#406c89]'
-                                    : 'bg-amber-500'
-                                }`}
-                                style={{ width: `${item.progress}%` }}
-                              />
-                            </div>
-                            <span className="text-xs font-bold text-slate-800 w-9 text-right">
-                              {item.progress}%
-                            </span>
-                          </div>
-                        </td>
-
-                        {/* Status */}
-                        <td className="py-3.5 px-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                              item.status === 'Hoàn thành'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : item.status === 'Đang thực hiện'
-                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                    <td className="py-3 px-4 whitespace-nowrap min-w-[120px]">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              item.progress === 100
+                                ? 'bg-emerald-500'
+                                : item.progress >= 70
+                                ? 'bg-[#406c89]'
+                                : 'bg-amber-500'
                             }`}
-                          >
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                item.status === 'Hoàn thành'
-                                  ? 'bg-emerald-500'
-                                  : item.status === 'Đang thực hiện'
-                                  ? 'bg-amber-500'
-                                  : 'bg-indigo-500'
-                              }`}
-                            />
-                            {item.status}
-                          </span>
-                        </td>
+                            style={{ width: `${item.progress}%` }}
+                          />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-700 w-8 text-right">
+                          {item.progress}%
+                        </span>
+                      </div>
+                    </td>
 
-                        {/* Attachments */}
-                        <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                          {item.attachmentsCount > 0 ? (
-                            <span className="inline-flex items-center gap-1 text-slate-700 hover:text-[#406c89] cursor-pointer font-bold text-xs bg-slate-100 px-2.5 py-1 rounded-lg hover:bg-slate-200 transition-colors">
-                              <IconPaperclip size={14} />
-                              {item.attachmentsCount} file
-                            </span>
-                          ) : (
-                            <span className="text-slate-300">—</span>
-                          )}
-                        </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                          item.status === 'Hoàn thành'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : item.status === 'Đang thực hiện'
+                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                            : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            item.status === 'Hoàn thành'
+                              ? 'bg-emerald-500'
+                              : item.status === 'Đang thực hiện'
+                              ? 'bg-amber-500'
+                              : 'bg-indigo-500'
+                          }`}
+                        />
+                        {item.status}
+                      </span>
+                    </td>
 
-                        {/* Actions */}
-                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1.5 text-slate-400">
-                            <button
-                              type="button"
-                              className="p-1.5 rounded-lg hover:bg-slate-100 hover:text-[#406c89] transition-colors cursor-pointer"
-                              title="Xem chi tiết"
-                            >
-                              <IconEye size={17} />
-                            </button>
-                            <button
-                              type="button"
-                              className="p-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
-                              title="Chỉnh sửa"
-                            >
-                              <IconEdit size={17} />
-                            </button>
-                          </div>
-                        </td>
+                    <td className="py-3 px-4 text-center whitespace-nowrap">
+                      {item.attachmentsCount > 0 ? (
+                        <span className="inline-flex items-center gap-1 text-slate-600 hover:text-slate-900 cursor-pointer font-bold text-[11px] bg-slate-100 px-2 py-0.5 rounded">
+                          <IconPaperclip size={13} />
+                          {item.attachmentsCount} file
+                        </span>
+                      ) : (
+                        <span className="text-slate-300">—</span>
+                      )}
+                    </td>
 
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={9} className="py-12 text-center text-slate-400 font-medium">
-                        Không tìm thấy báo cáo nào phù hợp với bộ lọc tìm kiếm.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
+                    <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1 text-slate-400">
+                        <button
+                          type="button"
+                          className="p-1 rounded hover:bg-slate-100 hover:text-[#406c89] transition-colors cursor-pointer"
+                          title="Xem chi tiết"
+                        >
+                          <IconEye size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="p-1 rounded hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+                          title="Chỉnh sửa"
+                        >
+                          <IconEdit size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={9} className="py-8 text-center text-slate-400 font-medium">
+                    Không tìm thấy báo cáo nào phù hợp.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-              </table>
-            </div>
-
-            {/* Pagination Footer */}
-            <div className="bg-slate-50 border-t border-slate-200 px-5 py-3.5 flex items-center justify-between text-xs text-slate-500 font-medium">
-              <span>Hiển thị <strong>{filteredReports.length}</strong> trên <strong>{totalCount}</strong> báo cáo</span>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  disabled
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-300 cursor-not-allowed font-medium"
-                >
-                  Trang trước
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 rounded-lg bg-[#406c89] text-white font-bold"
-                >
-                  1
-                </button>
-                <button
-                  type="button"
-                  disabled
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-300 cursor-not-allowed font-medium"
-                >
-                  Trang sau
-                </button>
-              </div>
-            </div>
-
+        {/* Table Pagination */}
+        <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+          <span>Hiển thị {filteredReports.length} trên {totalCount} báo cáo</span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              disabled
+              className="px-2.5 py-1 rounded border border-slate-200 bg-white text-slate-300 cursor-not-allowed"
+            >
+              Trang trước
+            </button>
+            <button
+              type="button"
+              className="px-2.5 py-1 rounded bg-[#406c89] text-white font-bold"
+            >
+              1
+            </button>
+            <button
+              type="button"
+              disabled
+              className="px-2.5 py-1 rounded border border-slate-200 bg-white text-slate-300 cursor-not-allowed"
+            >
+              Trang sau
+            </button>
           </div>
-        ) : (
-          /* Members Subtab */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-2">
-            {sampleMembers.map((member, idx) => (
-              <div key={idx} className="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 flex items-center gap-3 hover:bg-white hover:shadow-xs transition-all">
-                <div className={`w-11 h-11 rounded-2xl ${member.avatarBg} text-white font-bold flex items-center justify-center text-base shrink-0 shadow-2xs`}>
-                  {member.name.slice(0, 1)}
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900">{member.name}</h4>
-                  <p className="text-xs text-slate-500">{member.role}</p>
-                  <p className="text-[11px] text-[#406c89] font-semibold mt-1">{member.reportsCount} báo cáo đã nộp</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-      </div>
+        </div>
 
     </div>
   );

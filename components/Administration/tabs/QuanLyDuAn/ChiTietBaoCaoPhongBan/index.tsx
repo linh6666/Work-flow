@@ -222,10 +222,10 @@ export default function ChiTietBaoCaoPhongBan({
   const totalHours = sampleReports.reduce((acc, r) => acc + r.actualHours, 0);
 
   return (
-    <div className="w-full min-h-screen bg-white p-4 sm:p-6 space-y-4 animate-fade-in select-none">
+    <div className="w-full h-screen max-h-screen bg-white p-4 sm:p-5 flex flex-col space-y-2.5 animate-fade-in select-none overflow-hidden">
       
       {/* ROW 1: TITLE & TOP ACTION BUTTONS */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 shrink-0">
         
         {/* Title & Subtitle with Back Button */}
         <div className="flex items-center gap-2">
@@ -295,7 +295,7 @@ export default function ChiTietBaoCaoPhongBan({
       </div>
 
       {/* ROW 2: FILTERS (SELECT PERSONNEL, SELECT STATUS, DATE RANGE) */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 shrink-0">
         
         {/* Select Personnel */}
         <div className="relative">
@@ -357,7 +357,7 @@ export default function ChiTietBaoCaoPhongBan({
       </div>
 
       {/* ROW 3: ASSIGNED PERSONNEL TAG */}
-      <div className="flex items-center gap-1.5 text-[11px]">
+      <div className="flex items-center gap-1.5 text-[11px] shrink-0">
         <span className="font-semibold text-slate-600">Nhân sự:</span>
         <span className="bg-[#335b75] text-white px-2.5 py-0.5 rounded-full text-[11px] font-bold inline-flex items-center gap-1 shadow-2xs">
           Nguyễn Phú Quang
@@ -365,237 +365,327 @@ export default function ChiTietBaoCaoPhongBan({
       </div>
 
       {/* ROW 4: LIGHTBULB BANNER NOTE */}
-      <div className="bg-[#f0f3ff] border border-[#d6dbff] rounded-lg px-3.5 py-2 flex items-center gap-2 text-[11px] text-[#5c68e2] font-medium leading-relaxed shadow-2xs">
+      <div className="bg-[#f0f3ff] border border-[#d6dbff] rounded-lg px-3.5 py-2 flex items-center gap-2 text-[11px] text-[#5c68e2] font-medium leading-relaxed shadow-2xs shrink-0">
         <IconBulb size={16} className="text-[#5c68e2] shrink-0" />
         <span>
           Bạn có quyền bổ sung nhân sự từ các phòng ban khác vào form phòng <strong className="font-bold">{department.name}</strong> (xem tag [Phòng ban] trong danh sách chọn nhân sự).
         </span>
       </div>
 
+      {/* 3. WORK REPORT TABLE CONTAINER - FIXED FULL HEIGHT LIKE KHACH HANG */}
+      <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
+        <style>{`
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `}</style>
+        <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
+          <table className="w-full text-xs text-left border-collapse min-w-[1250px]">
+            <thead className="sticky top-0 z-20 bg-slate-50 shadow-2xs border-b border-slate-200">
+                <tr className="bg-slate-50">
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
+                    #
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>BC TH</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
+                    Thao tác
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>Trạng thái</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>Tên công việc</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>KL DK</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>KL DP</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>Nhân sự</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>Giờ DK</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>Giờ TT</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>Bắt đầu</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>Kết thúc</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>%HT</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                    >
+                      <span>Ghi chú</span>
+                      <span className="text-slate-400 text-[10px]">↕</span>
+                    </button>
+                  </th>
+                </tr>
+              </thead>
 
+              <tbody className="divide-y divide-slate-100">
+                {filteredReports.length > 0 ? (
+                  filteredReports.map((item, idx) => (
+                    <tr key={item.id} className="hover:bg-slate-50/70 transition-colors group">
+                      {/* # */}
+                      <td className="px-4 py-3.5 align-middle text-center font-mono text-slate-400 font-semibold text-xs whitespace-nowrap">
+                        {idx + 1}
+                      </td>
 
-      {/* 3. WORK REPORT TABLE */}
-      
-        {/* Table Toolbar - HIDDEN */}
-        {/* <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-100 pb-3">
-          <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
-            <span>Danh sách công việc & Báo cáo</span>
-            <span className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-semibold">
-              {filteredReports.length}
-            </span>
-          </h3>
-
-          <div className="relative w-full sm:w-64">
-            <IconSearch size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Tìm kiếm mã, tên báo cáo..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#406c89] focus:bg-white transition-all"
-            />
-          </div>
-        </div> */}
-
-        {/* Data Table */}
-        <div className="overflow-x-auto border border-slate-100 rounded-xl">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
-              <tr>
-                <th className="py-3 px-3 text-center whitespace-nowrap">#</th>
-                <th className="py-3 px-3 text-center whitespace-nowrap">BC TH</th>
-                <th className="py-2 px-3 text-center whitespace-nowrap leading-tight">
-                  THAO<br />TÁC
-                </th>
-                <th className="py-3 px-3 whitespace-nowrap">TRẠNG THÁI</th>
-                <th className="py-3 px-4 whitespace-nowrap">TÊN CÔNG VIỆC</th>
-                <th className="py-3 px-3 text-center whitespace-nowrap">KL DK</th>
-                <th className="py-3 px-3 text-center whitespace-nowrap">KL DP</th>
-                <th className="py-3 px-3 whitespace-nowrap">NHÂN SỰ</th>
-                <th className="py-3 px-3 text-center whitespace-nowrap">GIỜ DK</th>
-                <th className="py-3 px-3 text-center whitespace-nowrap">GIỜ TT</th>
-                <th className="py-3 px-3 whitespace-nowrap">BẮT ĐẦU</th>
-                <th className="py-3 px-3 whitespace-nowrap">KẾT THÚC</th>
-                <th className="py-3 px-3 text-center whitespace-nowrap">%HT</th>
-                <th className="py-3 px-4 whitespace-nowrap">GHI CHÚ</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-              {filteredReports.length > 0 ? (
-                filteredReports.map((item, idx) => (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                    {/* # */}
-                    <td className="py-3 px-3 text-center font-mono text-slate-400 font-semibold whitespace-nowrap">
-                      {idx + 1}
-                    </td>
-
-                    {/* BC TH */}
-                    <td className="py-3 px-3 text-center whitespace-nowrap">
-                      <button
-                        type="button"
-                        className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition-colors border border-slate-200/80 cursor-pointer shadow-2xs"
-                        title="Báo cáo thực hiện"
-                      >
-                        {item.bcTh || 'BC TH'}
-                      </button>
-                    </td>
-
-                    {/* THAO TÁC */}
-                    <td className="py-3 px-3 text-center whitespace-nowrap">
-                      <div className="flex items-center justify-center gap-1 text-slate-400">
+                      {/* BC TH */}
+                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
                         <button
                           type="button"
-                          className="p-1 rounded hover:bg-slate-100 hover:text-[#406c89] transition-colors cursor-pointer"
-                          title="Xem chi tiết"
+                          className="py-1 px-2.5 rounded-md border border-sky-200 text-[#406c89] hover:bg-sky-50 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors bg-white cursor-pointer shadow-2xs whitespace-nowrap"
                         >
-                          <IconEye size={15} />
+                          <IconFileText size={12} />
+                          <span>{item.bcTh || 'Báo cáo'}</span>
                         </button>
-                        <button
-                          type="button"
-                          className="p-1 rounded hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
-                          title="Chỉnh sửa"
-                        >
-                          <IconEdit size={15} />
-                        </button>
-                        <button
-                          type="button"
-                          className="p-1 rounded hover:bg-slate-100 hover:text-rose-600 transition-colors cursor-pointer"
-                          title="Xóa"
-                        >
-                          <IconTrash size={15} />
-                        </button>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* TRẠNG THÁI */}
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                          item.status === 'Hoàn thành'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : item.status === 'Đang thực hiện'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                        }`}
-                      >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            item.status === 'Hoàn thành'
-                              ? 'bg-emerald-500'
-                              : item.status === 'Đang thực hiện'
-                              ? 'bg-amber-500'
-                              : 'bg-indigo-500'
-                          }`}
-                        />
-                        {item.status}
-                      </span>
-                    </td>
-
-                    {/* TÊN CÔNG VIỆC */}
-                    <td className="py-3 px-4 min-w-[220px] max-w-sm">
-                      <p className="font-semibold text-slate-900 leading-snug">{item.title}</p>
-                      <p className="text-[10px] font-mono text-[#406c89] mt-0.5">{item.code}</p>
-                    </td>
-
-                    {/* KL DK */}
-                    <td className="py-3 px-3 text-center whitespace-nowrap font-medium text-slate-700">
-                      {item.klDk ?? '1'}
-                    </td>
-
-                    {/* KL DP */}
-                    <td className="py-3 px-3 text-center whitespace-nowrap font-medium text-slate-700">
-                      {item.klDp ?? '0'}
-                    </td>
-
-                    {/* NHÂN SỰ */}
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-5 h-5 rounded-full bg-[#335b75] text-white flex items-center justify-center font-bold text-[9px] shrink-0">
-                          {item.assignee.slice(0, 1)}
+                      {/* THAO TÁC */}
+                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1 text-slate-400">
+                          <button
+                            type="button"
+                            className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-[#406c89] transition-colors cursor-pointer"
+                            title="Xem chi tiết"
+                          >
+                            <IconEye size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                            title="Chỉnh sửa"
+                          >
+                            <IconEdit size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-1.5 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+                            title="Xóa"
+                          >
+                            <IconTrash size={13} />
+                          </button>
                         </div>
-                        <span className="text-slate-800 font-medium text-xs">{item.assignee}</span>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* GIỜ DK */}
-                    <td className="py-3 px-3 text-center whitespace-nowrap font-medium text-slate-700">
-                      {item.plannedHours}h
-                    </td>
+                      {/* TRẠNG THÁI */}
+                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ${
+                            item.status === 'Hoàn thành'
+                              ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                              : item.status === 'Đang thực hiện'
+                              ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                              : 'bg-sky-50 text-[#406c89] border border-sky-200'
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
 
-                    {/* GIỜ TT */}
-                    <td className="py-3 px-3 text-center whitespace-nowrap font-bold text-[#406c89]">
-                      {item.actualHours}h
-                    </td>
+                      {/* TÊN CÔNG VIỆC */}
+                      <td className="px-4 py-3.5 align-middle min-w-[240px] max-w-sm">
+                        <div className="min-w-0">
+                          <p className="font-bold text-[#406c89] hover:underline cursor-pointer leading-snug text-xs">
+                            {item.title}
+                          </p>
+                          <p className="text-[10px] text-slate-400 font-medium mt-0.5">{item.code}</p>
+                        </div>
+                      </td>
 
-                    {/* BẮT ĐẦU */}
-                    <td className="py-3 px-3 whitespace-nowrap text-slate-600 text-xs">
-                      {item.date}
-                    </td>
+                      {/* KL DK */}
+                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap font-semibold text-slate-600 text-xs">
+                        {item.klDk ?? '1'}
+                      </td>
 
-                    {/* KẾT THÚC */}
-                    <td className="py-3 px-3 whitespace-nowrap text-slate-600 text-xs">
-                      {item.deadline}
-                    </td>
+                      {/* KL DP */}
+                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap font-semibold text-slate-600 text-xs">
+                        {item.klDp ?? '0'}
+                      </td>
 
-                    {/* %HT */}
-                    <td className="py-3 px-3 text-center whitespace-nowrap">
-                      <span
-                        className={`inline-block font-bold text-xs ${
-                          item.progress === 100
-                            ? 'text-emerald-600'
-                            : item.progress >= 70
-                            ? 'text-[#406c89]'
-                            : 'text-amber-600'
-                        }`}
-                      >
-                        {item.progress}%
-                      </span>
-                    </td>
+                      {/* NHÂN SỰ */}
+                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-sky-50 text-[#406c89] font-bold text-xs flex items-center justify-center shrink-0 border border-sky-100 shadow-2xs">
+                            {item.assignee.trim().split(/\s+/).slice(-1)[0]?.[0]?.toUpperCase() || 'N'}
+                          </div>
+                          <div className="min-w-0">
+                            <span className="font-semibold text-slate-700 text-xs block whitespace-nowrap">{item.assignee}</span>
+                            <span className="text-[10px] text-slate-400 font-medium block">{item.role}</span>
+                          </div>
+                        </div>
+                      </td>
 
-                    {/* GHI CHÚ */}
-                    <td className="py-3 px-4 text-slate-500 text-xs min-w-[140px] max-w-xs">
-                      {item.note || '—'}
+                      {/* GIỜ DK */}
+                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap font-semibold text-slate-600 text-xs">
+                        {item.plannedHours}h
+                      </td>
+
+                      {/* GIỜ TT */}
+                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap font-bold text-[#406c89] text-xs">
+                        {item.actualHours}h
+                      </td>
+
+                      {/* BẮT ĐẦU */}
+                      <td className="px-4 py-3.5 align-middle whitespace-nowrap font-medium text-slate-600 text-xs">
+                        {item.date}
+                      </td>
+
+                      {/* KẾT THÚC */}
+                      <td className="px-4 py-3.5 align-middle whitespace-nowrap font-medium text-slate-600 text-xs">
+                        {item.deadline}
+                      </td>
+
+                      {/* %HT */}
+                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ${
+                            item.progress === 100
+                              ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                              : item.progress >= 70
+                              ? 'bg-sky-50 text-[#406c89] border border-sky-200'
+                              : 'bg-amber-50 text-amber-600 border border-amber-200'
+                          }`}
+                        >
+                          {item.progress}%
+                        </span>
+                      </td>
+
+                      {/* GHI CHÚ */}
+                      <td className="px-4 py-3.5 align-middle text-slate-400 text-xs truncate max-w-[140px]">
+                        {item.note || <span className="text-slate-300 font-normal">—</span>}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={14} className="text-center py-10 text-slate-400">
+                      <p className="font-semibold text-xs">Không tìm thấy báo cáo nào phù hợp.</p>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={14} className="py-8 text-center text-slate-400 font-medium">
-                    Không tìm thấy báo cáo nào phù hợp.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Table Pagination - HIDDEN */}
-        {/* <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
-          <span>Hiển thị {filteredReports.length} trên {totalCount} báo cáo</span>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              disabled
-              className="px-2.5 py-1 rounded border border-slate-200 bg-white text-slate-300 cursor-not-allowed"
-            >
-              Trang trước
-            </button>
-            <button
-              type="button"
-              className="px-2.5 py-1 rounded bg-[#406c89] text-white font-bold"
-            >
-              1
-            </button>
-            <button
-              type="button"
-              disabled
-              className="px-2.5 py-1 rounded border border-slate-200 bg-white text-slate-300 cursor-not-allowed"
-            >
-              Trang sau
-            </button>
+                )}
+              </tbody>
+            </table>
           </div>
-        </div> */}
+
+          {/* PAGINATION FOOTER EXACTLY LIKE KHACH HANG */}
+          <div className="shrink-0 border-t border-slate-100 px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50/60">
+            <div>
+              Hiển thị <span className="font-bold text-slate-700">{filteredReports.length > 0 ? 1 : 0}</span> - <span className="font-bold text-slate-700">{filteredReports.length}</span> trên tổng số <span className="font-bold text-slate-700">{totalCount}</span> báo cáo
+            </div>
+
+            {/* Page Buttons */}
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled
+                className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                <IconChevronLeft size={13} />
+                <span>Trước</span>
+              </button>
+
+              <button
+                type="button"
+                className="w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer bg-[#406c89] text-white shadow-2xs"
+              >
+                1
+              </button>
+
+              <button
+                type="button"
+                disabled
+                className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                <span>Sau</span>
+                <IconChevronRight size={13} />
+              </button>
+            </div>
+          </div>
+        </div>
 
     </div>
   );

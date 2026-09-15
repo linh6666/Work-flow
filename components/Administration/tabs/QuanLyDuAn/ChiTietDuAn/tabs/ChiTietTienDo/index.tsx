@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   IconClipboardList,
   IconGridDots,
@@ -10,15 +10,23 @@ import {
   IconChevronDown
 } from '@tabler/icons-react';
 import { DuAnItem } from '../../../index';
+import ChiTietBaoCaoPhongBan, { DepartmentItem } from '../../../ChiTietBaoCaoPhongBan';
 
 interface ChiTietTienDoTabProps {
   project: DuAnItem;
   onOpenLuuTemplate: () => void;
+  onSelectDepartment?: (dept: DepartmentItem) => void;
 }
 
-export default function ChiTietTienDoTab({ project, onOpenLuuTemplate }: ChiTietTienDoTabProps) {
+export default function ChiTietTienDoTab({
+  project,
+  onOpenLuuTemplate,
+  onSelectDepartment,
+}: ChiTietTienDoTabProps) {
+  const [selectedDepartment, setSelectedDepartment] = useState<DepartmentItem | null>(null);
+
   // Department report list matching user reference image exactly
-  const departments = [
+  const departments: DepartmentItem[] = [
     { name: 'Ban Giám đốc', statusText: 'Hoàn thành · 17 báo cáo · Tạo bởi: Thảo Phùng' },
     { name: 'Khối Văn phòng', statusText: 'Đang triển khai · 40 báo cáo · Tạo bởi: Thảo Phùng' },
     { name: 'Phòng Khai triển', statusText: 'Hoàn thành · 29 báo cáo · Tạo bởi: Trần Diễm My' },
@@ -29,6 +37,26 @@ export default function ChiTietTienDoTab({ project, onOpenLuuTemplate }: ChiTiet
     { name: 'Phòng Cảnh Quan', statusText: 'Hoàn thành · 243 báo cáo · Tạo bởi: Trần Diễm My' },
     { name: 'Phòng Công nghệ và Thiết kế', statusText: 'Đang triển khai · 11 báo cáo · Tạo bởi: Thảo Phùng' },
   ];
+
+  const handleSelectDept = (dept: DepartmentItem) => {
+    if (onSelectDepartment) {
+      onSelectDepartment(dept);
+    } else {
+      setSelectedDepartment(dept);
+    }
+  };
+
+  // If a department is selected internally, render the detailed department report page
+  if (selectedDepartment) {
+    return (
+      <ChiTietBaoCaoPhongBan
+        department={selectedDepartment}
+        projectCode={project.maDuAn}
+        projectName={project.tenDuAn}
+        onBack={() => setSelectedDepartment(null)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-3.5 animate-fade-in max-h-[600px] overflow-y-auto pr-2 pb-8">
@@ -56,16 +84,17 @@ export default function ChiTietTienDoTab({ project, onOpenLuuTemplate }: ChiTiet
         {departments.map((dept, index) => (
           <div
             key={index}
-            className="bg-white border border-slate-200/90 hover:border-slate-300 rounded-xl p-3.5 flex items-center justify-between gap-3 transition-all shadow-2xs"
+            onClick={() => handleSelectDept(dept)}
+            className="bg-white border border-slate-200/90 hover:border-[#406c89]/60 hover:shadow-md rounded-xl p-3.5 flex items-center justify-between gap-3 transition-all cursor-pointer group"
           >
             {/* Left Side: Checkmark & Title */}
             <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full border border-emerald-500 bg-emerald-50/70 text-emerald-600 flex items-center justify-center shrink-0">
+              <div className="w-6 h-6 rounded-full border border-emerald-500 bg-emerald-50/70 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <IconCheck size={14} stroke={3} />
               </div>
 
               <div>
-                <h4 className="font-bold text-xs text-slate-900">{dept.name}</h4>
+                <h4 className="font-bold text-xs text-slate-900 group-hover:text-[#406c89] transition-colors">{dept.name}</h4>
                 <p className="text-[11px] text-slate-400 font-medium mt-0.5">{dept.statusText}</p>
               </div>
             </div>
@@ -74,28 +103,44 @@ export default function ChiTietTienDoTab({ project, onOpenLuuTemplate }: ChiTiet
             <div className="flex items-center gap-1 text-slate-400">
               <button
                 type="button"
-                className="p-1 rounded hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectDept(dept);
+                }}
+                className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
                 title="Ma trận"
               >
                 <IconGridDots size={16} />
               </button>
               <button
                 type="button"
-                className="p-1 rounded hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectDept(dept);
+                }}
+                className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
                 title="Tải xuống"
               >
                 <IconDownload size={16} />
               </button>
               <button
                 type="button"
-                className="p-1 rounded hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectDept(dept);
+                }}
+                className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
                 title="Sao chép"
               >
                 <IconCopy size={16} />
               </button>
               <button
                 type="button"
-                className="p-1 rounded hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectDept(dept);
+                }}
+                className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
                 title="Chi tiết"
               >
                 <IconChevronDown size={16} />
@@ -107,3 +152,5 @@ export default function ChiTietTienDoTab({ project, onOpenLuuTemplate }: ChiTiet
     </div>
   );
 }
+
+

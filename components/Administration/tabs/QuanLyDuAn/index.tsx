@@ -253,19 +253,21 @@ export default function QuanLyDuAn() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
 
-  // Sync selected project strictly with URL query parameter (?id=...)
+  // Sync selected project strictly with URL query parameter (?id=...) and localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const checkUrlParam = () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const paramId = urlParams.get('id');
+      const paramId = urlParams.get('id') || localStorage.getItem('selectedProjectId');
       if (paramId) {
         const found = DEFAULT_PROJECTS.find(p => p.id === paramId || p.maDuAn === paramId);
-        setSelectedProject(found || null);
-      } else {
-        setSelectedProject(null);
+        if (found) {
+          setSelectedProject(found);
+          return;
+        }
       }
+      setSelectedProject(null);
     };
 
     checkUrlParam();
@@ -277,6 +279,7 @@ export default function QuanLyDuAn() {
   const handleSelectProject = (item: DuAnItem) => {
     setSelectedProject(item);
     if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedProjectId', item.id);
       const url = new URL(window.location.href);
       url.searchParams.set('id', item.id);
       window.history.pushState({}, '', url.toString());
@@ -286,8 +289,11 @@ export default function QuanLyDuAn() {
   const handleBack = () => {
     setSelectedProject(null);
     if (typeof window !== 'undefined') {
+      localStorage.removeItem('selectedProjectId');
+      localStorage.removeItem('selectedDepartmentName');
       const url = new URL(window.location.href);
       url.searchParams.delete('id');
+      url.searchParams.delete('dept');
       window.history.pushState({}, '', url.toString());
     }
   };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DuAnItem } from '../index';
 import YeuCauSanXuatModal from '../modal/YeuCauSanXuat';
 import LuuTemplateModal from '../modal/LuuTemplate';
@@ -31,6 +31,8 @@ import {
   IconPaperclip
 } from '@tabler/icons-react';
 
+import ChiTietBaoCaoPhongBan, { DepartmentItem } from '../ChiTietBaoCaoPhongBan';
+
 interface ChiTietDuAnProps {
   project: DuAnItem;
   onBack: () => void;
@@ -45,6 +47,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
   const [isHoSoOpen, setIsHoSoOpen] = useState(true);
   const [isYcsxModalOpen, setIsYcsxModalOpen] = useState(false);
   const [isLuuTemplateOpen, setIsLuuTemplateOpen] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState<DepartmentItem | null>(null);
 
   // Department report list matching user reference image exactly
   const departments = [
@@ -58,6 +61,56 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
     { name: 'Phòng Cảnh Quan', statusText: 'Hoàn thành · 243 báo cáo · Tạo bởi: Trần Diễm My' },
     { name: 'Phòng Công nghệ và Thiết kế', statusText: 'Đang triển khai · 11 báo cáo · Tạo bởi: Thảo Phùng' },
   ];
+
+  // Sync selectedDepartment with URL parameter (?dept=...) and localStorage to survive page reload (F5)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const checkDeptParam = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const deptName = urlParams.get('dept') || localStorage.getItem('selectedDepartmentName');
+      if (deptName) {
+        const found = departments.find(d => d.name === deptName);
+        if (found) {
+          setSelectedDepartment(found);
+          return;
+        }
+      }
+      setSelectedDepartment(null);
+    };
+
+    checkDeptParam();
+
+    window.addEventListener('popstate', checkDeptParam);
+    return () => window.removeEventListener('popstate', checkDeptParam);
+  }, []);
+
+  const handleSelectDepartment = (dept: DepartmentItem | null) => {
+    setSelectedDepartment(dept);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (dept) {
+        url.searchParams.set('dept', dept.name);
+        localStorage.setItem('selectedDepartmentName', dept.name);
+      } else {
+        url.searchParams.delete('dept');
+        localStorage.removeItem('selectedDepartmentName');
+      }
+      window.history.pushState({}, '', url.toString());
+    }
+  };
+
+  // If a department is clicked, open as a FULL PAGE view
+  if (selectedDepartment) {
+    return (
+      <ChiTietBaoCaoPhongBan
+        department={selectedDepartment}
+        projectCode={project.maDuAn}
+        projectName={project.tenDuAn}
+        onBack={() => handleSelectDepartment(null)}
+      />
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col bg-[#f4f6fa] max-h-screen overflow-y-auto select-none">
@@ -248,6 +301,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
                 <ChiTietTienDoTab
                   project={project}
                   onOpenLuuTemplate={() => setIsLuuTemplateOpen(true)}
+                  onSelectDepartment={(dept) => handleSelectDepartment(dept)}
                 />
               )}
 

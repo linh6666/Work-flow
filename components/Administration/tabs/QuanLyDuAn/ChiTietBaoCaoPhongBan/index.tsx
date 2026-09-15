@@ -23,7 +23,8 @@ import {
   IconUser,
   IconFilter,
   IconChevronLeft,
-  IconChevronRight
+  IconChevronRight,
+  IconGripVertical
 } from '@tabler/icons-react';
 
 export interface DepartmentItem {
@@ -40,21 +41,23 @@ interface ChiTietBaoCaoPhongBanProps {
 
 interface ReportTask {
   id: string;
-  code: string;
+  code?: string;
   title: string;
+  assignees?: string[];
   assignee: string;
-  role: string;
+  role?: string;
   date: string;
-  deadline: string;
-  plannedHours: number;
-  actualHours: number;
-  progress: number;
-  status: 'Hoàn thành' | 'Đang thực hiện' | 'Chờ duyệt' | 'Tạm dừng';
-  attachmentsCount: number;
-  klDk?: number | string;
-  klDp?: number | string;
+  deadline?: string;
+  plannedHours: number | string;
+  actualHours?: number | string;
+  progress?: number;
+  status: string;
+  attachmentsCount?: number;
+  klDk: number | string;
+  klDp: number | string;
   bcTh?: string;
   note?: string;
+  rowTheme?: 'blue' | 'gold';
 }
 
 export default function ChiTietBaoCaoPhongBan({
@@ -68,134 +71,193 @@ export default function ChiTietBaoCaoPhongBan({
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [isGroupOpen, setIsGroupOpen] = useState<boolean>(true);
 
-  // Sample reports for this department
+  // Sample reports matching screenshot exactly
   const sampleReports: ReportTask[] = [
     {
       id: 'rpt-1',
-      code: 'BC-01/2026',
-      title: 'Duyệt Kế hoạch Tổng thể & Ngân sách dự án triển khai Q3/2026',
-      assignee: 'Nguyễn Phú Quang',
-      role: 'Trưởng ban',
-      date: '12/07/2026',
-      deadline: '15/07/2026',
-      plannedHours: 16,
-      actualHours: 15.5,
-      progress: 100,
-      status: 'Hoàn thành',
-      attachmentsCount: 3,
-      klDk: '1 gói',
-      klDp: '0 gói',
-      bcTh: 'BC TH',
-      note: 'Đã hoàn thành đúng hạn',
+      title: 'PHÊ DUYỆT ĐỀ XUẤT BÁO GIÁ',
+      assignee: 'Phùng Bích Thảo',
+      date: '08/03/2026',
+      deadline: '08/03/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 2,
+      klDp: 0,
+      rowTheme: 'blue',
     },
     {
       id: 'rpt-2',
-      code: 'BC-02/2026',
-      title: 'Họp giao ban tiến độ & Phê duyệt phương án thi công kết cấu',
-      assignee: 'Nguyễn Phú Quang',
-      role: 'Trưởng ban',
-      date: '15/07/2026',
-      deadline: '18/07/2026',
-      plannedHours: 8,
-      actualHours: 8,
-      progress: 100,
-      status: 'Hoàn thành',
-      attachmentsCount: 2,
-      klDk: '1 buổi',
-      klDp: '0',
-      bcTh: 'BC TH',
-      note: 'Đã thông qua biên bản',
+      title: 'PHÊ DUYỆT BÁO GIÁ',
+      assignee: 'Phùng Bích Thảo',
+      date: '08/04/2026',
+      deadline: '08/04/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'blue',
     },
     {
       id: 'rpt-3',
-      code: 'BC-03/2026',
-      title: 'Kiểm tra khảo sát hiện trường & Đánh giá rủi ro giai đoạn 1',
-      assignee: 'Trần Diễm My',
-      role: 'Phó ban',
-      date: '20/07/2026',
-      deadline: '24/07/2026',
-      plannedHours: 12,
-      actualHours: 14,
-      progress: 85,
-      status: 'Đang thực hiện',
-      attachmentsCount: 5,
-      klDk: '1 khu vực',
-      klDp: '1 khu vực',
-      bcTh: 'BC TH',
-      note: 'Đang theo dõi thời tiết',
+      title: 'PHÊ DUYỆT HỢP ĐỒNG',
+      assignee: 'Phùng Bích Thảo',
+      date: '08/05/2026',
+      deadline: '08/05/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'blue',
     },
     {
       id: 'rpt-4',
-      code: 'BC-04/2026',
-      title: 'Phê duyệt hồ sơ kỹ thuật & Bản vẽ thi công chi tiết mô hình',
-      assignee: 'Thảo Phùng',
-      role: 'Trưởng ban',
-      date: '25/07/2026',
-      deadline: '30/07/2026',
-      plannedHours: 24,
-      actualHours: 18,
-      progress: 90,
-      status: 'Đang thực hiện',
-      attachmentsCount: 4,
-      klDk: '3 bộ',
-      klDp: '0 bộ',
-      bcTh: 'BC TH',
-      note: 'Đợi ký phụ lục',
+      title: 'PHÊ DUYỆT BẢN VẼ XÁC NHẬN VỚI KHÁCH HÀNG',
+      assignee: 'Nguyễn Đức Việt',
+      date: '08/10/2026',
+      deadline: '08/10/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'gold',
     },
     {
       id: 'rpt-5',
-      code: 'BC-05/2026',
-      title: 'Báo cáo nghiệm thu kỹ thuật vật liệu đầu vào gỗ & chất sơn',
-      assignee: 'Nguyễn Phú Quang',
-      role: 'Chuyên viên QC',
-      date: '28/07/2026',
-      deadline: '31/07/2026',
-      plannedHours: 10,
-      actualHours: 10,
-      progress: 100,
-      status: 'Hoàn thành',
-      attachmentsCount: 1,
-      klDk: '1 đợt',
-      klDp: '0',
-      bcTh: 'BC TH',
-      note: 'Đạt chuẩn 100%',
+      title: 'PHÊ DUYỆT BẢNG MẪU MÀU',
+      assignee: 'Nguyễn Đức Việt',
+      date: '08/11/2026',
+      deadline: '08/11/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'gold',
     },
     {
       id: 'rpt-6',
-      code: 'BC-06/2026',
-      title: 'Đề xuất điều chỉnh tiến độ và bổ sung nhân sự tăng ca',
-      assignee: 'Trần Diễm My',
-      role: 'Phó ban',
-      date: '02/08/2026',
-      deadline: '05/08/2026',
-      plannedHours: 6,
-      actualHours: 2,
-      progress: 40,
-      status: 'Chờ duyệt',
-      attachmentsCount: 2,
-      klDk: '1 tờ trình',
-      klDp: '0',
-      bcTh: 'BC TH',
-      note: 'Chờ BGĐ phê duyệt',
+      title: 'PHÊ DUYỆT BẢNG MẪU CÂY',
+      assignee: 'Phùng Bích Thảo',
+      date: '08/06/2026',
+      deadline: '08/06/2026',
+      plannedHours: '2h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'blue',
     },
     {
       id: 'rpt-7',
-      code: 'BC-07/2026',
-      title: 'Kiểm tra chất lượng mộc & sơn bề mặt mẫu thử đợt cuối',
-      assignee: 'Nguyễn Phú Quang',
-      role: 'Kỹ sư Giám sát',
-      date: '05/08/2026',
-      deadline: '08/08/2026',
-      plannedHours: 16,
-      actualHours: 16,
-      progress: 100,
-      status: 'Hoàn thành',
-      attachmentsCount: 6,
-      klDk: '1 đợt',
-      klDp: '0',
-      bcTh: 'BC TH',
-      note: 'Đã nghiệm thu xong',
+      title: 'PHÊ DUYỆT BẢNG MẪU ÁNH SÁNG',
+      assignee: 'Phùng Bích Thảo',
+      date: '08/07/2026',
+      deadline: '08/07/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'blue',
+    },
+    {
+      id: 'rpt-8',
+      title: 'THIẾT LẬP QUY CHUẨN KHAI TRIỂN CỦA DỰ ÁN',
+      assignee: 'Nguyễn Thanh Tuấn',
+      date: '08/10/2026',
+      deadline: '08/10/2026',
+      plannedHours: '2h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'blue',
+    },
+    {
+      id: 'rpt-9',
+      title: 'HỌP PHỔ BIẾN YÊU CẦU VỀ QUY CHUẨN KHAI TRIỂN',
+      assignee: 'Nguyễn Thanh Tuấn',
+      date: '08/11/2026',
+      deadline: '08/11/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'blue',
+    },
+    {
+      id: 'rpt-10',
+      title: 'KIỂM TRA CÔNG VIỆC TUẦN 1',
+      assignee: 'Nguyễn Thanh Tuấn',
+      date: '08/12/2026',
+      deadline: '08/12/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'blue',
+    },
+    {
+      id: 'rpt-11',
+      title: 'KIỂM TRA CÔNG VIỆC TUẦN 2',
+      assignee: 'Nguyễn Thanh Tuấn',
+      date: '08/13/2026',
+      deadline: '08/13/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'blue',
+    },
+    {
+      id: 'rpt-12',
+      title: 'KIỂM TRA CÔNG VIỆC TUẦN 3',
+      assignee: 'Nguyễn Thanh Tuấn',
+      date: '08/14/2026',
+      deadline: '08/14/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'blue',
+    },
+    {
+      id: 'rpt-13',
+      title: 'KIỂM TRA CÔNG VIỆC 80%',
+      assignee: 'Nguyễn Thanh Tuấn',
+      assignees: ['Nguyễn Thanh Tuấn', 'Phùng Bích Thảo', 'Nguyễn Đức Việt'],
+      date: '08/31/2026',
+      deadline: '08/31/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'gold',
+    },
+    {
+      id: 'rpt-14',
+      title: 'KIỂM TRA CÔNG VIỆC 100%',
+      assignee: 'Nguyễn Thanh Tuấn',
+      assignees: ['Nguyễn Thanh Tuấn', 'Phùng Bích Thảo'],
+      date: '09/01/2026',
+      deadline: '09/01/2026',
+      plannedHours: '1h',
+      actualHours: '—',
+      status: 'Chưa bắt đầu',
+      klDk: 1,
+      klDp: 0,
+      rowTheme: 'gold',
     },
   ];
 
@@ -203,7 +265,6 @@ export default function ChiTietBaoCaoPhongBan({
   const filteredReports = sampleReports.filter((item) => {
     const matchSearch =
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.assignee.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchAssignee = selectedAssignee === 'all' || item.assignee === selectedAssignee;
@@ -219,7 +280,10 @@ export default function ChiTietBaoCaoPhongBan({
   const totalCount = sampleReports.length;
   const completedCount = sampleReports.filter((r) => r.status === 'Hoàn thành').length;
   const inProgressCount = sampleReports.filter((r) => r.status === 'Đang thực hiện').length;
-  const totalHours = sampleReports.reduce((acc, r) => acc + r.actualHours, 0);
+  const totalHours = sampleReports.reduce(
+    (acc, r) => acc + (typeof r.plannedHours === 'number' ? r.plannedHours : parseInt(String(r.plannedHours)) || 0),
+    0
+  );
 
   return (
     <div className="w-full h-screen max-h-screen bg-white p-4 sm:p-5 flex flex-col space-y-2.5 animate-fade-in select-none overflow-hidden">
@@ -385,269 +449,204 @@ export default function ChiTietBaoCaoPhongBan({
         `}</style>
         <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
           <table className="w-full text-xs text-left border-collapse min-w-[1250px]">
-            <thead className="sticky top-0 z-20 bg-slate-50 shadow-2xs border-b border-slate-200">
-                <tr className="bg-slate-50">
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
-                    #
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>BC TH</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
-                    Thao tác
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>Trạng thái</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>Tên công việc</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>KL DK</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>KL DP</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>Nhân sự</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>Giờ DK</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>Giờ TT</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>Bắt đầu</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>Kết thúc</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>%HT</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
-                    >
-                      <span>Ghi chú</span>
-                      <span className="text-slate-400 text-[10px]">↕</span>
-                    </button>
-                  </th>
-                </tr>
-              </thead>
+            <thead className="sticky top-0 z-20 bg-slate-50 shadow-2xs border-b border-slate-200 text-slate-500 font-bold text-[11px] uppercase tracking-wider">
+              <tr className="bg-slate-50">
+                <th className="px-2.5 py-3 text-center whitespace-nowrap w-12 border-r border-slate-200">
+                  #
+                </th>
+                <th className="px-2.5 py-3 text-center whitespace-nowrap w-16 border-r border-slate-200">
+                  BC TH
+                </th>
+                <th className="px-2 py-2 text-center whitespace-nowrap w-16 leading-tight border-r border-slate-200">
+                  <div>THAO</div>
+                  <div>TÁC</div>
+                </th>
+                <th className="px-3 py-3 text-left whitespace-nowrap w-28 border-r border-slate-200">
+                  TRẠNG THÁI
+                </th>
+                <th className="px-3.5 py-3 text-left whitespace-nowrap min-w-[280px] border-r border-slate-200">
+                  TÊN CÔNG VIỆC
+                </th>
+                <th className="px-3 py-3 text-center whitespace-nowrap w-16 border-r border-slate-200">
+                  KL DK
+                </th>
+                <th className="px-3 py-3 text-center whitespace-nowrap w-16 border-r border-slate-200">
+                  KL DP
+                </th>
+                <th className="px-3 py-3 text-left whitespace-nowrap min-w-[170px] border-r border-slate-200">
+                  NHÂN SỰ
+                </th>
+                <th className="px-3 py-3 text-center whitespace-nowrap w-16 border-r border-slate-200">
+                  GIỜ DK
+                </th>
+                <th className="px-3 py-3 text-center whitespace-nowrap w-16 border-r border-slate-200">
+                  GIỜ TT
+                </th>
+                <th className="px-3 py-3 text-left whitespace-nowrap w-32 border-r border-slate-200">
+                  BẮT ĐẦU
+                </th>
+                <th className="px-3 py-3 text-left whitespace-nowrap w-32">
+                  KẾT THÚC
+                </th>
+              </tr>
+            </thead>
 
-              <tbody className="divide-y divide-slate-100">
-                {filteredReports.length > 0 ? (
-                  filteredReports.map((item, idx) => (
-                    <tr key={item.id} className="hover:bg-slate-50/70 transition-colors group">
-                      {/* # */}
-                      <td className="px-4 py-3.5 align-middle text-center font-mono text-slate-400 font-semibold text-xs whitespace-nowrap">
-                        {idx + 1}
-                      </td>
+            <tbody>
+              {/* GROUP ROW: KHỞI TẠO VÀ PHÊ DUYỆT */}
+              <tr className="bg-[#f8fafc] border-b border-slate-200">
+                <td colSpan={12} className="px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <IconGridDots size={14} className="text-slate-400 shrink-0 cursor-grab" />
+                    <button
+                      type="button"
+                      onClick={() => setIsGroupOpen(!isGroupOpen)}
+                      className="w-5 h-5 rounded border border-slate-300 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-2xs shrink-0 cursor-pointer"
+                    >
+                      <IconChevronDown
+                        size={13}
+                        className={`transition-transform duration-200 ${isGroupOpen ? '' : '-rotate-90'}`}
+                      />
+                    </button>
+                    <span className="font-bold text-slate-800 text-xs tracking-wide uppercase">
+                      KHỞI TẠO VÀ PHÊ DUYỆT
+                    </span>
+                  </div>
+                </td>
+              </tr>
 
-                      {/* BC TH */}
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <button
-                          type="button"
-                          className="py-1 px-2.5 rounded-md border border-sky-200 text-[#406c89] hover:bg-sky-50 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors bg-white cursor-pointer shadow-2xs whitespace-nowrap"
-                        >
-                          <IconFileText size={12} />
-                          <span>{item.bcTh || 'Báo cáo'}</span>
-                        </button>
-                      </td>
+              {/* DATA ROWS */}
+              {isGroupOpen && (
+                filteredReports.length > 0 ? (
+                  filteredReports.map((item, idx) => {
+                    const isGold = item.rowTheme === 'gold';
+                    const rowBgClass = isGold
+                      ? 'bg-[#dbae57] hover:bg-[#cf9e47]'
+                      : 'bg-[#5c8ba7] hover:bg-[#527d97]';
+                    const borderClass = isGold
+                      ? 'border-r border-b border-white/25'
+                      : 'border-r border-b border-white/20';
 
-                      {/* THAO TÁC */}
-                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap">
-                        <div className="flex items-center justify-center gap-1 text-slate-400">
+                    return (
+                      <tr
+                        key={item.id}
+                        className={`${rowBgClass} transition-colors text-white text-xs`}
+                      >
+                        {/* # */}
+                        <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <IconGridDots size={13} className="text-white/50 shrink-0 cursor-grab" />
+                            <span className="font-semibold text-white text-xs">{idx + 1}</span>
+                          </div>
+                        </td>
+
+                        {/* BC TH */}
+                        <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
                           <button
                             type="button"
-                            className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-[#406c89] transition-colors cursor-pointer"
-                            title="Xem chi tiết"
+                            className="bg-white text-[#5c8ba7] font-bold text-[11px] px-2 py-0.5 rounded shadow-2xs inline-flex items-center gap-1 hover:bg-slate-50 transition-colors cursor-pointer"
                           >
-                            <IconEye size={13} />
+                            <IconFileText size={12} className="text-[#5c8ba7]" />
+                            <span>BC</span>
                           </button>
-                          <button
-                            type="button"
-                            className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
-                            title="Chỉnh sửa"
-                          >
-                            <IconEdit size={13} />
-                          </button>
-                          <button
-                            type="button"
-                            className="p-1.5 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
-                            title="Xóa"
-                          >
-                            <IconTrash size={13} />
-                          </button>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* TRẠNG THÁI */}
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ${
-                            item.status === 'Hoàn thành'
-                              ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-                              : item.status === 'Đang thực hiện'
-                              ? 'bg-amber-50 text-amber-600 border border-amber-200'
-                              : 'bg-sky-50 text-[#406c89] border border-sky-200'
-                          }`}
-                        >
-                          {item.status}
-                        </span>
-                      </td>
+                        {/* THAO TÁC */}
+                        <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
+                          <div className="flex items-center justify-center gap-2 text-white/90">
+                            <button
+                              type="button"
+                              className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                              title="Thêm"
+                            >
+                              <IconPlus size={13} strokeWidth={2.5} />
+                            </button>
+                            <button
+                              type="button"
+                              className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                              title="Xóa"
+                            >
+                              <IconTrash size={13} strokeWidth={2} />
+                            </button>
+                          </div>
+                        </td>
 
-                      {/* TÊN CÔNG VIỆC */}
-                      <td className="px-4 py-3.5 align-middle min-w-[240px] max-w-sm">
-                        <div className="min-w-0">
-                          <p className="font-bold text-[#406c89] hover:underline cursor-pointer leading-snug text-xs">
+                        {/* TRẠNG THÁI */}
+                        <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap`}>
+                          <span className="bg-[#e8f7ee] text-[#15803d] border border-[#a7f3d0] font-bold text-[11px] px-2.5 py-0.5 rounded-full inline-block shadow-2xs">
+                            {item.status || 'Chưa bắt đầu'}
+                          </span>
+                        </td>
+
+                        {/* TÊN CÔNG VIỆC */}
+                        <td className={`px-3 py-2.5 ${borderClass}`}>
+                          <span className="font-bold text-white uppercase text-[11px] tracking-wide block leading-snug">
                             {item.title}
-                          </p>
-                          <p className="text-[10px] text-slate-400 font-medium mt-0.5">{item.code}</p>
-                        </div>
-                      </td>
+                          </span>
+                        </td>
 
-                      {/* KL DK */}
-                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap font-semibold text-slate-600 text-xs">
-                        {item.klDk ?? '1'}
-                      </td>
+                        {/* KL DK */}
+                        <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
+                          {item.klDk ?? 1}
+                        </td>
 
-                      {/* KL DP */}
-                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap font-semibold text-slate-600 text-xs">
-                        {item.klDp ?? '0'}
-                      </td>
+                        {/* KL DP */}
+                        <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
+                          {item.klDp ?? 0}
+                        </td>
 
-                      {/* NHÂN SỰ */}
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-sky-50 text-[#406c89] font-bold text-xs flex items-center justify-center shrink-0 border border-sky-100 shadow-2xs">
-                            {item.assignee.trim().split(/\s+/).slice(-1)[0]?.[0]?.toUpperCase() || 'N'}
+                        {/* NHÂN SỰ */}
+                        <td className={`px-2.5 py-2.5 ${borderClass}`}>
+                          {item.assignees && item.assignees.length > 1 ? (
+                            <div className="bg-[#4d7d9d] text-white rounded p-1.5 text-[11px] font-medium leading-snug space-y-0.5 shadow-2xs border border-white/20">
+                              {item.assignees.map((name, i) => (
+                                <div key={i} className="whitespace-nowrap">{name}</div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-between gap-1 text-white text-xs font-medium cursor-pointer hover:opacity-90">
+                              <span className="whitespace-nowrap">{item.assignee}</span>
+                              <IconChevronDown size={12} className="text-white/70 shrink-0" />
+                            </div>
+                          )}
+                        </td>
+
+                        {/* GIỜ DK */}
+                        <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
+                          {item.plannedHours}
+                        </td>
+
+                        {/* GIỜ TT */}
+                        <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-bold text-xs`}>
+                          <span className="text-[#f87171]">{item.actualHours || '—'}</span>
+                        </td>
+
+                        {/* BẮT ĐẦU */}
+                        <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap`}>
+                          <div className="flex items-center justify-between gap-1.5 text-white text-[11px] font-medium">
+                            <span>{item.date}</span>
+                            <IconCalendar size={13} className="text-white/80 shrink-0" />
                           </div>
-                          <div className="min-w-0">
-                            <span className="font-semibold text-slate-700 text-xs block whitespace-nowrap">{item.assignee}</span>
-                            <span className="text-[10px] text-slate-400 font-medium block">{item.role}</span>
+                        </td>
+
+                        {/* KẾT THÚC */}
+                        <td className={`px-2.5 py-2.5 border-b ${isGold ? 'border-white/25' : 'border-white/20'} whitespace-nowrap`}>
+                          <div className="flex items-center justify-between gap-1.5 text-white text-[11px] font-medium">
+                            <span>{item.deadline || item.date}</span>
+                            <IconCalendar size={13} className="text-white/80 shrink-0" />
                           </div>
-                        </div>
-                      </td>
-
-                      {/* GIỜ DK */}
-                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap font-semibold text-slate-600 text-xs">
-                        {item.plannedHours}h
-                      </td>
-
-                      {/* GIỜ TT */}
-                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap font-bold text-[#406c89] text-xs">
-                        {item.actualHours}h
-                      </td>
-
-                      {/* BẮT ĐẦU */}
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap font-medium text-slate-600 text-xs">
-                        {item.date}
-                      </td>
-
-                      {/* KẾT THÚC */}
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap font-medium text-slate-600 text-xs">
-                        {item.deadline}
-                      </td>
-
-                      {/* %HT */}
-                      <td className="px-4 py-3.5 align-middle text-center whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ${
-                            item.progress === 100
-                              ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-                              : item.progress >= 70
-                              ? 'bg-sky-50 text-[#406c89] border border-sky-200'
-                              : 'bg-amber-50 text-amber-600 border border-amber-200'
-                          }`}
-                        >
-                          {item.progress}%
-                        </span>
-                      </td>
-
-                      {/* GHI CHÚ */}
-                      <td className="px-4 py-3.5 align-middle text-slate-400 text-xs truncate max-w-[140px]">
-                        {item.note || <span className="text-slate-300 font-normal">—</span>}
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td colSpan={14} className="text-center py-10 text-slate-400">
+                    <td colSpan={12} className="text-center py-10 text-slate-400 bg-white">
                       <p className="font-semibold text-xs">Không tìm thấy báo cáo nào phù hợp.</p>
                     </td>
                   </tr>
-                )}
-              </tbody>
+                )
+              )}
+            </tbody>
             </table>
           </div>
         </div>

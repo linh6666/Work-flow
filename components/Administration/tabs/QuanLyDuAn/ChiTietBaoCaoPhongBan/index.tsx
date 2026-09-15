@@ -650,41 +650,6 @@ export default function ChiTietBaoCaoPhongBan({
               </tbody>
             </table>
           </div>
-
-          {/* PAGINATION FOOTER EXACTLY LIKE KHACH HANG */}
-          <div className="shrink-0 border-t border-slate-100 px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50/60">
-            <div>
-              Hiển thị <span className="font-bold text-slate-700">{filteredReports.length > 0 ? 1 : 0}</span> - <span className="font-bold text-slate-700">{filteredReports.length}</span> trên tổng số <span className="font-bold text-slate-700">{totalCount}</span> báo cáo
-            </div>
-
-            {/* Page Buttons */}
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                disabled
-                className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer"
-              >
-                <IconChevronLeft size={13} />
-                <span>Trước</span>
-              </button>
-
-              <button
-                type="button"
-                className="w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer bg-[#406c89] text-white shadow-2xs"
-              >
-                1
-              </button>
-
-              <button
-                type="button"
-                disabled
-                className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer"
-              >
-                <span>Sau</span>
-                <IconChevronRight size={13} />
-              </button>
-            </div>
-          </div>
         </div>
 
     </div>

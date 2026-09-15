@@ -51,6 +51,10 @@ interface ReportTask {
   progress: number;
   status: 'Hoàn thành' | 'Đang thực hiện' | 'Chờ duyệt' | 'Tạm dừng';
   attachmentsCount: number;
+  klDk?: number | string;
+  klDp?: number | string;
+  bcTh?: string;
+  note?: string;
 }
 
 export default function ChiTietBaoCaoPhongBan({
@@ -80,6 +84,10 @@ export default function ChiTietBaoCaoPhongBan({
       progress: 100,
       status: 'Hoàn thành',
       attachmentsCount: 3,
+      klDk: '1 gói',
+      klDp: '0 gói',
+      bcTh: 'BC TH',
+      note: 'Đã hoàn thành đúng hạn',
     },
     {
       id: 'rpt-2',
@@ -94,6 +102,10 @@ export default function ChiTietBaoCaoPhongBan({
       progress: 100,
       status: 'Hoàn thành',
       attachmentsCount: 2,
+      klDk: '1 buổi',
+      klDp: '0',
+      bcTh: 'BC TH',
+      note: 'Đã thông qua biên bản',
     },
     {
       id: 'rpt-3',
@@ -108,6 +120,10 @@ export default function ChiTietBaoCaoPhongBan({
       progress: 85,
       status: 'Đang thực hiện',
       attachmentsCount: 5,
+      klDk: '1 khu vực',
+      klDp: '1 khu vực',
+      bcTh: 'BC TH',
+      note: 'Đang theo dõi thời tiết',
     },
     {
       id: 'rpt-4',
@@ -122,6 +138,10 @@ export default function ChiTietBaoCaoPhongBan({
       progress: 90,
       status: 'Đang thực hiện',
       attachmentsCount: 4,
+      klDk: '3 bộ',
+      klDp: '0 bộ',
+      bcTh: 'BC TH',
+      note: 'Đợi ký phụ lục',
     },
     {
       id: 'rpt-5',
@@ -136,6 +156,10 @@ export default function ChiTietBaoCaoPhongBan({
       progress: 100,
       status: 'Hoàn thành',
       attachmentsCount: 1,
+      klDk: '1 đợt',
+      klDp: '0',
+      bcTh: 'BC TH',
+      note: 'Đạt chuẩn 100%',
     },
     {
       id: 'rpt-6',
@@ -150,6 +174,10 @@ export default function ChiTietBaoCaoPhongBan({
       progress: 40,
       status: 'Chờ duyệt',
       attachmentsCount: 2,
+      klDk: '1 tờ trình',
+      klDp: '0',
+      bcTh: 'BC TH',
+      note: 'Chờ BGĐ phê duyệt',
     },
     {
       id: 'rpt-7',
@@ -164,6 +192,10 @@ export default function ChiTietBaoCaoPhongBan({
       progress: 100,
       status: 'Hoàn thành',
       attachmentsCount: 6,
+      klDk: '1 đợt',
+      klDp: '0',
+      bcTh: 'BC TH',
+      note: 'Đã nghiệm thu xong',
     },
   ];
 
@@ -370,70 +402,74 @@ export default function ChiTietBaoCaoPhongBan({
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="py-3 px-4">Mã BC</th>
-                <th className="py-3 px-4">Tên báo cáo / Nội dung công việc</th>
-                <th className="py-3 px-4">Người thực hiện</th>
-                <th className="py-3 px-4">Hạn chót</th>
-                <th className="py-3 px-4">Thời gian</th>
-                <th className="py-3 px-4 text-center">Tiến độ</th>
-                <th className="py-3 px-4">Trạng thái</th>
-                <th className="py-3 px-4 text-center">Tệp đính kèm</th>
-                <th className="py-3 px-4 text-right">Thao tác</th>
+                <th className="py-3 px-3 text-center whitespace-nowrap">#</th>
+                <th className="py-3 px-3 text-center whitespace-nowrap">BC TH</th>
+                <th className="py-2 px-3 text-center whitespace-nowrap leading-tight">
+                  THAO<br />TÁC
+                </th>
+                <th className="py-3 px-3 whitespace-nowrap">TRẠNG THÁI</th>
+                <th className="py-3 px-4 whitespace-nowrap">TÊN CÔNG VIỆC</th>
+                <th className="py-3 px-3 text-center whitespace-nowrap">KL DK</th>
+                <th className="py-3 px-3 text-center whitespace-nowrap">KL DP</th>
+                <th className="py-3 px-3 whitespace-nowrap">NHÂN SỰ</th>
+                <th className="py-3 px-3 text-center whitespace-nowrap">GIỜ DK</th>
+                <th className="py-3 px-3 text-center whitespace-nowrap">GIỜ TT</th>
+                <th className="py-3 px-3 whitespace-nowrap">BẮT ĐẦU</th>
+                <th className="py-3 px-3 whitespace-nowrap">KẾT THÚC</th>
+                <th className="py-3 px-3 text-center whitespace-nowrap">%HT</th>
+                <th className="py-3 px-4 whitespace-nowrap">GHI CHÚ</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
               {filteredReports.length > 0 ? (
-                filteredReports.map((item) => (
+                filteredReports.map((item, idx) => (
                   <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-[#406c89] whitespace-nowrap">
-                      {item.code}
+                    {/* # */}
+                    <td className="py-3 px-3 text-center font-mono text-slate-400 font-semibold whitespace-nowrap">
+                      {idx + 1}
                     </td>
 
-                    <td className="py-3 px-4 max-w-md">
-                      <p className="font-bold text-slate-900 leading-snug">{item.title}</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Ngày khởi tạo: {item.date}</p>
+                    {/* BC TH */}
+                    <td className="py-3 px-3 text-center whitespace-nowrap">
+                      <button
+                        type="button"
+                        className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition-colors border border-slate-200/80 cursor-pointer shadow-2xs"
+                        title="Báo cáo thực hiện"
+                      >
+                        {item.bcTh || 'BC TH'}
+                      </button>
                     </td>
 
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-[#335b75] text-white flex items-center justify-center font-bold text-[10px] shrink-0">
-                          {item.assignee.slice(0, 1)}
-                        </div>
-                        <span>{item.assignee}</span>
+                    {/* THAO TÁC */}
+                    <td className="py-3 px-3 text-center whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1 text-slate-400">
+                        <button
+                          type="button"
+                          className="p-1 rounded hover:bg-slate-100 hover:text-[#406c89] transition-colors cursor-pointer"
+                          title="Xem chi tiết"
+                        >
+                          <IconEye size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          className="p-1 rounded hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+                          title="Chỉnh sửa"
+                        >
+                          <IconEdit size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          className="p-1 rounded hover:bg-slate-100 hover:text-rose-600 transition-colors cursor-pointer"
+                          title="Xóa"
+                        >
+                          <IconTrash size={15} />
+                        </button>
                       </div>
                     </td>
 
-                    <td className="py-3 px-4 whitespace-nowrap text-slate-600">
-                      {item.deadline}
-                    </td>
-
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <span className="font-bold text-slate-900">{item.actualHours}h</span>
-                      <span className="text-slate-400 text-[10px] ml-1">/ {item.plannedHours}h</span>
-                    </td>
-
-                    <td className="py-3 px-4 whitespace-nowrap min-w-[120px]">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-300 ${
-                              item.progress === 100
-                                ? 'bg-emerald-500'
-                                : item.progress >= 70
-                                ? 'bg-[#406c89]'
-                                : 'bg-amber-500'
-                            }`}
-                            style={{ width: `${item.progress}%` }}
-                          />
-                        </div>
-                        <span className="text-[11px] font-bold text-slate-700 w-8 text-right">
-                          {item.progress}%
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="py-3 px-4 whitespace-nowrap">
+                    {/* TRẠNG THÁI */}
+                    <td className="py-3 px-3 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
                           item.status === 'Hoàn thành'
@@ -456,40 +492,76 @@ export default function ChiTietBaoCaoPhongBan({
                       </span>
                     </td>
 
-                    <td className="py-3 px-4 text-center whitespace-nowrap">
-                      {item.attachmentsCount > 0 ? (
-                        <span className="inline-flex items-center gap-1 text-slate-600 hover:text-slate-900 cursor-pointer font-bold text-[11px] bg-slate-100 px-2 py-0.5 rounded">
-                          <IconPaperclip size={13} />
-                          {item.attachmentsCount} file
-                        </span>
-                      ) : (
-                        <span className="text-slate-300">—</span>
-                      )}
+                    {/* TÊN CÔNG VIỆC */}
+                    <td className="py-3 px-4 min-w-[220px] max-w-sm">
+                      <p className="font-semibold text-slate-900 leading-snug">{item.title}</p>
+                      <p className="text-[10px] font-mono text-[#406c89] mt-0.5">{item.code}</p>
                     </td>
 
-                    <td className="py-3 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1 text-slate-400">
-                        <button
-                          type="button"
-                          className="p-1 rounded hover:bg-slate-100 hover:text-[#406c89] transition-colors cursor-pointer"
-                          title="Xem chi tiết"
-                        >
-                          <IconEye size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          className="p-1 rounded hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
-                          title="Chỉnh sửa"
-                        >
-                          <IconEdit size={16} />
-                        </button>
+                    {/* KL DK */}
+                    <td className="py-3 px-3 text-center whitespace-nowrap font-medium text-slate-700">
+                      {item.klDk ?? '1'}
+                    </td>
+
+                    {/* KL DP */}
+                    <td className="py-3 px-3 text-center whitespace-nowrap font-medium text-slate-700">
+                      {item.klDp ?? '0'}
+                    </td>
+
+                    {/* NHÂN SỰ */}
+                    <td className="py-3 px-3 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 rounded-full bg-[#335b75] text-white flex items-center justify-center font-bold text-[9px] shrink-0">
+                          {item.assignee.slice(0, 1)}
+                        </div>
+                        <span className="text-slate-800 font-medium text-xs">{item.assignee}</span>
                       </div>
+                    </td>
+
+                    {/* GIỜ DK */}
+                    <td className="py-3 px-3 text-center whitespace-nowrap font-medium text-slate-700">
+                      {item.plannedHours}h
+                    </td>
+
+                    {/* GIỜ TT */}
+                    <td className="py-3 px-3 text-center whitespace-nowrap font-bold text-[#406c89]">
+                      {item.actualHours}h
+                    </td>
+
+                    {/* BẮT ĐẦU */}
+                    <td className="py-3 px-3 whitespace-nowrap text-slate-600 text-xs">
+                      {item.date}
+                    </td>
+
+                    {/* KẾT THÚC */}
+                    <td className="py-3 px-3 whitespace-nowrap text-slate-600 text-xs">
+                      {item.deadline}
+                    </td>
+
+                    {/* %HT */}
+                    <td className="py-3 px-3 text-center whitespace-nowrap">
+                      <span
+                        className={`inline-block font-bold text-xs ${
+                          item.progress === 100
+                            ? 'text-emerald-600'
+                            : item.progress >= 70
+                            ? 'text-[#406c89]'
+                            : 'text-amber-600'
+                        }`}
+                      >
+                        {item.progress}%
+                      </span>
+                    </td>
+
+                    {/* GHI CHÚ */}
+                    <td className="py-3 px-4 text-slate-500 text-xs min-w-[140px] max-w-xs">
+                      {item.note || '—'}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-400 font-medium">
+                  <td colSpan={14} className="py-8 text-center text-slate-400 font-medium">
                     Không tìm thấy báo cáo nào phù hợp.
                   </td>
                 </tr>

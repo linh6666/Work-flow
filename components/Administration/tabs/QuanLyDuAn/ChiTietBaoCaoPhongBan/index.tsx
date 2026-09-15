@@ -570,8 +570,8 @@ export default function ChiTietBaoCaoPhongBan({
           </table>
         </div>
 
-        {/* Table Pagination */}
-        <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+        {/* Table Pagination - HIDDEN */}
+        {/* <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
           <span>Hiển thị {filteredReports.length} trên {totalCount} báo cáo</span>
           <div className="flex items-center gap-1">
             <button
@@ -595,7 +595,7 @@ export default function ChiTietBaoCaoPhongBan({
               Trang sau
             </button>
           </div>
-        </div>
+        </div> */}
 
     </div>
   );

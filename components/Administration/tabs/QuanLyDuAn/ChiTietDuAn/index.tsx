@@ -297,38 +297,40 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
               </div>
 
               {/* TAB CONTENT 1: CHI TIẾT TIẾN ĐỘ */}
-              {activeTab === 'chi-tiet-tien-do' && (
-                <ChiTietTienDoTab
-                  project={project}
-                  onOpenLuuTemplate={() => setIsLuuTemplateOpen(true)}
-                  onSelectDepartment={(dept) => handleSelectDepartment(dept)}
-                />
-              )}
+              <div className="project-table-theme">
+                {activeTab === 'chi-tiet-tien-do' && (
+                  <ChiTietTienDoTab
+                    project={project}
+                    onOpenLuuTemplate={() => setIsLuuTemplateOpen(true)}
+                    onSelectDepartment={(dept) => handleSelectDepartment(dept)}
+                  />
+                )}
 
-              {/* TAB CONTENT 2: BÁO CÁO TIẾN ĐỘ */}
-              {activeTab === 'bao-cao-tien-do' && (
-                <BaoCaoTienDoTab project={project} />
-              )}
+                {/* TAB CONTENT 2: BÁO CÁO TIẾN ĐỘ */}
+                {activeTab === 'bao-cao-tien-do' && (
+                  <BaoCaoTienDoTab project={project} />
+                )}
 
-              {/* TAB CONTENT 3: NHÂN SỰ & CÔNG VIỆC */}
-              {activeTab === 'nhan-su-cong-viec' && (
-                <NhanSuCongViecTab project={project} />
-              )}
+                {/* TAB CONTENT 3: NHÂN SỰ & CÔNG VIỆC */}
+                {activeTab === 'nhan-su-cong-viec' && (
+                  <NhanSuCongViecTab project={project} />
+                )}
 
-              {/* TAB CONTENT 4: CHI PHÍ PHÒNG BAN */}
-              {activeTab === 'chi-phi-phong-ban' && (
-                <ChiPhiPhongBanTab project={project} />
-              )}
+                {/* TAB CONTENT 4: CHI PHÍ PHÒNG BAN */}
+                {activeTab === 'chi-phi-phong-ban' && (
+                  <ChiPhiPhongBanTab project={project} />
+                )}
 
-              {/* TAB CONTENT 5: PHÊ DUYỆT BÁO CÁO */}
-              {activeTab === 'phe-duyet' && (
-                <PheDuyetBaoCaoTab project={project} />
-              )}
+                {/* TAB CONTENT 5: PHÊ DUYỆT BÁO CÁO */}
+                {activeTab === 'phe-duyet' && (
+                  <PheDuyetBaoCaoTab project={project} />
+                )}
 
-              {/* TAB CONTENT 6: NGHIỆM THU */}
-              {activeTab === 'nghiem-thu' && (
-                <NghiemThuTab project={project} />
-              )}
+                {/* TAB CONTENT 6: NGHIỆM THU */}
+                {activeTab === 'nghiem-thu' && (
+                  <NghiemThuTab project={project} />
+                )}
+              </div>
 
             </div>
           )}

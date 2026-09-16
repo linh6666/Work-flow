@@ -31,3 +31,58 @@ body {
     display: none;
   }
 }
+
+/* Shared table treatment for project detail tabs. */
+.project-table-theme table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.project-table-theme thead tr {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.project-table-theme thead th {
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #cbd5e1;
+  white-space: nowrap;
+}
+
+.project-table-theme thead th:last-child,
+.project-table-theme tbody td:last-child {
+  border-right: 0;
+}
+
+.project-table-theme tbody td {
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.project-table-theme tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.project-table-theme tbody tr:not([class*="bg-"]):hover {
+  background: #f0f5f8;
+}
+
+@media (max-width: 640px) {
+  .project-table-theme table {
+    font-size: 11px;
+  }
+
+  .project-table-theme thead th,
+  .project-table-theme tbody td {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

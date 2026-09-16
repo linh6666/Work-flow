@@ -253,13 +253,13 @@ export default function QuanLyDuAn() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
 
-  // Sync selected project strictly with URL query parameter (?id=...) and localStorage
+  // URL là nguồn trạng thái chính; quay lại tab không tự khôi phục chi tiết cũ.
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const checkUrlParam = () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const paramId = urlParams.get('id') || localStorage.getItem('selectedProjectId');
+      const paramId = urlParams.get('id');
       if (paramId) {
         const found = DEFAULT_PROJECTS.find(p => p.id === paramId || p.maDuAn === paramId);
         if (found) {

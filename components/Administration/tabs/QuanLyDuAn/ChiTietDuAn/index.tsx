@@ -62,13 +62,13 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
     { name: 'Phòng Công nghệ và Thiết kế', statusText: 'Đang triển khai · 11 báo cáo · Tạo bởi: Thảo Phùng' },
   ];
 
-  // Sync selectedDepartment with URL parameter (?dept=...) and localStorage to survive page reload (F5)
+  // URL là nguồn trạng thái chính; quay lại dự án không tự mở phòng ban cũ.
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const checkDeptParam = () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const deptName = urlParams.get('dept') || localStorage.getItem('selectedDepartmentName');
+      const deptName = urlParams.get('dept');
       if (deptName) {
         const found = departments.find(d => d.name === deptName);
         if (found) {

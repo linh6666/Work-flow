@@ -456,19 +456,28 @@ export default function MaTranPhanQuyen() {
   // Handle Add Role (called from TaoVaiTroModal)
   const handleAddRoleSubmit = ({
     roleName,
-    cloneFromRole
+    cloneFromRole,
+    selectedPermissions
   }: {
     roleName: string;
-    roleDesc: string;
-    cloneFromRole: string;
+    roleDesc?: string;
+    roleCode?: string;
+    roleGroup?: string;
+    cloneFromRole?: string;
+    selectedPermissions?: string[];
   }) => {
     setRoles((prev) => [...prev, roleName]);
     setMatrix((prev) => {
       const next = { ...prev };
       ALL_ACTION_IDS.forEach((actId) => {
+        const isGranted = selectedPermissions && selectedPermissions.length > 0
+          ? selectedPermissions.includes(actId)
+          : cloneFromRole
+          ? !!prev[actId]?.[cloneFromRole]
+          : false;
         next[actId] = {
           ...(next[actId] || {}),
-          [roleName]: cloneFromRole ? !!prev[actId]?.[cloneFromRole] : false
+          [roleName]: isGranted
         };
       });
       return next;
@@ -476,9 +485,14 @@ export default function MaTranPhanQuyen() {
     setSavedMatrix((prev) => {
       const next = { ...prev };
       ALL_ACTION_IDS.forEach((actId) => {
+        const isGranted = selectedPermissions && selectedPermissions.length > 0
+          ? selectedPermissions.includes(actId)
+          : cloneFromRole
+          ? !!prev[actId]?.[cloneFromRole]
+          : false;
         next[actId] = {
           ...(next[actId] || {}),
-          [roleName]: cloneFromRole ? !!prev[actId]?.[cloneFromRole] : false
+          [roleName]: isGranted
         };
       });
       return next;

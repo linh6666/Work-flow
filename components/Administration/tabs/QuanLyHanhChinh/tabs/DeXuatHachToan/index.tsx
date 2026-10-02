@@ -13,17 +13,12 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 
-/* ─── Mock Data ─────────────────────────────────────────────── */
-interface MonthRecord {
-  id: string;
-  thang: string;
-  nam: number;
-  loai: Array<'Đề xuất duyệt chi' | 'Hạch toán' | 'Chi thực tế'>;
-  soBanGhi: number;
-  tongTien: string;
-}
+import ThemDeXuatModal, { MonthRecordData } from './modals/ThemDeXuatModal';
+import SuaDeXuatModal, { MonthRecord } from './modals/SuaDeXuatModal';
+import XoaDeXuatModal from './modals/XoaDeXuatModal';
 
-const mockData: MonthRecord[] = [
+/* ─── Initial Mock Data ─────────────────────────────────────────────── */
+const initialMockData: MonthRecord[] = [
   {
     id: 'thang-8',
     thang: 'Tháng 8',
@@ -94,6 +89,7 @@ type FilterTab = 'Tất cả' | 'Đề xuất duyệt chi' | 'Hạch toán' | 'C
 
 /* ─── Main Component ─────────────────────────────────────────── */
 export default function DeXuatHachToanTab() {
+  const [dataList, setDataList] = useState<MonthRecord[]>(initialMockData);
   const [activeFilter, setActiveFilter] = useState<FilterTab>('Tất cả');
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -101,10 +97,16 @@ export default function DeXuatHachToanTab() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Modal States
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<MonthRecord | null>(null);
+
   const filterTabs: FilterTab[] = ['Tất cả', 'Đề xuất duyệt chi', 'Hạch toán', 'Chi thực tế'];
 
   // Filter records based on selected tab and search term
-  const filteredData = mockData.filter((row) => {
+  const filteredData = dataList.filter((row) => {
     const matchesFilter =
       activeFilter === 'Tất cả' || row.loai.includes(activeFilter as any);
     const matchesSearch =
@@ -127,6 +129,39 @@ export default function DeXuatHachToanTab() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
     setCurrentPage(1);
+  };
+
+  // Modal Action Handlers
+  const handleOpenAdd = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleOpenEdit = (record: MonthRecord) => {
+    setSelectedRecord(record);
+    setIsEditModalOpen(true);
+  };
+
+  const handleOpenDelete = (record: MonthRecord) => {
+    setSelectedRecord(record);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCreateRecord = (newRecordData: MonthRecordData) => {
+    const newRecord: MonthRecord = {
+      id: `thang-${Date.now()}`,
+      ...newRecordData,
+    };
+    setDataList((prev) => [newRecord, ...prev]);
+  };
+
+  const handleUpdateRecord = (updatedRecord: MonthRecord) => {
+    setDataList((prev) =>
+      prev.map((item) => (item.id === updatedRecord.id ? updatedRecord : item))
+    );
+  };
+
+  const handleDeleteRecord = (id: string) => {
+    setDataList((prev) => prev.filter((item) => item.id !== id));
   };
 
   return (
@@ -181,6 +216,7 @@ export default function DeXuatHachToanTab() {
           {/* Create New Button */}
           <button
             type="button"
+            onClick={handleOpenAdd}
             className="flex items-center gap-1 px-3.5 py-1.5 bg-[#406c89] text-white text-xs font-medium rounded-lg hover:bg-[#345870] transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
           >
             <IconPlus size={14} />
@@ -241,24 +277,32 @@ export default function DeXuatHachToanTab() {
                   {/* THAO TÁC */}
                   <td className="py-3.5 px-5 whitespace-nowrap">
                     <div className="flex items-center justify-center gap-2">
+                      {/* Icon Thêm */}
                       <button
                         type="button"
-                        className="text-emerald-500 hover:text-emerald-600 transition-colors cursor-pointer"
-                        title="Thêm"
+                        onClick={handleOpenAdd}
+                        className="p-1 rounded hover:bg-emerald-50 text-emerald-500 hover:text-emerald-600 transition-colors cursor-pointer"
+                        title="Thêm đợt hạch toán mới"
                       >
                         <IconPlus size={15} className="stroke-[2.5]" />
                       </button>
+
+                      {/* Icon Sửa */}
                       <button
                         type="button"
-                        className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                        title="Sửa"
+                        onClick={() => handleOpenEdit(row)}
+                        className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                        title="Chỉnh sửa bản ghi"
                       >
                         <IconPencil size={15} />
                       </button>
+
+                      {/* Icon Xóa */}
                       <button
                         type="button"
-                        className="text-rose-400 hover:text-rose-600 transition-colors cursor-pointer"
-                        title="Xóa"
+                        onClick={() => handleOpenDelete(row)}
+                        className="p-1 rounded hover:bg-rose-50 text-rose-400 hover:text-rose-600 transition-colors cursor-pointer"
+                        title="Xóa bản ghi"
                       >
                         <IconTrash size={15} />
                       </button>
@@ -402,6 +446,34 @@ export default function DeXuatHachToanTab() {
           </div>
         </div>
       </div>
+
+      {/* ── Modals ── */}
+      <ThemDeXuatModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={handleCreateRecord}
+      />
+
+      <SuaDeXuatModal
+        isOpen={isEditModalOpen}
+        record={selectedRecord}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedRecord(null);
+        }}
+        onSubmit={handleUpdateRecord}
+      />
+
+      <XoaDeXuatModal
+        isOpen={isDeleteModalOpen}
+        record={selectedRecord}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedRecord(null);
+        }}
+        onConfirm={handleDeleteRecord}
+      />
     </div>
   );
 }
+

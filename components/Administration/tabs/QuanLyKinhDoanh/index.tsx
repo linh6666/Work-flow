@@ -47,16 +47,16 @@ export default function QuanLyKinhDoanh() {
   return (
     <div className="flex-1 flex flex-col bg-[#fafbfc] overflow-hidden select-none">
       {/* 1. TOP HEADER & BREADCRUMB */}
-      <div className="sticky top-0 z-10 bg-[#fafbfc] px-4 sm:px-6 pt-3 pb-0 border-b border-slate-200/80 shrink-0">
-        <div className="mb-2">
-          <h1 className="text-lg font-bold text-slate-900 tracking-tight">Quản lý Kinh doanh</h1>
-          <p className="text-[11px] text-slate-500 mt-0.5 font-normal">
+      <div className="sticky top-0 z-10 bg-[#fafbfc] px-3 sm:px-4 pt-1.5 pb-0 border-b border-slate-200/80 shrink-0">
+        <div className="mb-1">
+          <h1 className="text-base font-bold text-slate-900 tracking-tight">Quản lý Kinh doanh</h1>
+          <p className="text-[10.5px] text-slate-500 mt-0 font-normal">
             Tổng quan · Khách hàng · Đề xuất báo giá · Báo giá · Hợp đồng · Yêu cầu sản xuất · Báo cáo CV KD · Phê duyệt & Đánh giá
           </p>
         </div>
 
         {/* 2. SUB-TABS NAVIGATION BAR */}
-        <div className="flex gap-1 overflow-x-auto no-scrollbar pt-1">
+        <div className="flex gap-1 overflow-x-auto no-scrollbar pt-0.5">
           {tabs.map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -70,13 +70,13 @@ export default function QuanLyKinhDoanh() {
                     ? { color: '#406c89', borderBottomColor: '#406c89', backgroundColor: '#eef4f7' }
                     : {}
                 }
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-t-lg text-xs font-semibold transition-all cursor-pointer border-b-2 whitespace-nowrap shrink-0 ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-t-lg text-xs font-semibold transition-all cursor-pointer border-b-2 whitespace-nowrap shrink-0 ${
                   isActive
                     ? 'font-bold border-b-2'
                     : 'text-slate-600 bg-slate-50 border-transparent hover:bg-slate-100 hover:text-slate-800'
                 }`}
               >
-                <Icon size={14} className={isActive ? 'text-[#406c89]' : 'text-slate-400'} />
+                <Icon size={13} className={isActive ? 'text-[#406c89]' : 'text-slate-400'} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -85,7 +85,7 @@ export default function QuanLyKinhDoanh() {
       </div>
 
       {/* 3. TAB CONTENT */}
-      <div className="flex-1 flex flex-col min-h-0 px-4 sm:px-6 py-3 overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 px-3 sm:px-4 py-1.5 overflow-hidden">
         {activeTab === 'tong-quan' ? (
           <TongQuanTab onNavigateTab={(tabId) => setActiveTab(tabId)} />
         ) : activeTab === 'khach-hang' ? (

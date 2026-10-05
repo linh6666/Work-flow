@@ -24,7 +24,7 @@ export default function TongQuanTab({ onNavigateTab }: TongQuanTabProps) {
   const [activeSubTab, setActiveSubTab] = useState<SubTabKey>('bang-kh');
 
   return (
-    <div className="flex-1 flex flex-col h-full space-y-3 overflow-hidden">
+    <div className="flex-1 flex flex-col min-h-0 space-y-1">
       {/* ── 1. SUB-TABS NAVIGATION BAR ── */}
       <div className="flex gap-1 overflow-x-auto no-scrollbar pt-1 border-b border-slate-200/80 shrink-0">
         {SUB_TABS.map((tab) => {
@@ -54,7 +54,7 @@ export default function TongQuanTab({ onNavigateTab }: TongQuanTabProps) {
       </div>
 
       {/* ── 2. SUB-TAB CONTENT VIEW ── */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
         {activeSubTab === 'bang-kh' && <BangKhCongViecKdTab />}
         {activeSubTab === 'tong-quan-kd' && (
           <TongQuanKinhDoanhTab onNavigateTab={onNavigateTab} />

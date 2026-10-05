@@ -9,8 +9,10 @@ import {
   IconBuildingFactory2,
   IconReportAnalytics,
   IconChartBar,
+  IconLayoutDashboard,
 } from '@tabler/icons-react';
 
+import TongQuanTab from './tabs/TongQuan';
 import KhachHangTab from './tabs/KhachHang';
 import DeXuatBaoGiaTab from './tabs/DeXuatBaoGia';
 import BaoGiaTab from './tabs/BaoGia';
@@ -21,6 +23,7 @@ import PheDuyetDanhGiaTab from './tabs/PheDuyetDanhGia';
 
 export default function QuanLyKinhDoanh() {
   const [activeTab, setActiveTab] = useState<
+    | 'tong-quan'
     | 'khach-hang'
     | 'de-xuat-bao-gia'
     | 'bao-gia'
@@ -28,9 +31,10 @@ export default function QuanLyKinhDoanh() {
     | 'yeu-cau-san-xuat'
     | 'bao-cao-cv-kd'
     | 'phe-duyet-danh-gia'
-  >('khach-hang');
+  >('tong-quan');
 
   const tabs = [
+    { id: 'tong-quan', label: 'Tổng quan', icon: IconLayoutDashboard },
     { id: 'khach-hang', label: 'Khách hàng', icon: IconUsers },
     { id: 'de-xuat-bao-gia', label: 'Đề xuất báo giá', icon: IconFileDescription },
     { id: 'bao-gia', label: 'Báo giá', icon: IconFileText },
@@ -47,7 +51,7 @@ export default function QuanLyKinhDoanh() {
         <div className="mb-2">
           <h1 className="text-lg font-bold text-slate-900 tracking-tight">Quản lý Kinh doanh</h1>
           <p className="text-[11px] text-slate-500 mt-0.5 font-normal">
-            Khách hàng · Đề xuất báo giá · Báo giá · Hợp đồng · Yêu cầu sản xuất · Báo cáo CV KD · Phê duyệt & Đánh giá
+            Tổng quan · Khách hàng · Đề xuất báo giá · Báo giá · Hợp đồng · Yêu cầu sản xuất · Báo cáo CV KD · Phê duyệt & Đánh giá
           </p>
         </div>
 
@@ -82,7 +86,9 @@ export default function QuanLyKinhDoanh() {
 
       {/* 3. TAB CONTENT */}
       <div className="flex-1 flex flex-col min-h-0 px-4 sm:px-6 py-3 overflow-hidden">
-        {activeTab === 'khach-hang' ? (
+        {activeTab === 'tong-quan' ? (
+          <TongQuanTab onNavigateTab={(tabId) => setActiveTab(tabId)} />
+        ) : activeTab === 'khach-hang' ? (
           <KhachHangTab />
         ) : activeTab === 'de-xuat-bao-gia' ? (
           <DeXuatBaoGiaTab />

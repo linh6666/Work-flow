@@ -15,7 +15,7 @@ import TaoHopDongModal from './modals/TaoHopDongModal';
 import TaoQuanLyDuAnModal from './modals/TaoQuanLyDuAnModal';
 import TaoBaoCaoThangModal from './modals/TaoBaoCaoThangModal';
 import KhoiTaoBaoCaoModal from './modals/KhoiTaoBaoCaoModal';
-import ChiTietHoSoModal from './modals/ChiTietHoSoModal';
+import ChiTietHoSoView from './views/ChiTietHoSoView';
 
 interface TongQuanKinhDoanhProps {
   onNavigateTab?: (tabId: any) => void;
@@ -346,7 +346,6 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
       (selectedTypeFilter === 'Báo giá' && c.typeTag === 'BC CV KD') ||
       (selectedTypeFilter === 'Hợp đồng' && c.typeTag === 'Khối VP') ||
       (selectedTypeFilter === 'QL Dự án' && c.status === 'Đang thực hiện');
-
     const matchSearch =
       c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -354,6 +353,38 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
 
     return matchType && matchSearch;
   });
+
+  const handleUpdateStatus = (id: string, newStatus: any) => {
+    setCards((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, status: newStatus } : c))
+    );
+    if (selectedDetailCard && selectedDetailCard.id === id) {
+      setSelectedDetailCard((prev) => (prev ? { ...prev, status: newStatus } : null));
+    }
+  };
+
+  const handleUpdateEvaluation = (id: string, newEvaluation: any) => {
+    setCards((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, evaluation: newEvaluation } : c))
+    );
+    if (selectedDetailCard && selectedDetailCard.id === id) {
+      setSelectedDetailCard((prev) => (prev ? { ...prev, evaluation: newEvaluation } : null));
+    }
+  };
+
+  // If a project is selected for detail view, display the full detail page
+  if (selectedDetailCard) {
+    return (
+      <div className="flex flex-col space-y-2 p-0 bg-slate-50/50 min-h-full">
+        <ChiTietHoSoView
+          card={selectedDetailCard}
+          onBack={() => setSelectedDetailCard(null)}
+          onUpdateStatus={handleUpdateStatus}
+          onUpdateEvaluation={handleUpdateEvaluation}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col space-y-2 p-0 bg-slate-50/50">
@@ -772,12 +803,6 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
       <KhoiTaoBaoCaoModal
         isOpen={isKhoiTaoBaoCaoModalOpen}
         onClose={() => setIsKhoiTaoBaoCaoModalOpen(false)}
-      />
-
-      <ChiTietHoSoModal
-        isOpen={!!selectedDetailCard}
-        card={selectedDetailCard}
-        onClose={() => setSelectedDetailCard(null)}
       />
     </div>
   );

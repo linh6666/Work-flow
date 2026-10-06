@@ -3,15 +3,19 @@
 import React, { useState } from 'react';
 import {
   IconSearch,
-  IconPlus,
   IconFileDescription,
   IconArrowUp,
   IconTrash,
   IconChevronRight,
   IconFlag,
-  IconCheck,
-  IconClock,
 } from '@tabler/icons-react';
+
+import TaoBaoGiaModal from './modals/TaoBaoGiaModal';
+import TaoHopDongModal from './modals/TaoHopDongModal';
+import TaoQuanLyDuAnModal from './modals/TaoQuanLyDuAnModal';
+import TaoBaoCaoThangModal from './modals/TaoBaoCaoThangModal';
+import KhoiTaoBaoCaoModal from './modals/KhoiTaoBaoCaoModal';
+import ChiTietHoSoModal from './modals/ChiTietHoSoModal';
 
 interface TongQuanKinhDoanhProps {
   onNavigateTab?: (tabId: any) => void;
@@ -304,8 +308,36 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
   const [selectedSort, setSelectedSort] = useState<string>('Loại');
   const [cards, setCards] = useState<ProjectCardItem[]>(DEMO_CARDS);
 
+  // Modal States
+  const [isBaoGiaModalOpen, setIsBaoGiaModalOpen] = useState<boolean>(false);
+  const [isHopDongModalOpen, setIsHopDongModalOpen] = useState<boolean>(false);
+  const [isQuanLyDuAnModalOpen, setIsQuanLyDuAnModalOpen] = useState<boolean>(false);
+  const [isBaoCaoThangModalOpen, setIsBaoCaoThangModalOpen] = useState<boolean>(false);
+  const [isKhoiTaoBaoCaoModalOpen, setIsKhoiTaoBaoCaoModalOpen] = useState<boolean>(false);
+  const [selectedDetailCard, setSelectedDetailCard] = useState<ProjectCardItem | null>(null);
+
   const handleDeleteCard = (id: string) => {
     setCards((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const handleAddNewProjectCard = (data: any) => {
+    const newCard: ProjectCardItem = {
+      id: String(Date.now()),
+      typeTag: data.typeTag || 'BC CV KD',
+      code: data.code || '',
+      status: data.status || 'Đang triển khai',
+      evaluation: data.evaluation || 'Chưa đánh giá',
+      num: 0,
+      title: data.title,
+      desc: data.description || data.desc,
+      startDate: data.startDate,
+      dueDate: data.dueDate,
+      client: data.client,
+      progress: data.progress || 0,
+      milestones: data.milestones,
+      borderColor: data.typeTag === 'Khối VP' ? 'border-emerald-400/80' : 'border-slate-200/80',
+    };
+    setCards((prev) => [newCard, ...prev]);
   };
 
   const filteredCards = cards.filter((c) => {
@@ -341,7 +373,7 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
 
           <button
             type="button"
-            onClick={() => onNavigateTab && onNavigateTab('bao-gia')}
+            onClick={() => setIsBaoGiaModalOpen(true)}
             className="px-2.5 py-1 bg-[#eef4f7] text-[#406c89] border border-[#b9d3e3] text-[11px] font-semibold rounded-full hover:bg-[#deebf1] transition-colors cursor-pointer h-7"
           >
             + Báo giá
@@ -349,7 +381,7 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
 
           <button
             type="button"
-            onClick={() => onNavigateTab && onNavigateTab('hop-dong')}
+            onClick={() => setIsHopDongModalOpen(true)}
             className="px-2.5 py-1 bg-[#dcfce7] text-[#16a34a] border border-[#86efac] text-[11px] font-semibold rounded-full hover:bg-[#bbf7d0] transition-colors cursor-pointer h-7"
           >
             + Hợp đồng
@@ -357,7 +389,7 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
 
           <button
             type="button"
-            onClick={() => onNavigateTab && onNavigateTab('quan-ly-du-an')}
+            onClick={() => setIsQuanLyDuAnModalOpen(true)}
             className="px-2.5 py-1 bg-[#dbeafe] text-[#2563eb] border border-[#93c5fd] text-[11px] font-semibold rounded-full hover:bg-[#bfdbfe] transition-colors cursor-pointer h-7"
           >
             + Quản lý dự án
@@ -365,15 +397,15 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
 
           <button
             type="button"
-            onClick={() => alert('Tạo Báo cáo tháng')}
-            className="px-2.5 py-1 bg-slate-100 text-slate-400 border border-slate-200 text-[11px] font-semibold rounded-full hover:bg-slate-200 transition-colors cursor-pointer h-7"
+            onClick={() => setIsBaoCaoThangModalOpen(true)}
+            className="px-2.5 py-1 bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-semibold rounded-full hover:bg-slate-200 transition-colors cursor-pointer h-7"
           >
             + Báo cáo tháng
           </button>
 
           <button
             type="button"
-            onClick={() => alert('Khởi tạo Báo cáo mới')}
+            onClick={() => setIsKhoiTaoBaoCaoModalOpen(true)}
             className="flex items-center gap-1 px-3 py-1 bg-[#406c89] hover:bg-[#32566d] text-white text-[11px] font-bold rounded-full shadow-2xs transition-colors cursor-pointer ml-0.5 h-7"
           >
             <IconFileDescription size={13} />
@@ -619,7 +651,7 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
 
                   <button
                     type="button"
-                    onClick={() => alert(`Chi tiết hồ sơ: ${card.title}`)}
+                    onClick={() => setSelectedDetailCard(card)}
                     className="flex items-center gap-1 px-3 py-1 bg-[#406c89] hover:bg-[#32566d] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
                   >
                     <span>Chi tiết</span>
@@ -712,6 +744,41 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
           </div>
         )}
       </div>
+
+      {/* Modals cho các nút thao tác */}
+      <TaoBaoGiaModal
+        isOpen={isBaoGiaModalOpen}
+        onClose={() => setIsBaoGiaModalOpen(false)}
+        onSubmitSuccess={handleAddNewProjectCard}
+      />
+
+      <TaoHopDongModal
+        isOpen={isHopDongModalOpen}
+        onClose={() => setIsHopDongModalOpen(false)}
+        onSubmitSuccess={handleAddNewProjectCard}
+      />
+
+      <TaoQuanLyDuAnModal
+        isOpen={isQuanLyDuAnModalOpen}
+        onClose={() => setIsQuanLyDuAnModalOpen(false)}
+        onSubmitSuccess={handleAddNewProjectCard}
+      />
+
+      <TaoBaoCaoThangModal
+        isOpen={isBaoCaoThangModalOpen}
+        onClose={() => setIsBaoCaoThangModalOpen(false)}
+      />
+
+      <KhoiTaoBaoCaoModal
+        isOpen={isKhoiTaoBaoCaoModalOpen}
+        onClose={() => setIsKhoiTaoBaoCaoModalOpen(false)}
+      />
+
+      <ChiTietHoSoModal
+        isOpen={!!selectedDetailCard}
+        card={selectedDetailCard}
+        onClose={() => setSelectedDetailCard(null)}
+      />
     </div>
   );
 }

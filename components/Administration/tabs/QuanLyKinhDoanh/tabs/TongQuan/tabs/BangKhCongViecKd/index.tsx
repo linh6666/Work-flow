@@ -13,6 +13,8 @@ import {
   IconEdit,
   IconTrash,
 } from '@tabler/icons-react';
+import EditTaskModal from './modals/EditTaskModal';
+import DeleteConfirmModal from './modals/DeleteConfirmModal';
 
 interface TaskItem {
   id: string;
@@ -593,6 +595,40 @@ const INITIAL_GROUPS: GroupSection[] = [
 export default function BangKhCongViecKdTab() {
   const [groups, setGroups] = useState<GroupSection[]>(INITIAL_GROUPS);
 
+  // Modal States
+  const [editingTask, setEditingTask] = useState<TaskItem | null>(null);
+  const [deletingTask, setDeletingTask] = useState<TaskItem | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+
+  const handleOpenEdit = (task: TaskItem) => {
+    setEditingTask(task);
+    setIsEditModalOpen(true);
+  };
+
+  const handleOpenDelete = (task: TaskItem) => {
+    setDeletingTask(task);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleSaveTask = (updatedTask: TaskItem) => {
+    setGroups((prevGroups) =>
+      prevGroups.map((g) => ({
+        ...g,
+        tasks: g.tasks.map((t) => (t.id === updatedTask.id ? updatedTask : t)),
+      }))
+    );
+  };
+
+  const handleConfirmDelete = (taskId: string) => {
+    setGroups((prevGroups) =>
+      prevGroups.map((g) => ({
+        ...g,
+        tasks: g.tasks.filter((t) => t.id !== taskId),
+      }))
+    );
+  };
+
   const handleAddRow = (groupId: string) => {
     setGroups((prevGroups) =>
       prevGroups.map((g) => {
@@ -851,16 +887,16 @@ export default function BangKhCongViecKdTab() {
                               <button
                                 type="button"
                                 title="Chỉnh sửa"
-                                onClick={() => alert(`Sửa: ${t.title}`)}
-                                className="p-0.5 hover:bg-slate-200 rounded transition-colors"
+                                onClick={() => handleOpenEdit(t)}
+                                className="p-0.5 hover:bg-slate-200 rounded transition-colors cursor-pointer"
                               >
                                 <IconEdit size={11} className="text-slate-400 hover:text-blue-600" />
                               </button>
                               <button
                                 type="button"
                                 title="Xóa"
-                                onClick={() => alert(`Xóa: ${t.title}`)}
-                                className="p-0.5 hover:bg-slate-200 rounded transition-colors"
+                                onClick={() => handleOpenDelete(t)}
+                                className="p-0.5 hover:bg-slate-200 rounded transition-colors cursor-pointer"
                               >
                                 <IconTrash size={11} className="text-slate-400 hover:text-rose-600" />
                               </button>
@@ -954,6 +990,21 @@ export default function BangKhCongViecKdTab() {
           </table>
         </div>
       </div>
+
+      {/* ── MODALS FOR EDIT AND DELETE ── */}
+      <EditTaskModal
+        isOpen={isEditModalOpen}
+        task={editingTask}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveTask}
+      />
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        task={deletingTask}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

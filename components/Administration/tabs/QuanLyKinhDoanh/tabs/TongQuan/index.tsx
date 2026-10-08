@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
   IconCalendarEvent,
   IconLayoutDashboard,
@@ -21,7 +22,37 @@ const SUB_TABS: { key: SubTabKey; label: string; icon: React.ElementType }[] = [
 ];
 
 export default function TongQuanTab({ onNavigateTab }: TongQuanTabProps) {
-  const [activeSubTab, setActiveSubTab] = useState<SubTabKey>('bang-kh');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [activeSubTab, setActiveSubTab] = useState<SubTabKey>(() => {
+    const sub = searchParams.get('subTab');
+    const detailId = searchParams.get('detailId');
+    if (detailId || sub === 'tong-quan-kd') return 'tong-quan-kd';
+    if (sub === 'bang-kh') return 'bang-kh';
+    return 'bang-kh';
+  });
+
+  useEffect(() => {
+    const sub = searchParams.get('subTab');
+    const detailId = searchParams.get('detailId');
+    if (detailId || sub === 'tong-quan-kd') {
+      setActiveSubTab('tong-quan-kd');
+    } else if (sub === 'bang-kh') {
+      setActiveSubTab('bang-kh');
+    }
+  }, [searchParams]);
+
+  const handleSubTabChange = (key: SubTabKey) => {
+    setActiveSubTab(key);
+    const params = new URLSearchParams(window.location.search);
+    params.set('subTab', key);
+    if (key !== 'tong-quan-kd') {
+      params.delete('detailId');
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className="flex-1 flex flex-col min-h-0 space-y-1">
@@ -34,7 +65,7 @@ export default function TongQuanTab({ onNavigateTab }: TongQuanTabProps) {
             <button
               key={tab.key}
               type="button"
-              onClick={() => setActiveSubTab(tab.key)}
+              onClick={() => handleSubTabChange(tab.key)}
               style={
                 isActive
                   ? { color: '#406c89', borderBottomColor: '#406c89', backgroundColor: '#eef4f7' }

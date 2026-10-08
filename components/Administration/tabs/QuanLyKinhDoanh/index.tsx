@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
   IconUsers,
   IconFileDescription,
@@ -21,17 +22,59 @@ import YeuCauSanXuatTab from './tabs/YeuCauSanXuat';
 import BaoCaoCvKdTab from './tabs/BaoCaoCvKd';
 import PheDuyetDanhGiaTab from './tabs/PheDuyetDanhGia';
 
+type TabKey =
+  | 'tong-quan'
+  | 'khach-hang'
+  | 'de-xuat-bao-gia'
+  | 'bao-gia'
+  | 'hop-dong'
+  | 'yeu-cau-san-xuat'
+  | 'bao-cao-cv-kd'
+  | 'phe-duyet-danh-gia';
+
 export default function QuanLyKinhDoanh() {
-  const [activeTab, setActiveTab] = useState<
-    | 'tong-quan'
-    | 'khach-hang'
-    | 'de-xuat-bao-gia'
-    | 'bao-gia'
-    | 'hop-dong'
-    | 'yeu-cau-san-xuat'
-    | 'bao-cao-cv-kd'
-    | 'phe-duyet-danh-gia'
-  >('tong-quan');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
+    const tab = searchParams.get('tab') as TabKey;
+    const validTabs: TabKey[] = [
+      'tong-quan',
+      'khach-hang',
+      'de-xuat-bao-gia',
+      'bao-gia',
+      'hop-dong',
+      'yeu-cau-san-xuat',
+      'bao-cao-cv-kd',
+      'phe-duyet-danh-gia',
+    ];
+    return tab && validTabs.includes(tab) ? tab : 'tong-quan';
+  });
+
+  useEffect(() => {
+    const tab = searchParams.get('tab') as TabKey;
+    const validTabs: TabKey[] = [
+      'tong-quan',
+      'khach-hang',
+      'de-xuat-bao-gia',
+      'bao-gia',
+      'hop-dong',
+      'yeu-cau-san-xuat',
+      'bao-cao-cv-kd',
+      'phe-duyet-danh-gia',
+    ];
+    if (tab && validTabs.includes(tab) && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tabId: TabKey) => {
+    setActiveTab(tabId);
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', tabId);
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   const tabs = [
     { id: 'tong-quan', label: 'Tổng quan', icon: IconLayoutDashboard },
@@ -64,7 +107,7 @@ export default function QuanLyKinhDoanh() {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => handleTabChange(tab.id as any)}
                 style={
                   isActive
                     ? { color: '#406c89', borderBottomColor: '#406c89', backgroundColor: '#eef4f7' }
@@ -87,7 +130,7 @@ export default function QuanLyKinhDoanh() {
       {/* 3. TAB CONTENT */}
       <div className="flex-1 flex flex-col min-h-0 px-3 sm:px-4 py-1.5 overflow-hidden">
         {activeTab === 'tong-quan' ? (
-          <TongQuanTab onNavigateTab={(tabId) => setActiveTab(tabId)} />
+          <TongQuanTab onNavigateTab={(tabId) => handleTabChange(tabId as any)} />
         ) : activeTab === 'khach-hang' ? (
           <KhachHangTab />
         ) : activeTab === 'de-xuat-bao-gia' ? (

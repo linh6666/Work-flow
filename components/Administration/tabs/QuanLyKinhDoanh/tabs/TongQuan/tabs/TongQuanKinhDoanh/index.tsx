@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
   IconSearch,
   IconFileDescription,
@@ -303,10 +304,33 @@ const DEMO_CARDS: ProjectCardItem[] = [
 ];
 
 export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoanhProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>('Tất cả');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedSort, setSelectedSort] = useState<string>('Loại');
-  const [cards, setCards] = useState<ProjectCardItem[]>(DEMO_CARDS);
+  const [cards, setCards] = useState<ProjectCardItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('quan_ly_kinh_doanh_cards');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    return DEMO_CARDS;
+  });
+
+  // Save cards to localStorage whenever cards change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('quan_ly_kinh_doanh_cards', JSON.stringify(cards));
+    }
+  }, [cards]);
 
   // Modal States
   const [isBaoGiaModalOpen, setIsBaoGiaModalOpen] = useState<boolean>(false);
@@ -315,6 +339,36 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
   const [isBaoCaoThangModalOpen, setIsBaoCaoThangModalOpen] = useState<boolean>(false);
   const [isKhoiTaoBaoCaoModalOpen, setIsKhoiTaoBaoCaoModalOpen] = useState<boolean>(false);
   const [selectedDetailCard, setSelectedDetailCard] = useState<ProjectCardItem | null>(null);
+
+  // Sync selectedDetailCard with searchParams 'detailId'
+  useEffect(() => {
+    const detailId = searchParams.get('detailId');
+    if (detailId) {
+      const found = cards.find((c) => c.id === detailId) || DEMO_CARDS.find((c) => c.id === detailId);
+      if (found) {
+        setSelectedDetailCard(found);
+      }
+    } else {
+      setSelectedDetailCard(null);
+    }
+  }, [searchParams, cards]);
+
+  const handleOpenDetail = (card: ProjectCardItem) => {
+    setSelectedDetailCard(card);
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', 'tong-quan');
+    params.set('subTab', 'tong-quan-kd');
+    params.set('detailId', card.id);
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedDetailCard(null);
+    const params = new URLSearchParams(window.location.search);
+    params.delete('detailId');
+    const newSearch = params.toString();
+    router.replace(newSearch ? `${pathname}?${newSearch}` : pathname);
+  };
 
   const handleDeleteCard = (id: string) => {
     setCards((prev) => prev.filter((c) => c.id !== id));
@@ -378,7 +432,7 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
       <div className="flex flex-col space-y-2 p-0 bg-slate-50/50 min-h-full">
         <ChiTietHoSoView
           card={selectedDetailCard}
-          onBack={() => setSelectedDetailCard(null)}
+          onBack={handleCloseDetail}
           onUpdateStatus={handleUpdateStatus}
           onUpdateEvaluation={handleUpdateEvaluation}
         />
@@ -682,7 +736,7 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
 
                   <button
                     type="button"
-                    onClick={() => setSelectedDetailCard(card)}
+                    onClick={() => handleOpenDetail(card)}
                     className="flex items-center gap-1 px-3 py-1 bg-[#406c89] hover:bg-[#32566d] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
                   >
                     <span>Chi tiết</span>
@@ -697,7 +751,10 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
                   <span className="inline-flex items-center justify-center border border-amber-400 bg-amber-50 text-slate-800 font-bold text-xs px-2 py-0.5 rounded shrink-0">
                     {card.num}
                   </span>
-                  <h3 className="font-bold text-sm text-[#406c89] hover:underline cursor-pointer leading-snug">
+                  <h3
+                    onClick={() => handleOpenDetail(card)}
+                    className="font-bold text-sm text-[#406c89] hover:underline cursor-pointer leading-snug"
+                  >
                     {card.title}
                   </h3>
                 </div>

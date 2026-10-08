@@ -128,7 +128,7 @@ export default function QuanLyKinhDoanh() {
       </div>
 
       {/* 3. TAB CONTENT */}
-      <div className="flex-1 flex flex-col min-h-0 px-3 sm:px-4 py-1.5 overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 px-3 sm:px-4 py-1.5 overflow-y-auto">
         {activeTab === 'tong-quan' ? (
           <TongQuanTab onNavigateTab={(tabId) => handleTabChange(tabId as any)} />
         ) : activeTab === 'khach-hang' ? (

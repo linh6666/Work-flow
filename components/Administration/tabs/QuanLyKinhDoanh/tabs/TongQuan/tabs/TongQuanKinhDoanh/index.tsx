@@ -429,8 +429,9 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
   // If a project is selected for detail view, display the full detail page
   if (selectedDetailCard) {
     return (
-      <div className="flex flex-col space-y-2 p-0 bg-slate-50/50 min-h-full">
+      <div className="flex-1 flex flex-col space-y-2 p-0 bg-slate-50/50 min-h-0 overflow-y-auto">
         <ChiTietHoSoView
+          key={selectedDetailCard.id}
           card={selectedDetailCard}
           onBack={handleCloseDetail}
           onUpdateStatus={handleUpdateStatus}

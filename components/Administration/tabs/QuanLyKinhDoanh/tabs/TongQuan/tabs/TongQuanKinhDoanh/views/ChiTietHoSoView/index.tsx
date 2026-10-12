@@ -15,6 +15,8 @@ import {
   IconHistory,
 } from '@tabler/icons-react';
 
+import BaoCaoThucHienModal from './modals/BaoCaoThucHienModal';
+
 interface ProjectCardItem {
   id: string;
   typeTag: string;
@@ -285,6 +287,8 @@ export default function ChiTietHoSoView({
 }: ChiTietHoSoViewProps) {
   const [selectedStaffFilter, setSelectedStaffFilter] = useState<string>('Tất cả nhân sự');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('Tất cả trạng thái');
+  const [selectedTaskForReport, setSelectedTaskForReport] = useState<FullTaskItem | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [tasks, setTasks] = useState<FullTaskItem[]>(() => {
     if (typeof window !== 'undefined' && card?.id) {
       const saved = localStorage.getItem(`quan_ly_kinh_doanh_tasks_${card.id}`);
@@ -361,6 +365,18 @@ export default function ChiTietHoSoView({
     if (name) {
       alert(`Đã khởi tạo nhóm công việc: ${name}`);
     }
+  };
+
+  const handleOpenReportModal = (taskItem: FullTaskItem) => {
+    setSelectedTaskForReport(taskItem);
+    setIsReportModalOpen(true);
+  };
+
+  const handleSaveTaskReport = (updatedTask: FullTaskItem) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.stt === updatedTask.stt ? updatedTask : t))
+    );
+    setIsReportModalOpen(false);
   };
 
   const filteredTasks = tasks.filter((t) => {
@@ -526,7 +542,7 @@ export default function ChiTietHoSoView({
               <tr className="bg-[#f8fafc] border-b border-slate-200/80 text-[10px] font-bold text-[#406c89] tracking-wider uppercase select-none">
                 <th className="py-2.5 px-1.5 w-6 text-center border-r border-slate-100 bg-[#f8fafc]"></th>
                 <th className="py-2.5 px-2 w-8 text-center border-r border-slate-100 bg-[#f8fafc]">#</th>
-                <th className="py-2.5 px-2 w-20 text-center border-r border-slate-100 bg-[#f8fafc]">BC TH</th>
+                <th className="py-2.5 px-2 w-24 min-w-[90px] text-center border-r border-slate-100 bg-[#f8fafc]">BC TH</th>
                 <th className="py-2.5 px-2 w-16 text-center border-r border-slate-100 bg-[#f8fafc]">THAO TÁC</th>
                 <th className="py-2.5 px-2.5 w-32 border-r border-slate-100 bg-[#f8fafc]">TRẠNG THÁI</th>
                 <th className="py-2.5 px-3 min-w-[320px] border-r border-slate-100 bg-[#f8fafc]">TÊN CÔNG VIỆC</th>
@@ -599,15 +615,20 @@ export default function ChiTietHoSoView({
                             <td className={`py-1.5 px-2 text-center border-r ${
                               isBlueRow || isYellowRow ? 'border-white/20' : 'border-slate-100'
                             }`}>
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                isBlueRow
-                                  ? 'bg-[#3d6580] text-amber-300 border border-amber-300/40'
-                                  : isYellowRow
-                                  ? 'bg-white text-indigo-700 shadow-2xs'
-                                  : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
-                              }`}>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenReportModal(task)}
+                                title="Xem & Cập nhật Báo cáo TH"
+                                className={`inline-flex items-center justify-center whitespace-nowrap gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition-all hover:scale-105 active:scale-95 shadow-2xs ${
+                                  isBlueRow
+                                    ? 'bg-[#3d6580] text-amber-300 border border-amber-300/40 hover:bg-[#345870]'
+                                    : isYellowRow
+                                    ? 'bg-white text-indigo-700 shadow-2xs hover:bg-slate-50'
+                                    : 'bg-indigo-50 text-indigo-700 border border-indigo-100 hover:bg-indigo-100'
+                                }`}
+                              >
                                 {task.bcBadge}
-                              </span>
+                              </button>
                             </td>
 
                             {/* THAO TÁC */}
@@ -794,6 +815,13 @@ export default function ChiTietHoSoView({
           <IconChevronRight size={13} className="text-slate-400 ml-1" />
         </button>
       </div>
+      {/* ── 4. BÁO CÁO THỰC HIỆN MODAL ── */}
+      <BaoCaoThucHienModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        task={selectedTaskForReport}
+        onSaveReport={handleSaveTaskReport}
+      />
     </div>
   );
 }

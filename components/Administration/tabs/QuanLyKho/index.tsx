@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import {
+  IconClipboardList,
   IconBuildingWarehouse,
   IconTruckDelivery,
   IconShoppingCart,
@@ -11,6 +12,7 @@ import {
   IconClipboardCheck,
 } from '@tabler/icons-react';
 
+import DeXuatNVLThangTab  from './tabs/DeXuatNVLThang';
 import QuanLyNVLTab       from './tabs/QuanLyNVL';
 import QuanLyNCCTab       from './tabs/QuanLyNCC';
 import MuaNVLThangTab     from './tabs/MuaNVLThang';
@@ -20,6 +22,7 @@ import KeHoachBaoCaoTab   from './tabs/KeHoachBaoCao';
 import PheDuyetDanhGiaTab from './tabs/PheDuyetDanhGia';
 
 type TabId =
+  | 'de-xuat-nvl-thang'
   | 'quan-ly-nvl'
   | 'quan-ly-ncc'
   | 'mua-nvl-thang'
@@ -29,9 +32,10 @@ type TabId =
   | 'phe-duyet-danh-gia';
 
 export default function QuanLyKho() {
-  const [activeTab, setActiveTab] = useState<TabId>('quan-ly-nvl');
+  const [activeTab, setActiveTab] = useState<TabId>('de-xuat-nvl-thang');
 
   const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
+    { id: 'de-xuat-nvl-thang',  label: 'Đề xuất NVL tháng',    icon: IconClipboardList     },
     { id: 'quan-ly-nvl',        label: 'Quản lý NVL',          icon: IconBuildingWarehouse },
     { id: 'quan-ly-ncc',        label: 'Quản lý NCC',          icon: IconTruckDelivery     },
     { id: 'mua-nvl-thang',      label: 'Mua NVL Tháng',        icon: IconShoppingCart      },
@@ -48,7 +52,7 @@ export default function QuanLyKho() {
         <div>
           <h2 className="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Quản lý Kho</h2>
           <p className="text-[10px] font-medium text-slate-400 mt-0.5">
-            NVL · NCC · Mua NVL tháng · Phụ kiện MH · Máy móc TB · Kế hoạch & Báo cáo · Phê duyệt
+            Đề xuất NVL tháng · NVL · NCC · Mua NVL tháng · Phụ kiện MH · Máy móc TB · Kế hoạch & Báo cáo · Phê duyệt
           </p>
         </div>
 
@@ -80,7 +84,8 @@ export default function QuanLyKho() {
 
       {/* Dynamic Tab Content Area */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        {activeTab === 'quan-ly-nvl'        ? <QuanLyNVLTab />        :
+        {activeTab === 'de-xuat-nvl-thang'  ? <DeXuatNVLThangTab />   :
+         activeTab === 'quan-ly-nvl'        ? <QuanLyNVLTab />        :
          activeTab === 'quan-ly-ncc'        ? <QuanLyNCCTab />        :
          activeTab === 'mua-nvl-thang'      ? <MuaNVLThangTab />      :
          activeTab === 'quan-ly-phu-kien'   ? <PhuKienMHTab />        :

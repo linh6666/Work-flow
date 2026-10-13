@@ -17,6 +17,7 @@ import {
   IconReceipt,
 } from '@tabler/icons-react';
 import ModalBoSungNVL from './modal/ModalBoSungNVL';
+import ModalXuatNVL from './modal/ModalXuatNVL';
 
 export interface DeXuatNVLItem {
   id: string;
@@ -263,6 +264,7 @@ export default function DeXuatNVLThang() {
   const [showBaoCaoBGDModal, setShowBaoCaoBGDModal] = useState(false);
   const [selectedHachToanItem, setSelectedHachToanItem] = useState<DeXuatNVLItem | null>(null);
   const [selectedBoSungItem, setSelectedBoSungItem] = useState<DeXuatNVLItem | null>(null);
+  const [selectedXuatNVLItem, setSelectedXuatNVLItem] = useState<DeXuatNVLItem | null>(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -561,7 +563,7 @@ export default function DeXuatNVLThang() {
                       <td className="px-3 py-2.5 whitespace-nowrap text-center">
                         <button
                           type="button"
-                          onClick={() => setShowXuatKhoModal(true)}
+                          onClick={() => setSelectedXuatNVLItem(item)}
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-blue-50/80 text-[#406c89] hover:bg-blue-100 border border-blue-200/80 transition-colors cursor-pointer"
                         >
                           <IconPackage size={12} />
@@ -1201,6 +1203,22 @@ export default function DeXuatNVLThang() {
                     tongTien: d.tongTien + additionalAmount,
                     boSungNVL: d.boSungNVL + 1,
                   }
+                : d
+            )
+          );
+        }}
+      />
+
+      {/* ── Modal Xuất NVL (Component trong folder riêng) ── */}
+      <ModalXuatNVL
+        isOpen={!!selectedXuatNVLItem}
+        item={selectedXuatNVLItem}
+        onClose={() => setSelectedXuatNVLItem(null)}
+        onSave={(itemId) => {
+          setData(
+            data.map((d) =>
+              d.id === itemId
+                ? { ...d, trangThaiXuatKho: 'Đã xuất' }
                 : d
             )
           );

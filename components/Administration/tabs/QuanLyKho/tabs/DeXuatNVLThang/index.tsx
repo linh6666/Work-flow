@@ -18,6 +18,7 @@ import {
 } from '@tabler/icons-react';
 import ModalBoSungNVL from './modal/ModalBoSungNVL';
 import ModalXuatNVL from './modal/ModalXuatNVL';
+import ModalTongHopXuatKho from './modal/ModalTongHopXuatKho';
 
 export interface DeXuatNVLItem {
   id: string;
@@ -937,95 +938,12 @@ export default function DeXuatNVLThang() {
         </div>
       )}
 
-      {/* ── Modal Tổng hợp NVL Xuất kho ── */}
-      {showXuatKhoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
-              <div className="flex items-center gap-2">
-                <IconPackage size={18} className="text-[#406c89]" />
-                <h3 className="text-sm font-bold text-slate-800">Tổng hợp NVL Xuất kho — Khối Kỹ thuật</h3>
-              </div>
-              <button
-                onClick={() => setShowXuatKhoModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-md transition-colors cursor-pointer"
-              >
-                <IconX size={16} />
-              </button>
-            </div>
+      {/* ── Modal Tổng hợp NVL Xuất kho (Component trong folder riêng) ── */}
+      <ModalTongHopXuatKho
+        isOpen={showXuatKhoModal}
+        onClose={() => setShowXuatKhoModal(false)}
+      />
 
-            <div className="p-4 space-y-3 text-xs">
-              <div className="flex items-center justify-between bg-blue-50/60 p-2.5 rounded-lg border border-blue-100 text-blue-900">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">Kỳ đối soát:</span> Tháng 10/2026
-                </div>
-                <div className="text-[11px] text-blue-700">
-                  Cập nhật theo thực tế xuất kho từ phân hệ Kho
-                </div>
-              </div>
-
-              <div className="overflow-x-auto border border-slate-200 rounded-lg max-h-64">
-                <table className="w-full text-xs text-left">
-                  <thead className="bg-slate-50 text-slate-500 sticky top-0 border-b border-slate-200 font-semibold">
-                    <tr>
-                      <th className="px-3 py-2">STT</th>
-                      <th className="px-3 py-2">Tên vật tư / NVL</th>
-                      <th className="px-3 py-2 text-center">ĐVT</th>
-                      <th className="px-3 py-2 text-center">SL Xuất</th>
-                      <th className="px-3 py-2 text-right">Đơn giá dự toán</th>
-                      <th className="px-3 py-2">Dự án sử dụng</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    <tr className="hover:bg-slate-50">
-                      <td className="px-3 py-2 text-center text-slate-500">1</td>
-                      <td className="px-3 py-2 font-medium text-slate-800">Mica trong 3mm</td>
-                      <td className="px-3 py-2 text-center text-slate-600">Tấm</td>
-                      <td className="px-3 py-2 text-center font-bold text-[#406c89]">15</td>
-                      <td className="px-3 py-2 text-right text-slate-700">350.000 đ</td>
-                      <td className="px-3 py-2 text-slate-600">Dự án Khu đô thị Bắc Giang</td>
-                    </tr>
-                    <tr className="hover:bg-slate-50">
-                      <td className="px-3 py-2 text-center text-slate-500">2</td>
-                      <td className="px-3 py-2 font-medium text-slate-800">Dây LED 2835 ánh sáng ấm</td>
-                      <td className="px-3 py-2 text-center text-slate-600">Cuộn</td>
-                      <td className="px-3 py-2 text-center font-bold text-[#406c89]">30</td>
-                      <td className="px-3 py-2 text-right text-slate-700">120.000 đ</td>
-                      <td className="px-3 py-2 text-slate-600">Mô hình Sa bàn Vinhomes</td>
-                    </tr>
-                    <tr className="hover:bg-slate-50">
-                      <td className="px-3 py-2 text-center text-slate-500">3</td>
-                      <td className="px-3 py-2 font-medium text-slate-800">Keo dán Acrylic chuyên dụng</td>
-                      <td className="px-3 py-2 text-center text-slate-600">Chai</td>
-                      <td className="px-3 py-2 text-center font-bold text-[#406c89]">24</td>
-                      <td className="px-3 py-2 text-right text-slate-700">85.000 đ</td>
-                      <td className="px-3 py-2 text-slate-600">Xưởng mô hình kiến trúc</td>
-                    </tr>
-                    <tr className="hover:bg-slate-50">
-                      <td className="px-3 py-2 text-center text-slate-500">4</td>
-                      <td className="px-3 py-2 font-medium text-slate-800">Nguồn tổ ong 12V 30A</td>
-                      <td className="px-3 py-2 text-center text-slate-600">Cái</td>
-                      <td className="px-3 py-2 text-center font-bold text-[#406c89]">8</td>
-                      <td className="px-3 py-2 text-right text-slate-700">280.000 đ</td>
-                      <td className="px-3 py-2 text-slate-600">Dự án Nhà hát TP</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowXuatKhoModal(false)}
-                className="px-3.5 py-1.5 text-xs font-semibold bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors cursor-pointer"
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Modal Báo cáo tổng hợp BGĐ ── */}
       {showBaoCaoBGDModal && (

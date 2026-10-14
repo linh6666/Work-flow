@@ -278,7 +278,7 @@ export default function ModalTongHopXuatKho({
               <button
                 type="button"
                 onClick={() => alert('Đã nạp thành công vào bảng Xuất NVL!')}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-[#10a37f] hover:bg-[#0e8f6f] text-white shadow-xs transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-[#406c89] hover:bg-[#345973] text-white shadow-xs transition-colors cursor-pointer"
               >
                 <IconUpload size={15} />
                 <span>Nạp vào bảng Xuất NVL</span>

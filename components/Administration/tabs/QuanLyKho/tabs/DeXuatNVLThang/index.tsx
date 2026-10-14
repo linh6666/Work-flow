@@ -19,6 +19,8 @@ import {
 import ModalBoSungNVL from './modal/ModalBoSungNVL';
 import ModalXuatNVL from './modal/ModalXuatNVL';
 import ModalTongHopXuatKho from './modal/ModalTongHopXuatKho';
+import ModalBaoCaoBGD from './modal/ModalBaoCaoBGD';
+import ModalTaoDeXuat from './modal/ModalTaoDeXuat';
 
 export interface DeXuatNVLItem {
   id: string;
@@ -271,19 +273,7 @@ export default function DeXuatNVLThang() {
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 30;
 
-  // Form State for creating proposal with Month & Year
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  const [formData, setFormData] = useState({
-    thang: currentMonth,
-    nam: currentYear,
-    phongBan: 'Khối Kỹ thuật',
-    nguoiLap: '',
-    soMatHang: 1,
-    tongTien: 0,
-    trangThai: 'Chờ duyệt' as 'Chờ duyệt' | 'Đã duyệt',
-    ghiChu: '',
-  });
+
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -325,41 +315,8 @@ export default function DeXuatNVLThang() {
   const safePage = Math.min(currentPage, totalPages);
   const paginatedData = filteredData.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const handleCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    const thangFormatted = String(formData.thang).padStart(2, '0');
-    const thangNamStr = `Tháng ${thangFormatted}/${formData.nam}`;
-
-    const newItem: DeXuatNVLItem = {
-      id: Date.now().toString(),
-      maDeXuat: `DXNVL-${formData.nam}-${thangFormatted}-${String(Math.floor(Math.random() * 90) + 10)}`,
-      thang: Number(formData.thang),
-      nam: Number(formData.nam),
-      thangNam: thangNamStr,
-      phongBan: formData.phongBan,
-      nguoiLap: formData.nguoiLap || 'Người lập đề xuất',
-      ngayLap: new Date().toLocaleDateString('vi-VN'),
-      soMatHang: Number(formData.soMatHang) || 1,
-      tongTien: Number(formData.tongTien) || 0,
-      trangThai: formData.trangThai,
-      trangThaiXuatKho: 'Chờ xuất',
-      trangThaiHT: 'Chờ hạch toán',
-      boSungNVL: 0,
-      ghiChu: formData.ghiChu,
-    };
-
+  const handleCreate = (newItem: DeXuatNVLItem) => {
     setData([newItem, ...data]);
-    setShowCreateModal(false);
-    setFormData({
-      thang: currentMonth,
-      nam: currentYear,
-      phongBan: 'Khối Kỹ thuật',
-      nguoiLap: '',
-      soMatHang: 1,
-      tongTien: 0,
-      trangThai: 'Chờ duyệt',
-      ghiChu: '',
-    });
   };
 
   const handleDelete = (id: string) => {
@@ -795,148 +752,12 @@ export default function DeXuatNVLThang() {
         </div>
       )}
 
-      {/* ── Modal Tạo đề xuất mới (có Tháng + Năm) ── */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
-              <div className="flex items-center gap-2">
-                <IconPlus size={18} className="text-[#406c89]" />
-                <h3 className="text-sm font-bold text-slate-800">Tạo đề xuất NVL tháng mới</h3>
-              </div>
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-md transition-colors cursor-pointer"
-              >
-                <IconX size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreate}>
-              <div className="p-4 space-y-3 text-xs">
-                {/* Tháng + Năm fields */}
-                <div className="grid grid-cols-2 gap-3 bg-blue-50/50 p-2.5 rounded-lg border border-blue-100">
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1">Tháng đề xuất *</label>
-                    <select
-                      value={formData.thang}
-                      onChange={(e) => setFormData({ ...formData, thang: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
-                    >
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                        <option key={m} value={m}>
-                          Tháng {m}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1">Năm đề xuất *</label>
-                    <input
-                      type="number"
-                      required
-                      min={2020}
-                      max={2035}
-                      value={formData.nam}
-                      onChange={(e) => setFormData({ ...formData, nam: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-slate-600 font-medium mb-1">Phòng ban đề xuất *</label>
-                    <select
-                      value={formData.phongBan}
-                      onChange={(e) => setFormData({ ...formData, phongBan: e.target.value })}
-                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
-                    >
-                      <option value="Khối Kỹ thuật">Khối Kỹ thuật</option>
-                      <option value="Bộ phận Kho & Vật tư">Bộ phận Kho & Vật tư</option>
-                      <option value="Bộ phận Mua hàng">Bộ phận Mua hàng</option>
-                      <option value="Xưởng sản xuất">Xưởng sản xuất</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-slate-600 font-medium mb-1">Người lập đề xuất</label>
-                    <input
-                      type="text"
-                      placeholder="Nhập họ tên..."
-                      value={formData.nguoiLap}
-                      onChange={(e) => setFormData({ ...formData, nguoiLap: e.target.value })}
-                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-slate-600 font-medium mb-1">Số mặt hàng NVL</label>
-                    <input
-                      type="number"
-                      min={1}
-                      value={formData.soMatHang}
-                      onChange={(e) => setFormData({ ...formData, soMatHang: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-600 font-medium mb-1">Tổng tiền dự toán (VNĐ)</label>
-                    <input
-                      type="number"
-                      min={0}
-                      step={1000}
-                      value={formData.tongTien}
-                      onChange={(e) => setFormData({ ...formData, tongTien: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Trạng thái đề xuất *</label>
-                  <select
-                    value={formData.trangThai}
-                    onChange={(e) => setFormData({ ...formData, trangThai: e.target.value as 'Chờ duyệt' | 'Đã duyệt' })}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
-                  >
-                    <option value="Chờ duyệt">Chờ duyệt</option>
-                    <option value="Đã duyệt">Đã duyệt</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Ghi chú / Mục đích đề xuất</label>
-                  <textarea
-                    rows={3}
-                    placeholder="Nhập nội dung đề xuất NVL tháng..."
-                    value={formData.ghiChu}
-                    onChange={(e) => setFormData({ ...formData, ghiChu: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
-                  />
-                </div>
-              </div>
-
-              <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-3.5 py-1.5 text-xs font-semibold bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors cursor-pointer"
-                >
-                  Huỷ
-                </button>
-                <button
-                  type="submit"
-                  className="px-3.5 py-1.5 text-xs font-semibold bg-[#406c89] hover:bg-[#345973] text-white rounded-lg shadow-xs transition-colors cursor-pointer"
-                >
-                  Lưu đề xuất
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* ── Modal Tạo đề xuất mới (Component trong folder riêng) ── */}
+      <ModalTaoDeXuat
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSave={handleCreate}
+      />
 
       {/* ── Modal Tổng hợp NVL Xuất kho (Component trong folder riêng) ── */}
       <ModalTongHopXuatKho
@@ -945,89 +766,12 @@ export default function DeXuatNVLThang() {
       />
 
 
-      {/* ── Modal Báo cáo tổng hợp BGĐ ── */}
-      {showBaoCaoBGDModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
-              <div className="flex items-center gap-2">
-                <IconChartBar size={18} className="text-[#406c89]" />
-                <h3 className="text-sm font-bold text-slate-800">Báo cáo Tổng hợp NVL Đề xuất — Trình BGĐ</h3>
-              </div>
-              <button
-                onClick={() => setShowBaoCaoBGDModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-md transition-colors cursor-pointer"
-              >
-                <IconX size={16} />
-              </button>
-            </div>
+      {/* ── Modal Báo cáo tổng hợp BGĐ (Component trong folder riêng) ── */}
+      <ModalBaoCaoBGD
+        isOpen={showBaoCaoBGDModal}
+        onClose={() => setShowBaoCaoBGDModal(false)}
+      />
 
-            <div className="p-4 space-y-3.5 text-xs">
-              <div className="grid grid-cols-3 gap-2.5">
-                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                  <span className="text-[11px] text-slate-400 block">Kỳ báo cáo</span>
-                  <span className="text-xs font-bold text-slate-800">Tháng 10/2026</span>
-                </div>
-                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                  <span className="text-[11px] text-slate-400 block">Đơn vị đề xuất</span>
-                  <span className="text-xs font-bold text-slate-800">Khối Kỹ thuật & Sản xuất</span>
-                </div>
-                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                  <span className="text-[11px] text-slate-400 block">Tổng dự toán trình duyệt</span>
-                  <span className="text-xs font-bold text-[#406c89]">185.600.000 đ</span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <span className="font-semibold text-slate-700 block">Phân loại ngân sách theo nhóm vật tư chính:</span>
-                <div className="space-y-2">
-                  <div>
-                    <div className="flex justify-between text-[11px] text-slate-600 mb-1">
-                      <span>Vật tư tấm, Mica & Laminate</span>
-                      <span className="font-semibold">78.500.000 đ (42%)</span>
-                    </div>
-                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#406c89] h-full rounded-full" style={{ width: '42%' }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-[11px] text-slate-600 mb-1">
-                      <span>Thiết bị điện & Đèn LED</span>
-                      <span className="font-semibold">52.100.000 đ (28%)</span>
-                    </div>
-                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                      <div className="bg-emerald-500 h-full rounded-full" style={{ width: '28%' }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-[11px] text-slate-600 mb-1">
-                      <span>Phụ kiện tiêu hao & Keo hoá chất</span>
-                      <span className="font-semibold">55.000.000 đ (30%)</span>
-                    </div>
-                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                      <div className="bg-amber-500 h-full rounded-full" style={{ width: '30%' }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-lg text-amber-900 text-[11px]">
-                📌 <span className="font-semibold">Ý kiến đề xuất:</span> Kính trình Ban Giám Đốc phê duyệt hạn mức dự toán NVL tháng 10/2026 để bộ phận mua hàng kịp tiến độ nhập vật tư cho các dự án trọng điểm.
-              </div>
-            </div>
-
-            <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowBaoCaoBGDModal(false)}
-                className="px-3.5 py-1.5 text-xs font-semibold bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors cursor-pointer"
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Modal Hạch toán NVL ── */}
       {selectedHachToanItem && (

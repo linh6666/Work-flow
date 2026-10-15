@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { IconX, IconAlertTriangle } from '@tabler/icons-react';
-import { MonthRecord } from '../SuaDeXuatModal';
+import type { DeXuatHachToanItem } from '../../types';
 
 interface XoaDeXuatModalProps {
   isOpen: boolean;
-  record: MonthRecord | null;
+  record: DeXuatHachToanItem | null;
   onClose: () => void;
   onConfirm: (id: string) => void;
 }
@@ -50,9 +50,13 @@ export default function XoaDeXuatModal({
         {/* Content */}
         <div className="px-6 py-5 text-xs text-slate-600 space-y-3">
           <p>
-            Bạn có chắc chắn muốn xóa bản ghi đợt hạch toán{' '}
-            <span className="font-bold text-slate-800">{record.thang} - {record.nam}</span> với tổng tiền{' '}
-            <span className="font-bold text-rose-600">{record.tongTien}</span> không?
+            Bạn có chắc chắn muốn xóa bản ghi{' '}
+            <span className="font-bold text-slate-800">
+              {record.soDeXuat && record.soDeXuat !== '—'
+                ? record.soDeXuat
+                : `${record.thang} - ${record.nam}`}
+            </span>{' '}
+            với tổng tiền <span className="font-bold text-rose-600">{record.tongTien}</span> không?
           </p>
           <div className="p-3 bg-rose-50/70 border border-rose-100 rounded-xl text-[11.5px] text-rose-700">
             ⚠️ Lưu ý: Các đề xuất chi tiết liên quan trong tháng này có thể bị loại khỏi danh sách tổng hợp.

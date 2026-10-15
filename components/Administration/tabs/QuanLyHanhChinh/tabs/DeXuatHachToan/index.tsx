@@ -8,80 +8,387 @@ import {
   IconPencil,
   IconTrash,
   IconSelector,
-  IconArrowDown,
   IconChevronLeft,
   IconChevronRight,
+  IconCopy,
 } from '@tabler/icons-react';
 
 import ThemDeXuatModal, { MonthRecordData } from './modals/ThemDeXuatModal';
-import SuaDeXuatModal, { MonthRecord } from './modals/SuaDeXuatModal';
+import SuaDeXuatModal from './modals/SuaDeXuatModal';
+import LapHachToanModal from './modals/LapHachToanModal';
 import XoaDeXuatModal from './modals/XoaDeXuatModal';
+import type { DeXuatHachToanItem } from './types';
 
-/* ─── Initial Mock Data ─────────────────────────────────────────────── */
-const initialMockData: MonthRecord[] = [
+export type { DeXuatHachToanItem };
+
+/* ─── Initial Mock Data Từ Hình Ảnh Thực Tế ────────────────────────── */
+const initialMockData: any[] = [
+  // ── THÁNG 10/2026 ──────────────────────────────────────────────
   {
-    id: 'thang-8',
+    id: 'dx-41-2026',
+    soDeXuat: '41-2026/ĐXDC-HC',
+    thang: 'Tháng 10',
+    nam: 2026,
+    dienGiai: 'ĐXDC DỰ KIẾN CHI PHÍ CÔNG TÁC HƯNG YÊN',
+    soMuc: 3,
+    tongTien: '4.000.000 đ',
+    trangThaiDuyet: 'Chờ PGĐ duyệt',
+    soHT: '+ Lập hạch toán',
+    tongTienHT: '—',
+    trangThaiHT: '—',
+    loai: ['Đề xuất duyệt chi'],
+    soBanGhi: 3,
+  },
+  {
+    id: 'dx-40-2026',
+    soDeXuat: '40-2026/ĐXDC-HC',
+    thang: 'Tháng 10',
+    nam: 2026,
+    dienGiai: 'ĐXDC SIM DATA 12 THÁNG',
+    soMuc: 1,
+    tongTien: '1.047.500 đ',
+    trangThaiDuyet: 'Chờ PGĐ duyệt',
+    soHT: '40-2026/HT-HC',
+    tongTienHT: '1.047.500 đ',
+    trangThaiHT: 'Chờ QL KD duyệt',
+    loai: ['Đề xuất duyệt chi', 'Hạch toán'],
+    soBanGhi: 1,
+  },
+  {
+    id: 'dx-39-2026',
+    soDeXuat: '39-2026/ĐXDC-HC',
+    thang: 'Tháng 10',
+    nam: 2026,
+    dienGiai: 'ĐXDC CHI PHÍ VẬN CHUYỂN DỰ ÁN TÂY NINH (HÀ NỘI)',
+    soMuc: 1,
+    tongTien: '1.100.000 đ',
+    trangThaiDuyet: 'PGĐ đã duyệt',
+    soHT: '39-2026/HT-HC',
+    tongTienHT: '1.100.000 đ',
+    trangThaiHT: 'Chờ QL KD duyệt',
+    loai: ['Đề xuất duyệt chi', 'Hạch toán'],
+    soBanGhi: 1,
+  },
+  {
+    id: 'dx-38-2026',
+    soDeXuat: '38-2026/ĐXDC-HC',
+    thang: 'Tháng 10',
+    nam: 2026,
+    dienGiai: 'ĐXDC ĐỒ ĂN CA TỐI',
+    soMuc: 1,
+    tongTien: '3.000.000 đ',
+    trangThaiDuyet: 'Chờ PGĐ duyệt',
+    soHT: '+ Lập hạch toán',
+    tongTienHT: '—',
+    trangThaiHT: '—',
+    loai: ['Đề xuất duyệt chi'],
+    soBanGhi: 1,
+  },
+  {
+    id: 'dx-37-2026',
+    soDeXuat: '37-2026/ĐXDC-HC',
+    thang: 'Tháng 10',
+    nam: 2026,
+    dienGiai: 'ĐXDC HÀNH CHÍNH THÁNG 10',
+    soMuc: 27,
+    tongTien: '11.746.001 đ',
+    trangThaiDuyet: 'PGĐ đã duyệt',
+    soHT: '37-2026/HT-HC',
+    tongTienHT: '11.746.001 đ',
+    trangThaiHT: 'Chờ QL KD duyệt',
+    loai: ['Đề xuất duyệt chi', 'Hạch toán'],
+    soBanGhi: 27,
+  },
+
+  // ── THÁNG 9/2026 ───────────────────────────────────────────────
+  {
+    id: 'dx-36-2026',
+    soDeXuat: '36-2026/ĐXDC-HC',
+    thang: 'Tháng 9',
+    nam: 2026,
+    dienGiai: 'ĐỀ XUẤT DUYỆT CHI',
+    soMuc: 1,
+    tongTien: '2.000.000 đ',
+    trangThaiDuyet: 'PGĐ đã duyệt',
+    soHT: '36-2026/HT-HC',
+    tongTienHT: '2.000.000 đ',
+    trangThaiHT: 'PGĐ đã duyệt',
+    loai: ['Đề xuất duyệt chi', 'Hạch toán'],
+    soBanGhi: 1,
+  },
+  {
+    id: 'dx-35-2026',
+    soDeXuat: '35-2026/ĐXDC-HC',
+    thang: 'Tháng 9',
+    nam: 2026,
+    dienGiai: 'ĐỀ XUẤT DUYỆT CHI',
+    soMuc: 1,
+    tongTien: '4.190.000 đ',
+    trangThaiDuyet: 'PGĐ đã duyệt',
+    soHT: '35-2026/HT-HC',
+    tongTienHT: '4.190.000 đ',
+    trangThaiHT: 'PGĐ đã duyệt',
+    loai: ['Đề xuất duyệt chi', 'Hạch toán'],
+    soBanGhi: 1,
+  },
+  {
+    id: 'dx-34-2026',
+    soDeXuat: '34-2026/ĐXDC-HC',
+    thang: 'Tháng 9',
+    nam: 2026,
+    dienGiai: 'ĐXDC HÀNH CHÍNH THÁNG 09',
+    soMuc: 22,
+    tongTien: '8.532.000 đ',
+    trangThaiDuyet: 'PGĐ đã duyệt',
+    soHT: '34-2026/HT-HC',
+    tongTienHT: '8.315.315 đ',
+    trangThaiHT: 'Chờ QL KD duyệt',
+    loai: ['Đề xuất duyệt chi', 'Hạch toán'],
+    soBanGhi: 22,
+  },
+  {
+    id: 'ht-34-2026-sub',
+    soDeXuat: '—',
+    thang: 'Tháng 9',
+    nam: 2026,
+    dienGiai: '—',
+    soMuc: '—',
+    tongTien: '—',
+    trangThaiDuyet: '—',
+    soHT: '34-2026/HT-HC',
+    tongTienHT: '8.479.315 đ',
+    trangThaiHT: 'Chờ QL KD duyệt',
+    loai: ['Hạch toán'],
+    soBanGhi: 1,
+  },
+
+  // ── THÁNG 8/2026 ───────────────────────────────────────────────
+  {
+    id: 'dx-33-2026',
+    soDeXuat: '33-2026/ĐXDC-HC',
     thang: 'Tháng 8',
     nam: 2026,
+    dienGiai: 'ĐỀ XUẤT DUYỆT CHI',
+    soMuc: 1,
+    tongTien: '3.490.000 đ',
+    trangThaiDuyet: 'PGĐ đã duyệt',
+    soHT: '33-2026/HT-HC',
+    tongTienHT: '3.490.000 đ',
+    trangThaiHT: 'Chờ QL KD duyệt',
     loai: ['Đề xuất duyệt chi', 'Hạch toán'],
-    soBanGhi: 3,
-    tongTien: '19.640.450 đ',
+    soBanGhi: 1,
   },
   {
-    id: 'thang-7',
+    id: 'dx-32-2026',
+    soDeXuat: '32-2026/ĐXDC-HC',
+    thang: 'Tháng 8',
+    nam: 2026,
+    dienGiai: 'ĐỀ XUẤT DUYỆT CHI',
+    soMuc: 2,
+    tongTien: '4.100.000 đ',
+    trangThaiDuyet: 'PGĐ đã duyệt',
+    soHT: '+ Lập hạch toán',
+    tongTienHT: '—',
+    trangThaiHT: '—',
+    loai: ['Đề xuất duyệt chi'],
+    soBanGhi: 2,
+  },
+  {
+    id: 'dx-31-2026',
+    soDeXuat: '31-2026/ĐXDC-HC',
+    thang: 'Tháng 8',
+    nam: 2026,
+    dienGiai: 'ĐỀ NGHỊ DUYỆT CHI THÁNG 8',
+    soMuc: 25,
+    tongTien: '14.740.450 đ',
+    trangThaiDuyet: 'PGĐ đã duyệt',
+    soHT: '+ Lập hạch toán',
+    tongTienHT: '—',
+    trangThaiHT: '—',
+    loai: ['Đề xuất duyệt chi'],
+    soBanGhi: 25,
+  },
+  {
+    id: 'ht-17-2026',
+    soDeXuat: '—',
+    thang: 'Tháng 8',
+    nam: 2026,
+    dienGiai: '—',
+    soMuc: '—',
+    tongTien: '—',
+    trangThaiDuyet: '—',
+    soHT: '17-2026/HT-HC',
+    tongTienHT: '—',
+    trangThaiHT: 'Chờ QL KD duyệt',
+    loai: ['Hạch toán'],
+    soBanGhi: 1,
+  },
+  {
+    id: 'ht-16-2026',
+    soDeXuat: '—',
+    thang: 'Tháng 8',
+    nam: 2026,
+    dienGiai: '—',
+    soMuc: '—',
+    tongTien: '—',
+    trangThaiDuyet: '—',
+    soHT: '16-2026/HT-HC',
+    tongTienHT: '—',
+    trangThaiHT: 'Chờ QL KD duyệt',
+    loai: ['Hạch toán'],
+    soBanGhi: 1,
+  },
+  {
+    id: 'ht-15-2026',
+    soDeXuat: '—',
+    thang: 'Tháng 8',
+    nam: 2026,
+    dienGiai: '—',
+    soMuc: '—',
+    tongTien: '—',
+    trangThaiDuyet: '—',
+    soHT: '15-2026/HT-HC',
+    tongTienHT: '—',
+    trangThaiHT: 'Chờ PGĐ duyệt',
+    loai: ['Hạch toán'],
+    soBanGhi: 1,
+  },
+  {
+    id: 'ht-14-2026',
+    soDeXuat: '—',
+    thang: 'Tháng 8',
+    nam: 2026,
+    dienGiai: '—',
+    soMuc: '—',
+    tongTien: '—',
+    trangThaiDuyet: '—',
+    soHT: '14-2026/HT-HC',
+    tongTienHT: '10.039.043 đ',
+    trangThaiHT: 'Chờ QL KD duyệt',
+    loai: ['Hạch toán'],
+    soBanGhi: 1,
+  },
+  {
+    id: 'ht-13-2026',
+    soDeXuat: '—',
+    thang: 'Tháng 8',
+    nam: 2026,
+    dienGiai: '—',
+    soMuc: '—',
+    tongTien: '—',
+    trangThaiDuyet: '—',
+    soHT: '13-2026/HT-HC',
+    tongTienHT: '—',
+    trangThaiHT: 'Chờ PGĐ duyệt',
+    loai: ['Hạch toán'],
+    soBanGhi: 1,
+  },
+  {
+    id: 'ht-12-2026',
+    soDeXuat: '—',
+    thang: 'Tháng 8',
+    nam: 2026,
+    dienGiai: '—',
+    soMuc: '—',
+    tongTien: '—',
+    trangThaiDuyet: '—',
+    soHT: '12-2026/HT-HC',
+    tongTienHT: '—',
+    trangThaiHT: 'Chờ PGĐ duyệt',
+    loai: ['Hạch toán'],
+    soBanGhi: 1,
+  },
+
+  // ── THÁNG 7/2026 ───────────────────────────────────────────────
+  {
+    id: 'dx-01-2026',
+    soDeXuat: '01-2026/ĐXDC-HC',
     thang: 'Tháng 7',
     nam: 2026,
-    loai: ['Hạch toán', 'Chi thực tế', 'Đề xuất duyệt chi'],
-    soBanGhi: 6,
-    tongTien: '68.128.600 đ',
+    dienGiai: 'ĐỀ NGHỊ DUYỆT CHI THÁNG 7',
+    soMuc: 23,
+    tongTien: '10.417.000 đ',
+    trangThaiDuyet: 'Chờ QL KD duyệt',
+    soHT: '+ Lập hạch toán',
+    tongTienHT: '—',
+    trangThaiHT: '—',
+    loai: ['Đề xuất duyệt chi'],
+    soBanGhi: 23,
   },
   {
-    id: 'thang-6',
-    thang: 'Tháng 6',
+    id: 'ht-11-2026',
+    soDeXuat: '—',
+    thang: 'Tháng 7',
     nam: 2026,
-    loai: ['Hạch toán', 'Đề xuất duyệt chi', 'Chi thực tế'],
-    soBanGhi: 6,
-    tongTien: '87.187.352 đ',
+    dienGiai: '—',
+    soMuc: '—',
+    tongTien: '—',
+    trangThaiDuyet: '—',
+    soHT: '11-2026/HT-HC',
+    tongTienHT: '36.248.486 đ',
+    trangThaiHT: 'Chờ QL KD duyệt',
+    loai: ['Hạch toán'],
+    soBanGhi: 1,
   },
   {
-    id: 'thang-5',
-    thang: 'Tháng 5',
+    id: 'ht-05-2026',
+    soDeXuat: '—',
+    thang: 'Tháng 7',
     nam: 2026,
-    loai: ['Hạch toán', 'Đề xuất duyệt chi', 'Chi thực tế'],
-    soBanGhi: 10,
-    tongTien: '356.934.120 đ',
+    dienGiai: '—',
+    soMuc: '—',
+    tongTien: '—',
+    trangThaiDuyet: '—',
+    soHT: '05-2026/HT-HC',
+    tongTienHT: '—',
+    trangThaiHT: 'Chờ QL KD duyệt',
+    loai: ['Hạch toán'],
+    soBanGhi: 1,
   },
   {
-    id: 'thang-4',
-    thang: 'Tháng 4',
+    id: 'dx-29-2026',
+    soDeXuat: '29-2026/ĐXDC-HC',
+    thang: 'Tháng 7',
     nam: 2026,
-    loai: ['Hạch toán', 'Đề xuất duyệt chi', 'Chi thực tế'],
-    soBanGhi: 5,
-    tongTien: '207.485.820 đ',
+    dienGiai: 'CHI PHÍ THỰC TẾ SỬA ĐIỀU HÒA',
+    soMuc: 36,
+    tongTien: '23.050.000 đ',
+    trangThaiDuyet: 'Chờ QL KD duyệt',
+    soHT: '+ Lập hạch toán',
+    tongTienHT: '—',
+    trangThaiHT: '—',
+    loai: ['Đề xuất duyệt chi', 'Chi thực tế'],
+    soBanGhi: 36,
   },
   {
-    id: 'thang-3',
-    thang: 'Tháng 3',
+    id: 'dx-07-2026',
+    soDeXuat: '07-2026/ĐXDC-HC',
+    thang: 'Tháng 7',
     nam: 2026,
-    loai: ['Hạch toán', 'Đề xuất duyệt chi', 'Chi thực tế'],
-    soBanGhi: 5,
-    tongTien: '207.485.820 đ',
+    dienGiai: 'ĐNDC MUA GPS',
+    soMuc: 1,
+    tongTien: '2.740.000 đ',
+    trangThaiDuyet: 'Chờ QL KD duyệt',
+    soHT: '+ Lập hạch toán',
+    tongTienHT: '—',
+    trangThaiHT: '—',
+    loai: ['Đề xuất duyệt chi'],
+    soBanGhi: 1,
   },
   {
-    id: 'thang-2',
-    thang: 'Tháng 2',
+    id: 'dx-25-2026',
+    soDeXuat: '25-2026/ĐXDC-HC',
+    thang: 'Tháng 7',
     nam: 2026,
-    loai: ['Hạch toán', 'Chi thực tế', 'Đề xuất duyệt chi'],
-    soBanGhi: 6,
-    tongTien: '340.263.840,78 đ',
-  },
-  {
-    id: 'thang-1',
-    thang: 'Tháng 1',
-    nam: 2026,
-    loai: ['Hạch toán', 'Đề xuất duyệt chi', 'Chi thực tế'],
-    soBanGhi: 3,
-    tongTien: '139.968.906 đ',
+    dienGiai: 'ĐNDC DỤNG CỤ RỬA XE',
+    soMuc: 8,
+    tongTien: '804.800 đ',
+    trangThaiDuyet: 'Chờ QL KD duyệt',
+    soHT: '+ Lập hạch toán',
+    tongTienHT: '—',
+    trangThaiHT: '—',
+    loai: ['Đề xuất duyệt chi'],
+    soBanGhi: 8,
   },
 ];
 
@@ -89,10 +396,10 @@ type FilterTab = 'Tất cả' | 'Đề xuất duyệt chi' | 'Hạch toán' | 'C
 
 /* ─── Main Component ─────────────────────────────────────────── */
 export default function DeXuatHachToanTab() {
-  const [dataList, setDataList] = useState<MonthRecord[]>(initialMockData);
+  const [dataList, setDataList] = useState<DeXuatHachToanItem[]>(initialMockData as any);
   const [activeFilter, setActiveFilter] = useState<FilterTab>('Tất cả');
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -101,7 +408,9 @@ export default function DeXuatHachToanTab() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<MonthRecord | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<DeXuatHachToanItem | null>(null);
+  const [isLapHachToanOpen, setIsLapHachToanOpen] = useState(false);
+  const [selectedLapHachToanRecord, setSelectedLapHachToanRecord] = useState<DeXuatHachToanItem | null>(null);
 
   const filterTabs: FilterTab[] = ['Tất cả', 'Đề xuất duyệt chi', 'Hạch toán', 'Chi thực tế'];
 
@@ -109,9 +418,14 @@ export default function DeXuatHachToanTab() {
   const filteredData = dataList.filter((row) => {
     const matchesFilter =
       activeFilter === 'Tất cả' || row.loai.includes(activeFilter as any);
+    const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
-      row.thang.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      row.nam.toString().includes(searchQuery);
+      !q ||
+      row.soDeXuat.toLowerCase().includes(q) ||
+      row.dienGiai.toLowerCase().includes(q) ||
+      row.soHT.toLowerCase().includes(q) ||
+      row.thang.toLowerCase().includes(q) ||
+      row.nam.toString().includes(q);
     return matchesFilter && matchesSearch;
   });
 
@@ -136,25 +450,47 @@ export default function DeXuatHachToanTab() {
     setIsAddModalOpen(true);
   };
 
-  const handleOpenEdit = (record: MonthRecord) => {
+  const handleOpenEdit = (record: DeXuatHachToanItem) => {
     setSelectedRecord(record);
     setIsEditModalOpen(true);
   };
 
-  const handleOpenDelete = (record: MonthRecord) => {
+  const handleOpenDelete = (record: DeXuatHachToanItem) => {
     setSelectedRecord(record);
     setIsDeleteModalOpen(true);
   };
 
+  const handleOpenLapHachToan = (record: DeXuatHachToanItem) => {
+    setSelectedLapHachToanRecord(record);
+    setIsLapHachToanOpen(true);
+  };
+
+  const handleConfirmLapHachToan = (updatedRecord: DeXuatHachToanItem) => {
+    setDataList((prev) =>
+      prev.map((item) => (item.id === updatedRecord.id ? updatedRecord : item))
+    );
+  };
+
   const handleCreateRecord = (newRecordData: MonthRecordData) => {
-    const newRecord: MonthRecord = {
-      id: `thang-${Date.now()}`,
-      ...newRecordData,
+    const newRecord: DeXuatHachToanItem = {
+      id: `dx-${Date.now()}`,
+      soDeXuat: `${Math.floor(42 + Math.random() * 50)}-2026/ĐXDC-HC`,
+      dienGiai: `Đề xuất chi phí tháng ${newRecordData.thang}/${newRecordData.nam}`,
+      soMuc: newRecordData.soBanGhi || 1,
+      tongTien: newRecordData.tongTien || '0 đ',
+      trangThaiDuyet: 'Chờ PGĐ duyệt',
+      soHT: '+ Lập hạch toán',
+      tongTienHT: '—',
+      trangThaiHT: '—',
+      thang: newRecordData.thang.startsWith('Tháng') ? newRecordData.thang : `Tháng ${newRecordData.thang}`,
+      nam: newRecordData.nam,
+      loai: newRecordData.loai,
+      soBanGhi: newRecordData.soBanGhi,
     };
     setDataList((prev) => [newRecord, ...prev]);
   };
 
-  const handleUpdateRecord = (updatedRecord: MonthRecord) => {
+  const handleUpdateRecord = (updatedRecord: DeXuatHachToanItem) => {
     setDataList((prev) =>
       prev.map((item) => (item.id === updatedRecord.id ? updatedRecord : item))
     );
@@ -199,7 +535,7 @@ export default function DeXuatHachToanTab() {
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
-              placeholder="Tìm theo tháng, năm..."
+              placeholder="Tìm theo số đề xuất, diễn giải..."
               className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
             />
           </div>
@@ -231,35 +567,86 @@ export default function DeXuatHachToanTab() {
           <table className="w-full text-xs text-left border-collapse">
             <thead className="bg-[#f8fafc] border-b border-slate-200/90 sticky top-0 z-10">
               <tr>
+                {/* SỐ ĐỀ XUẤT */}
+                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap">
+                  <div className="flex items-center gap-1 cursor-pointer select-none">
+                    <span>SỐ ĐỀ XUẤT</span>
+                    <IconSelector size={13} className="text-slate-400" />
+                  </div>
+                </th>
+
+                {/* THÁNG */}
                 <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap">
                   <div className="flex items-center gap-1 cursor-pointer select-none">
                     <span>THÁNG</span>
                     <IconSelector size={13} className="text-slate-400" />
                   </div>
                 </th>
-                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap text-center">
-                  THAO TÁC
-                </th>
+
+                {/* NĂM */}
                 <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap">
                   <div className="flex items-center gap-1 cursor-pointer select-none">
                     <span>NĂM</span>
-                    <IconArrowDown size={13} className="text-slate-500" />
-                  </div>
-                </th>
-                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap">
-                  LOẠI
-                </th>
-                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap text-right">
-                  <div className="flex items-center justify-end gap-1 cursor-pointer select-none">
-                    <span>SỐ BẢN GHI</span>
                     <IconSelector size={13} className="text-slate-400" />
                   </div>
                 </th>
+
+                {/* DIỄN GIẢI */}
+                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap min-w-[200px]">
+                  DIỄN GIẢI
+                </th>
+
+                {/* SỐ MỤC */}
+                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap text-center">
+                  <div className="flex items-center justify-center gap-1 cursor-pointer select-none">
+                    <span>SỐ MỤC</span>
+                    <IconSelector size={13} className="text-slate-400" />
+                  </div>
+                </th>
+
+                {/* TỔNG TIỀN */}
                 <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap text-right">
                   <div className="flex items-center justify-end gap-1 cursor-pointer select-none">
                     <span>TỔNG TIỀN</span>
                     <IconSelector size={13} className="text-slate-400" />
                   </div>
+                </th>
+
+                {/* TRẠNG THÁI DUYỆT */}
+                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap text-center">
+                  <div className="flex items-center justify-center gap-1 cursor-pointer select-none">
+                    <span>TRẠNG THÁI DUYỆT</span>
+                    <IconSelector size={13} className="text-slate-400" />
+                  </div>
+                </th>
+
+                {/* SỐ HT */}
+                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap">
+                  <div className="flex items-center gap-1 cursor-pointer select-none">
+                    <span>SỐ HT</span>
+                    <IconSelector size={13} className="text-slate-400" />
+                  </div>
+                </th>
+
+                {/* TỔNG TIỀN HT */}
+                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap text-right">
+                  <div className="flex items-center justify-end gap-1 cursor-pointer select-none">
+                    <span>TỔNG TIỀN HT</span>
+                    <IconSelector size={13} className="text-slate-400" />
+                  </div>
+                </th>
+
+                {/* TRẠNG THÁI HT */}
+                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap text-center">
+                  <div className="flex items-center justify-center gap-1 cursor-pointer select-none">
+                    <span>TRẠNG THÁI HT</span>
+                    <IconSelector size={13} className="text-slate-400" />
+                  </div>
+                </th>
+
+                {/* THAO TÁC */}
+                <th className="py-3 px-5 font-semibold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap text-center">
+                  THAO TÁC
                 </th>
               </tr>
             </thead>
@@ -269,22 +656,117 @@ export default function DeXuatHachToanTab() {
                   key={row.id}
                   className="hover:bg-slate-50/80 transition-colors"
                 >
-                  {/* THÁNG */}
+                  {/* SỐ ĐỀ XUẤT */}
                   <td className="py-3.5 px-5 font-semibold text-[#406c89] whitespace-nowrap">
+                    {row.soDeXuat !== '—' ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEdit(row)}
+                        className="text-[#6366f1] hover:text-[#4f46e5] hover:underline cursor-pointer font-semibold"
+                      >
+                        {row.soDeXuat}
+                      </button>
+                    ) : (
+                      <span className="text-slate-400 italic">—</span>
+                    )}
+                  </td>
+
+                  {/* THÁNG */}
+                  <td className="py-3.5 px-5 text-slate-700 font-medium whitespace-nowrap">
                     {row.thang}
+                  </td>
+
+                  {/* NĂM */}
+                  <td className="py-3.5 px-5 text-slate-600 font-medium whitespace-nowrap">
+                    {row.nam}
+                  </td>
+
+                  {/* DIỄN GIẢI */}
+                  <td className="py-3.5 px-5 text-slate-600">
+                    {row.dienGiai}
+                  </td>
+
+                  {/* SỐ MỤC */}
+                  <td className="py-3.5 px-5 text-slate-700 font-medium text-center whitespace-nowrap">
+                    {row.soMuc}
+                  </td>
+
+                  {/* TỔNG TIỀN */}
+                  <td className="py-3.5 px-5 text-slate-900 font-bold text-right whitespace-nowrap">
+                    {row.tongTien}
+                  </td>
+
+                  {/* TRẠNG THÁI DUYỆT */}
+                  <td className="py-3.5 px-5 text-center whitespace-nowrap">
+                    {row.trangThaiDuyet === '—' ? (
+                      <span className="text-slate-400 italic">—</span>
+                    ) : (
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-normal border ${
+                          row.trangThaiDuyet.includes('đã duyệt')
+                            ? 'bg-[#ecfdf5] text-[#059669] border-[#a7f3d0]'
+                            : row.trangThaiDuyet.includes('PGĐ')
+                            ? 'bg-[#f5f3ff] text-[#7c3aed] border-[#ddd6fe]'
+                            : 'bg-[#fffbe6] text-[#d97706] border-[#fef08a]'
+                        }`}
+                      >
+                        {row.trangThaiDuyet}
+                      </span>
+                    )}
+                  </td>
+
+                  {/* SỐ HT */}
+                  <td className="py-3.5 px-5 text-slate-700 font-medium whitespace-nowrap">
+                    {row.soHT === '+ Lập hạch toán' ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenLapHachToan(row)}
+                        className="px-2 py-0.5 rounded text-[10.5px] bg-[#fffbe6] text-[#d97706] border border-[#fde047] font-medium hover:bg-[#fef9c3] transition-colors cursor-pointer"
+                        title="Lập chứng từ hạch toán"
+                      >
+                        + Lập hạch toán
+                      </button>
+                    ) : row.soHT !== '—' ? (
+                      <span className="font-semibold text-slate-800">{row.soHT}</span>
+                    ) : (
+                      <span className="text-slate-400 italic">—</span>
+                    )}
+                  </td>
+
+                  {/* TỔNG TIỀN HT */}
+                  <td className="py-3.5 px-5 text-slate-900 font-bold text-right whitespace-nowrap">
+                    {row.tongTienHT}
+                  </td>
+
+                  {/* TRẠNG THÁI HT */}
+                  <td className="py-3.5 px-5 text-center whitespace-nowrap">
+                    {row.trangThaiHT === '—' ? (
+                      <span className="text-slate-400 italic">—</span>
+                    ) : (
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-normal border ${
+                          row.trangThaiHT.includes('đã duyệt')
+                            ? 'bg-[#ecfdf5] text-[#059669] border-[#a7f3d0]'
+                            : row.trangThaiHT.includes('PGĐ')
+                            ? 'bg-[#f5f3ff] text-[#7c3aed] border-[#ddd6fe]'
+                            : 'bg-[#fffbe6] text-[#d97706] border-[#fef08a]'
+                        }`}
+                      >
+                        {row.trangThaiHT}
+                      </span>
+                    )}
                   </td>
 
                   {/* THAO TÁC */}
                   <td className="py-3.5 px-5 whitespace-nowrap">
                     <div className="flex items-center justify-center gap-2">
-                      {/* Icon Thêm */}
+                      {/* Icon Sao chép */}
                       <button
                         type="button"
-                        onClick={handleOpenAdd}
-                        className="p-1 rounded hover:bg-emerald-50 text-emerald-500 hover:text-emerald-600 transition-colors cursor-pointer"
-                        title="Thêm đợt hạch toán mới"
+                        className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                        title="Sao chép bản ghi"
                       >
-                        <IconPlus size={15} className="stroke-[2.5]" />
+                        <IconCopy size={15} />
                       </button>
 
                       {/* Icon Sửa */}
@@ -308,63 +790,12 @@ export default function DeXuatHachToanTab() {
                       </button>
                     </div>
                   </td>
-
-                  {/* NĂM */}
-                  <td className="py-3.5 px-5 text-slate-600 font-medium whitespace-nowrap">
-                    {row.nam}
-                  </td>
-
-                  {/* LOẠI (Badges) */}
-                  <td className="py-3.5 px-5">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {row.loai.map((item) => {
-                        if (item === 'Đề xuất duyệt chi') {
-                          return (
-                            <span
-                              key={item}
-                              className="px-2.5 py-0.5 rounded-full text-[10.5px] font-normal bg-[#eef2ff] text-[#3b51b5] border border-[#c7d2fe]"
-                            >
-                              Đề xuất duyệt chi
-                            </span>
-                          );
-                        }
-                        if (item === 'Hạch toán') {
-                          return (
-                            <span
-                              key={item}
-                              className="px-2.5 py-0.5 rounded-full text-[10.5px] font-normal bg-[#fffbe6] text-[#d97706] border border-[#fef08a]"
-                            >
-                              Hạch toán
-                            </span>
-                          );
-                        }
-                        return (
-                          <span
-                            key={item}
-                            className="px-2.5 py-0.5 rounded-full text-[10.5px] font-normal bg-[#fcf0ff] text-[#c026d3] border border-[#f5d0fe]"
-                          >
-                            Chi thực tế
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </td>
-
-                  {/* SỐ BẢN GHI */}
-                  <td className="py-3.5 px-5 text-slate-700 font-medium text-right whitespace-nowrap">
-                    {row.soBanGhi}
-                  </td>
-
-                  {/* TỔNG TIỀN */}
-                  <td className="py-3.5 px-5 text-slate-900 font-bold text-right whitespace-nowrap">
-                    {row.tongTien}
-                  </td>
                 </tr>
               ))}
 
               {filteredData.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400">
+                  <td colSpan={11} className="py-8 text-center text-slate-400">
                     Không tìm thấy dữ liệu phù hợp.
                   </td>
                 </tr>
@@ -464,6 +895,16 @@ export default function DeXuatHachToanTab() {
         onSubmit={handleUpdateRecord}
       />
 
+      <LapHachToanModal
+        isOpen={isLapHachToanOpen}
+        record={selectedLapHachToanRecord}
+        onClose={() => {
+          setIsLapHachToanOpen(false);
+          setSelectedLapHachToanRecord(null);
+        }}
+        onSubmit={handleConfirmLapHachToan}
+      />
+
       <XoaDeXuatModal
         isOpen={isDeleteModalOpen}
         record={selectedRecord}
@@ -476,4 +917,3 @@ export default function DeXuatHachToanTab() {
     </div>
   );
 }
-

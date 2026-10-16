@@ -2,15 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  IconX,
-  IconPencil,
-  IconCheck,
-  IconFileText,
-  IconReceipt,
+  IconPlus,
+  IconCalendar,
+  IconChevronDown,
+  IconTrash,
 } from '@tabler/icons-react';
 import type { DeXuatHachToanItem } from '../../types';
 
-export type MonthRecord = DeXuatHachToanItem;
+export interface TableItemRow {
+  id: string;
+  dienGiai: string;
+  sl: number | string;
+  dv: string;
+  donGia: number | string;
+  dinhKhoan?: string;
+  ngayChi?: string;
+  hanChi?: string;
+}
 
 interface SuaDeXuatModalProps {
   isOpen: boolean;
@@ -25,266 +33,478 @@ export default function SuaDeXuatModal({
   onClose,
   onSubmit,
 }: SuaDeXuatModalProps) {
-  const [soDeXuat, setSoDeXuat] = useState('');
-  const [thang, setThang] = useState('Tháng 10');
   const [nam, setNam] = useState<number>(2026);
-  const [dienGiai, setDienGiai] = useState('');
-  const [soMuc, setSoMuc] = useState<number | string>(1);
-  const [tongTien, setTongTien] = useState('');
-  const [trangThaiDuyet, setTrangThaiDuyet] = useState('Chờ PGĐ duyệt');
-  const [soHT, setSoHT] = useState('');
-  const [tongTienHT, setTongTienHT] = useState('—');
-  const [trangThaiHT, setTrangThaiHT] = useState('—');
+  const [thang, setThang] = useState<string>('8');
+  const [loai, setLoai] = useState<string>('Hạch toán');
+  const [soDeXuat, setSoDeXuat] = useState<string>('12-2026/HT-HC');
+  const [nguoiDeNghi, setNguoiDeNghi] = useState<string>('Trần Thị Quỳnh Xuân');
+  const [tieuDe, setTieuDe] = useState<string>('HẠCH TOÁN XĂNG XE Ô TÔ');
+  const [ghiChu, setGhiChu] = useState<string>('Ngày 12/08/2026');
+
+  const [items, setItems] = useState<TableItemRow[]>([
+    {
+      id: 'row-1',
+      dienGiai: 'Xăng xe 30H-315.33',
+      sl: 1,
+      dv: 'Lần',
+      donGia: 800000,
+      dinhKhoan: '',
+      ngayChi: '',
+      hanChi: '800.000',
+    },
+  ]);
 
   useEffect(() => {
     if (record) {
-      setSoDeXuat(record.soDeXuat ?? '');
-      setThang(record.thang ?? 'Tháng 10');
-      setNam(record.nam ?? 2026);
-      setDienGiai(record.dienGiai ?? '');
-      setSoMuc(record.soMuc ?? 1);
-      setTongTien(record.tongTien ?? '');
-      setTrangThaiDuyet(record.trangThaiDuyet ?? 'Chờ PGĐ duyệt');
-      setSoHT(record.soHT ?? '');
-      setTongTienHT(record.tongTienHT ?? '—');
-      setTrangThaiHT(record.trangThaiHT ?? '—');
+      setNam(record.nam || 2026);
+      const cleanThang = (record.thang || '8').replace('Tháng ', '').trim();
+      setThang(cleanThang || '8');
+
+      const loaiVal =
+        record.loai && record.loai.length > 0
+          ? record.loai.includes('Hạch toán')
+            ? 'Hạch toán'
+            : record.loai[0]
+          : 'Hạch toán';
+      setLoai(loaiVal);
+
+      const soDXVal =
+        record.soDeXuat && record.soDeXuat !== '—'
+          ? record.soDeXuat
+          : record.soHT && record.soHT !== '—' && record.soHT !== '+ Lập hạch toán'
+          ? record.soHT
+          : '12-2026/HT-HC';
+      setSoDeXuat(soDXVal);
+
+      if (record.dienGiai && record.dienGiai !== '—') {
+        setTieuDe(record.dienGiai);
+      } else {
+        setTieuDe('HẠCH TOÁN XĂNG XE Ô TÔ');
+      }
+
+      const parsedDonGia =
+        record.tongTien && record.tongTien !== '—'
+          ? Number(record.tongTien.replace(/\D/g, '')) || 800000
+          : 800000;
+
+      setItems([
+        {
+          id: `row-${Date.now()}`,
+          dienGiai:
+            record.dienGiai && record.dienGiai !== '—'
+              ? record.dienGiai
+              : 'Xăng xe 30H-315.33',
+          sl: record.soMuc && record.soMuc !== '—' ? Number(record.soMuc) || 1 : 1,
+          dv: 'Lần',
+          donGia: parsedDonGia,
+          dinhKhoan: '',
+          ngayChi: '',
+          hanChi: parsedDonGia.toLocaleString('vi-VN'),
+        },
+      ]);
     }
   }, [record]);
 
   if (!isOpen || !record) return null;
 
+  const handleAddItem = () => {
+    setItems((prev) => [
+      ...prev,
+      {
+        id: `row-${Date.now()}`,
+        dienGiai: '',
+        sl: 1,
+        dv: 'Lần',
+        donGia: 0,
+        dinhKhoan: '',
+        ngayChi: '',
+        hanChi: '',
+      },
+    ]);
+  };
+
+  const handleAddGroup = () => {
+    setItems((prev) => [
+      ...prev,
+      {
+        id: `group-${Date.now()}`,
+        dienGiai: `Nhóm ${prev.length + 1}`,
+        sl: 1,
+        dv: '',
+        donGia: 0,
+        dinhKhoan: '',
+        ngayChi: '',
+        hanChi: '',
+      },
+    ]);
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleItemChange = (
+    id: string,
+    field: keyof TableItemRow,
+    value: string | number
+  ) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+    );
+  };
+
+  const calculateTotal = () => {
+    return items.reduce((sum, item) => {
+      const sl = Number(item.sl) || 0;
+      const donGia =
+        typeof item.donGia === 'number'
+          ? item.donGia
+          : Number(String(item.donGia).replace(/\D/g, '')) || 0;
+      return sum + sl * donGia;
+    }, 0);
+  };
+
+  const totalSum = calculateTotal();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!record) return;
 
-    const updated: DeXuatHachToanItem = {
+    const formattedTongTien =
+      totalSum > 0 ? `${totalSum.toLocaleString('vi-VN')} đ` : record.tongTien;
+
+    const updatedData: DeXuatHachToanItem = {
       ...record,
-      soDeXuat: soDeXuat.trim(),
-      thang: thang.trim(),
+      soDeXuat: soDeXuat.trim() || record.soDeXuat,
+      thang: thang.startsWith('Tháng') ? thang.trim() : `Tháng ${thang.trim()}`,
       nam: Number(nam) || record.nam,
-      dienGiai: dienGiai.trim(),
-      soMuc: Number(soMuc) || record.soMuc,
-      tongTien: tongTien.trim(),
-      trangThaiDuyet,
-      soHT: soHT.trim() || '+ Lập hạch toán',
-      tongTienHT: tongTienHT.trim(),
-      trangThaiHT,
+      dienGiai: tieuDe.trim() || record.dienGiai,
+      soMuc: items.length,
+      tongTien: formattedTongTien,
+      loai: [loai],
+      soBanGhi: items.length,
     };
 
-    onSubmit(updated);
+    onSubmit(updatedData);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs p-4 sm:p-6 animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl overflow-hidden flex flex-col max-h-[92vh]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-100 bg-slate-50/70">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-indigo-50 text-[#6366f1] border border-indigo-200">
-              <IconPencil size={20} />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-800">
-                Chỉnh sửa đề xuất / hạch toán
-              </h2>
-              <p className="text-xs text-slate-500">
-                Cập nhật thông tin chi tiết của đề xuất <span className="font-semibold text-slate-700">{record.soDeXuat}</span>
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            type="button"
-            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-          >
-            <IconX size={18} />
-          </button>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-2xs p-3 sm:p-5 animate-in fade-in duration-150"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="bg-white rounded-lg shadow-2xl border border-slate-200 w-full max-w-[960px] overflow-hidden flex flex-col max-h-[94vh]">
+        {/* Header - Trùng khớp hình ảnh */}
+        <div className="px-6 pt-5 pb-3">
+          <h2 className="text-[15px] font-bold text-slate-800">
+            Chỉnh sửa đề nghị/hạch toán
+          </h2>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4 text-xs overflow-y-auto flex-1">
-          {/* Section 1: Thông tin đề xuất */}
-          <div className="space-y-3">
-            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <IconFileText size={14} className="text-[#406c89]" />
-              <span>Thông tin đề xuất duyệt chi</span>
+        <form onSubmit={handleSubmit} className="px-6 pb-5 space-y-3.5 text-xs overflow-y-auto flex-1">
+          {/* Row 1: Năm *, Tháng *, Loại, Số đề xuất */}
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3.5">
+            <div>
+              <label className="block font-medium text-slate-700 mb-1">
+                Năm <span className="text-slate-700">*</span>
+              </label>
+              <input
+                type="number"
+                required
+                value={nam}
+                onChange={(e) => setNam(Number(e.target.value))}
+                className="w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Số đề xuất <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={soDeXuat}
-                  onChange={(e) => setSoDeXuat(e.target.value)}
-                  placeholder="VD: 41-2026/ĐXDC-HC"
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-[#6366f1] focus:outline-none focus:ring-1 focus:ring-[#406c89]"
-                />
-              </div>
+            <div>
+              <label className="block font-medium text-slate-700 mb-1">
+                Tháng <span className="text-slate-700">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={thang}
+                onChange={(e) => setThang(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Tháng áp dụng <span className="text-rose-500">*</span>
-                </label>
+            <div>
+              <label className="block font-medium text-slate-700 mb-1">Loại</label>
+              <div className="relative">
                 <select
-                  value={thang}
-                  onChange={(e) => setThang(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer"
+                  value={loai}
+                  onChange={(e) => setLoai(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 appearance-none cursor-pointer pr-8"
                 >
-                  {Array.from({ length: 12 }, (_, i) => `Tháng ${i + 1}`).map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
+                  <option value="Hạch toán">Hạch toán</option>
+                  <option value="Đề nghị chi">Đề nghị chi</option>
+                  <option value="Chi thực tế">Chi thực tế</option>
                 </select>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Năm <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  required
-                  value={nam}
-                  onChange={(e) => setNam(Number(e.target.value))}
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
+                <IconChevronDown
+                  size={15}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
-                Diễn giải nội dung <span className="text-rose-500">*</span>
-              </label>
-              <textarea
-                rows={2}
-                required
-                value={dienGiai}
-                onChange={(e) => setDienGiai(e.target.value)}
-                placeholder="Nhập nội dung diễn giải của đề xuất chi..."
-                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#406c89] resize-none"
+              <label className="block font-medium text-slate-700 mb-1">Số đề xuất</label>
+              <input
+                type="text"
+                value={soDeXuat}
+                onChange={(e) => setSoDeXuat(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          {/* Row 2: Người đề nghị, Tên sheet/Tiêu đề */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+            <div className="sm:col-span-4">
+              <label className="block font-medium text-slate-700 mb-1">Người đề nghị</label>
+              <input
+                type="text"
+                value={nguoiDeNghi}
+                onChange={(e) => setNguoiDeNghi(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Số mục <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  required
-                  value={soMuc}
-                  onChange={(e) => setSoMuc(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Tổng tiền đề xuất <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={tongTien}
-                  onChange={(e) => setTongTien(e.target.value)}
-                  placeholder="VD: 4.000.000 đ"
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-[#406c89] focus:outline-none focus:ring-1 focus:ring-[#406c89]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Trạng thái duyệt đề xuất
-                </label>
-                <select
-                  value={trangThaiDuyet}
-                  onChange={(e) => setTrangThaiDuyet(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer"
-                >
-                  <option value="Chờ PGĐ duyệt">Chờ PGĐ duyệt</option>
-                  <option value="PGĐ đã duyệt">PGĐ đã duyệt</option>
-                  <option value="Chờ QL KD duyệt">Chờ QL KD duyệt</option>
-                  <option value="Từ chối">Từ chối</option>
-                </select>
-              </div>
+            <div className="sm:col-span-8">
+              <label className="block font-medium text-slate-700 mb-1">Tên sheet/Tiêu đề</label>
+              <input
+                type="text"
+                value={tieuDe}
+                onChange={(e) => setTieuDe(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
             </div>
           </div>
 
-          {/* Section 2: Thông tin hạch toán liên kết */}
-          <div className="space-y-3 pt-3 border-t border-slate-200/80">
-            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <IconReceipt size={14} className="text-amber-600" />
-              <span>Thông tin hạch toán</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Số HT (Chứng từ HT)
-                </label>
-                <input
-                  type="text"
-                  value={soHT}
-                  onChange={(e) => setSoHT(e.target.value)}
-                  placeholder="VD: 41-2026/HT-HC hoặc + Lập hạch toán"
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Tổng tiền HT
-                </label>
-                <input
-                  type="text"
-                  value={tongTienHT}
-                  onChange={(e) => setTongTienHT(e.target.value)}
-                  placeholder="VD: 4.000.000 đ hoặc —"
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Trạng thái HT
-                </label>
-                <select
-                  value={trangThaiHT}
-                  onChange={(e) => setTrangThaiHT(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer"
-                >
-                  <option value="—">— (Chưa lập hạch toán)</option>
-                  <option value="Chờ QL KD duyệt">Chờ QL KD duyệt</option>
-                  <option value="Chờ PGĐ duyệt">Chờ PGĐ duyệt</option>
-                  <option value="PGĐ đã duyệt">PGĐ đã duyệt</option>
-                </select>
-              </div>
+          {/* Row 3: Ghi chú */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label className="block font-medium text-slate-700 mb-1">Ghi chú</label>
+              <input
+                type="text"
+                value={ghiChu}
+                onChange={(e) => setGhiChu(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
             </div>
           </div>
 
-          {/* Footer Actions */}
-          <div className="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
+          {/* Table chi tiết */}
+          <div className="border border-slate-200 rounded overflow-x-auto mt-2">
+            <table className="w-full text-xs text-left border-collapse min-w-[850px]">
+              <thead className="bg-[#fcfdfe] border-b border-slate-200 text-slate-700 select-none">
+                <tr>
+                  <th className="py-2 px-2.5 font-bold text-center w-12 border-r border-slate-200">
+                    STT
+                  </th>
+                  <th className="py-2 px-3 font-bold border-r border-slate-200 min-w-[210px]">
+                    Diễn giải
+                  </th>
+                  <th className="py-2 px-2 font-bold text-center w-14 border-r border-slate-200">
+                    SL
+                  </th>
+                  <th className="py-2 px-2 font-bold text-center w-16 border-r border-slate-200">
+                    ĐV
+                  </th>
+                  <th className="py-2 px-3 font-bold text-center w-28 border-r border-slate-200">
+                    Đơn giá
+                  </th>
+                  <th className="py-2 px-3 font-bold text-center w-28 border-r border-slate-200">
+                    Thành tiền
+                  </th>
+                  <th className="py-2 px-2.5 font-bold text-center w-24 border-r border-slate-200">
+                    Định khoản
+                  </th>
+                  <th className="py-2 px-3 font-bold text-center w-36 border-r border-slate-200">
+                    Ngày chi (dự kiến)
+                  </th>
+                  <th className="py-2 px-3 font-bold text-center w-28 border-r border-slate-200">
+                    Hạn chi
+                  </th>
+                  <th className="py-2 px-2 w-8 text-center"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 bg-white">
+                {items.map((item, index) => {
+                  const slNum = Number(item.sl) || 0;
+                  const donGiaNum =
+                    typeof item.donGia === 'number'
+                      ? item.donGia
+                      : Number(String(item.donGia).replace(/\D/g, '')) || 0;
+                  const rowThanhTien = slNum * donGiaNum;
+
+                  return (
+                    <tr key={item.id} className="hover:bg-slate-50/50">
+                      <td className="py-1.5 px-2 text-center text-slate-700 border-r border-slate-200">
+                        {index + 1}
+                      </td>
+                      <td className="py-1.5 px-2 border-r border-slate-200">
+                        <input
+                          type="text"
+                          value={item.dienGiai}
+                          onChange={(e) =>
+                            handleItemChange(item.id, 'dienGiai', e.target.value)
+                          }
+                          className="w-full border border-slate-300 rounded px-2 py-1 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </td>
+                      <td className="py-1.5 px-1.5 border-r border-slate-200">
+                        <input
+                          type="number"
+                          min={1}
+                          value={item.sl}
+                          onChange={(e) =>
+                            handleItemChange(item.id, 'sl', e.target.value)
+                          }
+                          className="w-full border border-slate-300 rounded px-1.5 py-1 text-xs text-slate-800 text-center focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </td>
+                      <td className="py-1.5 px-1.5 border-r border-slate-200">
+                        <input
+                          type="text"
+                          value={item.dv}
+                          onChange={(e) =>
+                            handleItemChange(item.id, 'dv', e.target.value)
+                          }
+                          className="w-full border border-slate-300 rounded px-1.5 py-1 text-xs text-slate-800 text-center focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </td>
+                      <td className="py-1.5 px-2 border-r border-slate-200">
+                        <input
+                          type="text"
+                          value={
+                            typeof item.donGia === 'number'
+                              ? item.donGia.toLocaleString('vi-VN')
+                              : item.donGia
+                          }
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            handleItemChange(
+                              item.id,
+                              'donGia',
+                              val ? Number(val) : 0
+                            );
+                          }}
+                          className="w-full border border-slate-300 rounded px-2 py-1 text-xs text-slate-800 text-right focus:outline-none focus:ring-1 focus:ring-indigo-500 font-normal"
+                        />
+                      </td>
+                      <td className="py-1.5 px-3 text-right font-normal text-slate-800 border-r border-slate-200 whitespace-nowrap">
+                        {rowThanhTien.toLocaleString('vi-VN')}
+                      </td>
+                      <td className="py-1.5 px-2 border-r border-slate-200">
+                        <input
+                          type="text"
+                          value={item.dinhKhoan || ''}
+                          onChange={(e) =>
+                            handleItemChange(item.id, 'dinhKhoan', e.target.value)
+                          }
+                          className="w-full border border-slate-300 rounded px-2 py-1 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </td>
+                      <td className="py-1.5 px-2 border-r border-slate-200">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="mm/dd/yyyy"
+                            value={item.ngayChi || ''}
+                            onChange={(e) =>
+                              handleItemChange(item.id, 'ngayChi', e.target.value)
+                            }
+                            className="w-full border border-slate-300 rounded px-2 py-1 pr-7 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          />
+                          <IconCalendar
+                            size={14}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+                          />
+                        </div>
+                      </td>
+                      <td className="py-1.5 px-2 border-r border-slate-200">
+                        <input
+                          type="text"
+                          value={item.hanChi || ''}
+                          onChange={(e) =>
+                            handleItemChange(item.id, 'hanChi', e.target.value)
+                          }
+                          className="w-full border border-slate-300 rounded px-2 py-1 text-xs text-slate-800 text-right focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </td>
+                      <td className="py-1.5 px-1 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="text-slate-400 hover:text-rose-500 transition-colors p-1 cursor-pointer"
+                          title="Xóa dòng"
+                        >
+                          <IconTrash size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+
+                {/* Dòng TỔNG - chuẩn hình ảnh */}
+                <tr className="bg-white border-t border-slate-200">
+                  <td
+                    colSpan={5}
+                    className="py-2 px-3 text-right font-bold text-slate-800 border-r border-slate-200"
+                  >
+                    TỔNG:
+                  </td>
+                  <td className="py-2 px-3 text-right font-bold text-slate-800 border-r border-slate-200 whitespace-nowrap">
+                    {totalSum.toLocaleString('vi-VN')}
+                  </td>
+                  <td colSpan={4} className="border-r border-slate-200"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Các nút thêm hạng mục / nhóm - chuẩn hình ảnh */}
+          <div className="flex items-center gap-2 pt-1">
+            <button
+              type="button"
+              onClick={handleAddItem}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-xs rounded-md hover:bg-slate-50 transition-colors cursor-pointer font-medium"
+            >
+              <IconPlus size={14} />
+              <span>Thêm hạng mục</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAddGroup}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-xs rounded-md hover:bg-slate-50 transition-colors cursor-pointer font-medium"
+            >
+              <IconPlus size={14} />
+              <span>Thêm nhóm (I, II, III...)</span>
+            </button>
+          </div>
+
+          {/* Footer Actions - chuẩn hình ảnh */}
+          <div className="pt-3 flex items-center justify-end gap-2.5 border-t border-slate-200 mt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+              className="px-4 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-[#406c89] hover:bg-[#345870] rounded-lg shadow-sm transition-colors cursor-pointer"
+              className="px-5 py-1.5 text-xs font-medium text-white bg-[#2b3696] hover:bg-[#202977] rounded-md transition-colors cursor-pointer"
             >
-              <IconCheck size={15} />
-              <span>Lưu thay đổi</span>
+              Lưu
             </button>
           </div>
         </form>

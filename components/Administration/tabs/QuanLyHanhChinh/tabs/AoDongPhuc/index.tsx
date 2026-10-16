@@ -2,9 +2,8 @@
 
 import React, { useState } from 'react';
 import {
-  IconShirt,
   IconSearch,
-  IconDownload,
+  IconChartBar,
   IconPlus,
   IconChevronDown,
   IconChevronLeft,
@@ -16,7 +15,7 @@ import SuaAoDongPhucModal, { type AoDongPhucRecord } from './modals/SuaAoDongPhu
 import TaoMoiAoDongPhucModal from './modals/TaoMoiAoDongPhucModal';
 
 /* ─── Mock data ─────────────────────────────────────────────── */
-const PHONG_BAN = ['Tất cả phòng ban', 'P.Kinh doanh', 'P.Kỹ thuật', 'P.Nhân sự', 'P.Tài chính', 'P.Hành chính'];
+const YEARS = ['Tất cả năm', '2026', '2025', '2024', '2023', '2022'];
 
 const mockAoDongPhuc = [
   // ── NĂM 2026 ──────────────────────────────────────────────────────────────
@@ -111,17 +110,23 @@ const mockAoDongPhuc = [
 /* ─── Component ─────────────────────────────────────────────── */
 export default function AoDongPhucTab() {
   const [search, setSearch]         = useState('');
-  const [phongBan, setPhongBan]     = useState('Tất cả phòng ban');
+  const [namFilter, setNamFilter]   = useState('Tất cả năm');
   const [page, setPage]             = useState(1);
   const [editRecord, setEditRecord] = useState<AoDongPhucRecord | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [createDefault, setCreateDefault] = useState<Partial<AoDongPhucRecord> | null>(null);
   const PAGE_SIZE = 15;
 
-  const filtered = mockAoDongPhuc.filter((v) =>
-    v.ten_san_pham.toLowerCase().includes(search.toLowerCase()) ||
-    v.ma.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = mockAoDongPhuc.filter((v) => {
+    const q = search.trim().toLowerCase();
+    const matchSearch =
+      !q ||
+      v.ten_san_pham.toLowerCase().includes(q) ||
+      v.ma.toLowerCase().includes(q) ||
+      v.size.toLowerCase().includes(q);
+    const matchNam = namFilter === 'Tất cả năm' || String(v.nam) === namFilter;
+    return matchSearch && matchNam;
+  });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage   = Math.min(page, totalPages);
@@ -130,55 +135,61 @@ export default function AoDongPhucTab() {
   const handleSearch = (val: string) => { setSearch(val); setPage(1); };
 
   return (
-    <>
-      {/* ── Header bar ── */}
-      <div className="flex items-center gap-3 shrink-0 flex-wrap">
-        <div className="flex items-center gap-2 mr-auto">
-          <IconShirt size={18} className="text-[#406c89] shrink-0" />
-          <span className="text-sm font-bold text-slate-700 whitespace-nowrap">
-            Quản lý Áo đồng phục — Cấp phát &amp; Khái toán
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors font-medium">
-            <IconDownload size={13} />
-            Xuất Excel
-          </button>
-          <button
-            onClick={() => {
-              setCreateDefault(null);
-              setIsCreateOpen(true);
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#406c89] text-white rounded-lg hover:bg-[#355a75] transition-colors font-semibold"
-          >
-            <IconPlus size={13} />
-            Đăng ký đồng phục
-          </button>
-        </div>
-      </div>
-
-      {/* ── Search + Filter row ── */}
-      <div className="flex items-center gap-2 shrink-0">
+    <div className="flex-1 flex flex-col overflow-hidden gap-3.5 pt-2.5 pb-1">
+      {/* ── Toolbar: Search + Filter năm + Báo cáo tổng hợp + Tạo mới ── */}
+      <div className="flex items-center gap-3 shrink-0">
+        {/* Search */}
         <div className="relative flex-1">
           <IconSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Tìm theo tên sản phẩm, mã..."
-            className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#406c89]/30"
+            placeholder="Tìm theo tên, mã, size..."
+            className="w-full pl-9 pr-3.5 py-2 text-xs bg-white border border-slate-200 rounded-lg text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
           />
         </div>
+
+        {/* Dropdown Năm */}
         <div className="relative shrink-0">
           <select
-            value={phongBan}
-            onChange={(e) => setPhongBan(e.target.value)}
-            className="appearance-none pl-3 pr-8 py-2 text-xs border border-slate-200 rounded-lg bg-white text-slate-600 font-medium focus:outline-none focus:ring-2 focus:ring-[#406c89]/30 cursor-pointer"
+            value={namFilter}
+            onChange={(e) => {
+              setNamFilter(e.target.value);
+              setPage(1);
+            }}
+            className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-white border border-slate-200 rounded-lg text-slate-700 font-normal focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer"
           >
-            {PHONG_BAN.map((n) => <option key={n}>{n}</option>)}
+            {YEARS.map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
           </select>
-          <IconChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <IconChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
         </div>
+
+        {/* Báo cáo tổng hợp */}
+        <button
+          type="button"
+          onClick={() => {
+            console.log('Báo cáo tổng hợp');
+          }}
+          className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-normal rounded-lg hover:bg-slate-50 transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
+        >
+          <IconChartBar size={14} className="text-slate-500" />
+          <span>Báo cáo tổng hợp</span>
+        </button>
+
+        {/* Tạo mới */}
+        <button
+          type="button"
+          onClick={() => {
+            setCreateDefault(null);
+            setIsCreateOpen(true);
+          }}
+          className="flex items-center gap-1.5 px-4 py-2 bg-[#406c89] text-white text-xs font-medium rounded-lg hover:bg-[#345870] transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
+        >
+          <IconPlus size={14} />
+          <span>Tạo mới</span>
+        </button>
       </div>
 
       {/* ── Table ── */}
@@ -325,6 +336,6 @@ export default function AoDongPhucTab() {
           setCreateDefault(null);
         }}
       />
-    </>
+    </div>
   );
 }

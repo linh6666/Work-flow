@@ -13,6 +13,7 @@ import {
 } from '@tabler/icons-react';
 import SuaAoDongPhucModal, { type AoDongPhucRecord } from './modals/SuaAoDongPhucModal';
 import TaoMoiAoDongPhucModal from './modals/TaoMoiAoDongPhucModal';
+import BaoCaoTongHopView from './views/BaoCaoTongHop';
 
 /* ─── Mock data ─────────────────────────────────────────────── */
 const YEARS = ['Tất cả năm', '2026', '2025', '2024', '2023', '2022'];
@@ -115,6 +116,7 @@ export default function AoDongPhucTab() {
   const [editRecord, setEditRecord] = useState<AoDongPhucRecord | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [createDefault, setCreateDefault] = useState<Partial<AoDongPhucRecord> | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'bao-cao'>('list');
   const PAGE_SIZE = 15;
 
   const filtered = mockAoDongPhuc.filter((v) => {
@@ -133,6 +135,15 @@ export default function AoDongPhucTab() {
   const paged      = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const handleSearch = (val: string) => { setSearch(val); setPage(1); };
+
+  if (viewMode === 'bao-cao') {
+    return (
+      <BaoCaoTongHopView
+        onBack={() => setViewMode('list')}
+        data={mockAoDongPhuc}
+      />
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden gap-3.5 pt-2.5 pb-1">
@@ -169,9 +180,7 @@ export default function AoDongPhucTab() {
         {/* Báo cáo tổng hợp */}
         <button
           type="button"
-          onClick={() => {
-            console.log('Báo cáo tổng hợp');
-          }}
+          onClick={() => setViewMode('bao-cao')}
           className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-normal rounded-lg hover:bg-slate-50 transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
         >
           <IconChartBar size={14} className="text-slate-500" />

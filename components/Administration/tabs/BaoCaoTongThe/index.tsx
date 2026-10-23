@@ -10,9 +10,11 @@ import {
   IconTrendingUp,
   IconCurrencyDollar,
   IconChartBar,
-  IconShieldExclamation
+  IconShieldExclamation,
+  IconCalendarEvent,
 } from '@tabler/icons-react';
 
+import KeHoachCongViec from './tabs/KeHoachCongViec';
 import BaoCaoTienDo from './tabs/BaoCaoTienDo';
 import NhanSuCongViec from './tabs/NhanSuCongViec';
 import ChiPhiPhongBan from './tabs/ChiPhiPhongBan';
@@ -22,7 +24,7 @@ import RaSoatViPham from './tabs/RaSoatViPham';
 
 export default function BaoCaoTongThe() {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState('tiendo');
+  const [activeTab, setActiveTab] = useState('kehoach');
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -61,6 +63,7 @@ export default function BaoCaoTongThe() {
   ];
 
   const subTabs = [
+    { id: 'kehoach', label: 'Kế hoạch công việc', icon: IconCalendarEvent },
     { id: 'tiendo', label: 'Báo cáo Tiến độ', icon: IconTrendingUp },
     { id: 'nhansu', label: 'Nhân sự & Công việc', icon: IconUsers },
     { id: 'chiphi', label: 'Chi phí Phòng ban', icon: IconCurrencyDollar },
@@ -71,6 +74,8 @@ export default function BaoCaoTongThe() {
 
   const renderActiveTabContent = () => {
     switch (activeTab) {
+      case 'kehoach':
+        return <KeHoachCongViec />;
       case 'tiendo':
         return <BaoCaoTienDo />;
       case 'nhansu':
@@ -84,7 +89,7 @@ export default function BaoCaoTongThe() {
       case 'vipham':
         return <RaSoatViPham />;
       default:
-        return <BaoCaoTienDo />;
+        return <KeHoachCongViec />;
     }
   };
 

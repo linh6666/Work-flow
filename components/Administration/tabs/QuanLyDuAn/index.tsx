@@ -445,17 +445,17 @@ export default function QuanLyDuAn() {
             <button
               type="button"
               onClick={() => setIsTemplateModalOpen(true)}
-              className="flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 bg-[#ba8e3a] hover:bg-[#a87d2f] text-white text-xs sm:text-sm font-semibold rounded-lg shadow-sm border border-[#a3792c] transition-all cursor-pointer whitespace-nowrap shrink-0"
+              className="flex items-center justify-center gap-1 px-2.5 py-1.5 bg-[#ba8e3a] hover:bg-[#a87d2f] text-white text-xs font-semibold rounded-lg shadow-sm border border-[#a3792c] transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
-              <IconBooks size={16} />
+              <IconBooks size={14} />
               <span>Quản lý Template DA</span>
             </button>
             <button
               type="button"
               onClick={() => setIsProjectModalOpen(true)}
-              className="flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs sm:text-sm font-semibold rounded-lg shadow-sm transition-all cursor-pointer whitespace-nowrap shrink-0"
+              className="flex items-center justify-center gap-1 px-2.5 py-1.5 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-semibold rounded-lg shadow-sm transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
-              <IconPlus size={15} />
+              <IconPlus size={14} />
               <span>Tạo Dự án</span>
             </button>
           </div>

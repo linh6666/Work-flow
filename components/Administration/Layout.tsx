@@ -111,8 +111,7 @@ export default function AdministrationLayout({ children }: { children: React.Rea
       { id: 'quan-ly-kinh-doanh', name: 'Quản lý kinh doanh', icon: IconChartBar },
       { id: 'quan-ly-kho', name: 'Quản lý kho', icon: IconBuildingWarehouse },
       { id: 'quan-ly-hanh-chinh', name: 'Quản lý hành chính', icon: IconBriefcase },
-    { id: 'quan-ly-du-an', name: 'Quản lý Dự án', icon: IconFolder },
-    
+    { id: 'quan-ly-du-an', name: 'Quản lý Dự án', icon: IconFolder }, 
     { id: 'bao-cao-tong-the', name: 'Báo cáo Tổng thể', icon: IconReportAnalytics },
     { id: 'quan-tri-user', name: 'Quản trị user', icon: IconShieldCheck },
     { id: 'ma-tran-phan-quyen', name: 'Ma trận phân quyền', icon: IconKey },

@@ -189,7 +189,7 @@ function ResetPasswordFormContent() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full bg-[#294b61] hover:bg-[#1e3a4f] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] select-none text-sm ${
+              className={`w-full bg-[#294b61] hover:bg-[#406c89] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] select-none text-sm ${
                 isLoading ? 'opacity-70 cursor-wait' : 'cursor-pointer'
               }`}
             >

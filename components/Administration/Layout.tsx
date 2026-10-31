@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { LogoutConfirmModal } from './modal-logout';
+import { logoutUser } from '../../api/apiLogout';
+import { NotificationExtension } from '../../common/extension/NotificationExtension';
 import {
   IconPlus,
   IconSearch,
@@ -130,10 +132,22 @@ export default function AdministrationLayout({ children }: { children: React.Rea
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
-  const handleConfirmLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_email');
-    window.location.href = '/sign-in';
+  const handleConfirmLogout = async () => {
+    try {
+      const res = await logoutUser();
+      const message =
+        (typeof res === 'object' && res !== null && res.message)
+          ? res.message
+          : (typeof res === 'string' && res)
+          ? res
+          : "Đã đăng xuất khỏi thiết bị hiện tại thành công";
+      NotificationExtension.Success(message);
+      router.replace('/sign-in');
+    } catch (err: any) {
+      const errMsg = err?.message || 'Có lỗi xảy ra khi đăng xuất';
+      NotificationExtension.Warn(errMsg);
+      router.replace('/sign-in');
+    }
   };
 
   return (

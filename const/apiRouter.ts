@@ -4,4 +4,5 @@ export const API_ROUTE = {
   SENDEMAIL: "/api/v1/password-recovery/{email}",
   LOGIN_USERNAME:"/api/v1/users/me",
  CHANGE_PASSWORD:"/api/v1/users/me/password",
+ LOGOUT:"/api/v1/logout",
   };

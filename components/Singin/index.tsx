@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { loginUser } from '../../api/apiLogin';
+import { NotificationExtension } from '../../common/extension/NotificationExtension';
 
 // PasswordField component với toggle hiện/ẩn mật khẩu
 function PasswordField({
@@ -60,14 +61,13 @@ export default function PageLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    setErrorMessage(null);
 
     if (!username.trim() || !password) {
-      setErrorMessage("Vui lòng nhập tên đăng nhập và mật khẩu.");
+      const msg = "Vui lòng nhập Email và mật khẩu.";
+      NotificationExtension.Warn(msg);
       return;
     }
 
@@ -75,9 +75,11 @@ export default function PageLogin() {
     try {
       await loginUser(username.trim(), password);
       localStorage.setItem('user_email', username.trim());
+      NotificationExtension.Success("Đăng nhập thành công!");
       router.push('/Administration/tong-quan');
     } catch (err: any) {
-      setErrorMessage(err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản hoặc mật khẩu!');
+      const msg = err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản hoặc mật khẩu!';
+      NotificationExtension.Fails(msg);
     } finally {
       setIsLoading(false);
     }
@@ -174,12 +176,6 @@ export default function PageLogin() {
               Nhập tên đăng nhập và mật khẩu để truy cập hệ thống.
             </p>
           </div>
-
-          {errorMessage && (
-            <div className="p-3 text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl select-none">
-              {errorMessage}
-            </div>
-          )}
 
           {/* Form inputs */}
           <div className="space-y-4">

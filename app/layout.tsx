@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
+import { NotificationContainer } from "../common/extension/NotificationExtension";
 
 const nunito = Nunito_Sans({
   subsets: ["latin", "vietnamese"],
@@ -25,7 +26,10 @@ export default function RootLayout({
       lang="vi"
       className={`${nunito.variable} ${nunito.className} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <NotificationContainer />
+      </body>
     </html>
   );
 }

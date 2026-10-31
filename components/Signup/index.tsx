@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { registerUser } from '../../api/apiRegister';
+import { NotificationExtension } from '../../common/extension/NotificationExtension';
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('');
@@ -13,25 +14,24 @@ export default function SignupPage() {
   const [phone, setPhone] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(null);
-    setSuccessMessage(null);
 
     if (!fullName.trim() || !email.trim() || !password || !phone.trim()) {
-      setErrorMessage('Vui lòng nhập đầy đủ tất cả các trường bắt buộc (*).');
+      const msg = 'Vui lòng nhập đầy đủ tất cả các trường bắt buộc (*).';
+      NotificationExtension.Warn(msg);
       return;
     }
     if (password.length < 8) {
-      setErrorMessage('Mật khẩu phải có ít nhất 8 ký tự.');
+      const msg = 'Mật khẩu phải có ít nhất 8 ký tự.';
+      NotificationExtension.Warn(msg);
       return;
     }
     if (phone.trim() && !/^[0-9+]{9,15}$/.test(phone.trim())) {
-      setErrorMessage('Số điện thoại không hợp lệ (từ 9 đến 15 chữ số).');
+      const msg = 'Số điện thoại không hợp lệ (từ 9 đến 15 chữ số).';
+      NotificationExtension.Warn(msg);
       return;
     }
 
@@ -43,12 +43,13 @@ export default function SignupPage() {
         password,
         phone.trim() || undefined
       );
-      setSuccessMessage('Đăng ký tài khoản thành công! Đang chuyển hướng sang đăng nhập...');
+      NotificationExtension.Success('Đăng ký tài khoản thành công!');
       setTimeout(() => {
         router.push('/sign-in');
       }, 1500);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Đăng ký thất bại. Vui lòng thử lại!');
+      const msg = err.message || 'Đăng ký thất bại. Vui lòng thử lại!';
+      NotificationExtension.Fails(msg);
     } finally {
       setIsLoading(false);
     }
@@ -143,17 +144,6 @@ export default function SignupPage() {
             <p className="text-xs text-slate-500">Nhập thông tin tài khoản để đăng ký.</p>
           </div>
 
-
-            {errorMessage && (
-              <div className="p-3 text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-lg select-none">
-                {errorMessage}
-              </div>
-            )}
-            {successMessage && (
-              <div className="p-3 text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg select-none">
-                {successMessage}
-              </div>
-            )}
 
             <form className="space-y-3" onSubmit={handleSubmit}>
               {/* Họ và tên */}

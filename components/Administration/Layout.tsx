@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
+import { LogoutConfirmModal } from './modal-logout';
 import {
   IconPlus,
   IconSearch,
@@ -127,6 +128,13 @@ export default function AdministrationLayout({ children }: { children: React.Rea
   // Sidebar States
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const handleConfirmLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_email');
+    window.location.href = '/sign-in';
+  };
 
   return (
     <div className="flex h-screen w-screen bg-slate-50 font-sans overflow-hidden text-slate-800 antialiased">
@@ -229,12 +237,8 @@ export default function AdministrationLayout({ children }: { children: React.Rea
           </div> */}
 
           <button
-            onClick={() => {
-              localStorage.removeItem('access_token');
-              localStorage.removeItem('user_email');
-              window.location.href = '/sign-in';
-            }}
-            className={`w-full flex items-center gap-2 px-2 py-1.5 hover:bg-[#BB8D38]/10 hover:text-[#BB8D38] rounded text-slate-500 text-xs font-semibold transition-all cursor-pointer ${
+            onClick={() => setIsLogoutModalOpen(true)}
+            className={`w-full flex items-center gap-2 px-2 py-1.5 hover:bg-[#406c89]/10 hover:text-[#406c89] rounded text-slate-500 text-xs font-semibold transition-all cursor-pointer ${
               isSidebarCollapsed ? 'lg:justify-center lg:px-0' : ''
             }`}
             title="Đăng xuất"
@@ -318,7 +322,11 @@ export default function AdministrationLayout({ children }: { children: React.Rea
             </div>
 
             {/* User Account Button/Pill */}
-            <div className="flex items-center gap-2 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100/50 transition-all cursor-pointer">
+            <div 
+              onClick={() => setIsLogoutModalOpen(true)}
+              className="flex items-center gap-2 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100/50 hover:border-slate-300 transition-all cursor-pointer"
+              title="Nhấn để đăng xuất"
+            >
               <div className="w-5.5 h-5.5 rounded-full bg-sky-400/20 border border-sky-400/30 flex items-center justify-center text-[10px] font-bold text-sky-600 shrink-0">
                 {userInitial}
               </div>
@@ -334,6 +342,13 @@ export default function AdministrationLayout({ children }: { children: React.Rea
           {children}
         </main>
       </div>
+
+      {/* MODAL XÁC NHẬN ĐĂNG XUẤT */}
+      <LogoutConfirmModal 
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleConfirmLogout}
+      />
     </div>
   );
 }

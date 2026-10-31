@@ -1,17 +1,35 @@
 "use client";
 
 import "../../app/globals.css";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 export default function PageLogin() {
   const [email, setEmail] = useState('');
-  // Removed password toggle state (no longer needed)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Tự động chuyển tiếp nếu đã đăng nhập và có token
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    if (token) {
+      window.location.href = '/Administration/tong-quan';
+    } else {
+      setIsCheckingAuth(false);
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Forgot password request for:", { email });
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-sky-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-900 text-slate-100 font-sans">

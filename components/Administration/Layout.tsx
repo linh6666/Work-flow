@@ -72,9 +72,14 @@ export default function AdministrationLayout({ children }: { children: React.Rea
   const pathParts = pathname.split('/');
   const tabFromPath = pathParts[pathParts.length - 1];
 
-  // Đọc email từ localStorage (lưu khi đăng nhập)
+  // Đọc email và kiểm tra đăng nhập
   const [userEmail, setUserEmail] = useState('Chưa đăng nhập');
   useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      window.location.href = '/sign-in';
+      return;
+    }
     const saved = localStorage.getItem('user_email');
     if (saved) setUserEmail(saved);
   }, []);
@@ -225,8 +230,9 @@ export default function AdministrationLayout({ children }: { children: React.Rea
 
           <button
             onClick={() => {
+              localStorage.removeItem('access_token');
               localStorage.removeItem('user_email');
-              router.push('/sign-in');
+              window.location.href = '/sign-in';
             }}
             className={`w-full flex items-center gap-2 px-2 py-1.5 hover:bg-[#BB8D38]/10 hover:text-[#BB8D38] rounded text-slate-500 text-xs font-semibold transition-all cursor-pointer ${
               isSidebarCollapsed ? 'lg:justify-center lg:px-0' : ''

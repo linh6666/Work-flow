@@ -1,7 +1,7 @@
 "use client";
 
 import "../../app/globals.css";
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { loginUser } from '../../api/apiLogin';
@@ -67,6 +67,18 @@ export default function PageLogin() {
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Tự động chuyển tiếp nếu đã đăng nhập và có token
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    if (token) {
+      window.location.href = '/Administration/tong-quan';
+    } else {
+      setIsCheckingAuth(false);
+    }
+  }, []);
+
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
@@ -86,18 +98,27 @@ export default function PageLogin() {
     try {
       await loginUser(username.trim(), password);
       localStorage.setItem('user_email', username.trim());
-      NotificationExtension.Success("Đăng nhập thành công!");
-      router.push('/Administration/tong-quan');
+      NotificationExtension.Success("Đăng nhập thành công! Đang chuyển hướng...");
+      setTimeout(() => {
+        window.location.href = '/Administration/tong-quan';
+      }, 500);
     } catch (err: any) {
       const msg = err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản hoặc mật khẩu!';
       NotificationExtension.Fails(msg);
       // Xóa ô mật khẩu để nhập lại và trỏ chuột vào ô mật khẩu
       setPassword('');
       passwordRef.current?.focus();
-    } finally {
       setIsLoading(false);
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-sky-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-900 text-slate-100 font-sans">
@@ -191,8 +212,8 @@ export default function PageLogin() {
             </p>
           </div>
 
-          {/* Form inputs */}
-          <div className="space-y-4">
+          {/* Form đăng nhập */}
+          <form onSubmit={handleLogin} className="space-y-4">
             {/* Tên đăng nhập */}
             <div className="space-y-1.5">
               <label htmlFor="username" className="block text-[11px] font-bold tracking-widest text-slate-500 uppercase select-none">
@@ -211,21 +232,19 @@ export default function PageLogin() {
 
             {/* Mật khẩu */}
             <PasswordField value={password} onChange={setPassword} inputRef={passwordRef} />
-          </div>
 
-          {/* Nút Đăng nhập */}
-          <div className="pt-1">
-            <button
-              id="btn-login"
-              type="button"
-              onClick={() => handleLogin()}
-              disabled={isLoading}
-              className={`w-full h-12 px-5 rounded-xl bg-[#294b61] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 select-none ${
-                isLoading
-                  ? 'opacity-75 cursor-wait'
-                  : 'hover:bg-[#1e3a4f] hover:shadow-lg cursor-pointer active:scale-[0.99]'
-              }`}
-            >
+            {/* Nút Đăng nhập */}
+            <div className="pt-1">
+              <button
+                id="btn-login"
+                type="submit"
+                disabled={isLoading}
+                className={`w-full h-12 px-5 rounded-xl bg-[#294b61] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 select-none ${
+                  isLoading
+                    ? 'opacity-75 cursor-wait'
+                    : 'hover:bg-[#1e3a4f] hover:shadow-lg cursor-pointer active:scale-[0.99]'
+                }`}
+              >
               {isLoading ? (
                 <>
                   <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -246,7 +265,8 @@ export default function PageLogin() {
                 </>
               )}
             </button>
-          </div>
+            </div>
+          </form>
 
           {/* Link đăng ký */}
           <div className="pt-1">

@@ -1,7 +1,7 @@
 "use client";
 
 import "../../app/globals.css";
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { registerUser } from '../../api/apiRegister';
@@ -16,22 +16,52 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  const fullNameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!fullName.trim() || !email.trim() || !password || !phone.trim()) {
-      const msg = 'Vui lòng nhập đầy đủ tất cả các trường bắt buộc (*).';
-      NotificationExtension.Warn(msg);
+    if (!fullName.trim()) {
+      NotificationExtension.Warn('Vui lòng nhập họ và tên.');
+      fullNameRef.current?.focus();
+      return;
+    }
+    if (!email.trim()) {
+      NotificationExtension.Warn('Vui lòng nhập email.');
+      emailRef.current?.focus();
+      return;
+    }
+    if (!email.includes('@')) {
+      NotificationExtension.Warn('Email không đúng định dạng.');
+      setEmail('');
+      emailRef.current?.focus();
+      return;
+    }
+    if (!password) {
+      NotificationExtension.Warn('Vui lòng nhập mật khẩu.');
+      passwordRef.current?.focus();
       return;
     }
     if (password.length < 8) {
-      const msg = 'Mật khẩu phải có ít nhất 8 ký tự.';
-      NotificationExtension.Warn(msg);
+      NotificationExtension.Warn('Mật khẩu phải có ít nhất 8 ký tự.');
+      // Xóa ô mật khẩu sai để nhập lại
+      setPassword('');
+      passwordRef.current?.focus();
       return;
     }
-    if (phone.trim() && !/^[0-9+]{9,15}$/.test(phone.trim())) {
-      const msg = 'Số điện thoại không hợp lệ (từ 9 đến 15 chữ số).';
-      NotificationExtension.Warn(msg);
+    if (!phone.trim()) {
+      NotificationExtension.Warn('Vui lòng nhập số điện thoại.');
+      phoneRef.current?.focus();
+      return;
+    }
+    if (!/^[0-9+]{9,15}$/.test(phone.trim())) {
+      NotificationExtension.Warn('Số điện thoại không hợp lệ (từ 9 đến 15 chữ số).');
+      // Xóa ô số điện thoại sai để nhập lại
+      setPhone('');
+      phoneRef.current?.focus();
       return;
     }
 
@@ -50,6 +80,13 @@ export default function SignupPage() {
     } catch (err: any) {
       const msg = err.message || 'Đăng ký thất bại. Vui lòng thử lại!';
       NotificationExtension.Fails(msg);
+      if (msg.toLowerCase().includes('email') || msg.toLowerCase().includes('exists')) {
+        setEmail('');
+        emailRef.current?.focus();
+      } else {
+        setPassword('');
+        passwordRef.current?.focus();
+      }
     } finally {
       setIsLoading(false);
     }
@@ -150,6 +187,7 @@ export default function SignupPage() {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Họ và tên <span className="text-red-500">*</span></label>
                 <input
+                  ref={fullNameRef}
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -163,6 +201,7 @@ export default function SignupPage() {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Email <span className="text-red-500">*</span></label>
                 <input
+                  ref={emailRef}
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -179,6 +218,7 @@ export default function SignupPage() {
                 </div>
                 <div className="relative">
                   <input 
+                    ref={passwordRef}
                     type={showPassword ? "text" : "password"} 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -210,6 +250,7 @@ export default function SignupPage() {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Số điện thoại <span className="text-red-500">*</span></label>
                 <input
+                  ref={phoneRef}
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}

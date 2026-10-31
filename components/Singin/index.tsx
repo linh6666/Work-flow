@@ -1,7 +1,7 @@
 "use client";
 
 import "../../app/globals.css";
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { loginUser } from '../../api/apiLogin';
@@ -11,9 +11,11 @@ import { NotificationExtension } from '../../common/extension/NotificationExtens
 function PasswordField({
   value,
   onChange,
+  inputRef,
 }: {
   value: string;
   onChange: (val: string) => void;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
 }) {
   const [showPassword, setShowPassword] = useState(false);
   return (
@@ -26,6 +28,7 @@ function PasswordField({
       </div>
       <div className="relative">
         <input
+          ref={inputRef}
           id="password"
           type={showPassword ? 'text' : 'password'}
           value={value}
@@ -61,13 +64,21 @@ export default function PageLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    if (!username.trim() || !password) {
-      const msg = "Vui lòng nhập Email và mật khẩu.";
-      NotificationExtension.Warn(msg);
+    if (!username.trim()) {
+      NotificationExtension.Warn("Vui lòng nhập Email.");
+      usernameRef.current?.focus();
+      return;
+    }
+
+    if (!password) {
+      NotificationExtension.Warn("Vui lòng nhập mật khẩu.");
+      passwordRef.current?.focus();
       return;
     }
 
@@ -80,6 +91,9 @@ export default function PageLogin() {
     } catch (err: any) {
       const msg = err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản hoặc mật khẩu!';
       NotificationExtension.Fails(msg);
+      // Xóa ô mật khẩu để nhập lại và trỏ chuột vào ô mật khẩu
+      setPassword('');
+      passwordRef.current?.focus();
     } finally {
       setIsLoading(false);
     }
@@ -185,6 +199,7 @@ export default function PageLogin() {
                 Email <span className="text-red-500">*</span>
               </label>
               <input
+                ref={usernameRef}
                 id="username"
                 type="text"
                 value={username}
@@ -195,7 +210,7 @@ export default function PageLogin() {
             </div>
 
             {/* Mật khẩu */}
-            <PasswordField value={password} onChange={setPassword} />
+            <PasswordField value={password} onChange={setPassword} inputRef={passwordRef} />
           </div>
 
           {/* Nút Đăng nhập */}

@@ -6,16 +6,19 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { loginUser } from '../../api/apiLogin';
 import { NotificationExtension } from '../../common/extension/NotificationExtension';
+import { ForgotPasswordModal } from './modal-forgot-password';
 
 // PasswordField component với toggle hiện/ẩn mật khẩu
 function PasswordField({
   value,
   onChange,
   inputRef,
+  onForgotPassword,
 }: {
   value: string;
   onChange: (val: string) => void;
   inputRef?: React.RefObject<HTMLInputElement | null>;
+  onForgotPassword?: () => void;
 }) {
   const [showPassword, setShowPassword] = useState(false);
   return (
@@ -24,7 +27,13 @@ function PasswordField({
         <label htmlFor="password" className="block text-[11px] font-bold tracking-widest text-slate-500 uppercase select-none">
           Mật khẩu <span className="text-red-500">*</span>
         </label>
-        <a href="/forgot-password" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Quên mật khẩu?</a>
+        <button
+          type="button"
+          onClick={onForgotPassword}
+          className="text-xs text-slate-400 hover:text-[#406c89] transition-colors cursor-pointer select-none"
+        >
+          Quên mật khẩu?
+        </button>
       </div>
       <div className="relative">
         <input
@@ -64,6 +73,7 @@ export default function PageLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
@@ -231,7 +241,7 @@ export default function PageLogin() {
             </div>
 
             {/* Mật khẩu */}
-            <PasswordField value={password} onChange={setPassword} inputRef={passwordRef} />
+            <PasswordField value={password} onChange={setPassword} inputRef={passwordRef} onForgotPassword={() => setIsForgotPasswordOpen(true)} />
 
             {/* Nút Đăng nhập */}
             <div className="pt-1">
@@ -279,6 +289,11 @@ export default function PageLogin() {
         </div>
       </div>
 
+      {/* MODAL QUÊN MẬT KHẨU */}
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+      />
     </div>
   );
 }

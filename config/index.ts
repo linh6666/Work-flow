@@ -1,3 +1,3 @@
-export const BASE_API_FASTAPI = process.env.NEXT_PUBLIC_FASTAPI_API!;
-
-
+export const BASE_API_FASTAPI = (process.env.NEXT_PUBLIC_FASTAPI_API || "")
+  .trim()
+  .replace(/\/docs\/?$/, "");

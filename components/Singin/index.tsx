@@ -4,16 +4,22 @@ import "../../app/globals.css";
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { loginUser } from '../../api/apiLogin';
 
 // PasswordField component với toggle hiện/ẩn mật khẩu
-function PasswordField() {
+function PasswordField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) {
   const [showPassword, setShowPassword] = useState(false);
-  const [value, setValue] = useState('');
   return (
     <div className="space-y-1.5">
       <div className="flex justify-between items-center">
         <label htmlFor="password" className="block text-[11px] font-bold tracking-widest text-slate-500 uppercase select-none">
-          Mật khẩu
+          Mật khẩu <span className="text-red-500">*</span>
         </label>
         <a href="/forgot-password" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Quên mật khẩu?</a>
       </div>
@@ -22,8 +28,8 @@ function PasswordField() {
           id="password"
           type={showPassword ? 'text' : 'password'}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="••••••••"
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Nhập mật khẩu..."
           className="w-full h-12 px-4 pr-12 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
         />
         <button
@@ -52,17 +58,29 @@ function PasswordField() {
 export default function PageLogin() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleGoogleSignIn = () => {
-    setIsLoading(true);
-    // Lưu email vào localStorage để Layout đọc
-    if (email) {
-      localStorage.setItem('user_email', email);
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setErrorMessage(null);
+
+    if (!username.trim() || !password) {
+      setErrorMessage("Vui lòng nhập tên đăng nhập và mật khẩu.");
+      return;
     }
-    setTimeout(() => {
+
+    setIsLoading(true);
+    try {
+      await loginUser(username.trim(), password);
+      localStorage.setItem('user_email', username.trim());
       router.push('/Administration/tong-quan');
-    }, 800);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản hoặc mật khẩu!');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -157,25 +175,31 @@ export default function PageLogin() {
             </p>
           </div>
 
+          {errorMessage && (
+            <div className="p-3 text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl select-none">
+              {errorMessage}
+            </div>
+          )}
+
           {/* Form inputs */}
           <div className="space-y-4">
             {/* Tên đăng nhập */}
             <div className="space-y-1.5">
               <label htmlFor="username" className="block text-[11px] font-bold tracking-widest text-slate-500 uppercase select-none">
-                Tên đăng nhập
+                Email <span className="text-red-500">*</span>
               </label>
               <input
                 id="username"
                 type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="hopnk1"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="nguyenvana@gmail.com"
                 className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
               />
             </div>
 
             {/* Mật khẩu */}
-            <PasswordField />
+            <PasswordField value={password} onChange={setPassword} />
           </div>
 
           {/* Nút Đăng nhập */}
@@ -183,7 +207,7 @@ export default function PageLogin() {
             <button
               id="btn-login"
               type="button"
-              onClick={handleGoogleSignIn}
+              onClick={() => handleLogin()}
               disabled={isLoading}
               className={`w-full h-12 px-5 rounded-xl bg-[#294b61] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 select-none ${
                 isLoading

@@ -3,18 +3,55 @@
 import "../../app/globals.css";
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { registerUser } from '../../api/apiRegister';
 
 export default function SignupPage() {
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('hopnk1');
-  const [password, setPassword] = useState('12345678');
   const [fullName, setFullName] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Đăng ký với:", { email, username, password, confirmPassword, fullName });
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    if (!fullName.trim() || !email.trim() || !password || !phone.trim()) {
+      setErrorMessage('Vui lòng nhập đầy đủ tất cả các trường bắt buộc (*).');
+      return;
+    }
+    if (password.length < 8) {
+      setErrorMessage('Mật khẩu phải có ít nhất 8 ký tự.');
+      return;
+    }
+    if (phone.trim() && !/^[0-9+]{9,15}$/.test(phone.trim())) {
+      setErrorMessage('Số điện thoại không hợp lệ (từ 9 đến 15 chữ số).');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await registerUser(
+        email.trim(),
+        fullName.trim() || undefined,
+        password,
+        phone.trim() || undefined
+      );
+      setSuccessMessage('Đăng ký tài khoản thành công! Đang chuyển hướng sang đăng nhập...');
+      setTimeout(() => {
+        router.push('/sign-in');
+      }, 1500);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Đăng ký thất bại. Vui lòng thử lại!');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -107,118 +144,114 @@ export default function SignupPage() {
           </div>
 
 
+            {errorMessage && (
+              <div className="p-3 text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-lg select-none">
+                {errorMessage}
+              </div>
+            )}
+            {successMessage && (
+              <div className="p-3 text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg select-none">
+                {successMessage}
+              </div>
+            )}
+
             <form className="space-y-3" onSubmit={handleSubmit}>
               {/* Họ và tên */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Họ và tên</label>
+                <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Họ và tên <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium text-sm"
                   placeholder="Nhập họ và tên..."
+                  required
                 />
               </div>
-            {/* Email */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium text-sm"
-                placeholder="Nhập email..."
-              />
-            </div>
-            
-            {/* Tên đăng nhập */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Tên đăng nhập</label>
-              <input 
-                type="text" 
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium text-sm"
-                placeholder="Nhập tài khoản..."
-              />
-            </div>
 
-            {/* Mật khẩu */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Mật khẩu</label>
-                
-              </div>
-              <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all pr-10 font-medium text-sm"
-                  placeholder="Nhập mật khẩu..."
-                />
-                <button 
-                  type="button" 
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none cursor-pointer"
-                >
-                  {showPassword ? (
-                    /* Eye Icon */
-                    <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  ) : (
-                    /* EyeOff Icon */
-                    <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </div>
-            {/* Confirm Password */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Xác nhận mật khẩu</label>
-              </div>
-              <div className="relative">
+              {/* Email */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Email <span className="text-red-500">*</span></label>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all pr-10 font-medium text-sm"
-                  placeholder="Nhập lại mật khẩu..."
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium text-sm"
+                  placeholder="name@example.com"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none cursor-pointer"
-                >
-                  {showPassword ? (
-                    <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  )}
-                </button>
               </div>
-            </div>
 
-            {/* Nút Đăng nhập chính */}
+              {/* Mật khẩu */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Mật khẩu <span className="text-red-500">*</span></label>
+                </div>
+                <div className="relative">
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all pr-10 font-medium text-sm"
+                    placeholder="Tối thiểu 8 ký tự..."
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none cursor-pointer"
+                  >
+                    {showPassword ? (
+                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Số điện thoại */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Số điện thoại <span className="text-red-500">*</span></label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium text-sm"
+                  placeholder="Nhập số điện thoại..."
+                  required
+                />
+              </div>
+
+              {/* Nút Đăng ký */}
             <button 
               type="submit"
-              className="w-full bg-[#294b61] hover:bg-[#007ee6] text-white font-semibold py-2 px-3 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer text-sm"
+              disabled={isLoading}
+              className={`w-full bg-[#294b61] hover:bg-[#007ee6] text-white font-semibold py-2.5 px-3 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] text-sm ${
+                isLoading ? 'opacity-70 cursor-wait' : 'cursor-pointer'
+              }`}
             >
-               {/* User plus Icon */}
-               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-user-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path d="M16 19h6"/><path d="M19 16v6"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4"/></svg>
-              Đăng ký
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Đang xử lý đăng ký...</span>
+                </>
+              ) : (
+                <>
+                  {/* User plus Icon */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-user-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path d="M16 19h6"/><path d="M19 16v6"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4"/></svg>
+                  <span>Đăng ký</span>
+                </>
+              )}
             </button>
           </form>
 

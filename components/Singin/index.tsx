@@ -5,6 +5,50 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+// PasswordField component với toggle hiện/ẩn mật khẩu
+function PasswordField() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [value, setValue] = useState('');
+  return (
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-center">
+        <label htmlFor="password" className="block text-[11px] font-bold tracking-widest text-slate-500 uppercase select-none">
+          Mật khẩu
+        </label>
+        <a href="/forgot-password" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Quên mật khẩu?</a>
+      </div>
+      <div className="relative">
+        <input
+          id="password"
+          type={showPassword ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="••••••••"
+          className="w-full h-12 px-4 pr-12 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword((v) => !v)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+          aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+        >
+          {showPassword ? (
+            <svg className="w-4.5 h-4.5 w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          ) : (
+            <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function PageLogin() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -97,85 +141,85 @@ export default function PageLogin() {
         {/* Khu vực Form chính */}
         <div className="my-auto max-w-md w-full mx-auto space-y-6">
           <div className="space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-sky-50 text-sky-600 rounded-full text-xs font-semibold select-none">
-              <svg className="w-3.5 h-3.5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            {/* Badge Chào mừng trở lại */}
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-sky-50 text-sky-500 rounded-full text-xs font-semibold select-none">
+              <svg className="w-3.5 h-3.5 text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
               </svg>
-              Xác thực an toàn qua Google
+              Chào mừng trở lại
             </span>
             <h1 className="text-3xl font-extrabold tracking-tight text-[#294b61]">
               Đăng nhập
             </h1>
             <p className="text-sm text-slate-500 leading-relaxed">
-              Nhấp vào nút bên dưới để liên kết và đăng nhập nhanh chóng bằng tài khoản Google của bạn.
+              Nhập tên đăng nhập và mật khẩu để truy cập hệ thống.
             </p>
           </div>
 
+          {/* Form inputs */}
+          <div className="space-y-4">
+            {/* Tên đăng nhập */}
+            <div className="space-y-1.5">
+              <label htmlFor="username" className="block text-[11px] font-bold tracking-widest text-slate-500 uppercase select-none">
+                Tên đăng nhập
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="hopnk1"
+                className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
+              />
+            </div>
 
+            {/* Mật khẩu */}
+            <PasswordField />
+          </div>
 
-          {/* Nút liên kết sang Google (Mô phỏng luồng đăng nhập) */}
+          {/* Nút Đăng nhập */}
           <div className="pt-1">
             <button
+              id="btn-login"
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className={`w-full h-12 px-5 py-3 border border-slate-300 bg-white text-slate-700 font-semibold rounded-xl shadow-xs transition-all flex items-center justify-center gap-3 select-none ${
+              className={`w-full h-12 px-5 rounded-xl bg-[#294b61] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 select-none ${
                 isLoading
-                  ? 'opacity-80 cursor-wait bg-slate-50'
-                  : 'hover:border-slate-400 hover:bg-slate-50 hover:shadow-md cursor-pointer active:scale-[0.99]'
+                  ? 'opacity-75 cursor-wait'
+                  : 'hover:bg-[#1e3a4f] hover:shadow-lg cursor-pointer active:scale-[0.99]'
               }`}
             >
               {isLoading ? (
                 <>
-                  {/* Spinner hiệu ứng đang kết nối */}
-                  <svg className="animate-spin h-5 w-5 text-[#4285F4]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span className="text-sm font-semibold text-slate-600">
-                    Đang kết nối tài khoản Google...
-                  </span>
+                  <span>Đang đăng nhập...</span>
                 </>
               ) : (
                 <>
-                  {/* Logo Google 4 màu chuẩn SVG */}
-                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                    />
+                  {/* Arrow right icon */}
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    <polyline points="10 17 15 12 10 7" />
+                    <line x1="15" y1="12" x2="3" y2="12" />
                   </svg>
-                  <span className="text-sm font-bold text-slate-700 hover:text-slate-900">
-                    Đăng nhập với Google
-                  </span>
+                  <span>Đăng nhập</span>
                 </>
               )}
             </button>
           </div>
 
-          {/* Điều khoản & Ghi chú */}
-          <div className="pt-2">
-            <p className="text-xs text-center text-slate-400 leading-relaxed">
-              Bằng việc đăng nhập, bạn đồng ý với{' '}
-              <a href="#" className="underline hover:text-slate-600">Điều khoản dịch vụ</a>{' '}
-              và{' '}
-              <a href="#" className="underline hover:text-slate-600">Chính sách quyền riêng tư</a>{' '}
-              của hệ thống.
+          {/* Link đăng ký */}
+          <div className="pt-1">
+            <p className="text-sm text-center text-slate-500">
+              Chưa có tài khoản?{' '}
+              <a href="/sign-up" className="font-bold text-[#294b61] hover:underline">Đăng ký ngay</a>
             </p>
           </div>
-
 
         </div>
       </div>

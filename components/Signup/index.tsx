@@ -201,7 +201,7 @@ export default function SignupPage() {
           </div>
 
 
-            <form className="space-y-3" onSubmit={handleSubmit}>
+            <form className="space-y-3.5 mt-4" onSubmit={handleSubmit}>
               {/* Họ và tên */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 tracking-wide uppercase">Họ và tên <span className="text-red-500">*</span></label>
@@ -245,7 +245,7 @@ export default function SignupPage() {
                     className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all pr-10 font-medium text-sm"
                     placeholder="Tối thiểu 8 ký tự..."
                   />
-                  <button 
+                  <button
                     type="button" 
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none cursor-pointer"
@@ -280,10 +280,11 @@ export default function SignupPage() {
               </div>
 
               {/* Nút Đăng ký */}
-            <button 
+            <div className="pt-6">
+              <button
               type="submit"
               disabled={isLoading}
-              className={`w-full bg-[#294b61] hover:bg-[#007ee6] text-white font-semibold py-2.5 px-3 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] text-sm ${
+              className={`w-full bg-[#294b61] hover:bg-[#406c89] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-500/10 transition-all flex items-center justify-center gap-2 active:scale-[0.99] select-none text-sm ${
                 isLoading ? 'opacity-70 cursor-wait' : 'cursor-pointer'
               }`}
             >
@@ -303,13 +304,14 @@ export default function SignupPage() {
                 </>
               )}
             </button>
+            </div>
           </form>
 
           {/* Các phương thức Đăng nhập mở rộng */}
      
 
           {/* Đăng ký */}
-          <p className="text-center text-sm text-slate-500 select-none">
+          <p className="text-center text-sm text-slate-500 select-none pt-2">
             Đã có tài khoản?{' '}
          <a href="/sign-in" className="font-bold text-[#294b61] hover:underline">
   Đăng nhập ngay

@@ -22,7 +22,7 @@ function PasswordField({
 }) {
   const [showPassword, setShowPassword] = useState(false);
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <div className="flex justify-between items-center">
         <label htmlFor="password" className="block text-[11px] font-bold tracking-widest text-slate-500 uppercase select-none">
           Mật khẩu <span className="text-red-500">*</span>
@@ -223,9 +223,9 @@ export default function PageLogin() {
           </div>
 
           {/* Form đăng nhập */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-5 mt-6">
             {/* Tên đăng nhập */}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label htmlFor="username" className="block text-[11px] font-bold tracking-widest text-slate-500 uppercase select-none">
                 Email <span className="text-red-500">*</span>
               </label>
@@ -244,7 +244,7 @@ export default function PageLogin() {
             <PasswordField value={password} onChange={setPassword} inputRef={passwordRef} onForgotPassword={() => setIsForgotPasswordOpen(true)} />
 
             {/* Nút Đăng nhập */}
-            <div className="pt-1">
+            <div className="pt-5">
               <button
                 id="btn-login"
                 type="submit"
@@ -252,7 +252,7 @@ export default function PageLogin() {
                 className={`w-full h-12 px-5 rounded-xl bg-[#294b61] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 select-none ${
                   isLoading
                     ? 'opacity-75 cursor-wait'
-                    : 'hover:bg-[#1e3a4f] hover:shadow-lg cursor-pointer active:scale-[0.99]'
+                    : 'hover:bg-[#406c89] hover:shadow-lg cursor-pointer active:scale-[0.99]'
                 }`}
               >
               {isLoading ? (

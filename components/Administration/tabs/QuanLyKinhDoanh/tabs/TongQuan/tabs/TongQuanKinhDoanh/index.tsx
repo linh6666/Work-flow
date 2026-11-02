@@ -443,8 +443,8 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
 
   return (
     <div className="flex flex-col space-y-2 p-0 bg-slate-50/50">
-      {/* ── STICKY TOP HEADER & FILTERS BLOCK (STAYS PINNED WHEN SCROLLING) ── */}
-      <div className="sticky top-0 z-20 bg-slate-50/95 backdrop-blur-xs space-y-2 pb-2 pt-0.5 px-1 border-b border-slate-200/60 shadow-2xs">
+      {/* ── TOP HEADER & FILTERS BLOCK (STICKY ON DESKTOP, SCROLLABLE ON MOBILE) ── */}
+      <div className="md:sticky md:top-0 md:z-20 md:bg-slate-50/95 md:backdrop-blur-xs space-y-2 pb-2 pt-0.5 px-1 border-b border-slate-200/60 shadow-2xs">
         {/* ── 1. HEADER ROW WITH TITLE & QUICK ACTION BUTTONS ── */}
         <div className="flex flex-wrap items-center justify-between gap-2">
         <div>

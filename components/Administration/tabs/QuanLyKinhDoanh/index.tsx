@@ -88,9 +88,9 @@ export default function QuanLyKinhDoanh() {
   ] as const;
 
   return (
-    <div className="flex-1 flex flex-col bg-[#fafbfc] overflow-hidden select-none">
+    <div className="flex-1 flex flex-col bg-[#fafbfc] min-h-0 overflow-hidden">
       {/* 1. TOP HEADER & BREADCRUMB */}
-      <div className="sticky top-0 z-10 bg-[#fafbfc] px-3 sm:px-4 pt-1.5 pb-0 border-b border-slate-200/80 shrink-0">
+      <div className="sticky top-0 z-10 bg-[#fafbfc] px-3 sm:px-4 pt-1.5 pb-0 border-b border-slate-200/80 shrink-0 select-none">
         <div className="mb-1">
           <h1 className="text-base font-bold text-slate-900 tracking-tight">Quản lý Kinh doanh</h1>
           <p className="text-[10.5px] text-slate-500 mt-0 font-normal">
@@ -99,7 +99,7 @@ export default function QuanLyKinhDoanh() {
         </div>
 
         {/* 2. SUB-TABS NAVIGATION BAR */}
-        <div className="flex gap-1 overflow-x-auto no-scrollbar pt-0.5">
+        <div className="flex gap-1 overflow-x-auto no-scrollbar pt-0.5 touch-pan-x">
           {tabs.map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -128,7 +128,7 @@ export default function QuanLyKinhDoanh() {
       </div>
 
       {/* 3. TAB CONTENT */}
-      <div className="flex-1 flex flex-col min-h-0 px-3 sm:px-4 py-1.5 overflow-y-auto">
+      <div className="flex-1 flex flex-col min-h-0 px-2 sm:px-4 py-1.5 overflow-y-auto md:overflow-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch] no-scrollbar">
         {activeTab === 'tong-quan' ? (
           <TongQuanTab onNavigateTab={(tabId) => handleTabChange(tabId as any)} />
         ) : activeTab === 'khach-hang' ? (

@@ -421,7 +421,7 @@ export default function KhachHangTab() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 space-y-2.5 overflow-hidden">
+    <div className="flex-1 flex flex-col min-h-0 space-y-2.5">
       {/* SUB-HEADER ACTION BAR */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 shrink-0">
         <div>
@@ -499,8 +499,8 @@ export default function KhachHangTab() {
       </div>
 
       {/* CUSTOMER TABLE MATCHING SCREENSHOT EXACTLY */}
-      <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
+      <div className="flex-1 flex flex-col min-h-[350px] sm:min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
+        <div className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 no-scrollbar touch-pan-x overscroll-x-contain">
           <table className="w-full text-xs text-left border-collapse min-w-[880px]">
             <thead className="sticky top-0 z-10 bg-slate-50 shadow-2xs border-b border-slate-200">
               <tr className="bg-slate-50">

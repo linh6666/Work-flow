@@ -30,7 +30,7 @@ export default function PheDuyetDanhGiaTab() {
   const [activeSubTab, setActiveSubTab] = useState<SubTabKey>('tiendo');
 
   return (
-    <div className="flex flex-col h-full bg-white space-y-4 p-1">
+    <div className="flex flex-col min-h-full bg-white space-y-4 p-1">
       {/* ── 1. Header Section ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 shrink-0">
         <div>
@@ -81,7 +81,7 @@ export default function PheDuyetDanhGiaTab() {
       </div>
 
       {/* ── 3. Tab Content View ── */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0">
         {activeSubTab === 'tiendo' && <BaoCaoTienDoTab />}
         {activeSubTab === 'nhansu' && <NhanSuCongViecTab />}
         {activeSubTab === 'chiphi' && <ChiPhiPhongBanTab />}

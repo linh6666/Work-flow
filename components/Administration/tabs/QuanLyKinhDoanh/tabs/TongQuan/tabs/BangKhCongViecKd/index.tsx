@@ -675,7 +675,7 @@ export default function BangKhCongViecKdTab() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white space-y-2.5 p-1 overflow-y-auto">
+    <div className="flex flex-col min-h-full bg-white space-y-2.5 p-1">
       {/* ── 1. HEADER INFO BAR ── */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 font-medium">
         <h2 className="text-sm font-bold text-slate-900">
@@ -821,8 +821,8 @@ export default function BangKhCongViecKdTab() {
       </div>
 
       {/* ── 5. MAIN TABLE MATCHING FULL SCREENSHOTS ── */}
-      <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-300 rounded-lg shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
+      <div className="flex-1 flex flex-col min-h-[400px] sm:min-h-0 bg-white border border-slate-300 rounded-lg shadow-2xs overflow-hidden">
+        <div className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 no-scrollbar touch-pan-x overscroll-x-contain">
           <table className="w-full text-xs text-left border-collapse min-w-[1100px]">
             <thead className="sticky top-0 z-10 bg-white border-b border-slate-300">
               <tr>

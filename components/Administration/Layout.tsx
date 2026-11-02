@@ -189,7 +189,7 @@ export default function AdministrationLayout({ children }: { children: React.Rea
         </div>
 
         {/* Projects Navigation List */}
-        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-200">
+        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5 no-scrollbar">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.id === activeMenu;

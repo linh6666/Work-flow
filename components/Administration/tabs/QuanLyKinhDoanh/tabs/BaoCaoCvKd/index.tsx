@@ -189,7 +189,7 @@ export default function BaoCaoCvKdTab() {
   );
 
   return (
-    <div className="flex flex-col h-full bg-white space-y-3 p-1">
+    <div className="flex flex-col min-h-full bg-white space-y-3 p-1">
       {/* ── Header Section ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 shrink-0">
         <div>
@@ -251,8 +251,8 @@ export default function BaoCaoCvKdTab() {
       </div>
 
       {/* ── Table Area ── */}
-      <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
+      <div className="flex-1 flex flex-col min-h-[350px] sm:min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
+        <div className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 no-scrollbar touch-pan-x overscroll-x-contain">
           <table className="w-full text-xs text-left border-collapse min-w-[900px]">
             <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200">
               <tr>

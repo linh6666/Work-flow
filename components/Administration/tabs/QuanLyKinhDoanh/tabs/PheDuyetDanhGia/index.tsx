@@ -30,7 +30,17 @@ export default function PheDuyetDanhGiaTab() {
   const [activeSubTab, setActiveSubTab] = useState<SubTabKey>('tiendo');
 
   return (
-    <div className="flex flex-col min-h-full bg-white space-y-4 p-1">
+    <div className="flex-1 flex flex-col min-h-0 bg-white space-y-2.5 sm:space-y-4 p-1">
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+
       {/* ── 1. Header Section ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 shrink-0">
         <div>
@@ -45,7 +55,7 @@ export default function PheDuyetDanhGiaTab() {
         <button
           type="button"
           onClick={() => alert('Đã làm mới dữ liệu')}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer self-start sm:self-auto shrink-0"
+          className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer w-full sm:w-auto shrink-0 active:scale-95"
         >
           <IconRefresh size={14} className="text-slate-500" />
           <span>Làm mới</span>
@@ -53,7 +63,7 @@ export default function PheDuyetDanhGiaTab() {
       </div>
 
       {/* ── 2. Sub-Tabs Navigation Bar ── */}
-      <div className="flex gap-1 overflow-x-auto no-scrollbar pt-1 border-b border-slate-200/80 shrink-0">
+      <div className="flex gap-1 overflow-x-auto no-scrollbar pt-1 border-b border-slate-200/80 shrink-0 touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch]">
         {SUB_TABS.map((tab) => {
           const IconComp = tab.icon;
           const isActive = activeSubTab === tab.key;
@@ -67,7 +77,7 @@ export default function PheDuyetDanhGiaTab() {
                   ? { color: '#406c89', borderBottomColor: '#406c89', backgroundColor: '#eef4f7' }
                   : {}
               }
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-t-lg text-xs font-semibold transition-all cursor-pointer border-b-2 whitespace-nowrap shrink-0 ${
+              className={`inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-t-lg text-xs font-semibold transition-all cursor-pointer border-b-2 whitespace-nowrap shrink-0 active:scale-95 ${
                 isActive
                   ? 'font-bold border-b-2'
                   : 'text-slate-600 bg-slate-50 border-transparent hover:bg-slate-100 hover:text-slate-800'

@@ -80,29 +80,29 @@ export default function ChiPhiPhongBanTab() {
 
   return (
     <div className="flex-1 flex flex-col h-full space-y-3 min-h-0 overflow-hidden">
-      {/* ── 1. Summary Stats Cards (Row of 3 Cards matching screenshot) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0">
-        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-2xs flex flex-col justify-center min-h-[72px]">
-          <p className="text-[11px] text-slate-400 font-semibold mb-0.5">Nhân sự</p>
-          <p className="text-xl font-black text-slate-900 tracking-tight">{totalNhanSu}</p>
+      {/* ── 1. Summary Stats Cards (3 Cards in 1 Row on Mobile) ── */}
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-3 shrink-0">
+        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-4 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[72px]">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">Nhân sự</p>
+          <p className="text-base sm:text-xl font-black text-slate-900 tracking-tight">{totalNhanSu}</p>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-2xs flex flex-col justify-center min-h-[72px]">
-          <p className="text-[11px] text-slate-400 font-semibold mb-0.5">Tổng Giờ TT</p>
-          <p className="text-xl font-black text-amber-600 tracking-tight">{totalGioTt}h</p>
+        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-4 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[72px]">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">Tổng Giờ TT</p>
+          <p className="text-base sm:text-xl font-black text-amber-600 tracking-tight">{totalGioTt}h</p>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-2xs flex flex-col justify-center min-h-[72px]">
-          <p className="text-[11px] text-slate-400 font-semibold mb-0.5">Tổng chi phí</p>
-          <p className="text-xl font-black text-emerald-600 tracking-tight">
+        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-4 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[72px]">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">Tổng chi phí</p>
+          <p className="text-base sm:text-xl font-black text-emerald-600 tracking-tight truncate">
             {formatMoney(totalChiPhi)}
           </p>
         </div>
       </div>
 
       {/* ── 2. Data Table Matching Screenshot ── */}
-      <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200/80 rounded-xl shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
+      <div className="flex-1 flex flex-col min-h-[300px] sm:min-h-0 bg-white border border-slate-200/80 rounded-xl shadow-2xs overflow-hidden">
+        <div className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 overscroll-x-contain [-webkit-overflow-scrolling:touch]">
           <table className="w-full text-xs text-left border-collapse min-w-[700px]">
             <thead className="sticky top-0 z-10 bg-slate-50/90 border-b border-slate-200">
               <tr className="text-slate-500 font-bold text-[11px]">

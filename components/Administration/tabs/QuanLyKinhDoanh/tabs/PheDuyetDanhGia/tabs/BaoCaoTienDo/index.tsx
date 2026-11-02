@@ -195,27 +195,37 @@ export default function BaoCaoTienDoTab() {
   );
 
   return (
-    <div className="flex-1 flex flex-col h-full min-h-0 space-y-3 overflow-hidden">
-      {/* ── 1. Summary Stats Cards (Row of 4) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
-        <div className="bg-white border border-slate-200/80 rounded-xl p-3.5 shadow-2xs flex flex-col justify-center min-h-[64px]">
-          <p className="text-[11px] text-slate-400 font-semibold mb-0.5">Tổng báo cáo</p>
-          <p className="text-xl font-black text-slate-900 tracking-tight">{totalCount}</p>
+    <div className="flex-1 flex flex-col h-full min-h-0 space-y-2.5 sm:space-y-3 overflow-hidden">
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+
+      {/* ── 1. Summary Stats Cards (2x2 on Mobile, 4 Cols on Desktop) ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3 shrink-0">
+        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-3.5 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[64px]">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">Tổng báo cáo</p>
+          <p className="text-base sm:text-xl font-black text-slate-900 tracking-tight">{totalCount}</p>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-xl p-3.5 shadow-2xs flex flex-col justify-center min-h-[64px]">
-          <p className="text-[11px] text-slate-400 font-semibold mb-0.5">Chờ phê duyệt</p>
-          <p className="text-xl font-black text-amber-600 tracking-tight">{choPheDuyet}</p>
+        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-3.5 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[64px]">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">Chờ phê duyệt</p>
+          <p className="text-base sm:text-xl font-black text-amber-600 tracking-tight">{choPheDuyet}</p>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-xl p-3.5 shadow-2xs flex flex-col justify-center min-h-[64px]">
-          <p className="text-[11px] text-slate-400 font-semibold mb-0.5">%TB Tiến độ</p>
-          <p className="text-xl font-black text-indigo-700 tracking-tight">0%</p>
+        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-3.5 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[64px]">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">%TB Tiến độ</p>
+          <p className="text-base sm:text-xl font-black text-indigo-700 tracking-tight">0%</p>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-xl p-3.5 shadow-2xs flex flex-col justify-center min-h-[64px]">
-          <p className="text-[11px] text-slate-400 font-semibold mb-0.5">Đã PGĐ duyệt</p>
-          <p className="text-xl font-black text-emerald-600 tracking-tight">{daDuyet}</p>
+        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-3.5 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[64px]">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">Đã PGĐ duyệt</p>
+          <p className="text-base sm:text-xl font-black text-emerald-600 tracking-tight">{daDuyet}</p>
         </div>
       </div>
 
@@ -227,23 +237,29 @@ export default function BaoCaoTienDoTab() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Tìm theo tiêu đề, đối tượng, phạm vi..."
-          className="w-full pl-8 pr-8 py-2 bg-white border border-slate-200/80 rounded-lg text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#406c89] shadow-2xs transition-all"
+          className="w-full pl-8 pr-8 py-1.5 bg-white border border-slate-200/80 rounded-lg text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#406c89] shadow-2xs transition-all"
         />
         {searchQuery && (
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full cursor-pointer"
+            title="Xóa tìm kiếm"
           >
             <IconX size={14} />
           </button>
         )}
       </div>
 
+      {/* MOBILE SCROLL HINT */}
+      <div className="flex items-center justify-between text-[10px] text-slate-400 px-1 sm:hidden">
+        <span className="italic">← Vuốt ngang bảng để xem thêm thông tin & trạng thái →</span>
+      </div>
+
       {/* ── 3. Data Table (Fixed Pagination at Bottom) ── */}
-      <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
-          <table className="w-full text-xs text-left border-collapse min-w-[950px]">
+      <div className="flex-1 flex flex-col min-h-[350px] sm:min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
+        <div className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+          <table className="w-full text-xs text-left border-collapse min-w-[850px] sm:min-w-[950px]">
             <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200">
               <tr>
                 <SortTh col="tieuDe" label="Tiêu đề" />
@@ -365,19 +381,19 @@ export default function BaoCaoTienDoTab() {
         </div>
 
         {/* ── 4. Pagination Footer ── */}
-        <div className="shrink-0 border-t border-slate-100 px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50/60">
-          <div>
+        <div className="shrink-0 border-t border-slate-100 px-3 sm:px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50/60">
+          <div className="text-center sm:text-left">
             Hiển thị <span className="font-bold text-slate-700">{totalFiltered > 0 ? startIndex + 1 : 0}</span> -{' '}
             <span className="font-bold text-slate-700">{endIndex}</span> trên tổng số{' '}
             <span className="font-bold text-slate-700">{totalFiltered}</span> mục
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center justify-center gap-1">
             <button
               type="button"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer active:scale-95"
             >
               <IconChevronLeft size={13} />
               <span>Trước</span>
@@ -388,7 +404,7 @@ export default function BaoCaoTienDoTab() {
                 key={page}
                 type="button"
                 onClick={() => setCurrentPage(page)}
-                className={`w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer ${
+                className={`w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer active:scale-95 ${
                   currentPage === page
                     ? 'bg-[#406c89] text-white shadow-2xs'
                     : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -402,7 +418,7 @@ export default function BaoCaoTienDoTab() {
               type="button"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer active:scale-95"
             >
               <span>Sau</span>
               <IconChevronRight size={13} />

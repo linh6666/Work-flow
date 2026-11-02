@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   IconPlus,
+  IconSearch,
+  IconX,
   IconTrash,
   IconArrowsSort,
   IconChevronLeft,
@@ -189,7 +191,17 @@ export default function BaoCaoCvKdTab() {
   );
 
   return (
-    <div className="flex flex-col min-h-full bg-white space-y-3 p-1">
+    <div className="flex-1 flex flex-col min-h-0 bg-white space-y-2.5 sm:space-y-3 p-1">
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+
       {/* ── Header Section ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 shrink-0">
         <div>
@@ -202,7 +214,7 @@ export default function BaoCaoCvKdTab() {
         <button
           type="button"
           onClick={() => setIsKhoiTaoModalOpen(true)}
-          className="flex items-center gap-1 px-3 py-1.5 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-md shadow-2xs transition-all cursor-pointer self-start sm:self-auto shrink-0"
+          className="w-full sm:w-auto flex items-center justify-center gap-1 px-3 py-1.5 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-md shadow-2xs transition-all cursor-pointer shrink-0 active:scale-95"
         >
           <IconPlus size={14} />
           <span>Khởi tạo báo cáo</span>
@@ -210,49 +222,78 @@ export default function BaoCaoCvKdTab() {
       </div>
 
       {/* ── Filter Toolbar Row ── */}
-      <div className="flex items-center gap-2.5 shrink-0">
-        {/* Phạm vi filter */}
-        <div className="relative">
-          <select
-            value={selectedPhamVi}
-            onChange={(e) => setSelectedPhamVi(e.target.value)}
-            className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-xs font-medium text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer shadow-2xs transition-all"
-          >
-            {PHAM_VI_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-          <IconChevronDown
-            size={14}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
+        {/* Search */}
+        <div className="relative flex-1 min-w-0">
+          <IconSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Tìm theo tiêu đề, người tạo..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-8 pr-8 py-1.5 bg-white border border-slate-200/80 rounded-lg text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#406c89] shadow-2xs transition-all"
           />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full cursor-pointer"
+              title="Xóa tìm kiếm"
+            >
+              <IconX size={14} />
+            </button>
+          )}
         </div>
 
-        {/* Trạng thái filter */}
-        <div className="relative">
-          <select
-            value={selectedTrangThai}
-            onChange={(e) => setSelectedTrangThai(e.target.value)}
-            className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-xs font-medium text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer shadow-2xs transition-all"
-          >
-            {TRANG_THAI_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-          <IconChevronDown
-            size={14}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-          />
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Phạm vi filter */}
+          <div className="relative flex-1 sm:flex-none">
+            <select
+              value={selectedPhamVi}
+              onChange={(e) => setSelectedPhamVi(e.target.value)}
+              className="w-full appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-xs font-medium text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer shadow-2xs transition-all"
+            >
+              {PHAM_VI_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            <IconChevronDown
+              size={14}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+            />
+          </div>
+
+          {/* Trạng thái filter */}
+          <div className="relative flex-1 sm:flex-none">
+            <select
+              value={selectedTrangThai}
+              onChange={(e) => setSelectedTrangThai(e.target.value)}
+              className="w-full appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-xs font-medium text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer shadow-2xs transition-all"
+            >
+              {TRANG_THAI_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            <IconChevronDown
+              size={14}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+            />
+          </div>
         </div>
+      </div>
+
+      {/* MOBILE SCROLL HINT */}
+      <div className="flex items-center justify-between text-[10px] text-slate-400 px-1 sm:hidden">
+        <span className="italic">← Vuốt ngang bảng để xem thêm thông tin & trạng thái →</span>
       </div>
 
       {/* ── Table Area ── */}
       <div className="flex-1 flex flex-col min-h-[350px] sm:min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 no-scrollbar touch-pan-x overscroll-x-contain">
+        <div className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 overscroll-x-contain [-webkit-overflow-scrolling:touch]">
           <table className="w-full text-xs text-left border-collapse min-w-[900px]">
             <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200">
               <tr>
@@ -318,7 +359,7 @@ export default function BaoCaoCvKdTab() {
                           <button
                             type="button"
                             onClick={() => setOpenStatusDropdownId(isOpen ? null : item.id)}
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-semibold transition-colors cursor-pointer ${getTrangThaiBadgeStyle(
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-semibold transition-colors cursor-pointer active:scale-95 ${getTrangThaiBadgeStyle(
                               item.trangThai
                             )}`}
                           >
@@ -341,7 +382,7 @@ export default function BaoCaoCvKdTab() {
                                     key={opt}
                                     type="button"
                                     onClick={() => handleSelectStatus(item.id, opt)}
-                                    className="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-left text-xs font-medium hover:bg-slate-50 transition-colors cursor-pointer"
+                                    className="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-left text-xs font-medium hover:bg-slate-50 transition-colors cursor-pointer active:scale-95"
                                   >
                                     <span
                                       className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[11px] font-semibold ${getTrangThaiBadgeStyle(
@@ -367,7 +408,7 @@ export default function BaoCaoCvKdTab() {
                           <button
                             type="button"
                             onClick={() => handleDelete(item.id)}
-                            className="hover:text-rose-600 cursor-pointer transition-colors p-1"
+                            className="hover:text-rose-600 cursor-pointer transition-colors p-1 active:scale-95"
                             title="Xóa"
                           >
                             <IconTrash size={14} />
@@ -383,19 +424,19 @@ export default function BaoCaoCvKdTab() {
         </div>
 
         {/* ── Pagination Footer ── */}
-        <div className="shrink-0 border-t border-slate-100 px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50/60">
-          <div>
+        <div className="shrink-0 border-t border-slate-100 px-3 sm:px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50/60">
+          <div className="text-center sm:text-left">
             Hiển thị <span className="font-bold text-slate-700">{totalFiltered > 0 ? startIndex + 1 : 0}</span> -{' '}
             <span className="font-bold text-slate-700">{endIndex}</span> trên tổng số{' '}
             <span className="font-bold text-slate-700">{totalFiltered}</span> báo cáo
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center justify-center gap-1">
             <button
               type="button"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer active:scale-95"
             >
               <IconChevronLeft size={13} />
               <span>Trước</span>
@@ -406,7 +447,7 @@ export default function BaoCaoCvKdTab() {
                 key={page}
                 type="button"
                 onClick={() => setCurrentPage(page)}
-                className={`w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer ${
+                className={`w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer active:scale-95 ${
                   currentPage === page
                     ? 'bg-[#406c89] text-white shadow-2xs'
                     : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -420,7 +461,7 @@ export default function BaoCaoCvKdTab() {
               type="button"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer active:scale-95"
             >
               <span>Sau</span>
               <IconChevronRight size={13} />

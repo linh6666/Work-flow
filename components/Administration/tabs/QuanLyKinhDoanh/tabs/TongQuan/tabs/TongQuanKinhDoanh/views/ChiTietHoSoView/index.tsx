@@ -16,6 +16,8 @@ import {
 } from '@tabler/icons-react';
 
 import BaoCaoThucHienModal from './modals/BaoCaoThucHienModal';
+import XoaCongViecModal from './modals/XoaCongViecModal';
+import ThemCongViecModal from './modals/ThemCongViecModal';
 
 interface ProjectCardItem {
   id: string;
@@ -33,7 +35,7 @@ interface ProjectCardItem {
   borderColor: string;
 }
 
-interface FullTaskItem {
+export interface FullTaskItem {
   stt: number;
   group: 'BÁO GIÁ' | 'HỢP ĐỒNG' | 'QL DỰ ÁN';
   bcBadge: string; // e.g. '0.5h 📄1BC' or '📄BC'
@@ -289,6 +291,10 @@ export default function ChiTietHoSoView({
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('Tất cả trạng thái');
   const [selectedTaskForReport, setSelectedTaskForReport] = useState<FullTaskItem | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+  const [selectedTaskForDelete, setSelectedTaskForDelete] = useState<FullTaskItem | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [targetGroupForAdd, setTargetGroupForAdd] = useState<'BÁO GIÁ' | 'HỢP ĐỒNG' | 'QL DỰ ÁN'>('BÁO GIÁ');
   const [tasks, setTasks] = useState<FullTaskItem[]>(() => {
     if (typeof window !== 'undefined' && card?.id) {
       const saved = localStorage.getItem(`quan_ly_kinh_doanh_tasks_${card.id}`);
@@ -335,29 +341,41 @@ export default function ChiTietHoSoView({
     setCollapsedGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
   };
 
+  const handleOpenDeleteModal = (taskItem: FullTaskItem) => {
+    setSelectedTaskForDelete(taskItem);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteTask = (stt: number) => {
+    setTasks((prev) => prev.filter((t) => t.stt !== stt));
+    setIsDeleteModalOpen(false);
+    setSelectedTaskForDelete(null);
+  };
+
   const deleteTask = (stt: number) => {
     setTasks((prev) => prev.filter((t) => t.stt !== stt));
   };
 
+  const handleOpenAddModal = (groupName?: 'BÁO GIÁ' | 'HỢP ĐỒNG' | 'QL DỰ ÁN') => {
+    if (groupName) {
+      setTargetGroupForAdd(groupName);
+    }
+    setIsAddModalOpen(true);
+  };
+
+  const handleAddTask = (newTaskData: Omit<FullTaskItem, 'stt'>) => {
+    setTasks((prev) => {
+      const nextStt = prev.length > 0 ? Math.max(...prev.map((t) => t.stt)) + 1 : 1;
+      const createdTask: FullTaskItem = {
+        stt: nextStt,
+        ...newTaskData,
+      };
+      return [...prev, createdTask];
+    });
+  };
+
   const handleAddNewRow = () => {
-    const title = prompt('Nhập tên công việc mới:');
-    if (!title) return;
-    const newTask: FullTaskItem = {
-      stt: tasks.length + 1,
-      group: 'QL DỰ ÁN',
-      bcBadge: '📄BC',
-      status: 'Chưa bắt đầu',
-      title: title.toUpperCase(),
-      klDk: 1,
-      klDp: 0,
-      assignee: 'Bùi Phương Uyên',
-      gioDk: '1h',
-      gioTt: '—',
-      startDate: 'mm/dd/yyyy',
-      endDate: 'mm/dd/yyyy',
-      rowBgColor: 'white',
-    };
-    setTasks((prev) => [...prev, newTask]);
+    handleOpenAddModal();
   };
 
   const handleAddNewGroup = () => {
@@ -638,21 +656,21 @@ export default function ChiTietHoSoView({
                               <div className="flex items-center justify-center gap-1">
                                 <button
                                   type="button"
-                                  onClick={handleAddNewRow}
+                                  onClick={() => handleOpenAddModal(task.group)}
                                   className={`p-0.5 rounded transition-colors cursor-pointer ${
                                     isBlueRow || isYellowRow ? 'text-white/80 hover:text-white hover:bg-white/20' : 'text-slate-400 hover:text-[#406c89]'
                                   }`}
-                                  title="Thêm hàng mới"
+                                  title="Thêm công việc mới"
                                 >
                                   <IconPlus size={13} />
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => deleteTask(task.stt)}
+                                  onClick={() => handleOpenDeleteModal(task)}
                                   className={`p-0.5 rounded transition-colors cursor-pointer ${
                                     isBlueRow || isYellowRow ? 'text-white/80 hover:text-rose-200 hover:bg-white/20' : 'text-slate-400 hover:text-rose-600'
                                   }`}
-                                  title="Xóa hàng"
+                                  title="Xóa công việc"
                                 >
                                   <IconTrash size={13} />
                                 </button>
@@ -821,6 +839,25 @@ export default function ChiTietHoSoView({
         onClose={() => setIsReportModalOpen(false)}
         task={selectedTaskForReport}
         onSaveReport={handleSaveTaskReport}
+      />
+
+      {/* ── 5. XÓA CÔNG VIỆC MODAL ── */}
+      <XoaCongViecModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedTaskForDelete(null);
+        }}
+        task={selectedTaskForDelete}
+        onConfirmDelete={handleConfirmDeleteTask}
+      />
+
+      {/* ── 6. THÊM CÔNG VIỆC MODAL ── */}
+      <ThemCongViecModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        defaultGroup={targetGroupForAdd}
+        onAddTask={handleAddTask}
       />
     </div>
   );

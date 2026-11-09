@@ -16,6 +16,7 @@ import TaoHopDongModal from './modals/TaoHopDongModal';
 import TaoQuanLyDuAnModal from './modals/TaoQuanLyDuAnModal';
 import TaoBaoCaoThangModal from './modals/TaoBaoCaoThangModal';
 import KhoiTaoBaoCaoModal from './modals/KhoiTaoBaoCaoModal';
+import XoaHoSoModal from './modals/XoaHoSoModal';
 import ChiTietHoSoView from './views/ChiTietHoSoView';
 
 interface TongQuanKinhDoanhProps {
@@ -28,7 +29,7 @@ interface CardMilestone {
   color: 'blue' | 'rose';
 }
 
-interface ProjectCardItem {
+export interface ProjectCardItem {
   id: string;
   typeTag: string; // 'BC CV KD' | 'Khối VP'
   code: string;
@@ -338,6 +339,8 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
   const [isQuanLyDuAnModalOpen, setIsQuanLyDuAnModalOpen] = useState<boolean>(false);
   const [isBaoCaoThangModalOpen, setIsBaoCaoThangModalOpen] = useState<boolean>(false);
   const [isKhoiTaoBaoCaoModalOpen, setIsKhoiTaoBaoCaoModalOpen] = useState<boolean>(false);
+  const [cardToDelete, setCardToDelete] = useState<ProjectCardItem | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [selectedDetailCard, setSelectedDetailCard] = useState<ProjectCardItem | null>(null);
 
   // Sync selectedDetailCard with searchParams 'detailId'
@@ -370,8 +373,27 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
     router.replace(newSearch ? `${pathname}?${newSearch}` : pathname);
   };
 
+  const handleOpenDeleteModal = (card: ProjectCardItem) => {
+    setCardToDelete(card);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteCard = (cardId: string) => {
+    setCards((prev) => prev.filter((c) => c.id !== cardId));
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(`quan_ly_kinh_doanh_tasks_${cardId}`);
+    }
+    setIsDeleteModalOpen(false);
+    setCardToDelete(null);
+  };
+
   const handleDeleteCard = (id: string) => {
-    setCards((prev) => prev.filter((c) => c.id !== id));
+    const found = cards.find((c) => c.id === id);
+    if (found) {
+      handleOpenDeleteModal(found);
+    } else {
+      setCards((prev) => prev.filter((c) => c.id !== id));
+    }
   };
 
   const handleAddNewProjectCard = (data: any) => {
@@ -728,7 +750,7 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => handleDeleteCard(card.id)}
+                    onClick={() => handleOpenDeleteModal(card)}
                     title="Xóa hồ sơ"
                     className="p-1 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                   >
@@ -861,6 +883,17 @@ export default function TongQuanKinhDoanhTab({ onNavigateTab }: TongQuanKinhDoan
       <KhoiTaoBaoCaoModal
         isOpen={isKhoiTaoBaoCaoModalOpen}
         onClose={() => setIsKhoiTaoBaoCaoModalOpen(false)}
+      />
+
+      {/* Modal xác nhận xóa hồ sơ */}
+      <XoaHoSoModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setCardToDelete(null);
+        }}
+        card={cardToDelete}
+        onConfirmDelete={handleConfirmDeleteCard}
       />
     </div>
   );

@@ -2,7 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { IconX, IconPlus, IconChevronDown, IconCalendar, IconClock, IconUser, IconLayersLinked } from '@tabler/icons-react';
-import { FullTaskItem } from '../../index';
+
+export interface FullTaskItem {
+  stt: number;
+  group: 'BÁO GIÁ' | 'HỢP ĐỒNG' | 'QL DỰ ÁN';
+  bcBadge: string;
+  status: string;
+  title: string;
+  klDk: number;
+  klDp: number;
+  assignee: string;
+  gioDk: string;
+  gioTt: string;
+  startDate: string;
+  endDate: string;
+  rowBgColor?: 'blue' | 'yellow' | 'white';
+}
 
 interface ThemCongViecModalProps {
   isOpen: boolean;

@@ -14,9 +14,11 @@ import {
   IconAdjustmentsHorizontal,
   IconSearch,
   IconX,
+  IconClipboardList,
 } from '@tabler/icons-react';
 import { ProjectItem } from '../../types';
 import ChiTietDuAnModal from '../../modal/ChiTietDuAnModal';
+import TienDoTheoYCSXModal from '../../modal/TienDoTheoYCSXModal';
 
 interface TongHopTienDoProps {
   projects: ProjectItem[];
@@ -41,6 +43,7 @@ export default function TongHopTienDo({
   evaluationFilter = 'ALL',
 }: TongHopTienDoProps) {
   const [selectedModalProject, setSelectedModalProject] = useState<ProjectItem | null>(null);
+  const [selectedYcsxProject, setSelectedYcsxProject] = useState<ProjectItem | null>(null);
   const [sortKey, setSortKey] = useState<keyof ProjectItem | null>('priority');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
@@ -170,16 +173,45 @@ export default function TongHopTienDo({
     }
   };
 
+  const getStatusBadgeStyle = (status: ProjectItem['status'] | string) => {
+    switch (status) {
+      case 'Đang thực hiện':
+        return 'bg-[#fef3c7] text-[#92400e] border-[#fde68a]';
+      case 'Hoàn thành':
+      case 'Đã hoàn thành':
+        return 'bg-[#d1fae5] text-[#065f46] border-[#a7f3d0]';
+      case 'Tạm dừng':
+        return 'bg-[#ede9fe] text-[#6b21a8] border-[#ddd6fe]';
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
+
   const getEvaluationBadgeStyle = (evalType: ProjectItem['evaluation']) => {
     switch (evalType) {
       case 'Đúng tiến độ':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        return 'bg-[#78b368] text-white border-[#6ba45b] shadow-2xs';
       case 'Vượt tiến độ':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
+        return 'bg-[#1b5e20] text-white border-[#144718] shadow-2xs';
       case 'Chưa đánh giá':
-        return 'bg-slate-100 text-slate-500 border-slate-200';
+        return 'bg-white text-slate-600 border-slate-300';
       case 'Chậm tiến độ':
-        return 'bg-rose-50 text-rose-700 border-rose-200 font-bold';
+        return 'bg-rose-600 text-white border-rose-700';
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
+
+  const getYcsxBadgeStyle = (ycsx?: ProjectItem['tienDoYcsx']) => {
+    switch (ycsx) {
+      case 'Đạt 100%':
+        return 'bg-[#ccfbf1] text-[#115e59] border-[#99f6e4]';
+      case 'Còn công việc':
+        return 'bg-[#e0e7ff] text-[#3730a3] border-[#c7d2fe]';
+      case 'Chậm tiến độ':
+        return 'bg-[#fee2e2] text-[#991b1b] border-[#fecaca]';
+      case 'Chưa đủ dữ liệu':
+        return 'bg-[#f1f5f9] text-[#475569] border-[#e2e8f0]';
       default:
         return 'bg-slate-100 text-slate-700 border-slate-200';
     }
@@ -469,58 +501,55 @@ export default function TongHopTienDo({
 
       {/* TABLE MATCHING KHACH HANG TAB EXACTLY */}
       <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
-        <table className="w-full text-xs text-left border-collapse min-w-[980px]">
+        <table className="w-full text-xs text-left border-collapse min-w-[1200px]">
           <thead className="sticky top-0 z-10 bg-slate-50 shadow-2xs border-b border-slate-200">
-            <tr className="bg-slate-50">
-              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200">
+            <tr className="bg-slate-50 whitespace-nowrap">
+              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap min-w-[280px]">
                 <button
                   type="button"
-                  className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold"
+                  className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold whitespace-nowrap"
                   onClick={() => handleSort('name')}
                 >
                   <span>Dự án</span>
                   <span className="text-slate-400 text-[10px]">↕</span>
                 </button>
               </th>
-              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center w-16">
+              <th className="px-3 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap min-w-[85px]">
                 <button
                   type="button"
-                  className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold w-full"
+                  className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold w-full whitespace-nowrap"
                   onClick={() => handleSort('priority')}
                 >
                   <span>Ưu tiên</span>
                   <span className="text-slate-400 text-[10px]">↕</span>
                 </button>
               </th>
-              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center w-28">
+              <th className="px-3 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap min-w-[110px]">
                 Tình trạng
               </th>
-              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center w-32">
+              <th className="px-3 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap min-w-[125px]">
                 Đánh giá TĐ
               </th>
-              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center w-20">
+              <th className="px-3 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap min-w-[90px]">
                 <button
                   type="button"
-                  className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold w-full"
+                  className="flex items-center justify-center gap-1 hover:text-slate-800 transition-colors cursor-pointer font-bold w-full whitespace-nowrap"
                   onClick={() => handleSort('progressPct')}
                 >
                   <span>Tiến độ</span>
                   <span className="text-slate-400 text-[10px]">↕</span>
                 </button>
               </th>
-              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center w-24">
+              <th className="px-3 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap min-w-[125px]">
+                Tiến độ YCSX
+              </th>
+              <th className="px-3 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap min-w-[105px]">
                 Hoàn thành
               </th>
-              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center w-32">
+              <th className="px-3 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center whitespace-nowrap min-w-[120px]">
                 Giờ TH/KH
               </th>
-              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center w-28">
-                TB Tuần
-              </th>
-              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-center w-24">
-                Biểu đồ
-              </th>
-              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-right w-28">
+              <th className="px-4 py-3 font-semibold text-slate-500 text-xs bg-slate-50 border-b border-slate-200 text-right whitespace-nowrap min-w-[230px]">
                 Thao tác
               </th>
             </tr>
@@ -528,7 +557,7 @@ export default function TongHopTienDo({
           <tbody className="divide-y divide-slate-100">
             {paginatedProjects.length === 0 ? (
               <tr>
-                <td colSpan={10} className="text-center py-10 text-slate-400">
+                <td colSpan={9} className="text-center py-10 text-slate-400">
                   <p className="font-semibold text-xs">Không tìm thấy dự án nào</p>
                 </td>
               </tr>
@@ -536,18 +565,21 @@ export default function TongHopTienDo({
               paginatedProjects.map((p) => (
                 <tr
                   key={p.id}
-                  className="hover:bg-slate-50/70 transition-colors group cursor-pointer"
+                  className="hover:bg-slate-50/70 transition-colors group cursor-pointer whitespace-nowrap"
                   onClick={() => setSelectedModalProject(p)}
                 >
                   {/* Tên dự án + Avatar */}
-                  <td className="px-4 py-3.5 align-middle">
+                  <td className="px-4 py-3.5 align-middle whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <Avatar name={p.name} />
-                      <div className="min-w-0 max-w-[240px]">
-                        <p className="font-bold text-[#406c89] hover:underline cursor-pointer leading-snug text-xs uppercase">
+                      <div className="min-w-0 max-w-[340px]">
+                        <p
+                          className="font-bold text-[#406c89] hover:underline cursor-pointer leading-snug text-xs uppercase truncate"
+                          title={p.name}
+                        >
                           {p.name}
                         </p>
-                        <p className="text-[10px] text-slate-400 font-medium mt-0.5 uppercase">
+                        <p className="text-[10px] text-slate-400 font-medium mt-0.5 uppercase truncate" title={p.subName}>
                           {p.subName}
                         </p>
                       </div>
@@ -555,9 +587,9 @@ export default function TongHopTienDo({
                   </td>
 
                   {/* Ưu tiên */}
-                  <td className="px-4 py-3.5 align-middle text-center">
+                  <td className="px-3 py-3.5 align-middle text-center whitespace-nowrap">
                     {p.priority !== null ? (
-                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 text-slate-600 font-bold text-[11px] border border-slate-200">
+                      <span className="font-bold text-[#2f2b7c] text-xs">
                         {p.priority}
                       </span>
                     ) : (
@@ -566,14 +598,18 @@ export default function TongHopTienDo({
                   </td>
 
                   {/* Tình trạng */}
-                  <td className="px-4 py-3.5 align-middle text-center">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
+                  <td className="px-3 py-3.5 align-middle text-center whitespace-nowrap">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap ${getStatusBadgeStyle(
+                        p.status
+                      )}`}
+                    >
                       {p.status}
                     </span>
                   </td>
 
                   {/* Đánh giá TĐ */}
-                  <td className="px-4 py-3.5 align-middle text-center">
+                  <td className="px-3 py-3.5 align-middle text-center whitespace-nowrap">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap ${getEvaluationBadgeStyle(
                         p.evaluation
@@ -584,40 +620,39 @@ export default function TongHopTienDo({
                   </td>
 
                   {/* Tiến độ (%) */}
-                  <td className="px-4 py-3.5 align-middle text-center font-bold text-[#406c89] text-xs">
+                  <td className="px-3 py-3.5 align-middle text-center font-bold text-[#2f2b7c] text-xs whitespace-nowrap">
                     {p.progressPct}%
                   </td>
 
+                  {/* Tiến độ YCSX */}
+                  <td className="px-3 py-3.5 align-middle text-center whitespace-nowrap">
+                    {p.tienDoYcsx && p.tienDoYcsxText !== '—' ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedYcsxProject(p);
+                        }}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap hover:scale-105 transition-transform cursor-pointer ${getYcsxBadgeStyle(
+                          p.tienDoYcsx
+                        )}`}
+                        title="Xem chi tiết tiến độ theo YCSX"
+                      >
+                        {p.tienDoYcsxText || p.tienDoYcsx}
+                      </button>
+                    ) : (
+                      <span className="text-slate-400 font-medium">—</span>
+                    )}
+                  </td>
+
                   {/* Hoàn thành */}
-                  <td className="px-4 py-3.5 align-middle text-center font-bold text-emerald-600 text-xs">
+                  <td className="px-3 py-3.5 align-middle text-center font-bold text-teal-600 text-xs whitespace-nowrap">
                     {p.completedTasks}
                   </td>
 
                   {/* Giờ TH/KH */}
-                  <td className="px-4 py-3.5 align-middle text-center font-bold text-amber-600 text-xs">
+                  <td className="px-3 py-3.5 align-middle text-center font-bold text-amber-600 text-xs whitespace-nowrap">
                     {p.actualHours}
-                  </td>
-
-                  {/* TB Tuần */}
-                  <td className="px-4 py-3.5 align-middle text-center text-xs">
-                    {p.weekReport ? (
-                      <span className="inline-flex items-center gap-1 text-slate-600 font-medium text-[11px]">
-                        <span>{p.weekReport}</span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#406c89] shrink-0" />
-                      </span>
-                    ) : (
-                      <span className="text-slate-300">—</span>
-                    )}
-                  </td>
-
-                  {/* Biểu đồ bar graph */}
-                  <td className="px-4 py-3.5 align-middle text-center">
-                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
-                      <div
-                        className="h-full rounded-full bg-[#406c89] transition-all duration-500 shadow-2xs"
-                        style={{ width: `${p.progressPct}%` }}
-                      />
-                    </div>
                   </td>
 
                   {/* THAO TÁC (Clicking button opens Modal) */}
@@ -630,10 +665,23 @@ export default function TongHopTienDo({
                           setSelectedModalProject(p);
                         }}
                         className="py-1 px-2.5 rounded-md border border-sky-200 text-[#406c89] hover:bg-sky-50 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors bg-white cursor-pointer shadow-2xs whitespace-nowrap"
-                        title="Xem chi tiết dự án"
+                        title="Xem nhận xét"
                       >
                         <IconEye size={12} />
-                        <span>Xem</span>
+                        <span>Xem nhận xét</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedYcsxProject(p);
+                        }}
+                        className="py-1 px-2.5 rounded-md border border-teal-200 text-teal-700 hover:bg-teal-50 text-[10px] font-bold flex items-center justify-center gap-1 transition-colors bg-white cursor-pointer shadow-2xs whitespace-nowrap"
+                        title="Tiến độ theo YCSX"
+                      >
+                        <IconClipboardList size={12} />
+                        <span>Tiến độ theo YCSX</span>
                       </button>
                     </div>
                   </td>
@@ -695,6 +743,15 @@ export default function TongHopTienDo({
           isOpen={!!selectedModalProject}
           onClose={() => setSelectedModalProject(null)}
           project={selectedModalProject}
+        />
+      )}
+
+      {/* TIEN DO THEO YCSX MODAL */}
+      {selectedYcsxProject && (
+        <TienDoTheoYCSXModal
+          isOpen={!!selectedYcsxProject}
+          onClose={() => setSelectedYcsxProject(null)}
+          project={selectedYcsxProject}
         />
       )}
     </div>

@@ -1,11 +1,13 @@
 "use client";
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   IconX,
-  IconBuilding,
+  IconMessage2,
+  IconCalendar,
+  IconPrinter,
 } from '@tabler/icons-react';
-import { ProjectItem } from '../../types';
+import { ProjectItem, WeeklyRemarkItem } from '../../types';
 
 interface ChiTietDuAnModalProps {
   isOpen: boolean;
@@ -23,18 +25,6 @@ export interface DepartmentItem {
   actualHours: string;
 }
 
-const DEFAULT_DEPARTMENTS: DepartmentItem[] = [
-  { id: '1', name: 'Ban Giám đốc', progressPct: 0, completedTasks: '0/16', inProgressTasks: 0, plannedHours: '17h', actualHours: '0.0h' },
-  { id: '2', name: 'Khối Văn phòng', progressPct: 58, completedTasks: '19/32', inProgressTasks: 0, plannedHours: '45h', actualHours: '26.0h' },
-  { id: '3', name: 'Phòng Khai triển', progressPct: 87, completedTasks: '20/23', inProgressTasks: 0, plannedHours: '55h', actualHours: '41.0h' },
-  { id: '4', name: 'Phòng Cắt', progressPct: 59, completedTasks: '16/27', inProgressTasks: 0, plannedHours: '102h', actualHours: '42.0h' },
-  { id: '5', name: 'Phòng Ghép', progressPct: 74, completedTasks: '14/19', inProgressTasks: 0, plannedHours: '110h', actualHours: '70.0h' },
-  { id: '6', name: 'Phòng Mộc Sơn', progressPct: 56, completedTasks: '10/17', inProgressTasks: 0, plannedHours: '13h', actualHours: '8.5h' },
-  { id: '7', name: 'Phòng Điện', progressPct: 67, completedTasks: '4/6', inProgressTasks: 0, plannedHours: '16h', actualHours: '7.0h' },
-  { id: '8', name: 'Phòng Cảnh Quan', progressPct: 43, completedTasks: '3/7', inProgressTasks: 0, plannedHours: '10h', actualHours: '1.5h' },
-  { id: '9', name: 'Phòng Công nghệ và Thiết kế', progressPct: 9, completedTasks: '1/11', inProgressTasks: 0, plannedHours: '13h', actualHours: '1.0h' },
-];
-
 export default function ChiTietDuAnModal({
   isOpen,
   onClose,
@@ -42,137 +32,196 @@ export default function ChiTietDuAnModal({
 }: ChiTietDuAnModalProps) {
   if (!isOpen || !project) return null;
 
+  // Extract display name matching user screenshot (stripping project code if present)
+  const displayName = project.name.includes('—')
+    ? project.name.split('—').slice(1).join('—').trim()
+    : project.name;
+
+  const customerName =
+    project.customer ||
+    (project.subName && project.subName !== '-'
+      ? project.subName
+      : 'CÔNG TY CỔ PHẦN ĐẦU TƯ & XÂY DỰNG');
+
   const getEvaluationBadgeStyle = (evalType: ProjectItem['evaluation']) => {
     switch (evalType) {
       case 'Đúng tiến độ':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        return 'bg-[#78b368] text-white';
       case 'Vượt tiến độ':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
+        return 'bg-[#1b5e20] text-white';
       case 'Chưa đánh giá':
-        return 'bg-slate-100 text-slate-500 border-slate-200';
+        return 'bg-slate-100 text-slate-600 border border-slate-300';
       case 'Chậm tiến độ':
-        return 'bg-rose-50 text-rose-700 border-rose-200 font-bold';
+        return 'bg-rose-600 text-white';
       default:
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return 'bg-slate-100 text-slate-700';
     }
   };
 
+  // Resolve weekly remarks: project's custom weeklyRemarks if provided,
+  // or realistic fallback remarks modeled directly after the user's screenshot
+  const weeklyRemarks: WeeklyRemarkItem[] = useMemo(() => {
+    if (project.weeklyRemarks && project.weeklyRemarks.length > 0) {
+      return project.weeklyRemarks;
+    }
+
+    // Default 3-week remarks matching the structure in the user's screenshot
+    return [
+      {
+        id: 'w45',
+        week: 'Tuần 45/2026',
+        dateRange: '30/10/2026 — 06/11/2026',
+        evaluation: project.evaluation || 'Đúng tiến độ',
+        author: 'Trần Diễm My',
+        date: '06/11/2026',
+        content: `1- Đánh giá tiến độ, tình trạng tổng thể của dự án: ${
+          project.latestRemark
+            ? project.latestRemark
+            : 'tạm đánh giá là đảm bảo tiến độ'
+        }
+2- Những vấn đề cần lưu ý:
+- Phần khai triển công trình của dự án triển khai đúng theo tiến độ kế hoạch
+- Ngày 07/11/2026 Phòng Khai triển sẽ chuyển cắt mẫu tiếp theo
+
+3- Các mốc nghiệm thu dự kiến
+- Nghiệm thu 80%: 22/11/2026
+- Nghiệm thu 100%: 07/12/2026
+- Vận chuyển, lắp đặt & Bàn giao mô hình: 08/12/2026`,
+      },
+      {
+        id: 'w44',
+        week: 'Tuần 44/2026',
+        dateRange: '24/10/2026 — 31/10/2026',
+        evaluation: project.evaluation || 'Đúng tiến độ',
+        author: 'Trần Diễm My',
+        date: '31/10/2026',
+        content: `1- Đánh giá tiến độ, tình trạng tổng thể của dự án: tạm đánh giá là đảm bảo tiến độ
+2- Những vấn đề cần lưu ý:
+- Phần Khung bảng: sớm hơn dự kiến 04 ngày làm việc
+- Phần nền: chuyển cắt chậm hơn dự kiến 04 ngày làm việc. Bàn cắt đầu tiên sẽ được chuyển cắt vào ngày 02/11/2026
+- Phần công trình: chuyển cắt chậm hơn dự kiến 4 ngày làm việc do thời gian ghép các LOT kéo dài hơn dự kiến
+
+3- Các mốc nghiệm thu dự kiến
+- Nghiệm thu 80%: 22/11/2026
+- Nghiệm thu 100%: 07/12/2026
+- Vận chuyển, lắp đặt & Bàn giao mô hình: 08/12/2026`,
+      },
+      {
+        id: 'w43',
+        week: 'Tuần 43/2026',
+        dateRange: '17/10/2026 — 23/10/2026',
+        evaluation: project.evaluation || 'Đúng tiến độ',
+        author: 'Trần Diễm My',
+        date: '23/10/2026',
+        content: `1- Đánh giá tiến độ, tình trạng tổng thể của dự án: tạm đánh giá là đảm bảo tiến độ
+2- Những vấn đề cần lưu ý:
+- Dự án bắt đầu triển khai từ ngày 23/10/2026`,
+      },
+    ];
+  }, [project]);
+
+  const handlePrintOrExcel = () => {
+    window.print();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200 select-none">
-      <div className="bg-white rounded-xl shadow-2xl border border-slate-200/90 w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all">
-        {/* MODAL HEADER */}
-        <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/70 flex items-start justify-between gap-3 shrink-0">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-sky-50 text-[#406c89] font-bold text-sm flex items-center justify-center shrink-0 border border-sky-100 shadow-2xs mt-0.5">
-              {project.name.trim().split(/\s+/).pop()?.[0]?.toUpperCase() || 'P'}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150 select-none"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl border border-slate-200/90 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* ── MODAL HEADER MATCHING USER SCREENSHOT EXACTLY ── */}
+        <div className="px-6 pt-5 pb-3 border-b border-slate-100 flex items-start justify-between gap-4 shrink-0 bg-white">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-slate-800">
+              <IconMessage2 size={17} className="text-blue-600 shrink-0" />
+              <h2 className="text-xs sm:text-sm font-bold text-slate-800 tracking-tight">
+                Nhận xét hàng tuần của Chủ nhiệm dự án
+              </h2>
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-bold text-slate-900 uppercase leading-snug tracking-tight">
-                  {project.name}
-                </h3>
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getEvaluationBadgeStyle(
-                    project.evaluation
-                  )}`}
-                >
-                  {project.evaluation}
-                </span>
-              </div>
-              <p className="text-xs font-semibold text-slate-400 uppercase mt-0.5">
-                Mã / Khách hàng: {project.subName}
+
+            <div className="space-y-0.5 pl-6">
+              <h3 className="text-xs sm:text-[13px] font-black text-slate-900 uppercase tracking-tight leading-snug">
+                {displayName}
+              </h3>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                {customerName}
               </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer shrink-0"
-          >
-            <IconX size={18} />
-          </button>
-        </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handlePrintOrExcel}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200/90 hover:border-slate-300 rounded-md shadow-2xs text-xs font-semibold transition-all cursor-pointer select-none"
+              title="In / Xuất Excel"
+            >
+              <IconPrinter size={15} className="text-slate-800 shrink-0" stroke={1.8} />
+              <span>In / Excel</span>
+            </button>
 
-        {/* MODAL BODY */}
-        <div className="p-5 overflow-y-auto space-y-4 text-xs no-scrollbar flex-1">
-
-          {/* DEPARTMENT BREAKDOWN TABLE MATCHING USER SCREENSHOT EXACTLY */}
-          <div className="bg-white border border-slate-200/90 rounded-lg shadow-2xs overflow-hidden">
-            <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
-              <h4 className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-                <IconBuilding size={15} className="text-slate-500" />
-                <span>Tiến độ thực hiện theo Phòng ban</span>
-              </h4>
-              <span className="text-[11px] font-semibold text-[#406c89] bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">
-                Tổng tiến độ: {project.progressPct}%
-              </span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse min-w-[640px]">
-                <thead>
-                  <tr className="border-b border-slate-200 text-slate-600 font-bold bg-slate-50/50">
-                    <th className="py-2.5 px-4 font-bold text-slate-600">Phòng ban</th>
-                    <th className="py-2.5 px-3 text-right font-bold text-slate-600">%HT</th>
-                    <th className="py-2.5 px-3 text-right font-bold text-slate-600">Hoàn thành</th>
-                    <th className="py-2.5 px-3 text-right font-bold text-slate-600">Đang làm</th>
-                    <th className="py-2.5 px-3 text-right font-bold text-slate-600">Giờ KH</th>
-                    <th className="py-2.5 px-3 text-right font-bold text-slate-600">Giờ TH</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {DEFAULT_DEPARTMENTS.map((dept) => (
-                    <tr
-                      key={dept.id}
-                      className="hover:bg-slate-50/80 transition-colors"
-                    >
-                      {/* Phòng ban */}
-                      <td className="py-2.5 px-4 font-bold text-slate-800">
-                        {dept.name}
-                      </td>
-
-                      {/* %HT */}
-                      <td className="py-2.5 px-3 text-right font-bold text-[#406c89]">
-                        {dept.progressPct}%
-                      </td>
-
-                      {/* Hoàn thành */}
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
-                        {dept.completedTasks}
-                      </td>
-
-                      {/* Đang làm */}
-                      <td className="py-2.5 px-3 text-right font-semibold text-slate-400">
-                        {dept.inProgressTasks}
-                      </td>
-
-                      {/* Giờ KH */}
-                      <td className="py-2.5 px-3 text-right font-medium text-slate-500">
-                        {dept.plannedHours}
-                      </td>
-
-                      {/* Giờ TH */}
-                      <td className="py-2.5 px-3 text-right font-bold text-amber-600">
-                        {dept.actualHours}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              title="Đóng"
+            >
+              <IconX size={18} />
+            </button>
           </div>
         </div>
 
-        {/* MODAL FOOTER */}
-        <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-end gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold rounded-md shadow-2xs transition-colors cursor-pointer"
-          >
-            Đóng
-          </button>
+        {/* ── MODAL BODY: LIST OF WEEKLY REMARKS CARDS ── */}
+        <div className="p-5 overflow-y-auto space-y-3.5 flex-1 min-h-0 text-xs no-scrollbar bg-slate-50/20">
+          {weeklyRemarks.length === 0 ? (
+            <div className="py-12 text-center text-slate-400 text-xs font-medium">
+              Chưa có nhận xét nào cho dự án này.
+            </div>
+          ) : (
+            weeklyRemarks.map((remark) => (
+              <div
+                key={remark.id}
+                className="bg-white border border-slate-200/90 rounded-lg p-4 shadow-2xs hover:border-slate-300 transition-colors space-y-3"
+              >
+                {/* Card Top Row: Week + Badge + DateRange (Left) & Author · Date (Right) */}
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <IconCalendar size={15} className="text-blue-600 shrink-0" />
+                      <span className="font-bold text-blue-600 text-xs">
+                        {remark.week}
+                      </span>
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${getEvaluationBadgeStyle(
+                          remark.evaluation
+                        )}`}
+                      >
+                        {remark.evaluation}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 font-medium pl-[23px]">
+                      {remark.dateRange}
+                    </p>
+                  </div>
+
+                  <div className="text-[11px] text-slate-400 font-medium whitespace-nowrap">
+                    <span>{remark.author}</span>
+                    <span className="mx-1">·</span>
+                    <span>{remark.date}</span>
+                  </div>
+                </div>
+
+                {/* Card Content: Formatted text */}
+                <div className="text-xs text-slate-700 leading-relaxed font-normal whitespace-pre-line">
+                  {remark.content}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

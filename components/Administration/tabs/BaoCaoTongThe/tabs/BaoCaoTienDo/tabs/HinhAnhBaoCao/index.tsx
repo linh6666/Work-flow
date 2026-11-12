@@ -4,17 +4,17 @@ import React, { useMemo } from 'react';
 import { IconMessageDots } from '@tabler/icons-react';
 import { ProjectItem } from '../../types';
 
-interface NhanXetChuNhiemProps {
+interface HinhAnhBaoCaoProps {
   projects: ProjectItem[];
   searchQuery: string;
   evaluationFilter: string;
 }
 
-export default function NhanXetChuNhiem({
+export default function HinhAnhBaoCao({
   projects,
   searchQuery,
   evaluationFilter,
-}: NhanXetChuNhiemProps) {
+}: HinhAnhBaoCaoProps) {
   // Filter projects with manager remarks
   const projectsWithRemarks = useMemo(() => {
     return projects.filter((p) => {

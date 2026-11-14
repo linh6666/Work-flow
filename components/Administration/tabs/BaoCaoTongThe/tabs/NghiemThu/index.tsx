@@ -26,7 +26,7 @@ export default function NghiemThu() {
             <IconPercentage size={15} className={activeTab === '80%' ? 'text-[#406c89]' : 'text-slate-400'} />
             <span>Nghiệm thu 80%</span>
             <span className="bg-[#406c89] text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-2xs">
-              22
+              115
             </span>
           </button>
 
@@ -43,7 +43,7 @@ export default function NghiemThu() {
             <IconCheck size={15} className={activeTab === '100%' ? 'text-[#137333]' : 'text-slate-400'} />
             <span>Nghiệm thu 100%</span>
             <span className="bg-[#137333] text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-2xs">
-              15
+              106
             </span>
           </button>
         </div>

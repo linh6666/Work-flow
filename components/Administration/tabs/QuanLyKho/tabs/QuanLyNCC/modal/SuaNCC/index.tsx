@@ -9,25 +9,25 @@ export interface SupplierEditItem {
   nhom_nvl: string;
   phan_loai: string;
   tan_suat: string;
-  nhom_hang: string;
-  nhom_ncc: string;
-  chat_luong: string;
-  gia_nvl: string;
-  tg_giao_dat: string;
-  on_dinh: string;
-  uu_dai: string;
-  tt_toan: string;
-  tong_diem: string;
-  nguoi_lien_he: string;
-  email: string;
+  nhom_hang?: string;
+  nhom_ncc?: string;
+  chat_luong: string | number;
+  gia_nvl: string | number;
+  tg_giao_dat: string | number;
+  on_dinh: string | number;
+  uu_dai: string | number;
+  tt_toan: string | number;
+  tong_diem?: string | number;
+  nguoi_lien_he?: string;
+  email?: string;
   dia_chi: string;
   sdt: string;
-  khu_vuc: string;
+  khu_vuc?: string;
   nvl_cung_cap: string;
   ghi_chu: string;
 }
 
-type EditableSupplier = Partial<SupplierEditItem> & Pick<SupplierEditItem, 'ma_ncc' | 'ncc'>;
+export type EditableSupplier = Partial<SupplierEditItem> & Pick<SupplierEditItem, 'ma_ncc' | 'ncc'>;
 
 interface SuaNCCProps {
   isOpen: boolean;

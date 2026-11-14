@@ -125,18 +125,48 @@ export default function NhapKhoTab() {
 
   const handleCreateSupplier = (data: NewSupplierData) => {
     const nextNumber = suppliers.length + 1;
-    setSuppliers((current) => [{
-      ...data,
+    const newEntry: SupplierRow = {
       phieu: `NCC-${String(nextNumber).padStart(3, '0')}`,
+      nhom_nvl: data.nhom_nvl,
+      phan_loai: data.phan_loai,
+      tan_suat: data.tan_suat,
+      chat_luong: data.chat_luong,
+      gia_nvl: String(data.gia_nvl),
+      tg_giao_dat: String(data.tg_giao_dat),
+      on_dinh: String(data.on_dinh),
+      uu_dai: String(data.uu_dai),
+      tt_toan: String(data.tt_toan),
+      ma_ncc: data.ma_ncc,
+      ncc: data.ncc,
+      dia_chi: data.dia_chi,
+      sdt: data.sdt,
+      nvl_cung_cap: data.nvl_cung_cap,
+      ghi_chu: data.ghi_chu,
       tong: 0,
       trang_thai: 'Mới',
-    }, ...current]);
+    };
+    setSuppliers((current) => [newEntry, ...current]);
     setCurrentPage(1);
     setIsCreateModalOpen(false);
   };
 
   const handleEditSupplier = (item: SupplierEditItem) => {
-    setSuppliers((current) => current.map((supplier) => supplier.ma_ncc === item.ma_ncc ? { ...supplier, ...item } : supplier));
+    setSuppliers((current) =>
+      current.map((supplier) =>
+        supplier.ma_ncc === item.ma_ncc
+          ? {
+              ...supplier,
+              ...item,
+              chat_luong: Number(item.chat_luong) || supplier.chat_luong,
+              gia_nvl: String(item.gia_nvl),
+              tg_giao_dat: String(item.tg_giao_dat),
+              on_dinh: String(item.on_dinh),
+              uu_dai: String(item.uu_dai),
+              tt_toan: String(item.tt_toan),
+            }
+          : supplier
+      )
+    );
     setIsEditModalOpen(false);
     setSelectedSupplier(null);
   };

@@ -8,18 +8,13 @@ import {
   IconPencil,
   IconTrash,
 } from '@tabler/icons-react';
+import { YearlyPlanRow } from './types';
+import ChiTietKeHoachModal from './modal/ChiTietKeHoachModal';
+import ChinhSuaKeHoachModal from './modal/ChinhSuaKeHoachModal';
+import XoaKeHoachModal from './modal/XoaKeHoachModal';
+import TaoKeHoachModal from './modal/TaoKeHoachModal';
 
-interface YearlyPlanRow {
-  id: string;
-  nam: string;
-  nguoiLap: string;
-  ngayLap: string;
-  viTriTuyenDung: number;
-  tongChiPhi: string;
-  trangThai: string;
-}
-
-const mockYearlyPlans: YearlyPlanRow[] = [
+const initialYearlyPlans: YearlyPlanRow[] = [
   {
     id: '1',
     nam: 'Năm 2026',
@@ -32,7 +27,48 @@ const mockYearlyPlans: YearlyPlanRow[] = [
 ];
 
 export default function KeHoachNhanSuTheoNam() {
-  const [plans, setPlans] = useState<YearlyPlanRow[]>(mockYearlyPlans);
+  const [plans, setPlans] = useState<YearlyPlanRow[]>(initialYearlyPlans);
+
+  // Modal states
+  const [selectedPlan, setSelectedPlan] = useState<YearlyPlanRow | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  // Handlers
+  const handleOpenDetail = (plan: YearlyPlanRow) => {
+    setSelectedPlan(plan);
+    setIsDetailOpen(true);
+  };
+
+  const handleOpenEdit = (plan: YearlyPlanRow) => {
+    setSelectedPlan(plan);
+    setIsEditOpen(true);
+  };
+
+  const handleOpenDelete = (plan: YearlyPlanRow) => {
+    setSelectedPlan(plan);
+    setIsDeleteOpen(true);
+  };
+
+  const handleSaveEdit = (updated: YearlyPlanRow) => {
+    setPlans((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    setIsEditOpen(false);
+    setSelectedPlan(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedPlan) {
+      setPlans((prev) => prev.filter((p) => p.id !== selectedPlan.id));
+      setIsDeleteOpen(false);
+      setSelectedPlan(null);
+    }
+  };
+
+  const handleCreatePlan = (newPlan: YearlyPlanRow) => {
+    setPlans((prev) => [newPlan, ...prev]);
+  };
 
   return (
     <div className="flex-1 min-h-0 flex flex-col p-4 space-y-3 bg-white select-none overflow-auto">
@@ -54,6 +90,7 @@ export default function KeHoachNhanSuTheoNam() {
 
         <button
           type="button"
+          onClick={() => setIsCreateOpen(true)}
           className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#406c89] hover:bg-[#345970] text-white text-xs font-semibold rounded-lg shadow-sm transition-all cursor-pointer shrink-0"
         >
           <IconPlus size={15} />
@@ -79,9 +116,12 @@ export default function KeHoachNhanSuTheoNam() {
             <tbody className="divide-y divide-slate-100 bg-white">
               {plans.map((row) => (
                 <tr key={row.id} className="hover:bg-slate-50/80 transition-colors">
-                  {/* Cột NĂM */}
+                  {/* Cột NĂM - Nhấp vào cũng xem chi tiết */}
                   <td className="py-2.5 px-4 font-semibold whitespace-nowrap">
-                    <span className="text-blue-600 hover:text-blue-800 underline cursor-pointer">
+                    <span
+                      onClick={() => handleOpenDetail(row)}
+                      className="text-blue-600 hover:text-blue-800 underline cursor-pointer"
+                    >
                       {row.nam}
                     </span>
                   </td>
@@ -113,25 +153,33 @@ export default function KeHoachNhanSuTheoNam() {
                     </span>
                   </td>
 
-                  {/* Cột THAO TÁC */}
+                  {/* Cột THAO TÁC (Xem, Sửa, Xoá) */}
                   <td className="py-2.5 px-4 text-center whitespace-nowrap">
                     <div className="flex items-center justify-center gap-2 text-slate-400">
+                      {/* Icon Mắt -> Xem chi tiết */}
                       <button
                         type="button"
+                        onClick={() => handleOpenDetail(row)}
                         className="hover:text-slate-700 transition-colors p-1 rounded hover:bg-slate-100 cursor-pointer"
                         title="Xem chi tiết"
                       >
                         <IconEye size={15} />
                       </button>
+
+                      {/* Icon Bút chì -> Chỉnh sửa */}
                       <button
                         type="button"
+                        onClick={() => handleOpenEdit(row)}
                         className="hover:text-blue-600 transition-colors p-1 rounded hover:bg-slate-100 cursor-pointer"
                         title="Chỉnh sửa"
                       >
                         <IconPencil size={15} />
                       </button>
+
+                      {/* Icon Thùng rác -> Xóa */}
                       <button
                         type="button"
+                        onClick={() => handleOpenDelete(row)}
                         className="hover:text-red-600 transition-colors p-1 rounded hover:bg-slate-100 cursor-pointer"
                         title="Xoá"
                       >
@@ -145,6 +193,42 @@ export default function KeHoachNhanSuTheoNam() {
           </table>
         </div>
       </div>
+
+      {/* ── Modals ── */}
+      <ChiTietKeHoachModal
+        isOpen={isDetailOpen}
+        item={selectedPlan}
+        onClose={() => {
+          setIsDetailOpen(false);
+          setSelectedPlan(null);
+        }}
+      />
+
+      <ChinhSuaKeHoachModal
+        isOpen={isEditOpen}
+        item={selectedPlan}
+        onClose={() => {
+          setIsEditOpen(false);
+          setSelectedPlan(null);
+        }}
+        onSave={handleSaveEdit}
+      />
+
+      <XoaKeHoachModal
+        isOpen={isDeleteOpen}
+        item={selectedPlan}
+        onClose={() => {
+          setIsDeleteOpen(false);
+          setSelectedPlan(null);
+        }}
+        onConfirm={handleConfirmDelete}
+      />
+
+      <TaoKeHoachModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onSave={handleCreatePlan}
+      />
     </div>
   );
 }

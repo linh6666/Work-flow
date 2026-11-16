@@ -202,6 +202,16 @@ export default function KeHoachNhanSuTheoNam() {
           setIsDetailOpen(false);
           setSelectedPlan(null);
         }}
+        onEdit={(plan) => {
+          setIsDetailOpen(false);
+          setSelectedPlan(plan);
+          setIsEditOpen(true);
+        }}
+        onDelete={(plan) => {
+          setIsDetailOpen(false);
+          setSelectedPlan(plan);
+          setIsDeleteOpen(true);
+        }}
       />
 
       <ChinhSuaKeHoachModal

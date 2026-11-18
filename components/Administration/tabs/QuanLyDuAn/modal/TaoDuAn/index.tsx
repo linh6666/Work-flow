@@ -10,6 +10,7 @@ import {
   IconLink, 
   IconLayoutGrid 
 } from '@tabler/icons-react';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 
 interface TaoDuAnModalProps {
   isOpen: boolean;
@@ -90,7 +91,7 @@ export default function TaoDuAnModal({ isOpen, onClose, onSubmit }: TaoDuAnModal
     e.preventDefault();
     if (!tenDuAn.trim()) {
       setActiveTab('basic');
-      alert("Vui lòng nhập Tên dự án tại tab Thông tin cơ bản!");
+      NotificationExtension.Warn("Vui lòng nhập Tên dự án tại tab Thông tin cơ bản!");
       return;
     }
 

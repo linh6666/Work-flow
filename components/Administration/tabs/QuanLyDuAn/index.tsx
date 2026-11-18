@@ -8,6 +8,7 @@ import ChiTietDuAn from './ChiTietDuAn';
 import { getListProject, ProjectItem } from '@/api/apiGetlistProject';
 import { createProject } from '@/api/apiCreatProject';
 import { deleteProject } from '@/api/apiDeleteProject';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 import {
   IconPlus,
   IconSearch,
@@ -353,6 +354,7 @@ export default function QuanLyDuAn() {
 
       setProjects(prev => [newProj, ...prev]);
       setIsProjectModalOpen(false);
+      NotificationExtension.Success(`Tạo dự án "${data.tenDuAn}" thành công!`);
     } catch (err: any) {
       console.error('Lỗi khi gọi API tạo dự án:', err);
       // Fallback lưu local nếu API có lỗi kết nối
@@ -366,6 +368,9 @@ export default function QuanLyDuAn() {
       };
       setProjects(prev => [newProj, ...prev]);
       setIsProjectModalOpen(false);
+      NotificationExtension.Warn(
+        err?.message || 'Tạo dự án thành công (đã lưu bộ nhớ tạm)!'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -374,11 +379,13 @@ export default function QuanLyDuAn() {
   const handleDeleteProject = async (id: string) => {
     try {
       await deleteProject(id);
-    } catch (err) {
-      console.error('Lỗi khi xóa dự án trên API:', err);
-    } finally {
       setProjects(prev => prev.filter(p => p.id !== id));
       setIsDeleteModalOpen(false);
+      NotificationExtension.Success('Đã xóa dự án thành công!');
+    } catch (err: any) {
+      console.error('Lỗi khi xóa dự án trên API:', err);
+      NotificationExtension.Fails(err?.message || 'Xóa dự án thất bại!');
+      // KHÔNG xóa dự án khỏi state nếu API báo lỗi
     }
   };
 

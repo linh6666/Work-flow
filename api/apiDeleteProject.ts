@@ -11,6 +11,10 @@ import { API_ROUTE } from "../const/apiRouter";
 export async function deleteProject(projectId: string): Promise<any> {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
 
   const url = `${BASE_API_FASTAPI}${API_ROUTE.PROJECT_DELETE_BY_ID.replace(
     "{Project_id}",
@@ -21,6 +25,7 @@ export async function deleteProject(projectId: string): Promise<any> {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
+      ...(apiKey ? { "api_key": apiKey } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });

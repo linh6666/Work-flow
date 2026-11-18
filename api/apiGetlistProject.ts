@@ -63,6 +63,10 @@ export async function getListProject(
 ): Promise<ProjectItem[]> {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
 
   const searchParams = new URLSearchParams();
 
@@ -96,6 +100,7 @@ export async function getListProject(
     method: "GET",
     headers: {
       "Content-Type": "application/json",
+      ...(apiKey ? { "api_key": apiKey } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });

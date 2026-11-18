@@ -55,11 +55,16 @@ export async function createProject(
 ): Promise<any> {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
 
   const res = await fetch(`${BASE_API_FASTAPI}${API_ROUTE.PROJECT_CREATE}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(apiKey ? { "api_key": apiKey } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(payload),

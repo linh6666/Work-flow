@@ -10,10 +10,12 @@ import {
   IconFilter,
   IconPencil,
   IconTrash,
+  IconHierarchy,
 } from '@tabler/icons-react';
 import ThemUngVienModal from './modal/ThemUngVienModal';
 import SuaUngVienModal from './modal/SuaUngVienModal';
 import XoaUngVienModal from './modal/XoaUngVienModal';
+import SoDoModal from './modal/SoDoModal';
 
 export interface HoSoTuyenDungItem {
   id: string;
@@ -278,6 +280,7 @@ export default function DsHoSoTuyenDung() {
   const [selectedMonth, setSelectedMonth] = useState('all');
   const [candidates, setCandidates] = useState<HoSoTuyenDungItem[]>(mockCandidates);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSoDoModalOpen, setIsSoDoModalOpen] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<HoSoTuyenDungItem | null>(null);
   const [deletingCandidate, setDeletingCandidate] = useState<HoSoTuyenDungItem | null>(null);
 
@@ -403,6 +406,16 @@ export default function DsHoSoTuyenDung() {
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+          {/* Nút Sơ đồ */}
+          <button
+            type="button"
+            onClick={() => setIsSoDoModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 font-medium shadow-xs transition-colors cursor-pointer"
+          >
+            <IconHierarchy className="w-4 h-4 text-[#406c89]" />
+            <span>Sơ đồ</span>
+          </button>
+
           {/* Nút Export */}
           <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 font-medium shadow-xs transition-colors">
             <IconDownload className="w-4 h-4 text-slate-600" />
@@ -1029,6 +1042,12 @@ export default function DsHoSoTuyenDung() {
         candidate={deletingCandidate}
         onClose={() => setDeletingCandidate(null)}
         onConfirm={handleDeleteCandidate}
+      />
+
+      {/* Modal Sơ đồ quy trình tuyển dụng */}
+      <SoDoModal
+        isOpen={isSoDoModalOpen}
+        onClose={() => setIsSoDoModalOpen(false)}
       />
     </div>
   );

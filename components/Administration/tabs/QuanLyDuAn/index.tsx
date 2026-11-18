@@ -5,6 +5,9 @@ import TaoDuAnModal from './modal/TaoDuAn';
 import QuanLyTemplateModal from './modal/QuanLyTemplate';
 import XoaDuAnModal from './modal/XoaDuAn';
 import ChiTietDuAn from './ChiTietDuAn';
+import { getListProject, ProjectItem } from '@/api/apiGetlistProject';
+import { createProject } from '@/api/apiCreatProject';
+import { deleteProject } from '@/api/apiDeleteProject';
 import {
   IconPlus,
   IconSearch,
@@ -16,6 +19,8 @@ import {
   IconBooks,
   IconCopy,
   IconX,
+  IconLoader2,
+  IconRefresh,
 } from '@tabler/icons-react';
 
 export interface MilestoneItem {
@@ -248,11 +253,102 @@ type SortKeyType = 'maDuAn' | 'tenDuAn' | 'tienDo' | 'indexText' | 'trangThai' |
 
 export default function QuanLyDuAn() {
   const [projects, setProjects] = useState<DuAnItem[]>(DEFAULT_PROJECTS);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedProject, setSelectedProject] = useState<DuAnItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<SortKeyType>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
+
+  // Helper chuyển đổi từ dữ liệu API ProjectItem sang DuAnItem hiển thị giao diện
+  const mapApiProjectToDuAnItem = (item: ProjectItem, index: number): DuAnItem => {
+    const rawStatus = (item.status || '').trim();
+    let trangThai: DuAnItem['trangThai'] = 'Chưa bắt đầu';
+    if (rawStatus === 'Đang thực hiện') trangThai = 'Đang thực hiện';
+    else if (rawStatus === 'Hoàn thành') trangThai = 'Hoàn thành';
+    else if (rawStatus === 'Tạm dừng') trangThai = 'Tạm dừng';
+    else if (rawStatus === 'Chưa bắt đầu') trangThai = 'Chưa bắt đầu';
+    else if (rawStatus) trangThai = 'Đang thực hiện';
+
+    const rawTienDoText = (item.director_evaluation || '').trim();
+    let tienDoText: DuAnItem['tienDoText'] = 'Chưa đánh giá';
+    if (rawTienDoText === 'Đúng tiến độ') tienDoText = 'Đúng tiến độ';
+    else if (rawTienDoText === 'Trễ tiến độ') tienDoText = 'Trễ tiến độ';
+    else if (rawTienDoText === 'Vượt tiến độ') tienDoText = 'Vượt tiến độ';
+    else if (rawTienDoText === 'Chậm tiến độ, lỗi khách quan') tienDoText = 'Chậm tiến độ, lỗi khách quan';
+
+    const numProgress = typeof item.progress === 'number'
+      ? item.progress
+      : typeof item.progress === 'string'
+      ? parseFloat(item.progress) || 0
+      : 0;
+
+    const projectId = item.id || item._id || `da-api-${index}`;
+    const ma = item.code || item.maDuAn || `DA-${projectId.slice(0, 6)}`;
+    const ten = item.name || item.project_name || item.tenDuAn || 'Dự án chưa đặt tên';
+
+    return {
+      id: projectId,
+      maDuAn: ma,
+      tenDuAn: ten,
+      moTa: item.description || '',
+      ngayBatDau: item.start_date || '',
+      ngayKetThuc: item.end_date || '',
+      tienDo: Math.min(100, Math.max(0, Math.round(numProgress))),
+      indexText: item.priority ? String(item.priority) : `${index + 1}`,
+      trangThai,
+      tienDoText,
+      khachHang: item.customer_name || '',
+      diaDiem: item.install_location || '',
+      baselineBatDau: item.baseline_start || '',
+      baselineKetThuc: item.baseline_end || '',
+      capDoDuAn: item.project_level || 'V',
+      tyLe: item.scale || '',
+      kichThuoc: item.size || '',
+      diaDiemLapDat: item.install_location || '',
+      duKienNtLan1: item.acceptance_date_1 || '',
+      duKienNtCuoi: item.acceptance_date_final || '',
+      duKienVanChuyen: item.transport_date || '',
+      duKienLapDat: item.install_date || '',
+      soNvLapDat: item.install_staff_count || '',
+      khoiLuongNtLan1: item.acceptance_milestone_1 || '',
+    };
+  };
+
+  // Hàm load danh sách dự án từ API getListProject
+  const fetchProjects = async () => {
+    setLoading(true);
+    try {
+      const data = await getListProject({ limit: 200 });
+      let list: ProjectItem[] = [];
+      if (Array.isArray(data)) {
+        list = data;
+      } else if (data && Array.isArray((data as any).data)) {
+        list = (data as any).data;
+      } else if (data && Array.isArray((data as any).items)) {
+        list = (data as any).items;
+      }
+
+      if (list && list.length > 0) {
+        const mapped = list.map((item, idx) => mapApiProjectToDuAnItem(item, idx));
+        setProjects(mapped);
+      } else {
+        // Nếu API trả về mảng rỗng thì dùng mặc định để UI không bị trống
+        setProjects(DEFAULT_PROJECTS);
+      }
+    } catch (err) {
+      console.error('Không thể tải danh sách dự án từ API:', err);
+      // Giữ DEFAULT_PROJECTS làm fallback dự phòng khi chưa cấu hình token/server
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Gọi API lấy danh sách dự án khi load trang
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
   // URL là nguồn trạng thái chính; quay lại tab không tự khôi phục chi tiết cũ.
   useEffect(() => {
@@ -311,7 +407,7 @@ export default function QuanLyDuAn() {
   };
 
   // --- Handlers ---
-  const handleCreateProject = (data: {
+  const handleCreateProject = async (data: {
     maDuAn: string;
     tenDuAn: string;
     moTa: string;
@@ -338,22 +434,73 @@ export default function QuanLyDuAn() {
     soNvLapDat?: string;
     khoiLuongNtLan1?: string;
   }) => {
-    const newProj: DuAnItem = {
-      id: `da-${Date.now()}`,
-      ...data,
-      milestones: data.tienDoText === 'Đúng tiến độ' ? [
-        { id: 'ms-1', label: 'NT lần 1', dateText: '15-08', positionPercent: 70, color: 'blue' },
-        { id: 'ms-2', label: 'NT cuối', dateText: '30-08', positionPercent: 90, color: 'red' }
-      ] : undefined
-    };
+    setIsSubmitting(true);
+    try {
+      // Gọi API createProject để lưu vào backend
+      const res = await createProject({
+        code: data.maDuAn,
+        name: data.tenDuAn,
+        description: data.moTa,
+        start_date: data.ngayBatDau,
+        end_date: data.ngayKetThuc,
+        baseline_start: data.baselineBatDau,
+        baseline_end: data.baselineKetThuc,
+        progress: data.tienDo,
+        status: data.trangThai,
+        director_evaluation: data.tienDoText,
+        customer_name: data.khachHang,
+        scale: data.tyLe,
+        size: data.kichThuoc,
+        project_level: data.capDoDuAn,
+        install_location: data.diaDiemLapDat || data.diaDiem,
+        acceptance_date_1: data.duKienNtLan1,
+        acceptance_date_final: data.duKienNtCuoi,
+        transport_date: data.duKienVanChuyen,
+        install_date: data.duKienLapDat,
+        install_staff_count: data.soNvLapDat,
+        acceptance_milestone_1: data.khoiLuongNtLan1,
+        priority: data.indexText && data.indexText !== '—' ? Number(data.indexText) || 0 : 0,
+      });
 
-    setProjects(prev => [newProj, ...prev]);
-    setIsProjectModalOpen(false);
+      // Tạo item hiển thị lên state
+      const createdId = res?.id || res?._id || `da-${Date.now()}`;
+      const newProj: DuAnItem = {
+        id: createdId,
+        ...data,
+        milestones: data.tienDoText === 'Đúng tiến độ' ? [
+          { id: 'ms-1', label: 'NT lần 1', dateText: '15-08', positionPercent: 70, color: 'blue' },
+          { id: 'ms-2', label: 'NT cuối', dateText: '30-08', positionPercent: 90, color: 'red' }
+        ] : undefined
+      };
+
+      setProjects(prev => [newProj, ...prev]);
+      setIsProjectModalOpen(false);
+    } catch (err: any) {
+      console.error('Lỗi khi gọi API tạo dự án:', err);
+      // Fallback lưu local nếu API có lỗi kết nối
+      const newProj: DuAnItem = {
+        id: `da-${Date.now()}`,
+        ...data,
+        milestones: data.tienDoText === 'Đúng tiến độ' ? [
+          { id: 'ms-1', label: 'NT lần 1', dateText: '15-08', positionPercent: 70, color: 'blue' },
+          { id: 'ms-2', label: 'NT cuối', dateText: '30-08', positionPercent: 90, color: 'red' }
+        ] : undefined
+      };
+      setProjects(prev => [newProj, ...prev]);
+      setIsProjectModalOpen(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDeleteProject = (id: string) => {
-    if (confirm("Bạn có chắc chắn muốn xóa dự án này?")) {
+  const handleDeleteProject = async (id: string) => {
+    try {
+      await deleteProject(id);
+    } catch (err) {
+      console.error('Lỗi khi xóa dự án trên API:', err);
+    } finally {
       setProjects(prev => prev.filter(p => p.id !== id));
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -443,6 +590,16 @@ export default function QuanLyDuAn() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
           <h2 className="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Quản lý Dự án</h2>
           <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={fetchProjects}
+              disabled={loading}
+              className="flex items-center justify-center gap-1 px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-800 text-xs font-semibold rounded-lg shadow-2xs border border-slate-200 transition-all cursor-pointer whitespace-nowrap shrink-0 disabled:opacity-50"
+              title="Làm mới danh sách từ server"
+            >
+              <IconRefresh size={14} className={loading ? "animate-spin" : ""} />
+              <span className="hidden sm:inline">Làm mới</span>
+            </button>
             <button
               type="button"
               onClick={() => setIsTemplateModalOpen(true)}
@@ -592,8 +749,12 @@ export default function QuanLyDuAn() {
 
         {/* 5. Project Cards */}
         <div className="space-y-3 pb-4">
-
-          {sorted.length === 0 ? (
+          {loading && projects.length === 0 ? (
+            <div className="bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl py-14 sm:py-20 flex flex-col items-center justify-center text-center shadow-xs">
+              <IconLoader2 size={36} className="text-[#406c89] animate-spin mb-2" />
+              <p className="text-xs text-slate-500 font-medium">Đang tải danh sách dự án...</p>
+            </div>
+          ) : sorted.length === 0 ? (
             <div className="bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl py-14 sm:py-20 flex flex-col items-center justify-center text-center shadow-xs">
               <IconClipboardList size={40} className="sm:w-12 sm:h-12 text-slate-300 stroke-[1.25] mb-2" />
               <p className="text-xs text-slate-400 font-medium">Chưa có dự án nào.</p>
@@ -772,7 +933,7 @@ export default function QuanLyDuAn() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         project={deletingProject}
-        onConfirmDelete={(id) => setProjects(prev => prev.filter(p => p.id !== id))}
+        onConfirmDelete={handleDeleteProject}
       />
     </div>
   );

@@ -89,9 +89,8 @@ export async function getListProject(
   }
 
   const queryString = searchParams.toString();
-  const url = `${BASE_API_FASTAPI}${API_ROUTE.PROJECT_LIST}${
-    queryString ? `?${queryString}` : ""
-  }`;
+  const url = `${BASE_API_FASTAPI}${API_ROUTE.PROJECT_LIST}${queryString ? `?${queryString}` : ""
+    }`;
 
   const res = await fetch(url, {
     method: "GET",

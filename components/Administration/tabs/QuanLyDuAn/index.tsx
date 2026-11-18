@@ -61,175 +61,6 @@ export interface DuAnItem {
   khoiLuongNtLan1?: string;
 }
 
-const DEFAULT_PROJECTS: DuAnItem[] = [
-  {
-    id: 'da-1',
-    maDuAn: 'CT00-2026/DA-MHV',
-    tenDuAn: 'BÁO CÁO NGOÀI DỰ ÁN',
-    moTa: 'Báo cáo các công việc không thuộc các dự án đã có mã mã dự án triển khai sản xuất',
-    ngayBatDau: '2026-07-01',
-    ngayKetThuc: '2026-12-31',
-    tienDo: 4,
-    indexText: '—',
-    trangThai: 'Đang thực hiện',
-    tienDoText: 'Chưa đánh giá',
-    khachHang: 'Nội bộ',
-  },
-  {
-    id: 'da-2',
-    maDuAn: '14.02-2026/DA-MHV',
-    tenDuAn: 'THE HERITAGE TÂY NINH - Lắp đặt tại Tây Ninh',
-    moTa: 'Mô hình QH Khu đô thị lớn. Phong cách kiến trúc đa dạng. Tổng thể chia thành 03 phân khu. Điểm nhấn cảnh quan là công viên trải nghiệm...',
-    ngayBatDau: '2026-04-18',
-    ngayKetThuc: '2026-08-08',
-    tienDo: 28,
-    indexText: '6',
-    trangThai: 'Đang thực hiện',
-    tienDoText: 'Đúng tiến độ',
-    khachHang: 'Heritage Group',
-    milestones: [
-      { id: 'ms-1', label: 'NT lần 1', dateText: '03-08', positionPercent: 80, color: 'blue' },
-      { id: 'ms-2', label: 'NT cuối', dateText: '08-08', positionPercent: 92, color: 'red' }
-    ]
-  },
-  {
-    id: 'da-3',
-    maDuAn: '14.01-2026/DA-MHV',
-    tenDuAn: 'THE HERITAGE TÂY NINH - Lắp đặt tại Hà Nội',
-    moTa: 'Mô hình QH Khu đô thị lớn. Phong cách kiến trúc đa dạng. Tổng thể chia thành 03 phân khu. Điểm nhấn cảnh quan là công viên trải nghiệm...',
-    ngayBatDau: '2026-04-18',
-    ngayKetThuc: '2026-07-21',
-    tienDo: 71,
-    indexText: '5',
-    trangThai: 'Đang thực hiện',
-    tienDoText: 'Đúng tiến độ',
-    khachHang: 'Heritage Group',
-    milestones: [
-      { id: 'ms-1', label: 'NT lần 1', dateText: '17-07', positionPercent: 88, color: 'blue' },
-      { id: 'ms-2', label: 'NT cuối', dateText: '21-07', positionPercent: 95, color: 'red' }
-    ]
-  },
-  {
-    id: 'da-4',
-    maDuAn: '17-2026/DA-MHV',
-    tenDuAn: 'HERITAGE VILLAGE MOC CHAU',
-    moTa: 'Mô hình QH KĐT nghỉ dưỡng trên núi',
-    ngayBatDau: '2026-05-18',
-    ngayKetThuc: '2026-06-22',
-    tienDo: 57,
-    indexText: '3',
-    trangThai: 'Đang thực hiện',
-    tienDoText: 'Đúng tiến độ',
-    khachHang: 'Heritage Group',
-    milestones: [
-      { id: 'ms-1', label: 'NT lần 1', dateText: '17-07', positionPercent: 80, color: 'blue' },
-      { id: 'ms-2', label: 'NT cuối', dateText: '20-07', positionPercent: 96, color: 'red' }
-    ]
-  },
-  {
-    id: 'da-5',
-    maDuAn: '16-2026/DA-MHV',
-    tenDuAn: 'Dự án IA25 -CIPUTRA',
-    moTa: 'Mô hình công trình cao tầng',
-    ngayBatDau: '2026-05-15',
-    ngayKetThuc: '2026-08-15',
-    tienDo: 42,
-    indexText: '7',
-    trangThai: 'Đang thực hiện',
-    tienDoText: 'Đúng tiến độ',
-    khachHang: 'Ciputra',
-    milestones: [
-      { id: 'ms-1', label: 'NT lần 1', dateText: '07-08', positionPercent: 92, color: 'blue' },
-      { id: 'ms-2', label: 'NT cuối', dateText: '15-08', positionPercent: 97, color: 'red' }
-    ]
-  },
-  {
-    id: 'da-6',
-    maDuAn: '20-2026/DA-MHV',
-    tenDuAn: "CHỈNH SỬA MÔ HÌNH L'AURORA",
-    moTa: 'Thay mới 05 công trình cao tầng 1/150',
-    ngayBatDau: '2026-06-09',
-    ngayKetThuc: '2026-07-22',
-    tienDo: 51,
-    indexText: '4',
-    trangThai: 'Đang thực hiện',
-    tienDoText: 'Đúng tiến độ',
-    khachHang: 'L\'Aurora',
-    milestones: [
-      { id: 'ms-1', label: 'NT lần 1', dateText: '20-07', positionPercent: 90, color: 'blue' },
-      { id: 'ms-2', label: 'NT cuối', dateText: '20-07', positionPercent: 96, color: 'red' }
-    ]
-  },
-  {
-    id: 'da-7',
-    maDuAn: '21-2026/DA-MHV',
-    tenDuAn: 'VSIP LẠNG SƠN',
-    moTa: 'Mô hình QH KCN',
-    ngayBatDau: '2026-06-15',
-    ngayKetThuc: '2026-07-22',
-    tienDo: 78,
-    indexText: '1',
-    trangThai: 'Đang thực hiện',
-    tienDoText: 'Vượt tiến độ',
-    khachHang: 'VSIP',
-    milestones: [
-      { id: 'ms-1', label: 'NT lần 1', dateText: '03-07', positionPercent: 55, color: 'blue' },
-      { id: 'ms-2', label: 'NT cuối', dateText: '13-07', positionPercent: 90, color: 'red' }
-    ]
-  },
-  {
-    id: 'da-8',
-    maDuAn: '03-2026/DA-MHV',
-    tenDuAn: '22 LIỄU GIAI',
-    moTa: 'Mô hình công trình cao tầng. Tỷ lệ 1/75. Thể hiện nội thất dạng hình khối đơn giản của 40 căn hộ/ không gian bên trong công trình. Nội thất...',
-    ngayBatDau: '2026-03-13',
-    ngayKetThuc: '2026-07-22',
-    tienDo: 86,
-    indexText: '2',
-    trangThai: 'Đang thực hiện',
-    tienDoText: 'Đúng tiến độ',
-    khachHang: '22 Liễu Giai',
-    milestones: [
-      { id: 'ms-1', label: 'NT lần 1', dateText: '10-06', positionPercent: 80, color: 'blue' },
-      { id: 'ms-2', label: 'NT cuối', dateText: '13-07', positionPercent: 90, color: 'red' }
-    ]
-  },
-  {
-    id: 'da-9',
-    maDuAn: '04-2026/DA-MHV',
-    tenDuAn: 'FLAMINGO ĐÔNG ANH',
-    moTa: '',
-    ngayBatDau: '2026-06-28',
-    ngayKetThuc: '2026-08-27',
-    tienDo: 9,
-    indexText: '8',
-    trangThai: 'Đang thực hiện',
-    tienDoText: 'Chậm tiến độ, lỗi khách quan',
-    khachHang: 'Flamingo',
-    milestones: [
-      { id: 'ms-1', label: 'NT lần 1', dateText: '07-08', positionPercent: 65, color: 'blue' },
-      { id: 'ms-2', label: 'NT cuối', dateText: '27-08', positionPercent: 95, color: 'red' }
-    ]
-  },
-  {
-    id: 'da-10',
-    maDuAn: '22-2026/DA-MHV',
-    tenDuAn: 'ECOPARK HẢI DƯƠNG',
-    moTa: 'Mô hình khu đô thị sinh thái ven sông',
-    ngayBatDau: '2026-07-01',
-    ngayKetThuc: '2026-10-01',
-    tienDo: 5,
-    indexText: '9',
-    trangThai: 'Đang thực hiện',
-    tienDoText: 'Đúng tiến độ',
-    khachHang: 'Ecopark',
-    milestones: [
-      { id: 'ms-1', label: 'NT lần 1', dateText: '15-09', positionPercent: 75, color: 'blue' },
-      { id: 'ms-2', label: 'NT cuối', dateText: '01-10', positionPercent: 95, color: 'red' }
-    ]
-  }
-];
-
 // Department data for "Chờ khởi tạo theo Phòng ban"
 interface DeptItem {
   id: string;
@@ -252,7 +83,7 @@ const DEPARTMENTS: DeptItem[] = [
 type SortKeyType = 'maDuAn' | 'tenDuAn' | 'tienDo' | 'indexText' | 'trangThai' | 'khachHang' | 'ngayBatDau' | 'ngayKetThuc' | 'tienDoText' | null;
 
 export default function QuanLyDuAn() {
-  const [projects, setProjects] = useState<DuAnItem[]>(DEFAULT_PROJECTS);
+  const [projects, setProjects] = useState<DuAnItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedProject, setSelectedProject] = useState<DuAnItem | null>(null);
@@ -288,6 +119,53 @@ export default function QuanLyDuAn() {
     const ma = item.code || item.maDuAn || `DA-${projectId.slice(0, 6)}`;
     const ten = item.name || item.project_name || item.tenDuAn || 'Dự án chưa đặt tên';
 
+    // Tính toán cờ mốc nghiệm thu (milestones) trên thanh tiến độ
+    const milestones: MilestoneItem[] = [];
+
+    // Helper format ngày hiển thị dạng "DD-MM"
+    const formatMilestoneDate = (dStr: string) => {
+      if (!dStr) return '';
+      const parts = dStr.split('-');
+      if (parts.length === 3) return `${parts[2]}-${parts[1]}`;
+      return dStr;
+    };
+
+    // Helper tính % vị trí trên trục thời gian của dự án từ start_date đến end_date
+    const calcPositionPercent = (
+      targetDate: string,
+      defaultPercent: number
+    ): number => {
+      if (!targetDate || !item.start_date || !item.end_date) return defaultPercent;
+      const start = new Date(item.start_date).getTime();
+      const end = new Date(item.end_date).getTime();
+      const target = new Date(targetDate).getTime();
+      if (isNaN(start) || isNaN(end) || isNaN(target) || end <= start) {
+        return defaultPercent;
+      }
+      const pct = Math.round(((target - start) / (end - start)) * 100);
+      return Math.min(98, Math.max(10, pct));
+    };
+
+    if (item.acceptance_date_1) {
+      milestones.push({
+        id: `ms-1-${projectId}`,
+        label: 'NT lần 1 (80%)',
+        dateText: formatMilestoneDate(item.acceptance_date_1),
+        positionPercent: calcPositionPercent(item.acceptance_date_1, 80),
+        color: 'blue',
+      });
+    }
+
+    if (item.acceptance_date_final) {
+      milestones.push({
+        id: `ms-2-${projectId}`,
+        label: 'NT cuối (100%)',
+        dateText: formatMilestoneDate(item.acceptance_date_final),
+        positionPercent: calcPositionPercent(item.acceptance_date_final, 95),
+        color: 'red',
+      });
+    }
+
     return {
       id: projectId,
       maDuAn: ma,
@@ -299,6 +177,7 @@ export default function QuanLyDuAn() {
       indexText: item.priority ? String(item.priority) : `${index + 1}`,
       trangThai,
       tienDoText,
+      milestones: milestones.length > 0 ? milestones : undefined,
       khachHang: item.customer_name || '',
       diaDiem: item.install_location || '',
       baselineBatDau: item.baseline_start || '',
@@ -334,12 +213,11 @@ export default function QuanLyDuAn() {
         const mapped = list.map((item, idx) => mapApiProjectToDuAnItem(item, idx));
         setProjects(mapped);
       } else {
-        // Nếu API trả về mảng rỗng thì dùng mặc định để UI không bị trống
-        setProjects(DEFAULT_PROJECTS);
+        setProjects([]);
       }
     } catch (err) {
       console.error('Không thể tải danh sách dự án từ API:', err);
-      // Giữ DEFAULT_PROJECTS làm fallback dự phòng khi chưa cấu hình token/server
+      setProjects([]);
     } finally {
       setLoading(false);
     }
@@ -357,8 +235,8 @@ export default function QuanLyDuAn() {
     const checkUrlParam = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const paramId = urlParams.get('id');
-      if (paramId) {
-        const found = DEFAULT_PROJECTS.find(p => p.id === paramId || p.maDuAn === paramId);
+      if (paramId && projects.length > 0) {
+        const found = projects.find(p => p.id === paramId || p.maDuAn === paramId);
         if (found) {
           setSelectedProject(found);
           return;
@@ -371,7 +249,7 @@ export default function QuanLyDuAn() {
 
     window.addEventListener('popstate', checkUrlParam);
     return () => window.removeEventListener('popstate', checkUrlParam);
-  }, []);
+  }, [projects]);
 
   const handleSelectProject = (item: DuAnItem) => {
     setSelectedProject(item);

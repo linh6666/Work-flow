@@ -40,4 +40,7 @@ export const API_ROUTE = {
   PROJECT_BONUS_GET_BY_ID: "/api/v1/entities/ProjectBonus/{ProjectBonus_id}", // GET: Get a ProjectBonus record
   PROJECT_BONUS_UPDATE_BY_ID: "/api/v1/entities/ProjectBonus/{ProjectBonus_id}", // PUT: Update a ProjectBonus record
   PROJECT_BONUS_DELETE_BY_ID: "/api/v1/entities/ProjectBonus/{ProjectBonus_id}", // DELETE: Delete a ProjectBonus record
+
+  ///DEPT_PROJECT_FORM - Entities - DeptProjectForm
+  DEPT_PROJECT_FORM_LIST: "/api/v1/entities/DeptProjectForm", // GET: List DeptProjectForm records
 };

@@ -7,36 +7,28 @@ import {
   IconCheck,
   IconDownload,
   IconCopy,
-  IconChevronDown
+  IconChevronDown,
+  IconLoader2
 } from '@tabler/icons-react';
 import { DuAnItem } from '../../../index';
 import ChiTietBaoCaoPhongBan, { DepartmentItem } from '../../../ChiTietBaoCaoPhongBan';
 
 interface ChiTietTienDoTabProps {
   project: DuAnItem;
+  departments?: DepartmentItem[];
+  loading?: boolean;
   onOpenLuuTemplate: () => void;
   onSelectDepartment?: (dept: DepartmentItem) => void;
 }
 
 export default function ChiTietTienDoTab({
   project,
+  departments = [],
+  loading = false,
   onOpenLuuTemplate,
   onSelectDepartment,
 }: ChiTietTienDoTabProps) {
   const [selectedDepartment, setSelectedDepartment] = useState<DepartmentItem | null>(null);
-
-  // Department report list matching user reference image exactly
-  const departments: DepartmentItem[] = [
-    { name: 'Ban Giám đốc', statusText: 'Hoàn thành · 17 báo cáo · Tạo bởi: Thảo Phùng' },
-    { name: 'Khối Văn phòng', statusText: 'Đang triển khai · 40 báo cáo · Tạo bởi: Thảo Phùng' },
-    { name: 'Phòng Khai triển', statusText: 'Hoàn thành · 29 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Cắt', statusText: 'Hoàn thành · 39 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Ghép', statusText: 'Hoàn thành · 94 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Mộc Sơn', statusText: 'Đang triển khai · 70 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Điện', statusText: 'Hoàn thành · 77 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Cảnh Quan', statusText: 'Hoàn thành · 243 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Công nghệ và Thiết kế', statusText: 'Đang triển khai · 11 báo cáo · Tạo bởi: Thảo Phùng' },
-  ];
 
   const handleSelectDept = (dept: DepartmentItem) => {
     if (onSelectDepartment) {
@@ -79,76 +71,88 @@ export default function ChiTietTienDoTab({
         </button>
       </div>
 
-      {/* List of 9 Department Cards */}
-      <div className="space-y-2.5">
-        {departments.map((dept, index) => (
-          <div
-            key={index}
-            onClick={() => handleSelectDept(dept)}
-            className="bg-white border border-slate-200/90 hover:border-[#406c89]/60 hover:shadow-md rounded-xl p-3.5 flex items-center justify-between gap-3 transition-all cursor-pointer group"
-          >
-            {/* Left Side: Checkmark & Title */}
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full border border-emerald-500 bg-emerald-50/70 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                <IconCheck size={14} stroke={3} />
+      {/* List of Department Cards */}
+      {loading && departments.length === 0 ? (
+        <div className="bg-white border border-slate-200/90 rounded-xl p-10 flex flex-col items-center justify-center text-center">
+          <IconLoader2 size={32} className="text-[#406c89] animate-spin mb-2" />
+          <p className="text-xs text-slate-500 font-medium">Đang tải danh sách phòng ban...</p>
+        </div>
+      ) : departments.length === 0 ? (
+        <div className="bg-white border border-slate-200/90 rounded-xl p-10 flex flex-col items-center justify-center text-center">
+          <IconClipboardList size={36} className="text-slate-300 stroke-[1.25] mb-2" />
+          <p className="text-xs text-slate-400 font-medium">Dự án này chưa có phòng ban nào khởi tạo hồ sơ.</p>
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {departments.map((dept, index) => (
+            <div
+              key={index}
+              onClick={() => handleSelectDept(dept)}
+              className="bg-white border border-slate-200/90 hover:border-[#406c89]/60 hover:shadow-md rounded-xl p-3.5 flex items-center justify-between gap-3 transition-all cursor-pointer group"
+            >
+              {/* Left Side: Checkmark & Title */}
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full border border-emerald-500 bg-emerald-50/70 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <IconCheck size={14} stroke={3} />
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-xs text-slate-900 group-hover:text-[#406c89] transition-colors">{dept.name}</h4>
+                  <p className="text-[11px] text-slate-400 font-medium mt-0.5">{dept.statusText}</p>
+                </div>
               </div>
 
-              <div>
-                <h4 className="font-bold text-xs text-slate-900 group-hover:text-[#406c89] transition-colors">{dept.name}</h4>
-                <p className="text-[11px] text-slate-400 font-medium mt-0.5">{dept.statusText}</p>
+              {/* Right Side: Action Icons */}
+              <div className="flex items-center gap-1 text-slate-400">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectDept(dept);
+                  }}
+                  className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
+                  title="Ma trận"
+                >
+                  <IconGridDots size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectDept(dept);
+                  }}
+                  className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
+                  title="Tải xuống"
+                >
+                  <IconDownload size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectDept(dept);
+                  }}
+                  className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
+                  title="Sao chép"
+                >
+                  <IconCopy size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectDept(dept);
+                  }}
+                  className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
+                  title="Chi tiết"
+                >
+                  <IconChevronDown size={16} />
+                </button>
               </div>
             </div>
-
-            {/* Right Side: Action Icons */}
-            <div className="flex items-center gap-1 text-slate-400">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSelectDept(dept);
-                }}
-                className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
-                title="Ma trận"
-              >
-                <IconGridDots size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSelectDept(dept);
-                }}
-                className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
-                title="Tải xuống"
-              >
-                <IconDownload size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSelectDept(dept);
-                }}
-                className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
-                title="Sao chép"
-              >
-                <IconCopy size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSelectDept(dept);
-                }}
-                className="p-1.5 rounded-lg hover:text-[#406c89] hover:bg-[#406c89]/10 transition-colors cursor-pointer"
-                title="Chi tiết"
-              >
-                <IconChevronDown size={16} />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

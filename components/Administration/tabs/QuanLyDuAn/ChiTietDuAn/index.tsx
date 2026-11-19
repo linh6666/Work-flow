@@ -32,6 +32,7 @@ import {
 } from '@tabler/icons-react';
 
 import ChiTietBaoCaoPhongBan, { DepartmentItem } from '../ChiTietBaoCaoPhongBan';
+import { getDeptProjectForms } from '@/api/apiGetDeptProjectForms';
 
 interface ChiTietDuAnProps {
   project: DuAnItem;
@@ -48,19 +49,55 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
   const [isYcsxModalOpen, setIsYcsxModalOpen] = useState(false);
   const [isLuuTemplateOpen, setIsLuuTemplateOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState<DepartmentItem | null>(null);
+  const [departments, setDepartments] = useState<DepartmentItem[]>([]);
+  const [loadingDepts, setLoadingDepts] = useState<boolean>(true);
 
-  // Department report list matching user reference image exactly
-  const departments = [
-    { name: 'Ban Giám đốc', statusText: 'Hoàn thành · 17 báo cáo · Tạo bởi: Thảo Phùng' },
-    { name: 'Khối Văn phòng', statusText: 'Đang triển khai · 40 báo cáo · Tạo bởi: Thảo Phùng' },
-    { name: 'Phòng Khai triển', statusText: 'Hoàn thành · 29 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Cắt', statusText: 'Hoàn thành · 39 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Ghép', statusText: 'Hoàn thành · 94 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Mộc Sơn', statusText: 'Đang triển khai · 70 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Điện', statusText: 'Hoàn thành · 77 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Cảnh Quan', statusText: 'Hoàn thành · 243 báo cáo · Tạo bởi: Trần Diễm My' },
-    { name: 'Phòng Công nghệ và Thiết kế', statusText: 'Đang triển khai · 11 báo cáo · Tạo bởi: Thảo Phùng' },
-  ];
+  // Call API lấy danh sách các phòng ban của dự án hiện tại
+  useEffect(() => {
+    if (!project?.id) return;
+
+    let isMounted = true;
+    const fetchDepartments = async () => {
+      setLoadingDepts(true);
+      try {
+        const data = await getDeptProjectForms(project.id);
+        if (isMounted) {
+          const list: DepartmentItem[] = data.map((item) => {
+            let taskCount = 0;
+            if (item.tasks_json) {
+              try {
+                const parsed = JSON.parse(item.tasks_json);
+                taskCount = Array.isArray(parsed) ? parsed.length : 0;
+              } catch {
+                taskCount = 0;
+              }
+            }
+
+            const status = item.status || 'Đang triển khai';
+            const creator = item.created_by_name || 'Hệ thống';
+            const countText = taskCount > 0 ? ` · ${taskCount} công việc` : '';
+
+            return {
+              name: item.department || 'Phòng ban',
+              statusText: `${status}${countText} · Tạo bởi: ${creator}`,
+            };
+          });
+
+          setDepartments(list);
+        }
+      } catch (err) {
+        console.error('Không thể tải danh sách phòng ban từ API:', err);
+        if (isMounted) setDepartments([]);
+      } finally {
+        if (isMounted) setLoadingDepts(false);
+      }
+    };
+
+    fetchDepartments();
+    return () => {
+      isMounted = false;
+    };
+  }, [project.id]);
 
   // URL là nguồn trạng thái chính; quay lại dự án không tự mở phòng ban cũ.
   useEffect(() => {
@@ -301,6 +338,8 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
                 {activeTab === 'chi-tiet-tien-do' && (
                   <ChiTietTienDoTab
                     project={project}
+                    departments={departments}
+                    loading={loadingDepts}
                     onOpenLuuTemplate={() => setIsLuuTemplateOpen(true)}
                     onSelectDepartment={(dept) => handleSelectDepartment(dept)}
                   />

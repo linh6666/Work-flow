@@ -12,12 +12,16 @@ import {
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
+  IconPlus,
 } from "@tabler/icons-react";
 import {
   getCompetencyFrameworkList,
   CompetencyFrameworkItem,
   CompetencyCriteria,
 } from "@/api/apiGetCompetencyFramework";
+import ModalEditKhungDanhGia from "./modal/ModalEdit";
+import ModalDeleteKhungDanhGia from "./modal/ModalDelete";
+import ModalAddKhungDanhGia from "./modal/ModalAdd";
 
 export default function KhungDanhGiaNangLuc() {
   const [data, setData] = useState<CompetencyFrameworkItem[]>([]);
@@ -31,6 +35,13 @@ export default function KhungDanhGiaNangLuc() {
   // Phân trang
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
+
+  // State quản lý Modal Thêm, Sửa & Xóa
+  const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
+  const [editItem, setEditItem] = useState<CompetencyFrameworkItem | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
+  const [deleteItem, setDeleteItem] = useState<CompetencyFrameworkItem | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
 
   // Khi tìm kiếm hoặc đổi phòng ban, tự động đưa về trang 1
   useEffect(() => {
@@ -151,6 +162,17 @@ export default function KhungDanhGiaNangLuc() {
     return filteredData.slice(startIndex, startIndex + pageSize);
   }, [filteredData, currentPage, pageSize]);
 
+  // Tính số lượng tiêu chuẩn lớn nhất trong toàn bộ dữ liệu (để render số cột động)
+  const maxCriteriaCount = useMemo(() => {
+    let max = 7;
+    data.forEach((item) => {
+      if (item.criteria && item.criteria.length > max) {
+        max = item.criteria.length;
+      }
+    });
+    return max;
+  }, [data]);
+
   // Format văn bản gợi ý câu hỏi & dấu hiệu (tô đậm các tiêu đề gợi ý)
   const renderQuestionText = (rawText: string) => {
     if (!rawText) return <span className="text-slate-300">—</span>;
@@ -251,6 +273,16 @@ export default function KhungDanhGiaNangLuc() {
           >
             <IconRefresh size={16} className={loading ? "animate-spin" : ""} />
           </button>
+
+          {/* Nút Thêm vị trí */}
+          <button
+            type="button"
+            onClick={() => setIsAddOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#406c89] hover:bg-[#345972] active:bg-[#2b495e] rounded-lg shadow-xs transition-colors cursor-pointer"
+          >
+            <IconPlus size={16} strokeWidth={2.5} />
+            <span>Thêm vị trí</span>
+          </button>
         </div>
       </div>
 
@@ -315,8 +347,8 @@ export default function KhungDanhGiaNangLuc() {
                   PHÒNG BAN
                 </th>
 
-                {/* 7 Tiêu chuẩn */}
-                {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                {/* Các cột Tiêu chuẩn động (tối thiểu 7 hoặc theo số lượng lớn nhất) */}
+                {Array.from({ length: maxCriteriaCount }, (_, i) => i + 1).map((num) => (
                   <th
                     key={num}
                     colSpan={4}
@@ -337,7 +369,7 @@ export default function KhungDanhGiaNangLuc() {
 
               {/* Row 2: Các cột con lặp lại cho mỗi tiêu chuẩn */}
               <tr className="bg-[#244b63] text-white font-semibold text-[11px] divide-x divide-[#315d78] border-b border-slate-300">
-                {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                {Array.from({ length: maxCriteriaCount }, (_, i) => i + 1).map((num) => (
                   <React.Fragment key={num}>
                     <th className="p-2 text-left w-48 font-medium">Tiêu chí</th>
                     <th className="p-2 text-center w-16 font-medium">Tỷ trọng</th>
@@ -389,8 +421,8 @@ export default function KhungDanhGiaNangLuc() {
                       </span>
                     </td>
 
-                    {/* 7 Tiêu chuẩn (mỗi tiêu chuẩn 4 cột con: Tiêu chí, Tỷ trọng, Mức, Gợi ý & Dấu hiệu) */}
-                    {[0, 1, 2, 3, 4, 5, 6].map((criteriaIdx) => {
+                    {/* Các cột Tiêu chuẩn động */}
+                    {Array.from({ length: maxCriteriaCount }, (_, criteriaIdx) => {
                       const criteria = pos.criteria[criteriaIdx];
 
                       if (!criteria) {
@@ -447,7 +479,8 @@ export default function KhungDanhGiaNangLuc() {
                         <button
                           type="button"
                           onClick={() => {
-                            console.log("Sửa vị trí:", pos);
+                            setEditItem(pos);
+                            setIsEditOpen(true);
                           }}
                           title="Chỉnh sửa vị trí"
                           className="p-1.5 rounded-md text-slate-500 hover:text-sky-600 hover:bg-sky-50 transition-colors cursor-pointer"
@@ -457,7 +490,8 @@ export default function KhungDanhGiaNangLuc() {
                         <button
                           type="button"
                           onClick={() => {
-                            console.log("Xóa vị trí:", pos);
+                            setDeleteItem(pos);
+                            setIsDeleteOpen(true);
                           }}
                           title="Xóa vị trí"
                           className="p-1.5 rounded-md text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
@@ -598,6 +632,55 @@ export default function KhungDanhGiaNangLuc() {
           </button>
         </div>
       </div>
+
+      {/* Modal Chỉnh sửa Khung đánh giá */}
+      <ModalEditKhungDanhGia
+        isOpen={isEditOpen}
+        onClose={() => {
+          setIsEditOpen(false);
+          setEditItem(null);
+        }}
+        data={editItem}
+        onSave={(updated) => {
+          setData((prev) =>
+            prev.map((item) =>
+              item.id === updated.id || item.position_code === updated.position_code
+                ? updated
+                : item
+            )
+          );
+        }}
+      />
+
+      {/* Modal Thêm mới Khung đánh giá */}
+      <ModalAddKhungDanhGia
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        departments={departments}
+        suggestedCode={`P${String(data.length + 1).padStart(2, "0")}`}
+        onAdd={(newItem) => {
+          setData((prev) => [...prev, newItem]);
+        }}
+      />
+
+      {/* Modal Xóa Khung đánh giá */}
+      <ModalDeleteKhungDanhGia
+        isOpen={isDeleteOpen}
+        onClose={() => {
+          setIsDeleteOpen(false);
+          setDeleteItem(null);
+        }}
+        data={deleteItem}
+        onConfirm={(deleted) => {
+          setData((prev) =>
+            prev.filter(
+              (item) =>
+                item.id !== deleted.id &&
+                item.position_code !== deleted.position_code
+            )
+          );
+        }}
+      />
     </div>
   );
 }

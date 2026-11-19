@@ -43,4 +43,7 @@ export const API_ROUTE = {
 
   ///DEPT_PROJECT_FORM - Entities - DeptProjectForm
   DEPT_PROJECT_FORM_LIST: "/api/v1/entities/DeptProjectForm", // GET: List DeptProjectForm records
+
+  ///COMPETENCY_FRAMEWORK - Entities - CompetencyFramework
+  COMPETENCY_FRAMEWORK_LIST: "/api/v1/entities/CompetencyFramework",
 };

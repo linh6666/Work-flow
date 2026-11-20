@@ -2,17 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import TaoDuAnModal from './modal/TaoDuAn';
+import SuaDuAnModal from './modal/SuaDuAn';
 import QuanLyTemplateModal from './modal/QuanLyTemplate';
 import XoaDuAnModal from './modal/XoaDuAn';
 import ChiTietDuAn from './ChiTietDuAn';
 import { getListProject, ProjectItem } from '@/api/apiGetlistProject';
 import { createProject } from '@/api/apiCreatProject';
+import { updateProject } from '@/api/apiUpdateProject';
 import { deleteProject } from '@/api/apiDeleteProject';
 import { NotificationExtension } from '@/common/extension/NotificationExtension';
 import {
   IconPlus,
   IconSearch,
   IconTrash,
+  IconEdit,
   IconChevronRight,
   IconClipboardList,
   IconArrowRight,
@@ -276,9 +279,60 @@ export default function QuanLyDuAn() {
 
   // Modal creation states
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<DuAnItem | null>(null);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingProject, setDeletingProject] = useState<DuAnItem | null>(null);
+
+  const handleOpenEditModal = (item: DuAnItem) => {
+    setEditingProject(item);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateProject = async (updatedData: DuAnItem) => {
+    try {
+      // Gọi API cập nhật lên backend
+      await updateProject(updatedData.id, {
+        code: updatedData.maDuAn,
+        name: updatedData.tenDuAn,
+        description: updatedData.moTa,
+        start_date: updatedData.ngayBatDau,
+        end_date: updatedData.ngayKetThuc,
+        baseline_start: updatedData.baselineBatDau,
+        baseline_end: updatedData.baselineKetThuc,
+        progress: updatedData.tienDo,
+        status: updatedData.trangThai,
+        director_evaluation: updatedData.tienDoText,
+        customer_name: updatedData.khachHang,
+        scale: updatedData.tyLe,
+        size: updatedData.kichThuoc,
+        project_level: updatedData.capDoDuAn,
+        install_location: updatedData.diaDiemLapDat || updatedData.diaDiem,
+        acceptance_date_1: updatedData.duKienNtLan1,
+        acceptance_date_final: updatedData.duKienNtCuoi,
+        transport_date: updatedData.duKienVanChuyen,
+        install_date: updatedData.duKienLapDat,
+        install_staff_count: updatedData.soNvLapDat,
+        acceptance_milestone_1: updatedData.khoiLuongNtLan1,
+        priority: updatedData.indexText && updatedData.indexText !== '—' ? Number(updatedData.indexText) || 0 : 0,
+      });
+
+      setProjects(prev =>
+        prev.map(p => (p.id === updatedData.id ? updatedData : p))
+      );
+      NotificationExtension.Success(`Cập nhật dự án "${updatedData.tenDuAn}" thành công!`);
+    } catch (err: any) {
+      console.error('Lỗi khi gọi API cập nhật dự án:', err);
+      // Fallback cập nhật state local nếu backend gặp sự cố
+      setProjects(prev =>
+        prev.map(p => (p.id === updatedData.id ? updatedData : p))
+      );
+      NotificationExtension.Warn(
+        err?.message || `Cập nhật dự án "${updatedData.tenDuAn}" (đã lưu tạm thời)!`
+      );
+    }
+  };
 
   const handleOpenDeleteModal = (item: DuAnItem) => {
     setDeletingProject(item);
@@ -679,6 +733,14 @@ export default function QuanLyDuAn() {
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
+                          onClick={() => handleOpenEditModal(item)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-sky-600 hover:bg-sky-50 active:scale-95 transition-colors cursor-pointer"
+                          title="Chỉnh sửa dự án"
+                        >
+                          <IconEdit size={16} />
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => {
                             const copied: DuAnItem = {
                               ...item,
@@ -807,6 +869,16 @@ export default function QuanLyDuAn() {
         isOpen={isProjectModalOpen}
         onClose={() => setIsProjectModalOpen(false)}
         onSubmit={handleCreateProject}
+      />
+
+      <SuaDuAnModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingProject(null);
+        }}
+        project={editingProject}
+        onSubmit={handleUpdateProject}
       />
 
       <QuanLyTemplateModal

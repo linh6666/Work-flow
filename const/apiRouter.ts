@@ -46,4 +46,9 @@ export const API_ROUTE = {
 
   ///COMPETENCY_FRAMEWORK - Entities - CompetencyFramework
   COMPETENCY_FRAMEWORK_LIST: "/api/v1/entities/CompetencyFramework",
+
+  ///INTERVIEW_EVALUATION - Entities - InterviewEvaluation
+  INTERVIEW_EVALUATION_LIST: "/api/v1/entities/InterviewEvaluation",
+  INTERVIEW_EVALUATION_UPDATE: "/api/v1/entities/InterviewEvaluation/{InterviewEvaluation_id}",
+  INTERVIEW_EVALUATION_DELETE: "/api/v1/entities/InterviewEvaluation/{InterviewEvaluation_id}",
 };

@@ -150,10 +150,10 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-[#f4f6fa] max-h-screen overflow-y-auto select-none">
+    <div className="flex-1 flex flex-col bg-[#f4f6fa] h-full overflow-y-auto overflow-x-auto no-scrollbar select-none">
       
       {/* 1. TOP HEADER (COMPACT) */}
-      <div className="bg-[#f4f6fa] px-4 sm:px-6 py-2.5 border-b border-slate-200/60 shrink-0">
+      <div className="bg-[#f4f6fa] px-4 sm:px-6 py-2.5 border-b border-slate-200/60 shrink-0 min-w-[1000px]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           
           {/* Back button & Title */}
@@ -196,43 +196,43 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
       </div>
 
       {/* 2. BODY CONTENT */}
-      <div className="flex-1 px-4 sm:px-8 py-5 pb-16 space-y-4">
+      <div className="flex-1 px-3 sm:px-6 py-4 pb-16 space-y-4 min-w-[1000px] w-full">
+        <div className="w-full space-y-4">
+          {/* SECTION 1: YÊU CẦU SẢN XUẤT (ACCORDION & MODAL TRIGGER) */}
+          <div className="bg-[#406c89]/10 border border-[#406c89]/20 rounded-2xl overflow-hidden shadow-2xs transition-all">
+            <button
+              type="button"
+              onClick={() => setIsYcsxModalOpen(true)}
+              className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[#406c89]/15 transition-all cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <IconFlag size={18} className="text-[#406c89]" />
+                <span className="font-bold text-xs text-[#406c89]">Yêu cầu sản xuất</span>
+              </div>
+              <IconChevronDown
+                size={18}
+                className={`text-[#406c89] transition-transform duration-200 ${isYcsxOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
 
-        {/* SECTION 1: YÊU CẦU SẢN XUẤT (ACCORDION & MODAL TRIGGER) */}
-        <div className="bg-[#406c89]/10 border border-[#406c89]/20 rounded-2xl overflow-hidden shadow-2xs transition-all">
-          <button
-            type="button"
-            onClick={() => setIsYcsxModalOpen(true)}
-            className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[#406c89]/15 transition-all cursor-pointer"
-          >
-            <div className="flex items-center gap-2">
-              <IconFlag size={18} className="text-[#406c89]" />
-              <span className="font-bold text-xs text-[#406c89]">Yêu cầu sản xuất</span>
-            </div>
-            <IconChevronDown
-              size={18}
-              className={`text-[#406c89] transition-transform duration-200 ${isYcsxOpen ? 'rotate-180' : ''}`}
-            />
-          </button>
+            {isYcsxOpen && (
+              <div className="p-4 bg-white border-t border-[#406c89]/20 text-xs text-slate-600 space-y-2">
+                <p>Mã YCSX: <strong className="font-mono text-slate-800">YCSX-2026-VSIP-01</strong></p>
+                <p>Phạm vi: Cắt CNC, mộc khung gỗ, sơn bóng bề mặt và lắp đặt mô hình tổng thể.</p>
+              </div>
+            )}
+          </div>
 
-          {isYcsxOpen && (
-            <div className="p-4 bg-white border-t border-[#406c89]/20 text-xs text-slate-600 space-y-2">
-              <p>Mã YCSX: <strong className="font-mono text-slate-800">YCSX-2026-VSIP-01</strong></p>
-              <p>Phạm vi: Cắt CNC, mộc khung gỗ, sơn bóng bề mặt và lắp đặt mô hình tổng thể.</p>
-            </div>
-          )}
-        </div>
-
-        {/* SECTION 2: HỒ SƠ QUẢN LÝ DỰ ÁN (MAIN CONTAINER) */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl shadow-2xs overflow-hidden">
-          
-          {/* Main Title Bar */}
-          <div
-            onClick={() => setIsHoSoOpen(!isHoSoOpen)}
-            className="bg-[#fffdf5] border-b border-[#fef3c7] px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-[#fff9e6] transition-all"
-          >
-            <div className="flex items-center gap-2">
-              <IconClipboardList size={18} className="text-[#9a6700]" />
+          {/* SECTION 2: HỒ SƠ QUẢN LÝ DỰ ÁN (MAIN CONTAINER) */}
+          <div className="bg-white border border-slate-200/80 rounded-2xl shadow-2xs overflow-hidden">
+            
+            {/* Main Title Bar */}
+            <div
+              onClick={() => setIsHoSoOpen(!isHoSoOpen)}
+              className="bg-[#fffdf5] border-b border-[#fef3c7] px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-[#fff9e6] transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <IconClipboardList size={18} className="text-[#9a6700]" />
               <span className="font-extrabold text-xs text-[#855300] tracking-tight">Hồ sơ Quản lý Dự án</span>
             </div>
             <IconChevronUp
@@ -373,6 +373,8 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
 
             </div>
           )}
+
+        </div>
 
         </div>
 

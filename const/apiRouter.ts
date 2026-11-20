@@ -43,6 +43,9 @@ export const API_ROUTE = {
 
   ///DEPT_PROJECT_FORM - Entities - DeptProjectForm
   DEPT_PROJECT_FORM_LIST: "/api/v1/entities/DeptProjectForm", // GET: List DeptProjectForm records
+  DEPT_PROJECT_FORM_CREATE: "/api/v1/entities/DeptProjectForm", // POST: Create DeptProjectForm record
+  DEPT_PROJECT_FORM_UPDATE: "/api/v1/entities/DeptProjectForm/{DeptProjectForm_id}", // PUT: Update DeptProjectForm record
+  DEPT_PROJECT_FORM_DELETE: "/api/v1/entities/DeptProjectForm/{DeptProjectForm_id}", // DELETE: Delete DeptProjectForm record
 
   ///COMPETENCY_FRAMEWORK - Entities - CompetencyFramework
   COMPETENCY_FRAMEWORK_LIST: "/api/v1/entities/CompetencyFramework",

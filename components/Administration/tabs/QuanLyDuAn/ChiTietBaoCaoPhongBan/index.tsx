@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IconArrowLeft,
   IconSearch,
@@ -24,20 +24,31 @@ import {
   IconFilter,
   IconChevronLeft,
   IconChevronRight,
-  IconGripVertical
+  IconGripVertical,
+  IconRefresh,
+  IconLoader2
 } from '@tabler/icons-react';
 import XoaCongViecModal from './modal/XoaCongViecModal';
 import XemBaoCaoModal from './modal/XemBaoCaoModal';
+import {
+  getDeptProjectForms,
+  updateDeptProjectForm,
+  createDeptProjectForm,
+  DeptProjectFormItem,
+} from '@/api/apiGetDeptProjectForms';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 
 export interface DepartmentItem {
   name: string;
   statusText: string;
+  rawForm?: DeptProjectFormItem;
 }
 
 interface ChiTietBaoCaoPhongBanProps {
   department: DepartmentItem;
   projectCode?: string;
   projectName?: string;
+  projectId?: string;
   onBack: () => void;
 }
 
@@ -45,6 +56,7 @@ interface ReportTask {
   id: string;
   code?: string;
   title: string;
+  group?: string;
   assignees?: string[];
   assignee: string;
   role?: string;
@@ -66,6 +78,7 @@ export default function ChiTietBaoCaoPhongBan({
   department,
   projectCode = 'CT00-2026/DA-MHV',
   projectName = 'THE HERITAGE TÂY NINH - Lắp đặt tại Tây Ninh',
+  projectId,
   onBack,
 }: ChiTietBaoCaoPhongBanProps) {
   // Sample reports matching screenshot exactly
@@ -368,13 +381,225 @@ export default function ChiTietBaoCaoPhongBan({
     },
   ];
 
+  // Adapter chuẩn hóa dữ liệu công việc từ API sang cấu trúc ReportTask của bảng
+  const mapApiTaskToReportTask = (apiTask: any, index: number): ReportTask => {
+    const rawAssignee = apiTask.assignee || '';
+    const assigneesList = rawAssignee.includes(',')
+      ? rawAssignee.split(',').map((s: string) => s.trim()).filter(Boolean)
+      : (Array.isArray(apiTask.assignees) ? apiTask.assignees : []);
+
+    const rawPlannedHours = apiTask.planned_hours ?? apiTask.plannedHours ?? 1;
+    const formattedPlannedHours = typeof rawPlannedHours === 'number'
+      ? `${rawPlannedHours}h`
+      : (String(rawPlannedHours).endsWith('h') ? String(rawPlannedHours) : `${rawPlannedHours}h`);
+
+    const rawActualHours = apiTask.actual_hours ?? apiTask.actualHours;
+    const formattedActualHours = rawActualHours != null && rawActualHours !== ''
+      ? (typeof rawActualHours === 'number' ? `${rawActualHours}h` : String(rawActualHours))
+      : '—';
+
+    // Parse ngày tháng nếu có (ví dụ 2026-11-13 -> 13/11/2026 hoặc giữ nguyên)
+    const formatDate = (dStr?: string) => {
+      if (!dStr) return '';
+      if (dStr.includes('-') && dStr.length === 10) {
+        const [y, m, d] = dStr.split('-');
+        return `${d}/${m}/${y}`;
+      }
+      return dStr;
+    };
+
+    return {
+      id: apiTask.task_uid || apiTask.id || `rpt-api-${index + 1}`,
+      title: apiTask.name || apiTask.title || `Công việc ${index + 1}`,
+      assignee: rawAssignee || 'Chưa phân công',
+      assignees: assigneesList.length > 1 ? assigneesList : (apiTask.assignees || undefined),
+      date: formatDate(apiTask.start_date || apiTask.date) || '—',
+      deadline: formatDate(apiTask.end_date || apiTask.deadline || apiTask.start_date || apiTask.date) || '—',
+      plannedHours: formattedPlannedHours,
+      actualHours: formattedActualHours,
+      status: apiTask.status || 'Chưa bắt đầu',
+      klDk: apiTask.qty_real ?? apiTask.klDk ?? 1,
+      klDp: apiTask.qty_backup ?? apiTask.klDp ?? 0,
+      rowTheme: apiTask.rowTheme || (index % 3 === 0 ? 'gold' : 'blue'),
+      group: apiTask.group || 'KHỞI TẠO VÀ PHÊ DUYỆT',
+    };
+  };
+
+  // Helper hàm tải và parse danh sách tasks từ tasks_json (hỗ trợ cả chuỗi JSON và link URL)
+  const parseTasksJson = async (tasksJson?: string | null): Promise<ReportTask[]> => {
+    if (!tasksJson || !tasksJson.trim()) return [];
+    try {
+      let rawData: any = null;
+      if (tasksJson.startsWith('http')) {
+        // Link JSON lưu trên cloud CDN
+        const res = await fetch(tasksJson);
+        if (res.ok) {
+          rawData = await res.json();
+        }
+      } else {
+        rawData = JSON.parse(tasksJson);
+      }
+      if (Array.isArray(rawData)) {
+        return rawData.map(mapApiTaskToReportTask);
+      }
+    } catch (err) {
+      console.warn('Lỗi khi parse tasks_json:', err);
+    }
+    return [];
+  };
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAssignee, setSelectedAssignee] = useState<string>('all');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
-  const [isGroupOpen, setIsGroupOpen] = useState<boolean>(true);
-  const [reportRows, setReportRows] = useState<ReportTask[]>(sampleReports);
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
+
+  const toggleGroupCollapse = (groupTitle: string) => {
+    setCollapsedGroups(prev => ({
+      ...prev,
+      [groupTitle]: !prev[groupTitle],
+    }));
+  };
+  const [reportRows, setReportRows] = useState<ReportTask[]>(() => {
+    // Nếu có rawForm sẵn và tasks_json hợp lệ
+    if (department.rawForm?.tasks_json && !department.rawForm.tasks_json.startsWith('http')) {
+      try {
+        const parsed = JSON.parse(department.rawForm.tasks_json);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(mapApiTaskToReportTask);
+        }
+      } catch (e) {
+        console.warn('Lỗi parse ban đầu tasks_json:', e);
+      }
+    }
+    return [];
+  });
+  const [formRecordId, setFormRecordId] = useState<string | null>(department.rawForm?.id || null);
+  const [loadingData, setLoadingData] = useState<boolean>(false);
+  const [savingData, setSavingData] = useState<boolean>(false);
+
+  // Call API load báo cáo phòng ban từ server (hỗ trợ cả link URL và chuỗi JSON)
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadTasks = async () => {
+      setLoadingData(true);
+      try {
+        let tasksStr = department.rawForm?.tasks_json;
+        let recordId = department.rawForm?.id || null;
+
+        // Nếu chưa có tasks_json trong rawForm, query lại từ API qua projectId
+        if (!tasksStr && projectId) {
+          const data = await getDeptProjectForms(projectId);
+          if (data && data.length > 0) {
+            const match = data.find(
+              (d) => (d.department || '').trim().toLowerCase() === (department.name || '').trim().toLowerCase()
+            );
+            if (match) {
+              recordId = match.id || null;
+              tasksStr = match.tasks_json;
+            }
+          }
+        }
+
+        if (isMounted) {
+          if (recordId) setFormRecordId(recordId);
+          if (tasksStr) {
+            const parsedList = await parseTasksJson(tasksStr);
+            if (isMounted) setReportRows(parsedList);
+          } else {
+            setReportRows([]);
+          }
+        }
+      } catch (err) {
+        console.error('Lỗi khi tải báo cáo phòng ban từ API:', err);
+        if (isMounted) setReportRows([]);
+      } finally {
+        if (isMounted) setLoadingData(false);
+      }
+    };
+
+    loadTasks();
+    return () => {
+      isMounted = false;
+    };
+  }, [projectId, department.name, department.rawForm]);
+
+  // Hàm gọi API Lưu báo cáo công việc (PUT hoặc POST)
+  const handleSaveReport = async () => {
+    setSavingData(true);
+    try {
+      // Map về đúng format của API FastAPI
+      const apiPayloadTasks = reportRows.map((r) => {
+        let plannedHoursNum = typeof r.plannedHours === 'number'
+          ? r.plannedHours
+          : (parseInt(String(r.plannedHours).replace(/[^\d]/g, '')) || 1);
+
+        let actualHoursVal: number | string = '';
+        if (r.actualHours && r.actualHours !== '—') {
+          const parsed = parseInt(String(r.actualHours).replace(/[^\d]/g, ''));
+          actualHoursVal = isNaN(parsed) ? r.actualHours : parsed;
+        }
+
+        // Chuyển ngày DD/MM/YYYY về YYYY-MM-DD
+        const toApiDate = (dStr?: string) => {
+          if (!dStr || dStr === '—') return '';
+          if (dStr.includes('/')) {
+            const parts = dStr.split('/');
+            if (parts.length === 3) {
+              const [d, m, y] = parts;
+              return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+            }
+          }
+          return dStr;
+        };
+
+        const assigneeStr = r.assignees && r.assignees.length > 0 ? r.assignees.join(', ') : r.assignee;
+
+        return {
+          task_uid: r.id,
+          name: r.title,
+          group: r.group || 'KHỞI TẠO VÀ PHÊ DUYỆT',
+          assignee: assigneeStr,
+          planned_hours: plannedHoursNum,
+          actual_hours: actualHoursVal,
+          start_date: toApiDate(r.date),
+          end_date: toApiDate(r.deadline),
+          status: r.status,
+          qty_real: Number(r.klDk) || 1,
+          qty_backup: Number(r.klDp) || 0,
+          quantity_unit: '',
+          progress: r.status === 'Hoàn thành' ? 100 : (r.status === 'Đang thực hiện' ? 50 : 0),
+          notes: r.note || '',
+        };
+      });
+
+      const tasksJson = JSON.stringify(apiPayloadTasks);
+      if (formRecordId) {
+        await updateDeptProjectForm(formRecordId, {
+          department: department.name,
+          tasks_json: tasksJson,
+          status: 'Đang triển khai',
+        });
+      } else if (projectId) {
+        const created = await createDeptProjectForm({
+          project_id: projectId,
+          project_name: projectName,
+          department: department.name,
+          tasks_json: tasksJson,
+          status: 'Đang triển khai',
+        });
+        if (created?.id) setFormRecordId(created.id);
+      }
+      NotificationExtension.Success('Đã lưu báo cáo công việc phòng ban thành công!');
+    } catch (err: any) {
+      console.error('Lỗi khi lưu báo cáo:', err);
+      NotificationExtension.Fails(err.message || 'Lưu báo cáo thất bại, vui lòng thử lại.');
+    } finally {
+      setSavingData(false);
+    };
+  };
   const [draggedReportId, setDraggedReportId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [dropPosition, setDropPosition] = useState<'before' | 'after' | null>(null);
@@ -469,41 +694,56 @@ export default function ChiTietBaoCaoPhongBan({
     0
   );
 
-  const secondaryGroupIds = ['rpt-15', 'rpt-16', 'rpt-17', 'rpt-18', 'rpt-19', 'rpt-20', 'rpt-21'];
-  const primaryGroupReports = filteredReports.filter((item) => !secondaryGroupIds.includes(item.id) && !reportGroupById[item.id]);
+  // Danh sách nhân sự động từ dữ liệu thực tế
+  const availableAssignees = React.useMemo(() => {
+    const set = new Set<string>();
+    reportRows.forEach((r) => {
+      if (r.assignee && r.assignee !== 'Chưa phân công') {
+        r.assignee.split(',').forEach((a) => {
+          const trimmed = a.trim();
+          if (trimmed) set.add(trimmed);
+        });
+      }
+      if (r.assignees) {
+        r.assignees.forEach((a) => {
+          const trimmed = a.trim();
+          if (trimmed) set.add(trimmed);
+        });
+      }
+    });
+    return Array.from(set);
+  }, [reportRows]);
 
-  const secondaryGroups = [
-    {
-      title: 'HOẠT ĐỘNG DOANH NGHIỆP',
-      items: filteredReports.filter((item) => getReportGroup(item.id) === 'HOẠT ĐỘNG DOANH NGHIỆP'),
-    },
-    {
-      title: 'HOẠT ĐỘNG TRUNG THU',
-      items: filteredReports.filter((item) => getReportGroup(item.id) === 'HOẠT ĐỘNG TRUNG THU'),
-    },
-    {
-      title: 'QUẢN LÝ WEBSITE DOANH NGHIỆP',
-      items: filteredReports.filter((item) => getReportGroup(item.id) === 'QUẢN LÝ WEBSITE DOANH NGHIỆP'),
-    },
-    {
-      title: 'TRUYỀN THÔNG HỢP QUẢN LÝ DỰ ÁN',
-      items: filteredReports.filter((item) => getReportGroup(item.id) === 'TRUYỀN THÔNG HỢP QUẢN LÝ DỰ ÁN'),
-    },
-  ];
+  // Gom nhóm công việc động theo trường `group`
+  const dynamicGroups = React.useMemo(() => {
+    const map = new Map<string, ReportTask[]>();
+    filteredReports.forEach((item) => {
+      const gName = (item.group || 'KHỞI TẠO VÀ PHÊ DUYỆT').trim().toUpperCase();
+      if (!map.has(gName)) {
+        map.set(gName, []);
+      }
+      map.get(gName)!.push(item);
+    });
+    return Array.from(map.entries()).map(([title, items]) => ({
+      title,
+      items,
+    }));
+  }, [filteredReports]);
 
   return (
-    <div className="w-full h-screen max-h-screen bg-white p-4 sm:p-5 flex flex-col space-y-2.5 animate-fade-in select-none overflow-hidden">
-      <XemBaoCaoModal
-        isOpen={activeModal?.type === 'view'}
-        taskTitle={activeModal?.taskTitle || selectedTask?.title || 'Công việc'}
-        onClose={() => setActiveModal(null)}
-      />
-      <XoaCongViecModal
-        isOpen={activeModal?.type === 'delete'}
-        taskTitle={activeModal?.taskTitle || selectedTask?.title || 'Công việc'}
-        onClose={() => setActiveModal(null)}
-        onConfirm={handleDeleteTask}
-      />
+    <div className="w-full h-full min-h-0 bg-white p-3 sm:p-5 flex flex-col space-y-2.5 animate-fade-in select-none overflow-x-auto no-scrollbar">
+      <div className="min-w-[1250px] flex-1 flex flex-col min-h-0 space-y-2.5">
+        <XemBaoCaoModal
+          isOpen={activeModal?.type === 'view'}
+          taskTitle={activeModal?.taskTitle || selectedTask?.title || 'Công việc'}
+          onClose={() => setActiveModal(null)}
+        />
+        <XoaCongViecModal
+          isOpen={activeModal?.type === 'delete'}
+          taskTitle={activeModal?.taskTitle || selectedTask?.title || 'Công việc'}
+          onClose={() => setActiveModal(null)}
+          onConfirm={handleDeleteTask}
+        />
       
       {/* ROW 1: TITLE & TOP ACTION BUTTONS */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 shrink-0">
@@ -566,10 +806,16 @@ export default function ChiTietBaoCaoPhongBan({
 
           <button
             type="button"
-            className="px-3.5 py-1.5 bg-[#9496f8] hover:bg-[#8385f5] text-white rounded-md text-[11px] font-bold flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
+            onClick={handleSaveReport}
+            disabled={savingData}
+            className="px-3.5 py-1.5 bg-[#406c89] hover:bg-[#345870] disabled:opacity-60 text-white rounded-md text-[11px] font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer disabled:cursor-not-allowed"
           >
-            <IconDeviceFloppy size={14} />
-            <span>Lưu</span>
+            {savingData ? (
+              <IconLoader2 size={14} className="animate-spin" />
+            ) : (
+              <IconDeviceFloppy size={14} />
+            )}
+            <span>{savingData ? 'Đang lưu...' : 'Lưu'}</span>
           </button>
         </div>
 
@@ -586,9 +832,9 @@ export default function ChiTietBaoCaoPhongBan({
             className="appearance-none bg-white border border-slate-200 rounded-md pl-2.5 pr-7 py-1 text-[11px] font-medium text-slate-700 focus:outline-none focus:border-[#406c89] cursor-pointer shadow-2xs"
           >
             <option value="all">Tất cả nhân sự</option>
-            <option value="Nguyễn Phú Quang">Nguyễn Phú Quang</option>
-            <option value="Thảo Phùng">Thảo Phùng</option>
-            <option value="Trần Diễm My">Trần Diễm My</option>
+            {availableAssignees.map((name) => (
+              <option key={name} value={name}>{name}</option>
+            ))}
           </select>
           <IconChevronDown size={13} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
         </div>
@@ -709,375 +955,233 @@ export default function ChiTietBaoCaoPhongBan({
             </thead>
 
             <tbody>
-              {/* GROUP ROW: KHỞI TẠO VÀ PHÊ DUYỆT */}
-              <tr className="bg-[#f8fafc] border-b border-slate-200">
-                <td colSpan={12} className="px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <IconGridDots size={14} className="text-slate-400 shrink-0 cursor-grab" />
-                    <button
-                      type="button"
-                      onClick={() => setIsGroupOpen(!isGroupOpen)}
-                      className="w-5 h-5 rounded border border-slate-300 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-2xs shrink-0 cursor-pointer"
-                    >
-                      <IconChevronDown
-                        size={13}
-                        className={`transition-transform duration-200 ${isGroupOpen ? '' : '-rotate-90'}`}
-                      />
-                    </button>
-                    <span className="font-bold text-slate-800 text-xs tracking-wide uppercase">
-                      KHỞI TẠO VÀ PHÊ DUYỆT
-                    </span>
-                  </div>
-                </td>
-              </tr>
+              {dynamicGroups.length > 0 ? (
+                dynamicGroups.map((group) => {
+                  const isCollapsed = !!collapsedGroups[group.title];
+                  return (
+                    <React.Fragment key={group.title}>
+                      {/* GROUP HEADER ROW */}
+                      <tr className="bg-[#f8fafc] border-b border-slate-200">
+                        <td colSpan={12} className="px-3 py-2">
+                          <div className="flex items-center gap-2">
+                            <IconGridDots size={14} className="text-slate-400 shrink-0 cursor-grab" />
+                            <button
+                              type="button"
+                              onClick={() => toggleGroupCollapse(group.title)}
+                              className="w-5 h-5 rounded border border-slate-300 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-2xs shrink-0 cursor-pointer"
+                            >
+                              <IconChevronDown
+                                size={13}
+                                className={`transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}`}
+                              />
+                            </button>
+                            <span className="font-bold text-slate-800 text-xs tracking-wide uppercase">
+                              {group.title}
+                            </span>
+                            <span className="text-[11px] text-slate-400 font-medium">
+                              ({group.items.length} công việc)
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
 
-              {/* DATA ROWS */}
-              {isGroupOpen && (
-                primaryGroupReports.length > 0 || secondaryGroups.some((group) => group.items.length > 0) ? (
-                  <>
-                    {primaryGroupReports.map((item, idx) => {
-                      const isGold = item.rowTheme === 'gold';
-                      const rowBgClass = isGold
-                        ? 'bg-[#dbae57] hover:bg-[#cf9e47]'
-                        : 'bg-[#5c8ba7] hover:bg-[#527d97]';
-                      const borderClass = isGold
-                        ? 'border-r border-b border-white/25'
-                        : 'border-r border-b border-white/20';
+                      {/* DATA ROWS */}
+                      {!isCollapsed && group.items.map((item, idx) => {
+                        const isGold = item.rowTheme === 'gold';
+                        const rowBgClass = isGold
+                          ? 'bg-[#dbae57] hover:bg-[#cf9e47]'
+                          : 'bg-[#5c8ba7] hover:bg-[#527d97]';
+                        const borderClass = isGold
+                          ? 'border-r border-b border-white/25'
+                          : 'border-r border-b border-white/20';
 
-                      return (
-                        <React.Fragment key={item.id}>
-                          {dragOverId === item.id && dropPosition === 'before' && (
-                            <tr className="bg-transparent">
-                              <td colSpan={12} className="p-0">
-                                <div className="h-1.5 w-full bg-white/90 rounded-full shadow-[0_0_0_1px_rgba(255,255,255,0.3)]" />
-                              </td>
-                            </tr>
-                          )}
-
-                          <tr
-                            draggable
-                            onDragStart={(event) => {
-                              event.dataTransfer.effectAllowed = 'move';
-                              event.dataTransfer.setData('text/plain', item.id);
-                              setDraggedReportId(item.id);
-                              setDragOverId(item.id);
-                            }}
-                            onDragOver={(event) => {
-                              event.preventDefault();
-                              event.dataTransfer.dropEffect = 'move';
-                              const rect = event.currentTarget.getBoundingClientRect();
-                              const relativeY = event.clientY - rect.top;
-                              const nextPosition = relativeY < rect.height / 2 ? 'before' : 'after';
-                              setDragOverId(item.id);
-                              setDropPosition(nextPosition);
-                            }}
-                            onDrop={(event) => {
-                              event.preventDefault();
-                              event.dataTransfer.clearData();
-                              if (draggedReportId && draggedReportId !== item.id) {
-                                moveReport(draggedReportId, item.id, dropPosition ?? 'before');
-                              }
-                              setDraggedReportId(null);
-                              setDragOverId(null);
-                              setDropPosition(null);
-                            }}
-                            onDragEnd={() => {
-                              setDraggedReportId(null);
-                              setDragOverId(null);
-                              setDropPosition(null);
-                            }}
-                            className={`${rowBgClass} transition-colors text-white text-xs cursor-grab active:cursor-grabbing ${dragOverId === item.id && dropPosition === 'before' ? 'ring-2 ring-white/70 ring-inset' : ''} ${dragOverId === item.id && dropPosition === 'after' ? 'ring-2 ring-white/70 ring-inset' : ''}`}
-                            title="Kéo để sắp xếp thứ tự"
-                          >
-                            {/* # */}
-                            <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
-                              <div className="flex items-center justify-center gap-1.5">
-                                <IconGridDots size={13} className="text-white/50 shrink-0 cursor-grab" />
-                                <span className="font-semibold text-white text-xs">{idx + 1}</span>
-                              </div>
-                            </td>
-
-                            {/* BC TH */}
-                            <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
-                              <button
-                                type="button"
-                                onClick={() => handleOpenViewModal(item)}
-                                className="bg-white text-[#5c8ba7] font-bold text-[11px] px-2 py-0.5 rounded shadow-2xs inline-flex items-center gap-1 hover:bg-slate-50 transition-colors cursor-pointer"
-                              >
-                                <IconFileText size={12} className="text-[#5c8ba7]" />
-                                <span>BC</span>
-                              </button>
-                            </td>
-
-                            {/* THAO TÁC */}
-                            <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
-                              <div className="flex items-center justify-center gap-2 text-white/90">
-                                <button
-                                  type="button"
-                                  onClick={() => handleAddTaskAfter(item)}
-                                  className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
-                                  title="Thêm"
-                                >
-                                  <IconPlus size={13} strokeWidth={2.5} />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleOpenDeleteModal(item)}
-                                  className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
-                                  title="Xóa"
-                                >
-                                  <IconTrash size={13} strokeWidth={2} />
-                                </button>
-                              </div>
-                            </td>
-
-                            {/* TRẠNG THÁI */}
-                            <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap`}>
-                              <span className="bg-[#e8f7ee] text-[#15803d] border border-[#a7f3d0] font-bold text-[11px] px-2.5 py-0.5 rounded-full inline-block shadow-2xs">
-                                {item.status || 'Chưa bắt đầu'}
-                              </span>
-                            </td>
-
-                            {/* TÊN CÔNG VIỆC */}
-                            <td className={`px-3 py-2.5 ${borderClass}`}>
-                              <span className="font-bold text-white uppercase text-[11px] tracking-wide block leading-snug">
-                                {item.title}
-                              </span>
-                            </td>
-
-                            {/* KL DK */}
-                            <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
-                              {item.klDk ?? 1}
-                            </td>
-
-                            {/* KL DP */}
-                            <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
-                              {item.klDp ?? 0}
-                            </td>
-
-                            {/* NHÂN SỰ */}
-                            <td className={`px-2.5 py-2.5 ${borderClass}`}>
-                              {item.assignees && item.assignees.length > 1 ? (
-                                <div className="bg-[#4d7d9d] text-white rounded p-1.5 text-[11px] font-medium leading-snug space-y-0.5 shadow-2xs border border-white/20">
-                                  {item.assignees.map((name, i) => (
-                                    <div key={i} className="whitespace-nowrap">{name}</div>
-                                  ))}
-                                </div>
-                              ) : (
-                                <div className="flex items-center justify-between gap-1 text-white text-xs font-medium cursor-pointer hover:opacity-90">
-                                  <span className="whitespace-nowrap">{item.assignee}</span>
-                                  <IconChevronDown size={12} className="text-white/70 shrink-0" />
-                                </div>
-                              )}
-                            </td>
-
-                            {/* GIỜ DK */}
-                            <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
-                              {item.plannedHours}
-                            </td>
-
-                            {/* GIỜ TT */}
-                            <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-bold text-xs`}>
-                              <span className="text-[#f87171]">{item.actualHours || '—'}</span>
-                            </td>
-
-                            {/* BẮT ĐẦU */}
-                            <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap`}>
-                              <div className="flex items-center justify-between gap-1.5 text-white text-[11px] font-medium">
-                                <span>{item.date}</span>
-                                <IconCalendar size={13} className="text-white/80 shrink-0" />
-                              </div>
-                            </td>
-
-                            {/* KẾT THÚC */}
-                            <td className={`px-2.5 py-2.5 border-b ${isGold ? 'border-white/25' : 'border-white/20'} whitespace-nowrap`}>
-                              <div className="flex items-center justify-between gap-1.5 text-white text-[11px] font-medium">
-                                <span>{item.deadline || item.date}</span>
-                                <IconCalendar size={13} className="text-white/80 shrink-0" />
-                              </div>
-                            </td>
-                          </tr>
-
-                          {dragOverId === item.id && dropPosition === 'after' && (
-                            <tr className="bg-transparent">
-                              <td colSpan={12} className="p-0">
-                                <div className="h-1.5 w-full bg-white/90 rounded-full shadow-[0_0_0_1px_rgba(255,255,255,0.3)]" />
-                              </td>
-                            </tr>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
-
-                    {secondaryGroups.map((group) => (
-                      <React.Fragment key={group.title}>
-                        <tr className="bg-[#f8fafc] border-b border-slate-200">
-                          <td colSpan={12} className="px-3 py-2">
-                            <div className="flex items-center gap-2">
-                              <IconGridDots size={14} className="text-slate-400 shrink-0 cursor-grab" />
-                              <button
-                                type="button"
-                                className="w-5 h-5 rounded border border-slate-300 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-2xs shrink-0 cursor-pointer"
-                              >
-                                <IconChevronDown size={13} className="transition-transform duration-200" />
-                              </button>
-                              <span className="font-bold text-slate-800 text-xs tracking-wide uppercase">
-                                {group.title}
-                              </span>
-                            </div>
-                          </td>
-                        </tr>
-
-                        {group.items.length > 0 ? group.items.map((item, idx) => {
-                          const isGold = item.rowTheme === 'gold';
-                          const rowBgClass = isGold
-                            ? 'bg-[#dbae57] hover:bg-[#cf9e47]'
-                            : 'bg-[#5c8ba7] hover:bg-[#527d97]';
-                          const borderClass = isGold
-                            ? 'border-r border-b border-white/25'
-                            : 'border-r border-b border-white/20';
-
-                          return (
-                            <React.Fragment key={`${group.title}-${item.id}`}>
-                              {dragOverId === item.id && dropPosition === 'before' && (
-                                <tr className="bg-transparent">
-                                  <td colSpan={12} className="p-0">
-                                    <div className="h-1.5 w-full bg-white/90 rounded-full shadow-[0_0_0_1px_rgba(255,255,255,0.3)]" />
-                                  </td>
-                                </tr>
-                              )}
-
-                              <tr
-                                draggable
-                                onDragStart={(event) => {
-                                  event.dataTransfer.effectAllowed = 'move';
-                                  event.dataTransfer.setData('text/plain', item.id);
-                                  setDraggedReportId(item.id);
-                                  setDragOverId(item.id);
-                                }}
-                                onDragOver={(event) => {
-                                  event.preventDefault();
-                                  event.dataTransfer.dropEffect = 'move';
-                                  const rect = event.currentTarget.getBoundingClientRect();
-                                  const relativeY = event.clientY - rect.top;
-                                  const nextPosition = relativeY < rect.height / 2 ? 'before' : 'after';
-                                  setDragOverId(item.id);
-                                  setDropPosition(nextPosition);
-                                }}
-                                onDrop={(event) => {
-                                  event.preventDefault();
-                                  event.dataTransfer.clearData();
-                                  if (draggedReportId && draggedReportId !== item.id) {
-                                    moveReport(draggedReportId, item.id, dropPosition ?? 'before');
-                                  }
-                                  setDraggedReportId(null);
-                                  setDragOverId(null);
-                                  setDropPosition(null);
-                                }}
-                                onDragEnd={() => {
-                                  setDraggedReportId(null);
-                                  setDragOverId(null);
-                                  setDropPosition(null);
-                                }}
-                                className={`${rowBgClass} transition-colors text-white text-xs cursor-grab active:cursor-grabbing ${dragOverId === item.id && dropPosition === 'before' ? 'ring-2 ring-white/70 ring-inset' : ''} ${dragOverId === item.id && dropPosition === 'after' ? 'ring-2 ring-white/70 ring-inset' : ''}`}
-                                title="Kéo để sắp xếp thứ tự"
-                              >
-                                <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
-                                  <div className="flex items-center justify-center gap-1.5">
-                                    <IconGridDots size={13} className="text-white/50 shrink-0 cursor-grab" />
-                                    <span className="font-semibold text-white text-xs">{idx + 1}</span>
-                                  </div>
+                        return (
+                          <React.Fragment key={item.id}>
+                            {dragOverId === item.id && dropPosition === 'before' && (
+                              <tr className="bg-transparent">
+                                <td colSpan={12} className="p-0">
+                                  <div className="h-1.5 w-full bg-white/90 rounded-full shadow-[0_0_0_1px_rgba(255,255,255,0.3)]" />
                                 </td>
-                                <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
-                                  <button type="button" onClick={() => handleOpenViewModal(item)} className="bg-white text-[#5c8ba7] font-bold text-[11px] px-2 py-0.5 rounded shadow-2xs inline-flex items-center gap-1 hover:bg-slate-50 transition-colors cursor-pointer">
-                                    <IconFileText size={12} className="text-[#5c8ba7]" />
-                                    <span>BC</span>
+                              </tr>
+                            )}
+
+                            <tr
+                              draggable
+                              onDragStart={(event) => {
+                                event.dataTransfer.effectAllowed = 'move';
+                                event.dataTransfer.setData('text/plain', item.id);
+                                setDraggedReportId(item.id);
+                                setDragOverId(item.id);
+                              }}
+                              onDragOver={(event) => {
+                                event.preventDefault();
+                                event.dataTransfer.dropEffect = 'move';
+                                const rect = event.currentTarget.getBoundingClientRect();
+                                const relativeY = event.clientY - rect.top;
+                                const nextPosition = relativeY < rect.height / 2 ? 'before' : 'after';
+                                setDragOverId(item.id);
+                                setDropPosition(nextPosition);
+                              }}
+                              onDrop={(event) => {
+                                event.preventDefault();
+                                event.dataTransfer.clearData();
+                                if (draggedReportId && draggedReportId !== item.id) {
+                                  moveReport(draggedReportId, item.id, dropPosition ?? 'before');
+                                }
+                                setDraggedReportId(null);
+                                setDragOverId(null);
+                                setDropPosition(null);
+                              }}
+                              onDragEnd={() => {
+                                setDraggedReportId(null);
+                                setDragOverId(null);
+                                setDropPosition(null);
+                              }}
+                              className={`${rowBgClass} transition-colors text-white text-xs cursor-grab active:cursor-grabbing ${dragOverId === item.id && dropPosition === 'before' ? 'ring-2 ring-white/70 ring-inset' : ''} ${dragOverId === item.id && dropPosition === 'after' ? 'ring-2 ring-white/70 ring-inset' : ''}`}
+                              title="Kéo để sắp xếp thứ tự"
+                            >
+                              {/* # */}
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <IconGridDots size={13} className="text-white/50 shrink-0 cursor-grab" />
+                                  <span className="font-semibold text-white text-xs">{idx + 1}</span>
+                                </div>
+                              </td>
+
+                              {/* BC TH */}
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenViewModal(item)}
+                                  className="bg-white text-[#5c8ba7] font-bold text-[11px] px-2 py-0.5 rounded shadow-2xs inline-flex items-center gap-1 hover:bg-slate-50 transition-colors cursor-pointer"
+                                >
+                                  <IconFileText size={12} className="text-[#5c8ba7]" />
+                                  <span>BC</span>
+                                </button>
+                              </td>
+
+                              {/* THAO TÁC */}
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
+                                <div className="flex items-center justify-center gap-2 text-white/90">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAddTaskAfter(item)}
+                                    className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                                    title="Thêm"
+                                  >
+                                    <IconPlus size={13} strokeWidth={2.5} />
                                   </button>
-                                </td>
-                                <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
-                                  <div className="flex items-center justify-center gap-2 text-white/90">
-                                    <button type="button" onClick={() => handleAddTaskAfter(item)} className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer" title="Thêm">
-                                      <IconPlus size={13} strokeWidth={2.5} />
-                                    </button>
-                                    <button type="button" onClick={() => handleOpenDeleteModal(item)} className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer" title="Xóa">
-                                      <IconTrash size={13} strokeWidth={2} />
-                                    </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenDeleteModal(item)}
+                                    className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                                    title="Xóa"
+                                  >
+                                    <IconTrash size={13} strokeWidth={2} />
+                                  </button>
+                                </div>
+                              </td>
+
+                              {/* TRẠNG THÁI */}
+                              <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap`}>
+                                <span className="bg-[#e8f7ee] text-[#15803d] border border-[#a7f3d0] font-bold text-[11px] px-2.5 py-0.5 rounded-full inline-block shadow-2xs">
+                                  {item.status || 'Chưa bắt đầu'}
+                                </span>
+                              </td>
+
+                              {/* TÊN CÔNG VIỆC */}
+                              <td className={`px-3 py-2.5 ${borderClass}`}>
+                                <span className="font-bold text-white uppercase text-[11px] tracking-wide block leading-snug">
+                                  {item.title}
+                                </span>
+                              </td>
+
+                              {/* KL DK */}
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
+                                {item.klDk ?? 1}
+                              </td>
+
+                              {/* KL DP */}
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
+                                {item.klDp ?? 0}
+                              </td>
+
+                              {/* NHÂN SỰ */}
+                              <td className={`px-2.5 py-2.5 ${borderClass}`}>
+                                {item.assignees && item.assignees.length > 1 ? (
+                                  <div className="bg-[#4d7d9d] text-white rounded p-1.5 text-[11px] font-medium leading-snug space-y-0.5 shadow-2xs border border-white/20">
+                                    {item.assignees.map((name, i) => (
+                                      <div key={i} className="whitespace-nowrap">{name}</div>
+                                    ))}
                                   </div>
-                                </td>
-                                <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap`}>
-                                  <span className="bg-[#e8f7ee] text-[#15803d] border border-[#a7f3d0] font-bold text-[11px] px-2.5 py-0.5 rounded-full inline-block shadow-2xs">
-                                    {item.status || 'Chưa bắt đầu'}
-                                  </span>
-                                </td>
-                                <td className={`px-3 py-2.5 ${borderClass}`}>
-                                  <span className="font-bold text-white uppercase text-[11px] tracking-wide block leading-snug">
-                                    {item.title}
-                                  </span>
-                                </td>
-                                <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
-                                  {item.klDk ?? 1}
-                                </td>
-                                <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
-                                  {item.klDp ?? 0}
-                                </td>
-                                <td className={`px-2.5 py-2.5 ${borderClass}`}>
+                                ) : (
                                   <div className="flex items-center justify-between gap-1 text-white text-xs font-medium cursor-pointer hover:opacity-90">
                                     <span className="whitespace-nowrap">{item.assignee}</span>
                                     <IconChevronDown size={12} className="text-white/70 shrink-0" />
                                   </div>
-                                </td>
-                                <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
-                                  {item.plannedHours}
-                                </td>
-                                <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-bold text-xs`}>
-                                  <span className="text-[#f87171]">{item.actualHours || '—'}</span>
-                                </td>
-                                <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap`}>
-                                  <div className="flex items-center justify-between gap-1.5 text-white text-[11px] font-medium">
-                                    <span>{item.date}</span>
-                                    <IconCalendar size={13} className="text-white/80 shrink-0" />
-                                  </div>
-                                </td>
-                                <td className={`px-2.5 py-2.5 border-b ${isGold ? 'border-white/25' : 'border-white/20'} whitespace-nowrap`}>
-                                  <div className="flex items-center justify-between gap-1.5 text-white text-[11px] font-medium">
-                                    <span>{item.deadline || item.date}</span>
-                                    <IconCalendar size={13} className="text-white/80 shrink-0" />
-                                  </div>
+                                )}
+                              </td>
+
+                              {/* GIỜ DK */}
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
+                                {item.plannedHours}
+                              </td>
+
+                              {/* GIỜ TT */}
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-bold text-xs`}>
+                                <span className="text-[#f87171]">{item.actualHours || '—'}</span>
+                              </td>
+
+                              {/* BẮT ĐẦU */}
+                              <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap`}>
+                                <div className="flex items-center justify-between gap-1.5 text-white text-[11px] font-medium">
+                                  <span>{item.date}</span>
+                                  <IconCalendar size={13} className="text-white/80 shrink-0" />
+                                </div>
+                              </td>
+
+                              {/* KẾT THÚC */}
+                              <td className={`px-2.5 py-2.5 border-b ${isGold ? 'border-white/25' : 'border-white/20'} whitespace-nowrap`}>
+                                <div className="flex items-center justify-between gap-1.5 text-white text-[11px] font-medium">
+                                  <span>{item.deadline || item.date}</span>
+                                  <IconCalendar size={13} className="text-white/80 shrink-0" />
+                                </div>
+                              </td>
+                            </tr>
+
+                            {dragOverId === item.id && dropPosition === 'after' && (
+                              <tr className="bg-transparent">
+                                <td colSpan={12} className="p-0">
+                                  <div className="h-1.5 w-full bg-white/90 rounded-full shadow-[0_0_0_1px_rgba(255,255,255,0.3)]" />
                                 </td>
                               </tr>
-
-                              {dragOverId === item.id && dropPosition === 'after' && (
-                                <tr className="bg-transparent">
-                                  <td colSpan={12} className="p-0">
-                                    <div className="h-1.5 w-full bg-white/90 rounded-full shadow-[0_0_0_1px_rgba(255,255,255,0.3)]" />
-                                  </td>
-                                </tr>
-                              )}
-                            </React.Fragment>
-                          );
-                        }) : (
-                          <tr>
-                            <td colSpan={12} className="text-center py-4 text-slate-400 bg-white">
-                              <p className="font-semibold text-xs">Không có dữ liệu.</p>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </>
-                ) : (
-                  <tr>
-                    <td colSpan={12} className="text-center py-10 text-slate-400 bg-white">
-                      <p className="font-semibold text-xs">Không tìm thấy báo cáo nào phù hợp.</p>
-                    </td>
-                  </tr>
-                )
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={12} className="text-center py-10 text-slate-400 bg-white">
+                    {loadingData ? (
+                      <div className="flex items-center justify-center gap-2 text-slate-500 font-medium">
+                        <IconLoader2 size={16} className="animate-spin text-[#406c89]" />
+                        <span>Đang tải danh sách công việc báo cáo...</span>
+                      </div>
+                    ) : (
+                      <p className="font-semibold text-xs">Phòng ban này chưa có công việc báo cáo nào.</p>
+                    )}
+                  </td>
+                </tr>
               )}
             </tbody>
             </table>
           </div>
         </div>
 
+      </div>
     </div>
   );
 }

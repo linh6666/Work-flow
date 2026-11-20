@@ -64,4 +64,82 @@ export async function getDeptProjectForms(
   return Array.isArray(data) ? data : [];
 }
 
+/**
+ * Cập nhật hồ sơ / báo cáo công việc của phòng ban
+ * PUT /api/v1/entities/DeptProjectForm/{id}
+ */
+export async function updateDeptProjectForm(
+  id: string,
+  payload: Partial<DeptProjectFormItem>
+): Promise<DeptProjectFormItem> {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const url = `${BASE_API_FASTAPI}${API_ROUTE.DEPT_PROJECT_FORM_UPDATE.replace(
+    "{DeptProjectForm_id}",
+    encodeURIComponent(id)
+  )}`;
+
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(apiKey ? { "api_key": apiKey } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    const message = Array.isArray(errorData.detail)
+      ? errorData.detail.map((d: any) => d.msg || d).join(", ")
+      : errorData.detail || errorData.message || `Cập nhật báo cáo phòng ban thất bại (HTTP ${res.status})`;
+    throw new Error(message);
+  }
+
+  return await res.json();
+}
+
+/**
+ * Tạo mới hồ sơ / báo cáo công việc của phòng ban
+ * POST /api/v1/entities/DeptProjectForm
+ */
+export async function createDeptProjectForm(
+  payload: Omit<DeptProjectFormItem, "id">
+): Promise<DeptProjectFormItem> {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const url = `${BASE_API_FASTAPI}${API_ROUTE.DEPT_PROJECT_FORM_CREATE}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(apiKey ? { "api_key": apiKey } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    const message = Array.isArray(errorData.detail)
+      ? errorData.detail.map((d: any) => d.msg || d).join(", ")
+      : errorData.detail || errorData.message || `Tạo báo cáo phòng ban thất bại (HTTP ${res.status})`;
+    throw new Error(message);
+  }
+
+  return await res.json();
+}
+
 export default getDeptProjectForms;

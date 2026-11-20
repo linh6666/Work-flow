@@ -65,21 +65,29 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
           const list: DepartmentItem[] = data.map((item) => {
             let taskCount = 0;
             if (item.tasks_json) {
-              try {
-                const parsed = JSON.parse(item.tasks_json);
-                taskCount = Array.isArray(parsed) ? parsed.length : 0;
-              } catch {
-                taskCount = 0;
+              if (item.tasks_json.startsWith('http')) {
+                // Định dạng link CDN lưu tệp json công việc
+                taskCount = 1;
+              } else {
+                try {
+                  const parsed = JSON.parse(item.tasks_json);
+                  taskCount = Array.isArray(parsed) ? parsed.length : 0;
+                } catch {
+                  taskCount = 0;
+                }
               }
             }
 
             const status = item.status || 'Đang triển khai';
             const creator = item.created_by_name || 'Hệ thống';
-            const countText = taskCount > 0 ? ` · ${taskCount} công việc` : '';
+            const countText = taskCount > 0
+              ? (item.tasks_json?.startsWith('http') ? ' · Đã có file công việc' : ` · ${taskCount} công việc`)
+              : '';
 
             return {
               name: item.department || 'Phòng ban',
               statusText: `${status}${countText} · Tạo bởi: ${creator}`,
+              rawForm: item,
             };
           });
 
@@ -99,7 +107,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
     };
   }, [project.id]);
 
-  // URL là nguồn trạng thái chính; quay lại dự án không tự mở phòng ban cũ.
+  // Khởi tạo phòng ban từ URL hoặc khi departments tải xong
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -107,11 +115,19 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
       const urlParams = new URLSearchParams(window.location.search);
       const deptName = urlParams.get('dept');
       if (deptName) {
-        const found = departments.find(d => d.name === deptName);
-        if (found) {
-          setSelectedDepartment(found);
-          return;
+        if (departments.length > 0) {
+          const found = departments.find(d => d.name === deptName);
+          if (found) {
+            setSelectedDepartment(found);
+            return;
+          }
         }
+        // Nếu danh sách departments chưa tải xong hoặc reload trang, vẫn giữ trạng thái phòng ban
+        setSelectedDepartment({
+          name: deptName,
+          statusText: 'Đang triển khai',
+        });
+        return;
       }
       setSelectedDepartment(null);
     };
@@ -120,7 +136,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
 
     window.addEventListener('popstate', checkDeptParam);
     return () => window.removeEventListener('popstate', checkDeptParam);
-  }, []);
+  }, [departments]);
 
   const handleSelectDepartment = (dept: DepartmentItem | null) => {
     setSelectedDepartment(dept);
@@ -144,6 +160,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
         department={selectedDepartment}
         projectCode={project.maDuAn}
         projectName={project.tenDuAn}
+        projectId={project.id}
         onBack={() => handleSelectDepartment(null)}
       />
     );

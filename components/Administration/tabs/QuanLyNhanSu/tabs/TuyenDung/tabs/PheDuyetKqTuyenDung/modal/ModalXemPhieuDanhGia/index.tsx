@@ -432,7 +432,7 @@ export default function ModalXemPhieuDanhGia({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto no-scrollbar animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
@@ -461,8 +461,8 @@ export default function ModalXemPhieuDanhGia({
           </div>
         </div>
 
-        {/* Nội dung bảng có scroll cuộn */}
-        <div className="px-4 overflow-y-auto flex-1 space-y-4 text-xs pb-4">
+        {/* Nội dung bảng có scroll cuộn ẩn thanh scrollbar */}
+        <div className="px-4 overflow-y-auto no-scrollbar flex-1 space-y-4 text-xs pb-4">
           {/* ════ I. PHẦN PHỎNG VẤN ════ */}
           <div className="border border-slate-200 rounded-md overflow-hidden">
             <table className="w-full text-xs border-collapse">
@@ -944,24 +944,10 @@ export default function ModalXemPhieuDanhGia({
           <div className="flex items-center gap-2.5">
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
-            >
-              <IconFileSpreadsheet size={15} />
-              <span>Nhập Excel</span>
-            </button>
-            <button
-              type="button"
               onClick={onClose}
               className="px-4 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
             >
               Đóng
-            </button>
-            <button
-              type="button"
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-[#406c89] hover:bg-[#345870] rounded-lg shadow-sm transition-colors cursor-pointer"
-            >
-              <IconEdit size={15} />
-              <span>Sửa phiếu</span>
             </button>
           </div>
         </div>

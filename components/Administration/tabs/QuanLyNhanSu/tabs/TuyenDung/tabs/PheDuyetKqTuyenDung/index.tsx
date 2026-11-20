@@ -574,7 +574,7 @@ export default function PheDuyetKqTuyenDung() {
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
-        className={`flex-1 overflow-auto relative select-none ${
+        className={`flex-1 overflow-auto no-scrollbar relative select-none ${
           isDragging ? "cursor-grabbing" : "cursor-grab"
         }`}
       >

@@ -591,8 +591,8 @@ export default function ModalXemChiTiet({ isOpen, item, onClose }: ModalXemChiTi
             
             {/* THÔNG TIN CÁ NHÂN */}
             <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-              <div className="px-4 py-2.5 bg-[#406c89] text-white flex items-center gap-2 font-bold text-xs">
-                <IconId size={16} className="text-white/80" />
+              <div className="px-4 py-2.5 bg-[#f0f4f8] text-[#406c89] flex items-center gap-2 font-bold text-xs border-b border-slate-200/80">
+                <IconId size={16} className="text-[#406c89]" />
                 <span>THÔNG TIN CÁ NHÂN</span>
               </div>
               <div className="p-4 space-y-3.5 text-xs text-slate-800">
@@ -646,8 +646,8 @@ export default function ModalXemChiTiet({ isOpen, item, onClose }: ModalXemChiTi
 
             {/* LIÊN HỆ */}
             <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-              <div className="px-4 py-2.5 bg-[#406c89] text-white flex items-center gap-2 font-bold text-xs">
-                <IconPhone size={16} className="text-white/80" />
+              <div className="px-4 py-2.5 bg-[#f0f4f8] text-[#406c89] flex items-center gap-2 font-bold text-xs border-b border-slate-200/80">
+                <IconPhone size={16} className="text-[#406c89]" />
                 <span>LIÊN HỆ</span>
               </div>
               <div className="p-4 space-y-3.5 text-xs text-slate-800">
@@ -698,8 +698,8 @@ export default function ModalXemChiTiet({ isOpen, item, onClose }: ModalXemChiTi
             
             {/* CÔNG TÁC */}
             <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-              <div className="px-4 py-2.5 bg-[#406c89] text-white flex items-center gap-2 font-bold text-xs">
-                <IconBriefcase size={16} className="text-white/80" />
+              <div className="px-4 py-2.5 bg-[#f0f4f8] text-[#406c89] flex items-center gap-2 font-bold text-xs border-b border-slate-200/80">
+                <IconBriefcase size={16} className="text-[#406c89]" />
                 <span>CÔNG TÁC</span>
               </div>
               <div className="p-4 space-y-3.5 text-xs text-slate-800">
@@ -745,8 +745,8 @@ export default function ModalXemChiTiet({ isOpen, item, onClose }: ModalXemChiTi
 
             {/* HỌC VẤN & TUYỂN DỤNG */}
             <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-              <div className="px-4 py-2.5 bg-[#406c89] text-white flex items-center gap-2 font-bold text-xs">
-                <IconSchool size={16} className="text-white/80" />
+              <div className="px-4 py-2.5 bg-[#f0f4f8] text-[#406c89] flex items-center gap-2 font-bold text-xs border-b border-slate-200/80">
+                <IconSchool size={16} className="text-[#406c89]" />
                 <span>HỌC VẤN & TUYỂN DỤNG</span>
               </div>
               <div className="p-4 space-y-3.5 text-xs text-slate-800">
@@ -777,8 +777,8 @@ export default function ModalXemChiTiet({ isOpen, item, onClose }: ModalXemChiTi
 
           {/* ── 5. CỘT DỮ LIỆU BỔ SUNG ── */}
           <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-            <div className="px-4 py-2.5 bg-[#406c89] text-white flex items-center gap-2 font-bold text-xs">
-              <IconListDetails size={16} className="text-white/80" />
+            <div className="px-4 py-2.5 bg-[#f0f4f8] text-[#406c89] flex items-center gap-2 font-bold text-xs border-b border-slate-200/80">
+              <IconListDetails size={16} className="text-[#406c89]" />
               <span>CỘT DỮ LIỆU BỔ SUNG</span>
             </div>
             <div className="p-4 text-xs text-slate-800">

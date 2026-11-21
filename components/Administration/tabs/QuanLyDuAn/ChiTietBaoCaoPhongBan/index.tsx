@@ -50,6 +50,7 @@ interface ChiTietBaoCaoPhongBanProps {
   projectName?: string;
   projectId?: string;
   onBack: () => void;
+  onBackToProjectList?: () => void;
 }
 
 interface ReportTask {
@@ -80,6 +81,7 @@ export default function ChiTietBaoCaoPhongBan({
   projectName = 'THE HERITAGE TÂY NINH - Lắp đặt tại Tây Ninh',
   projectId,
   onBack,
+  onBackToProjectList,
 }: ChiTietBaoCaoPhongBanProps) {
   // Sample reports matching screenshot exactly
   const sampleReports: ReportTask[] = [
@@ -420,14 +422,23 @@ export default function ChiTietBaoCaoPhongBan({
       status: apiTask.status || 'Chưa bắt đầu',
       klDk: apiTask.qty_real ?? apiTask.klDk ?? 1,
       klDp: apiTask.qty_backup ?? apiTask.klDp ?? 0,
-      rowTheme: apiTask.rowTheme || (index % 3 === 0 ? 'gold' : 'blue'),
+      rowTheme: apiTask.rowTheme || 'blue',
       group: apiTask.group || 'KHỞI TẠO VÀ PHÊ DUYỆT',
     };
   };
 
+  // Memory cache lưu các tasks đã parse theo URL hoặc chuỗi JSON để không phải fetch lại
+  const tasksCacheRef = React.useRef<Map<string, ReportTask[]>>(new Map());
+
   // Helper hàm tải và parse danh sách tasks từ tasks_json (hỗ trợ cả chuỗi JSON và link URL)
   const parseTasksJson = async (tasksJson?: string | null): Promise<ReportTask[]> => {
     if (!tasksJson || !tasksJson.trim()) return [];
+    
+    // Kiểm tra cache trước
+    if (tasksCacheRef.current.has(tasksJson)) {
+      return tasksCacheRef.current.get(tasksJson)!;
+    }
+
     try {
       let rawData: any = null;
       if (tasksJson.startsWith('http')) {
@@ -440,7 +451,9 @@ export default function ChiTietBaoCaoPhongBan({
         rawData = JSON.parse(tasksJson);
       }
       if (Array.isArray(rawData)) {
-        return rawData.map(mapApiTaskToReportTask);
+        const mapped = rawData.map(mapApiTaskToReportTask);
+        tasksCacheRef.current.set(tasksJson, mapped);
+        return mapped;
       }
     } catch (err) {
       console.warn('Lỗi khi parse tasks_json:', err);
@@ -479,7 +492,6 @@ export default function ChiTietBaoCaoPhongBan({
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [savingData, setSavingData] = useState<boolean>(false);
 
-  // Call API load báo cáo phòng ban từ server (hỗ trợ cả link URL và chuỗi JSON)
   useEffect(() => {
     let isMounted = true;
 
@@ -489,8 +501,8 @@ export default function ChiTietBaoCaoPhongBan({
         let tasksStr = department.rawForm?.tasks_json;
         let recordId = department.rawForm?.id || null;
 
-        // Nếu chưa có tasks_json trong rawForm, query lại từ API qua projectId
-        if (!tasksStr && projectId) {
+        // Gọi API fetch dữ liệu phòng ban của dự án
+        if (projectId) {
           const data = await getDeptProjectForms(projectId);
           if (data && data.length > 0) {
             const match = data.find(
@@ -524,14 +536,12 @@ export default function ChiTietBaoCaoPhongBan({
     return () => {
       isMounted = false;
     };
-  }, [projectId, department.name, department.rawForm]);
+  }, [projectId, department.name]);
 
-  // Hàm gọi API Lưu báo cáo công việc (PUT hoặc POST)
-  const handleSaveReport = async () => {
-    setSavingData(true);
+  // Hàm đồng bộ và lưu danh sách công việc xuống API
+  const saveTasksToApi = async (tasks: ReportTask[]) => {
     try {
-      // Map về đúng format của API FastAPI
-      const apiPayloadTasks = reportRows.map((r) => {
+      const apiPayloadTasks = tasks.map((r) => {
         let plannedHoursNum = typeof r.plannedHours === 'number'
           ? r.plannedHours
           : (parseInt(String(r.plannedHours).replace(/[^\d]/g, '')) || 1);
@@ -542,7 +552,6 @@ export default function ChiTietBaoCaoPhongBan({
           actualHoursVal = isNaN(parsed) ? r.actualHours : parsed;
         }
 
-        // Chuyển ngày DD/MM/YYYY về YYYY-MM-DD
         const toApiDate = (dStr?: string) => {
           if (!dStr || dStr === '—') return '';
           if (dStr.includes('/')) {
@@ -570,6 +579,7 @@ export default function ChiTietBaoCaoPhongBan({
           qty_real: Number(r.klDk) || 1,
           qty_backup: Number(r.klDp) || 0,
           quantity_unit: '',
+          rowTheme: r.rowTheme,
           progress: r.status === 'Hoàn thành' ? 100 : (r.status === 'Đang thực hiện' ? 50 : 0),
           notes: r.note || '',
         };
@@ -592,13 +602,23 @@ export default function ChiTietBaoCaoPhongBan({
         });
         if (created?.id) setFormRecordId(created.id);
       }
+    } catch (err) {
+      console.error('Lỗi khi tự động lưu dữ liệu xuống API:', err);
+    }
+  };
+
+  // Hàm gọi API Lưu báo cáo công việc (PUT hoặc POST) khi bấm nút Lưu thủ công
+  const handleSaveReport = async () => {
+    setSavingData(true);
+    try {
+      await saveTasksToApi(reportRows);
       NotificationExtension.Success('Đã lưu báo cáo công việc phòng ban thành công!');
     } catch (err: any) {
       console.error('Lỗi khi lưu báo cáo:', err);
       NotificationExtension.Fails(err.message || 'Lưu báo cáo thất bại, vui lòng thử lại.');
     } finally {
       setSavingData(false);
-    };
+    }
   };
   const [draggedReportId, setDraggedReportId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -620,10 +640,13 @@ export default function ChiTietBaoCaoPhongBan({
   };
 
   const handleAddTaskAfter = (item: ReportTask) => {
+    const parentGroup = item.group || 'KHỞI TẠO VÀ PHÊ DUYỆT';
     const newTask: ReportTask = {
       id: `rpt-new-${Date.now()}`,
       title: 'CÔNG VIỆC MỚI',
+      group: parentGroup,
       assignee: item.assignee,
+      assignees: item.assignees,
       date: item.date,
       deadline: item.deadline || item.date,
       plannedHours: '1h',
@@ -633,41 +656,46 @@ export default function ChiTietBaoCaoPhongBan({
       klDp: 0,
       rowTheme: item.rowTheme,
     };
-    const sourceGroup = getReportGroup(item.id);
 
-    setReportRows((currentReports) => {
-      const nextReports = [...currentReports];
-      const currentIndex = nextReports.findIndex((report) => report.id === item.id);
-      if (currentIndex >= 0) nextReports.splice(currentIndex + 1, 0, newTask);
-      return nextReports;
-    });
-
-    if (sourceGroup) {
-      setReportGroupById((currentGroups) => ({ ...currentGroups, [newTask.id]: sourceGroup }));
+    const nextReports = [...reportRows];
+    const currentIndex = nextReports.findIndex((report) => report.id === item.id);
+    if (currentIndex >= 0) {
+      nextReports.splice(currentIndex + 1, 0, newTask);
+    } else {
+      nextReports.push(newTask);
     }
+    setReportRows(nextReports);
+    saveTasksToApi(nextReports);
   };
 
   const handleDeleteTask = () => {
     if (!activeModal?.taskId) return;
-    setReportRows((current) => current.filter((item) => item.id !== activeModal.taskId));
+    const updated = reportRows.filter((item) => item.id !== activeModal.taskId);
+    setReportRows(updated);
+    saveTasksToApi(updated);
     setActiveModal(null);
   };
 
   const moveReport = (fromId: string, toId: string, position: 'before' | 'after' = 'before') => {
-    setReportRows((currentReports) => {
-      const nextReports = [...currentReports];
-      const fromIndex = nextReports.findIndex((item) => item.id === fromId);
-      const toIndex = nextReports.findIndex((item) => item.id === toId);
+    const fromIndex = reportRows.findIndex((item) => item.id === fromId);
+    const toIndex = reportRows.findIndex((item) => item.id === toId);
 
-      if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
-        return currentReports;
-      }
+    if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+      return;
+    }
 
-      const [movedItem] = nextReports.splice(fromIndex, 1);
-      const insertionIndex = position === 'after' ? toIndex + 1 : toIndex;
-      nextReports.splice(Math.max(0, insertionIndex), 0, movedItem);
-      return nextReports;
-    });
+    const nextReports = [...reportRows];
+    const [movedItem] = nextReports.splice(fromIndex, 1);
+
+    // Giữ nguyên group của công việc (không tự ý đổi group),
+    // việc gộp hay tách hoàn toàn phụ thuộc vào việc trường group của các dòng có giống nhau hay không.
+    const newToIndex = nextReports.findIndex((item) => item.id === toId);
+    const insertionIndex = position === 'after' ? newToIndex + 1 : newToIndex;
+    nextReports.splice(Math.max(0, insertionIndex), 0, movedItem);
+
+    setReportRows(nextReports);
+    // Tự động lưu vị trí sắp xếp mới xuống API
+    saveTasksToApi(nextReports);
   };
 
   // Filtering
@@ -714,20 +742,28 @@ export default function ChiTietBaoCaoPhongBan({
     return Array.from(set);
   }, [reportRows]);
 
-  // Gom nhóm công việc động theo trường `group`
+  // Gom nhóm công việc theo thứ tự thực tế:
+  // Các dòng liền kề có cùng trường `group` sẽ được gộp chung vào 1 nhóm.
+  // Nếu trường `group` khác nhau thì sẽ tách thành nhóm riêng biệt.
   const dynamicGroups = React.useMemo(() => {
-    const map = new Map<string, ReportTask[]>();
-    filteredReports.forEach((item) => {
+    const groups: { id: string; title: string; items: ReportTask[] }[] = [];
+
+    filteredReports.forEach((item, idx) => {
       const gName = (item.group || 'KHỞI TẠO VÀ PHÊ DUYỆT').trim().toUpperCase();
-      if (!map.has(gName)) {
-        map.set(gName, []);
+      const currentGroup = groups[groups.length - 1];
+
+      if (currentGroup && currentGroup.title === gName) {
+        currentGroup.items.push(item);
+      } else {
+        groups.push({
+          id: `group-${groups.length}-${gName}`,
+          title: gName,
+          items: [item],
+        });
       }
-      map.get(gName)!.push(item);
     });
-    return Array.from(map.entries()).map(([title, items]) => ({
-      title,
-      items,
-    }));
+
+    return groups;
   }, [filteredReports]);
 
   return (
@@ -748,18 +784,39 @@ export default function ChiTietBaoCaoPhongBan({
       {/* ROW 1: TITLE & TOP ACTION BUTTONS */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 shrink-0">
         
-        {/* Title & Subtitle with Back Button */}
+        {/* Title & Subtitle with Back Button & Breadcrumbs */}
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onBack}
             className="w-7 h-7 rounded-md bg-white border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-all cursor-pointer shadow-2xs shrink-0"
-            title="Quay lại trang trước"
+            title="Quay lại chi tiết dự án"
           >
             <IconArrowLeft size={14} />
           </button>
 
           <div>
+            {onBackToProjectList && (
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 mb-0.5">
+                <button
+                  type="button"
+                  onClick={onBackToProjectList}
+                  className="hover:text-[#406c89] hover:underline cursor-pointer transition-colors"
+                >
+                  Quản lý dự án
+                </button>
+                <span>/</span>
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="hover:text-[#406c89] hover:underline cursor-pointer transition-colors truncate max-w-[200px]"
+                >
+                  {projectName}
+                </button>
+                <span>/</span>
+                <span className="text-slate-600 font-bold">{department.name}</span>
+              </div>
+            )}
             <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug">
               {department.name}
             </h1>
@@ -957,9 +1014,9 @@ export default function ChiTietBaoCaoPhongBan({
             <tbody>
               {dynamicGroups.length > 0 ? (
                 dynamicGroups.map((group) => {
-                  const isCollapsed = !!collapsedGroups[group.title];
+                  const isCollapsed = !!collapsedGroups[group.id];
                   return (
-                    <React.Fragment key={group.title}>
+                    <React.Fragment key={group.id}>
                       {/* GROUP HEADER ROW */}
                       <tr className="bg-[#f8fafc] border-b border-slate-200">
                         <td colSpan={12} className="px-3 py-2">
@@ -967,7 +1024,7 @@ export default function ChiTietBaoCaoPhongBan({
                             <IconGridDots size={14} className="text-slate-400 shrink-0 cursor-grab" />
                             <button
                               type="button"
-                              onClick={() => toggleGroupCollapse(group.title)}
+                              onClick={() => toggleGroupCollapse(group.id)}
                               className="w-5 h-5 rounded border border-slate-300 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-2xs shrink-0 cursor-pointer"
                             >
                               <IconChevronDown
@@ -1006,44 +1063,49 @@ export default function ChiTietBaoCaoPhongBan({
                             )}
 
                             <tr
-                              draggable
-                              onDragStart={(event) => {
-                                event.dataTransfer.effectAllowed = 'move';
-                                event.dataTransfer.setData('text/plain', item.id);
-                                setDraggedReportId(item.id);
-                                setDragOverId(item.id);
-                              }}
                               onDragOver={(event) => {
                                 event.preventDefault();
                                 event.dataTransfer.dropEffect = 'move';
                                 const rect = event.currentTarget.getBoundingClientRect();
                                 const relativeY = event.clientY - rect.top;
                                 const nextPosition = relativeY < rect.height / 2 ? 'before' : 'after';
-                                setDragOverId(item.id);
-                                setDropPosition(nextPosition);
+                                if (dragOverId !== item.id || dropPosition !== nextPosition) {
+                                  setDragOverId(item.id);
+                                  setDropPosition(nextPosition);
+                                }
                               }}
                               onDrop={(event) => {
                                 event.preventDefault();
-                                event.dataTransfer.clearData();
-                                if (draggedReportId && draggedReportId !== item.id) {
-                                  moveReport(draggedReportId, item.id, dropPosition ?? 'before');
+                                event.stopPropagation();
+                                const draggedId = event.dataTransfer.getData('text/plain') || draggedReportId;
+                                if (draggedId && draggedId !== item.id) {
+                                  moveReport(draggedId, item.id, dropPosition ?? 'before');
                                 }
                                 setDraggedReportId(null);
                                 setDragOverId(null);
                                 setDropPosition(null);
                               }}
-                              onDragEnd={() => {
-                                setDraggedReportId(null);
-                                setDragOverId(null);
-                                setDropPosition(null);
-                              }}
-                              className={`${rowBgClass} transition-colors text-white text-xs cursor-grab active:cursor-grabbing ${dragOverId === item.id && dropPosition === 'before' ? 'ring-2 ring-white/70 ring-inset' : ''} ${dragOverId === item.id && dropPosition === 'after' ? 'ring-2 ring-white/70 ring-inset' : ''}`}
-                              title="Kéo để sắp xếp thứ tự"
+                              className={`${rowBgClass} transition-colors text-white text-xs ${draggedReportId === item.id ? 'opacity-40' : ''}`}
                             >
-                              {/* # */}
-                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
+                              {/* # CỘT DRAG HANDLE CHÍNH */}
+                              <td
+                                draggable
+                                onDragStart={(event) => {
+                                  event.stopPropagation();
+                                  event.dataTransfer.effectAllowed = 'move';
+                                  event.dataTransfer.setData('text/plain', item.id);
+                                  setDraggedReportId(item.id);
+                                }}
+                                onDragEnd={() => {
+                                  setDraggedReportId(null);
+                                  setDragOverId(null);
+                                  setDropPosition(null);
+                                }}
+                                className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap cursor-grab active:cursor-grabbing hover:bg-black/15 transition-colors select-none`}
+                                title="Giữ và kéo biểu tượng này để đổi thứ tự công việc"
+                              >
                                 <div className="flex items-center justify-center gap-1.5">
-                                  <IconGridDots size={13} className="text-white/50 shrink-0 cursor-grab" />
+                                  <IconGridDots size={14} className="text-white/80 shrink-0 cursor-grab active:cursor-grabbing" />
                                   <span className="font-semibold text-white text-xs">{idx + 1}</span>
                                 </div>
                               </td>

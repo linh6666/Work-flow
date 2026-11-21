@@ -118,15 +118,15 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
         if (departments.length > 0) {
           const found = departments.find(d => d.name === deptName);
           if (found) {
-            setSelectedDepartment(found);
+            setSelectedDepartment(prev => (prev?.name === found.name && prev?.rawForm?.id === found.rawForm?.id ? prev : found));
             return;
           }
         }
         // Nếu danh sách departments chưa tải xong hoặc reload trang, vẫn giữ trạng thái phòng ban
-        setSelectedDepartment({
+        setSelectedDepartment(prev => (prev?.name === deptName ? prev : {
           name: deptName,
           statusText: 'Đang triển khai',
-        });
+        }));
         return;
       }
       setSelectedDepartment(null);
@@ -157,11 +157,13 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
   if (selectedDepartment) {
     return (
       <ChiTietBaoCaoPhongBan
+        key={selectedDepartment.name}
         department={selectedDepartment}
         projectCode={project.maDuAn}
         projectName={project.tenDuAn}
         projectId={project.id}
         onBack={() => handleSelectDepartment(null)}
+        onBackToProjectList={onBack}
       />
     );
   }
@@ -173,21 +175,29 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
       <div className="bg-[#f4f6fa] px-4 sm:px-6 py-2.5 border-b border-slate-200/60 shrink-0 min-w-[1000px]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           
-          {/* Back button & Title */}
+          {/* Back button & Title with Breadcrumb */}
           <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={onBack}
               className="w-7 h-7 rounded-md bg-white border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-all cursor-pointer shadow-2xs shrink-0"
-              title="Quay lại"
+              title="Quay lại danh sách dự án"
             >
               <IconArrowLeft size={14} />
             </button>
 
             <div>
-              <span className="text-[10px] font-bold text-slate-400 font-mono tracking-tight block leading-none">
-                {project.maDuAn}
-              </span>
+              <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 mb-0.5">
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="hover:text-[#406c89] hover:underline cursor-pointer transition-colors"
+                >
+                  Quản lý dự án
+                </button>
+                <span>/</span>
+                <span className="font-mono text-slate-500">{project.maDuAn}</span>
+              </div>
               <h1 className="text-base sm:text-lg font-extrabold text-[#406c89] tracking-tight leading-snug">
                 {project.tenDuAn}
               </h1>

@@ -197,6 +197,13 @@ export default function AdministrationLayout({ children }: { children: React.Rea
               <button
                 key={item.id}
                 onClick={() => {
+                  if (item.id === 'quan-ly-du-an') {
+                    if (typeof window !== 'undefined') {
+                      localStorage.removeItem('selectedProjectId');
+                      localStorage.removeItem('selectedDepartmentName');
+                      window.dispatchEvent(new CustomEvent('reset-quan-ly-du-an'));
+                    }
+                  }
                   router.push(`/Administration/${item.id}`);
                   setIsMobileMenuOpen(false);
                 }}

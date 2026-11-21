@@ -251,8 +251,20 @@ export default function QuanLyDuAn() {
 
     checkUrlParam();
 
+    const handleReset = () => {
+      setSelectedProject(null);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('id');
+      url.searchParams.delete('dept');
+      window.history.pushState({}, '', url.toString());
+    };
+
     window.addEventListener('popstate', checkUrlParam);
-    return () => window.removeEventListener('popstate', checkUrlParam);
+    window.addEventListener('reset-quan-ly-du-an', handleReset);
+    return () => {
+      window.removeEventListener('popstate', checkUrlParam);
+      window.removeEventListener('reset-quan-ly-du-an', handleReset);
+    };
   }, [projects]);
 
   const handleSelectProject = (item: DuAnItem) => {

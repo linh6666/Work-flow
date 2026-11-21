@@ -87,7 +87,12 @@ export const PHONG_BAN_LIST: string[] = [
   'Lắp đặt',
 ];
 export const BAC_LUONG_LIST: string[] = [];
-export const TRANG_THAI_LIST: string[] = [];
+export const TRANG_THAI_LIST: string[] = [
+  'Đang làm việc',
+  'Thử việc',
+  'Nghỉ thai sản',
+  'Đã nghỉ việc',
+];
 export const GIOI_TINH_LIST: string[] = ['Nam', 'Nữ', 'Khác'];
 
 interface DanhSachTongQuatTabProps {

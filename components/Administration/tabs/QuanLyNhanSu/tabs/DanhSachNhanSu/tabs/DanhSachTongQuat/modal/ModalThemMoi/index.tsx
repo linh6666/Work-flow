@@ -185,7 +185,21 @@ export default function ModalThemMoi({
   const basicSalary = Number(formData.mucLuongCung || 0) + Number(formData.mucLuongMem || 0);
   const totalSalary = basicSalary + Number(formData.tongTroCap || 0);
 
-  const departments = PHONG_BAN_LIST.length > 0 ? PHONG_BAN_LIST : ['Ban Giám đốc', 'Khối Văn phòng', 'Phòng Kỹ thuật', 'Phòng Kinh doanh'];
+  const departments =
+    PHONG_BAN_LIST.length > 0
+      ? PHONG_BAN_LIST
+      : [
+          'Ban Giám đốc',
+          'Khối Văn phòng',
+          'Phòng Khai triển',
+          'Phòng Công nghệ và Thiết kế',
+          'Phòng Cắt',
+          'Phòng Ghép',
+          'Phòng Mộc Sơn',
+          'Phòng Điện',
+          'Phòng Cảnh Quan',
+          'Lắp đặt',
+        ];
   const statuses = TRANG_THAI_LIST.length > 0 ? TRANG_THAI_LIST : ['Đang làm việc', 'Thử việc', 'Nghỉ thai sản', 'Đã nghỉ việc'];
 
   return (
@@ -474,20 +488,47 @@ export default function ModalThemMoi({
 
             {/* Row 1: PHÒNG BAN + CHỨC VỤ + TRẠNG THÁI (3 col) */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div>
+              <div className="relative" ref={deptDropdownRef}>
                 <label className={labelCls}>PHÒNG BAN</label>
-                <div className="relative">
-                  <select
-                    value={formData.phongBan || 'Ban Giám đốc'}
-                    onChange={(e) => setFormData({ ...formData, phongBan: e.target.value })}
-                    className={selectCls}
-                  >
-                    {departments.map((pb) => (
-                      <option key={pb} value={pb}>{pb}</option>
-                    ))}
-                  </select>
-                  <IconChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDeptOpen(!isDeptOpen)}
+                  className="w-full h-9 px-3 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89]/20 bg-white text-xs text-slate-800 transition flex items-center justify-between cursor-pointer"
+                >
+                  <span className="font-medium text-slate-800">
+                    {formData.phongBan || departments[0]}
+                  </span>
+                  <IconChevronDown
+                    size={14}
+                    className={`text-slate-400 transition-transform ${isDeptOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {/* Dropdown Menu matching screenshot */}
+                {isDeptOpen && (
+                  <div className="absolute z-50 left-0 right-0 bottom-full mb-1 bg-white border border-slate-200 rounded-xl shadow-2xl py-1.5 max-h-72 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
+                    {departments.map((dept) => {
+                      const isSelected = (formData.phongBan || departments[0]) === dept;
+                      return (
+                        <div
+                          key={dept}
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, phongBan: dept }));
+                            setIsDeptOpen(false);
+                          }}
+                          className={`px-3.5 py-2 text-xs flex items-center justify-between cursor-pointer transition-colors ${
+                            isSelected
+                              ? 'bg-slate-50/90 font-medium text-slate-900'
+                              : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                          }`}
+                        >
+                          <span>{dept}</span>
+                          {isSelected && <IconCheck size={16} className="text-slate-800 shrink-0" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
               <div>
                 <label className={labelCls}>CHỨC VỤ</label>

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import XoaNhanSuModal, { XoaNhanSuRef } from '../../modal/XoaNhanSu';
-import ChinhSuaNhanSuModal from '../../modal/ChinhSuaNhanSu';
+import ModalXemChiTiet from './modal/ModalXemChiTiet';
+import ModalChinhSua from './modal/ModalChinhSua';
+import ModalXoa from './modal/ModalXoa';
 import { getStaffList } from '@/api/apiGetStaffList';
 import {
   IconSearch,
@@ -52,43 +53,14 @@ export interface NhanSuItem {
 export const formatVND = (n: number) =>
   n === 0 ? '0' : n.toLocaleString('vi-VN');
 
-// ─── Mock Data ────────────────────────────────────────────────────────
-export const INITIAL_DATA: NhanSuItem[] = [
-  { id: '1',  maNV: 'NV001', hoTen: 'Nguyễn Đức Việt',     phongBan: 'Ban Giám đốc',    chucVu: 'Giám đốc',               trangThai: 'Đang làm việc', ngaySinh: '13/10/1978', gioiTinh: 'Nam', dienThoai: '0913056188', ngayVao: '01/02/2001', thamNien: '25 năm 6 tháng', bacLuong: 'Bậc 7',    mucLuongHienTai: 25000000, mucLuongCung: 15000000, mucLuongMem: 10000000, tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'viet.nd@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '2',  maNV: 'NV002', hoTen: 'Phùng Bích Thảo',     phongBan: 'Ban Giám đốc',    chucVu: 'Phó Giám đốc HC-NS',     trangThai: 'Đang làm việc', ngaySinh: '21/12/1979', gioiTinh: 'Nữ',  dienThoai: '0912478177', ngayVao: '01/02/2001', thamNien: '25 năm 6 tháng', bacLuong: 'Bậc 7',    mucLuongHienTai: 22000000, mucLuongCung: 13000000, mucLuongMem: 9000000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'thao.pb@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '3',  maNV: 'NV003', hoTen: 'Nguyễn Thanh Tuấn',   phongBan: 'Ban Giám đốc',    chucVu: 'Phó Giám đốc Kỹ thuật',  trangThai: 'Đang làm việc', ngaySinh: '04/12/1977', gioiTinh: 'Nam', dienThoai: '0984779277', ngayVao: '01/02/2004', thamNien: '22 năm 6 tháng', bacLuong: 'Bậc 7',    mucLuongHienTai: 22000000, mucLuongCung: 13000000, mucLuongMem: 9000000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'tuan.nt@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '4',  maNV: 'NV004', hoTen: 'Vũ Thanh Thuỷ',       phongBan: 'Khối Văn phòng',  chucVu: 'Phó Khối văn phòng',     trangThai: 'Đang làm việc', ngaySinh: '11/11/1984', gioiTinh: 'Nữ',  dienThoai: '0911411083', ngayVao: '01/05/2010', thamNien: '16 năm 3 tháng', bacLuong: 'Bậc 6',    mucLuongHienTai: 16000000, mucLuongCung: 9000000,  mucLuongMem: 6000000,  tongTroCap: 1000000, thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'thuy.vt@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '5',  maNV: 'NV005', hoTen: 'Bùi Thị Duyên',       phongBan: 'Khối Văn phòng',  chucVu: 'Trưởng Khối văn phòng',  trangThai: 'Đang làm việc', ngaySinh: '18/12/1985', gioiTinh: 'Nữ',  dienThoai: '0917551285-09711962', ngayVao: '02/08/2007', thamNien: '19 năm',         bacLuong: 'Bậc 6',    mucLuongHienTai: 18000000, mucLuongCung: 10000000, mucLuongMem: 7000000,  tongTroCap: 1000000, thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'duyen.bt@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '6',  maNV: 'NV006', hoTen: 'Nguyễn Mai Lâm',      phongBan: 'Khối Văn phòng',  chucVu: 'NV Mua & QL NVL',        trangThai: 'Đang làm việc', ngaySinh: '16/09/2003', gioiTinh: 'Nữ',  dienThoai: '0367172383', ngayVao: '23/12/2025', thamNien: '0 năm 7 tháng', bacLuong: 'Bậc 2',    mucLuongHienTai: 7500000,  mucLuongCung: 4500000,  mucLuongMem: 3000000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'lam.nm@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '7',  maNV: 'NV007', hoTen: 'Trần Thị Quỳnh Xuân', phongBan: 'Khối Văn phòng',  chucVu: 'NV Hành chính',          trangThai: 'Đang làm việc', ngaySinh: '20/02/2004', gioiTinh: 'Nữ',  dienThoai: '0859124812', ngayVao: '23/06/2026', thamNien: '0 năm 1 tháng', bacLuong: 'Bậc 1',    mucLuongHienTai: 6500000,  mucLuongCung: 4000000,  mucLuongMem: 2500000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'xuan.ttq@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '8',  maNV: 'NV007', hoTen: 'Nguyễn Thảo My',      phongBan: 'Khối Văn phòng',  chucVu: 'NV Hành chính',          trangThai: 'Đã nghỉ',       ngaySinh: '23/03/1998', gioiTinh: 'Nữ',  dienThoai: '0398492449', ngayVao: '15/04/2023', thamNien: '1 năm 2 tháng', bacLuong: 'Bậc 2',    mucLuongHienTai: 7000000,  mucLuongCung: 4500000,  mucLuongMem: 2500000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'my.nt@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '9',  maNV: 'NV008', hoTen: 'Hoàng Hà Trang',      phongBan: 'Khối Văn phòng',  chucVu: 'NV Kinh doanh',          trangThai: 'Đã nghỉ',       ngaySinh: '11/11/2003', gioiTinh: 'Nữ',  dienThoai: '0911944136', ngayVao: '01/06/2024', thamNien: '0 năm 8 tháng', bacLuong: 'Bậc 1',    mucLuongHienTai: 6000000,  mucLuongCung: 3500000,  mucLuongMem: 2500000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'trang.hh@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '10', maNV: 'NV008', hoTen: 'Lê Thị Giang Hương',  phongBan: 'Khối Văn phòng',  chucVu: 'NV Kinh doanh',          trangThai: 'Đã nghỉ',       ngaySinh: '28/02/2004', gioiTinh: 'Nữ',  dienThoai: '0867728097', ngayVao: '10/08/2024', thamNien: '0 năm 6 tháng', bacLuong: 'Bậc 1',    mucLuongHienTai: 6000000,  mucLuongCung: 3500000,  mucLuongMem: 2500000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'huong.ltg@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '11', maNV: 'NV008', hoTen: 'Nguyễn Phú Quang',    phongBan: 'Khối Văn phòng',  chucVu: 'NV Kinh doanh',          trangThai: 'Đang làm việc', ngaySinh: '17/10/2003', gioiTinh: 'Nam', dienThoai: '0386288203', ngayVao: '23/05/2026', thamNien: '0 năm 2 tháng', bacLuong: 'Bậc 2',    mucLuongHienTai: 7500000,  mucLuongCung: 4500000,  mucLuongMem: 3000000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'quang.np@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '12', maNV: 'NV009', hoTen: 'Bùi Phương Uyên',     phongBan: 'Khối Văn phòng',  chucVu: 'NV Kinh doanh',          trangThai: 'Đang làm việc', ngaySinh: '24/02/2002', gioiTinh: 'Nữ',  dienThoai: '0966215274', ngayVao: '15/09/2025', thamNien: '0 năm 10 tháng',bacLuong: 'Bậc 2',    mucLuongHienTai: 7500000,  mucLuongCung: 4500000,  mucLuongMem: 3000000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'uyen.bp@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '13', maNV: 'NV012', hoTen: 'Nguyễn Thế Kỳ Anh',   phongBan: 'Khối Văn phòng',  chucVu: 'NV Kinh doanh',          trangThai: 'Đã nghỉ',       ngaySinh: '22/04/2004', gioiTinh: 'Nam', dienThoai: '0583872397', ngayVao: '01/03/2024', thamNien: '0 năm 11 tháng',bacLuong: 'Bậc 1',    mucLuongHienTai: 6000000,  mucLuongCung: 3500000,  mucLuongMem: 2500000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'kyanh.nt@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '14', maNV: 'NV013', hoTen: 'Trần Thị Loan',       phongBan: 'Khối Văn phòng',  chucVu: 'NV Tạp vụ',              trangThai: 'Đang làm việc', ngaySinh: '13/07/1975', gioiTinh: 'Nữ',  dienThoai: '0354607558', ngayVao: '03/06/2024', thamNien: '2 năm 2 tháng', bacLuong: 'Bậc 2',    mucLuongHienTai: 6000000,  mucLuongCung: 4000000,  mucLuongMem: 2000000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'loan.tt@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '15', maNV: 'NV014', hoTen: 'Vũ Quang Trung',      phongBan: 'Khối Văn phòng',  chucVu: 'Lái xe',                 trangThai: 'Đang làm việc', ngaySinh: '21/11/1984', gioiTinh: 'Nam', dienThoai: '0904999984', ngayVao: '10/01/2023', thamNien: '3 năm 6 tháng', bacLuong: 'Bậc 3',    mucLuongHienTai: 8500000,  mucLuongCung: 5500000,  mucLuongMem: 3000000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'trung.vq@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '16', maNV: 'NV017', hoTen: 'Trần Quốc Tuấn',      phongBan: 'Khối Văn phòng',  chucVu: 'Lái xe',                 trangThai: 'Đã nghỉ',       ngaySinh: '08/12/1980', gioiTinh: 'Nam', dienThoai: '0973508759', ngayVao: '06/07/2026', thamNien: '0 năm 1 tháng', bacLuong: 'Bậc 1',    mucLuongHienTai: 7000000,  mucLuongCung: 5000000,  mucLuongMem: 2000000,  tongTroCap: 0,       thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'tuan.tq@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-  { id: '17', maNV: 'NV020', hoTen: 'Lê Quốc Long',        phongBan: 'Phòng Khai triển',chucVu: 'Trưởng phòng Khai triển',trangThai: 'Đang làm việc', ngaySinh: '14/01/1982', gioiTinh: 'Nam', dienThoai: '0915746286', ngayVao: '01/02/2006', thamNien: '20 năm 6 tháng', bacLuong: 'Bậc 6',    mucLuongHienTai: 17000000, mucLuongCung: 10000000, mucLuongMem: 6000000,  tongTroCap: 1000000, thoiDiemTangLuong: '—', thoiDiemTangBacBacLuongDuKien: '—', email: 'long.lq@workflow.vn', ghiChuLuong: '', ghiChu: '' },
-];
+// ─── Initial Data (đã ẩn) ──────────────────────────────────────────
+export const INITIAL_DATA: NhanSuItem[] = [];
 
-export const PHONG_BAN_LIST = [
-  'Phòng Kinh doanh',
-  'Phòng Khai triển',
-  'Phòng Cắt',
-  'Phòng Ghép',
-  'Phòng Mộc Sơn',
-  'Phòng Điện',
-  'Phòng Cảnh Quan',
-  'Phòng Công nghệ và Thiết kế',
-  'Lắp đặt',
-  'Kế toán & Hành chính',
-];
-
-export const BAC_LUONG_LIST = ['Thử việc', 'Bậc 1', 'Bậc 2', 'Bậc 3', 'Bậc 4', 'Bậc 5', 'Bậc 6', 'Bậc 7'];
-export const TRANG_THAI_LIST = ['Đang làm việc', 'Thử việc', 'Nghỉ phép', 'Nghỉ việc'];
-export const GIOI_TINH_LIST = ['Nam', 'Nữ', 'Khác'];
+// Fallback danh mục khi chưa có dữ liệu từ backend
+export const PHONG_BAN_LIST: string[] = [];
+export const BAC_LUONG_LIST: string[] = [];
+export const TRANG_THAI_LIST: string[] = [];
+export const GIOI_TINH_LIST: string[] = ['Nam', 'Nữ', 'Khác'];
 
 interface DanhSachTongQuatTabProps {
   searchQuery?: string;
@@ -105,7 +77,6 @@ export default function DanhSachTongQuatTab({
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollStart = useRef(0);
-  const xoaRef = useRef<XoaNhanSuRef>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
@@ -127,8 +98,8 @@ export default function DanhSachTongQuatTab({
     if (tableContainerRef.current) tableContainerRef.current.style.cursor = 'default';
   };
 
-  const [data, setData] = useState<NhanSuItem[]>(INITIAL_DATA);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [data, setData] = useState<NhanSuItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [internalSearch, setInternalSearch] = useState('');
   const [internalPhongBan, setInternalPhongBan] = useState('ALL');
@@ -142,13 +113,12 @@ export default function DanhSachTongQuatTab({
       if (res && res.length > 0) {
         setData(res);
       } else {
-        // Fallback to INITIAL_DATA if API returned empty
-        setData(INITIAL_DATA);
+        setData([]);
       }
     } catch (err: any) {
       console.warn("Lỗi khi gọi API nhân sự:", err);
       setApiError(err?.message || "Không thể tải dữ liệu từ API");
-      setData(INITIAL_DATA);
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -166,17 +136,19 @@ export default function DanhSachTongQuatTab({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
 
-  // Modals
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  // Modals for Actions
+  const [viewingItem, setViewingItem] = useState<NhanSuItem | null>(null);
   const [editingItem, setEditingItem] = useState<NhanSuItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<NhanSuItem | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState<Partial<NhanSuItem>>({
     maNV: '',
     hoTen: '',
-    phongBan: PHONG_BAN_LIST[0],
+    phongBan: '',
     chucVu: '',
-    bacLuong: BAC_LUONG_LIST[0],
+    bacLuong: '',
     mucLuongCung: 0,
     mucLuongMem: 0,
     tongTroCap: 0,
@@ -222,9 +194,9 @@ export default function DanhSachTongQuatTab({
     setFormData({
       maNV: `NV${nextNum}`,
       hoTen: '',
-      phongBan: PHONG_BAN_LIST[0],
+      phongBan: '',
       chucVu: '',
-      bacLuong: BAC_LUONG_LIST[0],
+      bacLuong: '',
       mucLuongCung: 0,
       mucLuongMem: 0,
       tongTroCap: 0,
@@ -470,7 +442,7 @@ export default function DanhSachTongQuatTab({
                             <button
                               type="button"
                               title="Xem chi tiết"
-                              onClick={() => alert(`Xem chi tiết: ${item.hoTen}`)}
+                              onClick={() => setViewingItem(item)}
                               className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
                             >
                               <IconEye size={16} />
@@ -478,7 +450,7 @@ export default function DanhSachTongQuatTab({
                             <button
                               type="button"
                               title="Chỉnh sửa"
-                              onClick={() => handleOpenEdit(item)}
+                              onClick={() => setEditingItem(item)}
                               className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-sky-600 transition-colors cursor-pointer"
                             >
                               <IconPencil size={16} />
@@ -486,7 +458,7 @@ export default function DanhSachTongQuatTab({
                             <button
                               type="button"
                               title="Xóa"
-                              onClick={() => xoaRef.current?.open(item)}
+                              onClick={() => setDeletingItem(item)}
                               className="p-1 rounded hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                             >
                               <IconTrash size={16} />
@@ -749,8 +721,34 @@ export default function DanhSachTongQuatTab({
         </div>
       )}
 
-      {/* ── Modal Xóa Nhân sự ── */}
-      <XoaNhanSuModal ref={xoaRef} setData={setData} />
+      {/* ── Modal Xem Chi Tiết ── */}
+      <ModalXemChiTiet
+        isOpen={!!viewingItem}
+        item={viewingItem}
+        onClose={() => setViewingItem(null)}
+      />
+
+      {/* ── Modal Chỉnh Sửa Nhân Sự ── */}
+      <ModalChinhSua
+        isOpen={!!editingItem}
+        item={editingItem}
+        onSave={(updated) => {
+          setData((prev) =>
+            prev.map((it) => (it.id === updated.id ? updated : it))
+          );
+        }}
+        onClose={() => setEditingItem(null)}
+      />
+
+      {/* ── Modal Xóa Nhân Sự ── */}
+      <ModalXoa
+        isOpen={!!deletingItem}
+        item={deletingItem}
+        onConfirm={(itemToDelete) => {
+          setData((prev) => prev.filter((it) => it.id !== itemToDelete.id));
+        }}
+        onClose={() => setDeletingItem(null)}
+      />
     </div>
   );
 }

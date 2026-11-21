@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import ModalThemMoi from './modal/ModalThemMoi';
 import ModalXemChiTiet from './modal/ModalXemChiTiet';
 import ModalChinhSua from './modal/ModalChinhSua';
 import ModalXoa from './modal/ModalXoa';
@@ -72,7 +73,18 @@ export const formatVND = (n: number) =>
 export const INITIAL_DATA: NhanSuItem[] = [];
 
 // Fallback danh mục khi chưa có dữ liệu từ backend
-export const PHONG_BAN_LIST: string[] = [];
+export const PHONG_BAN_LIST: string[] = [
+  'Ban Giám đốc',
+  'Khối Văn phòng',
+  'Phòng Khai triển',
+  'Phòng Công nghệ và Thiết kế',
+  'Phòng Cắt',
+  'Phòng Ghép',
+  'Phòng Mộc Sơn',
+  'Phòng Điện',
+  'Phòng Cảnh Quan',
+  'Lắp đặt',
+];
 export const BAC_LUONG_LIST: string[] = [];
 export const TRANG_THAI_LIST: string[] = [];
 export const GIOI_TINH_LIST: string[] = ['Nam', 'Nữ', 'Khác'];
@@ -157,21 +169,6 @@ export default function DanhSachTongQuatTab({
   const [deletingItem, setDeletingItem] = useState<NhanSuItem | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // Form State
-  const [formData, setFormData] = useState<Partial<NhanSuItem>>({
-    maNV: '',
-    hoTen: '',
-    phongBan: '',
-    chucVu: '',
-    bacLuong: '',
-    mucLuongCung: 0,
-    mucLuongMem: 0,
-    tongTroCap: 0,
-    thoiDiemTangLuong: '',
-    thoiDiemTangBacBacLuongDuKien: '',
-    ghiChu: '',
-  });
-
   // Filtered data
   const filteredData = useMemo(() => {
     return data.filter((item) => {
@@ -205,48 +202,11 @@ export default function DanhSachTongQuatTab({
 
   // Add / Edit Handlers
   const handleOpenAdd = () => {
-    const nextNum = (data.length + 1).toString().padStart(3, '0');
-    setFormData({
-      maNV: `NV${nextNum}`,
-      hoTen: '',
-      phongBan: '',
-      chucVu: '',
-      bacLuong: '',
-      mucLuongCung: 0,
-      mucLuongMem: 0,
-      tongTroCap: 0,
-      thoiDiemTangLuong: '',
-      thoiDiemTangBacBacLuongDuKien: '',
-      ghiChu: '',
-    });
     setIsAddModalOpen(true);
   };
 
   const handleOpenEdit = (item: NhanSuItem) => {
     setEditingItem(item);
-    setFormData({ ...item });
-  };
-
-  const handleSaveModal = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.hoTen || !formData.maNV) {
-      alert('Vui lòng nhập đầy đủ Mã NV và Họ tên!');
-      return;
-    }
-
-    if (editingItem) {
-      setData((prev) =>
-        prev.map((item) => (item.id === editingItem.id ? ({ ...item, ...formData } as NhanSuItem) : item))
-      );
-      setEditingItem(null);
-    } else {
-      const newItem: NhanSuItem = {
-        ...(formData as NhanSuItem),
-        id: Date.now().toString(),
-      };
-      setData((prev) => [newItem, ...prev]);
-      setIsAddModalOpen(false);
-    }
   };
 
 
@@ -532,209 +492,16 @@ export default function DanhSachTongQuatTab({
         </div>
       </div>
 
-      {/* ── Modal Thêm / Chỉnh sửa Nhân sự ── */}
-      {(isAddModalOpen || editingItem) && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            {/* Header */}
-            <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="text-sm font-bold text-slate-800">
-                {editingItem ? 'Chỉnh sửa thông tin Nhân sự' : 'Thêm Nhân sự mới'}
-              </h3>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsAddModalOpen(false);
-                  setEditingItem(null);
-                }}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
-              >
-                <IconX size={16} />
-              </button>
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleSaveModal} className="p-5 space-y-3.5 text-xs max-h-[75vh] overflow-y-auto">
-              {/* Row 1: Mã NV + Họ và tên */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Mã NV <span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.maNV || ''}
-                    onChange={(e) => setFormData({ ...formData, maNV: e.target.value })}
-                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                    placeholder="VD: NV009"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Họ và tên <span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.hoTen || ''}
-                    onChange={(e) => setFormData({ ...formData, hoTen: e.target.value })}
-                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                    placeholder="VD: Nguyễn Văn A"
-                  />
-                </div>
-              </div>
-
-              {/* Row 2: Phòng ban + Chức vụ */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Phòng ban</label>
-                  <select
-                    value={formData.phongBan}
-                    onChange={(e) => setFormData({ ...formData, phongBan: e.target.value })}
-                    className="w-full h-8 px-2 border border-slate-200 rounded-lg outline-none focus:border-indigo-400 bg-white"
-                  >
-                    {PHONG_BAN_LIST.map((pb) => (
-                      <option key={pb} value={pb}>{pb}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Chức vụ</label>
-                  <input
-                    type="text"
-                    value={formData.chucVu || ''}
-                    onChange={(e) => setFormData({ ...formData, chucVu: e.target.value })}
-                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                    placeholder="VD: Kỹ thuật viên"
-                  />
-                </div>
-              </div>
-
-              {/* Row 3: Bậc lương */}
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Bậc lương</label>
-                <select
-                  value={formData.bacLuong}
-                  onChange={(e) => setFormData({ ...formData, bacLuong: e.target.value })}
-                  className="w-full h-8 px-2 border border-slate-200 rounded-lg outline-none focus:border-indigo-400 bg-white"
-                >
-                  {BAC_LUONG_LIST.map((bl) => (
-                    <option key={bl} value={bl}>{bl}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Row 4: Mức lương cứng + Mức lương mềm */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Mức lương cứng (VNĐ)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={formData.mucLuongCung ?? 0}
-                    onChange={(e) => setFormData({ ...formData, mucLuongCung: Number(e.target.value) })}
-                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Mức lương mềm (VNĐ)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={formData.mucLuongMem ?? 0}
-                    onChange={(e) => setFormData({ ...formData, mucLuongMem: Number(e.target.value) })}
-                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                  />
-                </div>
-              </div>
-
-              {/* Row 5: Tổng mức lương cơ bản (computed, readonly) + Tổng trợ cấp */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Tổng mức lương cơ bản</label>
-                  <div className="h-8 px-2.5 border border-slate-100 bg-slate-50 rounded-lg flex items-center font-semibold text-slate-600">
-                    {formatVND((formData.mucLuongCung ?? 0) + (formData.mucLuongMem ?? 0))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Tổng trợ cấp (VNĐ)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={formData.tongTroCap ?? 0}
-                    onChange={(e) => setFormData({ ...formData, tongTroCap: Number(e.target.value) })}
-                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                  />
-                </div>
-              </div>
-
-              {/* Row 6: Tổng thu nhập (computed, readonly) */}
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Tổng thu nhập</label>
-                <div className="h-8 px-2.5 border border-emerald-100 bg-emerald-50 rounded-lg flex items-center font-bold text-emerald-700">
-                  {formatVND((formData.mucLuongCung ?? 0) + (formData.mucLuongMem ?? 0) + (formData.tongTroCap ?? 0))}
-                </div>
-              </div>
-
-              {/* Row 7: Thời điểm tăng lương + Thời điểm tăng bậc */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Thời điểm tăng lương</label>
-                  <input
-                    type="text"
-                    value={formData.thoiDiemTangLuong || ''}
-                    onChange={(e) => setFormData({ ...formData, thoiDiemTangLuong: e.target.value })}
-                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                    placeholder="VD: 03/2025"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Tăng bậc & bậc lương dự kiến</label>
-                  <input
-                    type="text"
-                    value={formData.thoiDiemTangBacBacLuongDuKien || ''}
-                    onChange={(e) => setFormData({ ...formData, thoiDiemTangBacBacLuongDuKien: e.target.value })}
-                    className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                    placeholder="VD: 03/2026 — Bậc 6"
-                  />
-                </div>
-              </div>
-
-              {/* Row 8: Ghi chú */}
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Ghi chú</label>
-                <input
-                  type="text"
-                  value={formData.ghiChu || ''}
-                  onChange={(e) => setFormData({ ...formData, ghiChu: e.target.value })}
-                  className="w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400"
-                  placeholder="Ghi chú thêm..."
-                />
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsAddModalOpen(false);
-                    setEditingItem(null);
-                  }}
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold cursor-pointer transition"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  style={{ backgroundColor: '#406c89' }}
-                  className="px-4 py-1.5 rounded-lg text-white font-bold shadow-sm cursor-pointer transition"
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#30536b')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#406c89')}
-                >
-                  {editingItem ? 'Lưu thay đổi' : 'Thêm mới'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* ── Modal Thêm Mới Nhân Sự ── */}
+      <ModalThemMoi
+        isOpen={isAddModalOpen}
+        defaultMaNV={`NV${(data.length + 1).toString().padStart(3, '0')}`}
+        onSave={(newItem) => {
+          setData((prev) => [newItem, ...prev]);
+          fetchStaffData();
+        }}
+        onClose={() => setIsAddModalOpen(false)}
+      />
 
       {/* ── Modal Xem Chi Tiết ── */}
       <ModalXemChiTiet

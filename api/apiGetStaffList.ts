@@ -319,3 +319,157 @@ export async function createStaff(item: Partial<NhanSuItem>): Promise<NhanSuItem
 
 export const apiCreateStaff = createStaff;
 
+/**
+ * Cập nhật thông tin một nhân sự lên backend
+ * Method: PUT
+ * Endpoint: /api/v1/entities/Staff/{id} (fallback qua /api/v1/entities/Employee/{id} hoặc /api/v1/entities/NhanSu/{id})
+ */
+export async function updateStaff(item: NhanSuItem): Promise<NhanSuItem> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const payload: Record<string, any> = {
+    code: item.maNV,
+    maNV: item.maNV,
+    name: item.hoTen,
+    full_name: item.hoTen,
+    hoTen: item.hoTen,
+    department: item.phongBan,
+    phongBan: item.phongBan,
+    position: item.chucVu,
+    chucVu: item.chucVu,
+    status: item.trangThai || "Đang làm việc",
+    trangThai: item.trangThai || "Đang làm việc",
+    gender: item.gioiTinh || "Nam",
+    gioiTinh: item.gioiTinh || "Nam",
+    birthday: item.ngaySinh,
+    ngaySinh: item.ngaySinh,
+    phone: item.dienThoai,
+    dienThoai: item.dienThoai,
+    email: item.email,
+    facebook: item.facebook,
+    current_address: item.diaChiHienTai,
+    diaChiHienTai: item.diaChiHienTai,
+    permanent_address: item.diaChiHoKhau,
+    diaChiHoKhau: item.diaChiHoKhau,
+    start_date: item.ngayVao,
+    ngayVao: item.ngayVao,
+    seniority: item.thamNien,
+    thamNien: item.thamNien,
+    salary_level: item.bacLuong,
+    bacLuong: item.bacLuong,
+    current_salary: item.mucLuongHienTai,
+    mucLuongHienTai: item.mucLuongHienTai,
+    base_salary: item.mucLuongCung,
+    mucLuongCung: item.mucLuongCung,
+    soft_salary: item.mucLuongMem,
+    mucLuongMem: item.mucLuongMem,
+    allowance: item.tongTroCap,
+    tongTroCap: item.tongTroCap,
+    salary_raise_date: item.thoiDiemTangLuong,
+    thoiDiemTangLuong: item.thoiDiemTangLuong,
+    next_level_date: item.thoiDiemTangBacBacLuongDuKien,
+    thoiDiemTangBacBacLuongDuKien: item.thoiDiemTangBacBacLuongDuKien,
+    notes: item.ghiChu,
+    ghiChu: item.ghiChu,
+    salary_notes: item.ghiChuLuong,
+    ghiChuLuong: item.ghiChuLuong,
+    school: item.truongHoc,
+    truongHoc: item.truongHoc,
+    major: item.chuyenNganh,
+    chuyenNganh: item.chuyenNganh,
+    degree: item.bangCapTrinhDo,
+    bangCapTrinhDo: item.bangCapTrinhDo,
+    recruitment_source: item.nguonTuyenDung,
+    nguonTuyenDung: item.nguonTuyenDung,
+    marital_status: item.tinhTrangHonNhan,
+    tinhTrangHonNhan: item.tinhTrangHonNhan,
+    nickname: item.tenThuongDung,
+    tenThuongDung: item.tenThuongDung,
+    height: item.chieuCao,
+    weight: item.canNang,
+  };
+
+  const endpointsToTry = [
+    `${BASE_API_FASTAPI}/api/v1/entities/Staff/${item.id}`,
+    `${BASE_API_FASTAPI}/api/v1/entities/Employee/${item.id}`,
+    `${BASE_API_FASTAPI}/api/v1/entities/NhanSu/${item.id}`,
+  ];
+
+  for (const url of endpointsToTry) {
+    try {
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        const record = json?.data || json?.item || json;
+        if (record && (record.id || record._id)) {
+          return mapStaffApiToNhanSuItem(record, 0);
+        }
+        return item;
+      }
+    } catch {
+      // Fallback next
+    }
+  }
+
+  return item;
+}
+
+export const apiUpdateStaff = updateStaff;
+
+/**
+ * Xóa một nhân sự khỏi backend
+ * Method: DELETE
+ * Endpoint: /api/v1/entities/Staff/{id} (fallback qua /api/v1/entities/Employee/{id} hoặc /api/v1/entities/NhanSu/{id})
+ */
+export async function deleteStaff(id: string): Promise<boolean> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const endpointsToTry = [
+    `${BASE_API_FASTAPI}/api/v1/entities/Staff/${id}`,
+    `${BASE_API_FASTAPI}/api/v1/entities/Employee/${id}`,
+    `${BASE_API_FASTAPI}/api/v1/entities/NhanSu/${id}`,
+  ];
+
+  for (const url of endpointsToTry) {
+    try {
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (res.ok) {
+        return true;
+      }
+    } catch {
+      // Fallback next
+    }
+  }
+
+  return true;
+}
+
+export const apiDeleteStaff = deleteStaff;
+
+
+

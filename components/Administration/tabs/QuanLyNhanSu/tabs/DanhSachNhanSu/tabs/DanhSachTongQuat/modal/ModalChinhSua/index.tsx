@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { IconX } from '@tabler/icons-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { IconX, IconChevronDown, IconLoader2, IconCalendar, IconCheck } from '@tabler/icons-react';
 import {
   NhanSuItem,
   PHONG_BAN_LIST,
   TRANG_THAI_LIST,
   GIOI_TINH_LIST,
-  BAC_LUONG_LIST,
   formatVND,
 } from '../../index';
+import { updateStaff } from '@/api/apiGetStaffList';
 
 interface ModalChinhSuaProps {
   isOpen: boolean;
@@ -24,299 +24,519 @@ export default function ModalChinhSua({
   onSave,
   onClose,
 }: ModalChinhSuaProps) {
+  const birthDatePickerRef = useRef<HTMLInputElement>(null);
+  const deptDropdownRef = useRef<HTMLDivElement>(null);
+  const [isDeptOpen, setIsDeptOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<Partial<NhanSuItem>>({});
 
   useEffect(() => {
-    if (item) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (deptDropdownRef.current && !deptDropdownRef.current.contains(e.target as Node)) {
+        setIsDeptOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (item && isOpen) {
       setFormData({ ...item });
     }
-  }, [item]);
+  }, [item, isOpen]);
 
   if (!isOpen || !item) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.hoTen || !formData.maNV) {
+    if (!formData.hoTen?.trim() || !formData.maNV?.trim()) {
       alert('Vui lòng nhập đầy đủ Mã NV và Họ tên!');
       return;
     }
 
+    const totalIncome =
+      Number(formData.mucLuongCung || 0) +
+      Number(formData.mucLuongMem || 0) +
+      Number(formData.tongTroCap || 0);
+
+    const chieuCaoCanNangStr =
+      formData.chieuCao || formData.canNang
+        ? `${formData.chieuCao || '—'} cm • ${formData.canNang || '—'} kg`
+        : item.chieuCaoCanNang || '';
+
     const updated: NhanSuItem = {
       ...item,
       ...formData,
-      mucLuongHienTai:
-        Number(formData.mucLuongCung || 0) +
-        Number(formData.mucLuongMem || 0) +
-        Number(formData.tongTroCap || 0),
+      maNV: formData.maNV.trim(),
+      hoTen: formData.hoTen.trim(),
+      chieuCaoCanNang: chieuCaoCanNangStr,
+      mucLuongHienTai: totalIncome,
     } as NhanSuItem;
 
-    onSave(updated);
-    onClose();
+    try {
+      setIsSubmitting(true);
+      const resItem = await updateStaff(updated);
+      onSave(resItem || updated);
+      onClose();
+    } catch (err: any) {
+      console.error("Lỗi khi cập nhật nhân sự:", err);
+      alert(err?.message || "Không thể cập nhật nhân sự lên máy chủ");
+      onSave(updated);
+      onClose();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  const labelCls = 'block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5';
   const inputCls =
-    'w-full h-8 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-indigo-400 text-xs bg-white text-slate-800';
-  const labelCls = 'block font-semibold text-slate-700 mb-1 text-xs';
+    'w-full h-9 px-3 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89]/20 text-xs bg-white text-slate-800 placeholder:text-slate-300 placeholder:text-[11px] placeholder:font-normal transition';
   const selectCls =
-    'w-full h-8 px-2 border border-slate-200 rounded-lg outline-none focus:border-indigo-400 bg-white text-xs text-slate-800';
+    'w-full h-9 px-3 pr-8 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89]/20 bg-white text-xs text-slate-800 transition appearance-none cursor-pointer';
+
+  const departments =
+    PHONG_BAN_LIST.length > 0
+      ? PHONG_BAN_LIST
+      : [
+          'Ban Giám đốc',
+          'Khối Văn phòng',
+          'Phòng Khai triển',
+          'Phòng Công nghệ và Thiết kế',
+          'Phòng Cắt',
+          'Phòng Ghép',
+          'Phòng Mộc Sơn',
+          'Phòng Điện',
+          'Phòng Cảnh Quan',
+          'Lắp đặt',
+        ];
+  const statuses = TRANG_THAI_LIST.length > 0 ? TRANG_THAI_LIST : ['Đang làm việc', 'Thử việc', 'Nghỉ thai sản', 'Đã nghỉ việc'];
+
+  // Avatar initial letter
+  const avatarLetter = (formData.hoTen || item.hoTen || '?').trim().charAt(0).toUpperCase();
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        {/* Header */}
-        <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-[#406c89] text-white">
-          <h3 className="text-sm font-bold">Chỉnh sửa thông tin nhân sự</h3>
+    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+      <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
+        
+        {/* ── 1. Modal Header ── */}
+        <div className="px-6 py-3.5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+          <h2 className="text-base font-bold text-slate-900 tracking-tight">Chỉnh sửa thông tin nhân sự</h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
-            <IconX size={16} />
+            <IconX size={18} />
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-3.5 text-xs max-h-[75vh] overflow-y-auto">
-          {/* Row 1: Mã NV + Họ tên */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelCls}>Mã nhân viên <span className="text-rose-500">*</span></label>
-              <input
-                type="text"
-                value={formData.maNV || ''}
-                onChange={(e) => setFormData({ ...formData, maNV: e.target.value })}
-                className={inputCls}
-                placeholder="NV001..."
-                required
-              />
-            </div>
-            <div>
-              <label className={labelCls}>Họ và tên <span className="text-rose-500">*</span></label>
-              <input
-                type="text"
-                value={formData.hoTen || ''}
-                onChange={(e) => setFormData({ ...formData, hoTen: e.target.value })}
-                className={inputCls}
-                placeholder="Nguyễn Văn A..."
-                required
-              />
+        {/* ── Scrollable Form Body ── */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto no-scrollbar p-5 sm:p-6 space-y-4 bg-white text-xs">
+          
+          {/* ── 2. Top Profile Hero Card (#406c89) ── */}
+          <div className="bg-[#406c89] text-white rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-3.5">
+              {/* Avatar circle */}
+              <div className="w-12 h-12 rounded-full bg-white/20 border border-white/30 text-white flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
+                {avatarLetter}
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white tracking-wide">
+                  {formData.hoTen || item.hoTen || 'Nhân sự'}
+                </h3>
+                <p className="text-xs text-white/80 font-medium mt-0.5">
+                  {formData.phongBan || item.phongBan || 'Ban Giám đốc'}
+                </p>
+                {/* Badges / Pill Tags */}
+                <div className="flex items-center gap-2 flex-wrap mt-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/15 text-white border border-white/25">
+                    {formData.trangThai || item.trangThai || 'Đang làm việc'}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/15 text-white border border-white/25">
+                    {formData.phongBan || item.phongBan || 'Ban Giám đốc'}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/15 text-white border border-white/25">
+                    {formData.bacLuong ? `Bậc: ${formData.bacLuong}` : (item.bacLuong || 'Chưa xếp bậc')}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/15 text-white border border-white/25">
+                    {formData.maNV || item.maNV || 'NV'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Row 2: Phòng ban + Chức vụ */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelCls}>Phòng ban</label>
-              {PHONG_BAN_LIST.length > 0 ? (
-                <select
-                  value={formData.phongBan || ''}
-                  onChange={(e) => setFormData({ ...formData, phongBan: e.target.value })}
-                  className={selectCls}
-                >
-                  <option value="">-- Chọn phòng ban --</option>
-                  {PHONG_BAN_LIST.map((pb) => (
-                    <option key={pb} value={pb}>{pb}</option>
-                  ))}
-                </select>
-              ) : (
+          {/* ── 3. THÔNG TIN CÁ NHÂN ── */}
+          <div className="border border-slate-200/90 rounded-xl p-4 sm:p-5 bg-white shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <span className="font-bold text-xs text-[#406c89] tracking-wider uppercase">THÔNG TIN CÁ NHÂN</span>
+              <span className="text-xs text-slate-400 font-normal">Định danh và đặc điểm cá nhân</span>
+            </div>
+
+            {/* Row 1: MÃ NHÂN VIÊN + HỌ VÀ TÊN + GIỚI TÍNH (3 col) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div>
+                <label className={labelCls}>MÃ NHÂN VIÊN</label>
                 <input
                   type="text"
-                  value={formData.phongBan || ''}
-                  onChange={(e) => setFormData({ ...formData, phongBan: e.target.value })}
+                  required
+                  value={formData.maNV || ''}
+                  onChange={(e) => setFormData({ ...formData, maNV: e.target.value })}
                   className={inputCls}
-                  placeholder="Nhập phòng ban..."
+                  placeholder="VD: NV001"
                 />
-              )}
-            </div>
-            <div>
-              <label className={labelCls}>Chức vụ</label>
-              <input
-                type="text"
-                value={formData.chucVu || ''}
-                onChange={(e) => setFormData({ ...formData, chucVu: e.target.value })}
-                className={inputCls}
-                placeholder="Chức vụ..."
-              />
-            </div>
-          </div>
-
-          {/* Row 3: Trạng thái + Giới tính + Ngày sinh */}
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className={labelCls}>Trạng thái</label>
-              {TRANG_THAI_LIST.length > 0 ? (
-                <select
-                  value={formData.trangThai || ''}
-                  onChange={(e) => setFormData({ ...formData, trangThai: e.target.value })}
-                  className={selectCls}
-                >
-                  <option value="">-- Chọn trạng thái --</option>
-                  {TRANG_THAI_LIST.map((tt) => (
-                    <option key={tt} value={tt}>{tt}</option>
-                  ))}
-                </select>
-              ) : (
+              </div>
+              <div>
+                <label className={labelCls}>
+                  HỌ VÀ TÊN <span className="text-rose-500">*</span>
+                </label>
                 <input
                   type="text"
-                  value={formData.trangThai || ''}
-                  onChange={(e) => setFormData({ ...formData, trangThai: e.target.value })}
+                  required
+                  value={formData.hoTen || ''}
+                  onChange={(e) => setFormData({ ...formData, hoTen: e.target.value })}
                   className={inputCls}
-                  placeholder="Trạng thái..."
+                  placeholder="Nhập họ và tên..."
                 />
-              )}
+              </div>
+              <div>
+                <label className={labelCls}>GIỚI TÍNH</label>
+                <div className="relative">
+                  <select
+                    value={formData.gioiTinh || 'Nam'}
+                    onChange={(e) => setFormData({ ...formData, gioiTinh: e.target.value })}
+                    className={selectCls}
+                  >
+                    {GIOI_TINH_LIST.map((gt) => (
+                      <option key={gt} value={gt}>{gt}</option>
+                    ))}
+                  </select>
+                  <IconChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
+              </div>
             </div>
-            <div>
-              <label className={labelCls}>Giới tính</label>
-              <select
-                value={formData.gioiTinh || 'Nam'}
-                onChange={(e) => setFormData({ ...formData, gioiTinh: e.target.value })}
-                className={selectCls}
-              >
-                {GIOI_TINH_LIST.map((gt) => (
-                  <option key={gt} value={gt}>{gt}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>Ngày sinh</label>
-              <input
-                type="text"
-                value={formData.ngaySinh || ''}
-                onChange={(e) => setFormData({ ...formData, ngaySinh: e.target.value })}
-                className={inputCls}
-                placeholder="dd/mm/yyyy"
-              />
-            </div>
-          </div>
 
-          {/* Row 4: Điện thoại + Email */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelCls}>Điện thoại</label>
-              <input
-                type="text"
-                value={formData.dienThoai || ''}
-                onChange={(e) => setFormData({ ...formData, dienThoai: e.target.value })}
-                className={inputCls}
-                placeholder="0912..."
-              />
-            </div>
-            <div>
-              <label className={labelCls}>Email</label>
-              <input
-                type="email"
-                value={formData.email || ''}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={inputCls}
-                placeholder="email@workflow.vn"
-              />
-            </div>
-          </div>
-
-          {/* Row 5: Ngày vào + Thâm niên */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelCls}>Ngày vào làm</label>
-              <input
-                type="text"
-                value={formData.ngayVao || ''}
-                onChange={(e) => setFormData({ ...formData, ngayVao: e.target.value })}
-                className={inputCls}
-                placeholder="dd/mm/yyyy"
-              />
-            </div>
-            <div>
-              <label className={labelCls}>Thâm niên</label>
-              <input
-                type="text"
-                value={formData.thamNien || ''}
-                onChange={(e) => setFormData({ ...formData, thamNien: e.target.value })}
-                className={inputCls}
-                placeholder="ví dụ: 2 năm 3 tháng"
-              />
-            </div>
-          </div>
-
-          {/* Row 6: Bậc lương + Lương cứng + Lương mềm + Trợ cấp */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div>
-              <label className={labelCls}>Bậc lương</label>
-              {BAC_LUONG_LIST.length > 0 ? (
-                <select
-                  value={formData.bacLuong || ''}
-                  onChange={(e) => setFormData({ ...formData, bacLuong: e.target.value })}
-                  className={selectCls}
-                >
-                  <option value="">-- Chọn bậc lương --</option>
-                  {BAC_LUONG_LIST.map((b) => (
-                    <option key={b} value={b}>{b}</option>
-                  ))}
-                </select>
-              ) : (
+            {/* Row 2: NGÀY SINH + HÔN NHÂN + TÊN THƯỜNG DÙNG (3 col) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div>
+                <label className={labelCls}>NGÀY SINH</label>
+                <div className="relative flex items-center">
+                  <input
+                    type="text"
+                    value={formData.ngaySinh || ''}
+                    onChange={(e) => setFormData({ ...formData, ngaySinh: e.target.value })}
+                    className={`${inputCls} pr-9 cursor-pointer`}
+                    placeholder="mm/dd/yyyy"
+                    onClick={() => {
+                      try {
+                        birthDatePickerRef.current?.showPicker();
+                      } catch {}
+                    }}
+                  />
+                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                    <IconCalendar
+                      size={16}
+                      className="text-slate-600 hover:text-[#406c89] transition-colors pointer-events-none"
+                    />
+                    <input
+                      ref={birthDatePickerRef}
+                      type="date"
+                      tabIndex={-1}
+                      aria-label="Chọn ngày sinh"
+                      value={
+                        formData.ngaySinh && formData.ngaySinh.includes('/')
+                          ? formData.ngaySinh.split('/').reverse().join('-')
+                          : formData.ngaySinh || ''
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value; // "YYYY-MM-DD"
+                        if (val) {
+                          const [y, m, d] = val.split('-');
+                          setFormData((prev) => ({ ...prev, ngaySinh: `${d}/${m}/${y}` }));
+                        } else {
+                          setFormData((prev) => ({ ...prev, ngaySinh: '' }));
+                        }
+                      }}
+                      className="absolute inset-0 opacity-0 cursor-pointer w-6 h-6"
+                      title="Chọn ngày"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className={labelCls}>TÌNH TRẠNG HÔN NHÂN</label>
                 <input
                   type="text"
-                  value={formData.bacLuong || ''}
-                  onChange={(e) => setFormData({ ...formData, bacLuong: e.target.value })}
+                  value={formData.tinhTrangHonNhan || ''}
+                  onChange={(e) => setFormData({ ...formData, tinhTrangHonNhan: e.target.value })}
                   className={inputCls}
-                  placeholder="Bậc lương..."
+                  placeholder="Độc thân / Đã lập gia đình..."
                 />
-              )}
+              </div>
+              <div>
+                <label className={labelCls}>NICK / TÊN THƯỜNG DÙNG</label>
+                <input
+                  type="text"
+                  value={formData.tenThuongDung || ''}
+                  onChange={(e) => setFormData({ ...formData, tenThuongDung: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: Tuấn Anh..."
+                />
+              </div>
             </div>
-            <div>
-              <label className={labelCls}>Lương cứng</label>
-              <input
-                type="number"
-                value={formData.mucLuongCung ?? 0}
-                onChange={(e) => setFormData({ ...formData, mucLuongCung: Number(e.target.value) })}
-                className={inputCls}
-              />
+
+            {/* Row 3: CHIỀU CAO + CÂN NẶNG (3 col) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div>
+                <label className={labelCls}>CHIỀU CAO (CM)</label>
+                <input
+                  type="text"
+                  value={formData.chieuCao || ''}
+                  onChange={(e) => setFormData({ ...formData, chieuCao: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: 175"
+                />
+              </div>
+              <div>
+                <label className={labelCls}>CÂN NẶNG (KG)</label>
+                <input
+                  type="text"
+                  value={formData.canNang || ''}
+                  onChange={(e) => setFormData({ ...formData, canNang: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: 68"
+                />
+              </div>
+              <div className="hidden sm:block" />
             </div>
+
+            {/* Row 4: GHI CHÚ (full width) */}
             <div>
-              <label className={labelCls}>Lương mềm</label>
-              <input
-                type="number"
-                value={formData.mucLuongMem ?? 0}
-                onChange={(e) => setFormData({ ...formData, mucLuongMem: Number(e.target.value) })}
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className={labelCls}>Trợ cấp</label>
-              <input
-                type="number"
-                value={formData.tongTroCap ?? 0}
-                onChange={(e) => setFormData({ ...formData, tongTroCap: Number(e.target.value) })}
-                className={inputCls}
+              <label className={labelCls}>GHI CHÚ</label>
+              <textarea
+                rows={2}
+                value={formData.ghiChu || ''}
+                onChange={(e) => setFormData({ ...formData, ghiChu: e.target.value })}
+                className="w-full p-2.5 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89]/20 text-xs bg-white text-slate-800 placeholder:text-slate-300 placeholder:text-[11px] placeholder:font-normal transition resize-none"
+                placeholder="Ghi chú thời điểm bắt đầu làm việc, nghỉ việc hoặc lưu ý khác..."
               />
             </div>
           </div>
 
-          {/* Row 7: Ghi chú */}
-          <div>
-            <label className={labelCls}>Ghi chú</label>
-            <textarea
-              rows={2}
-              value={formData.ghiChu || ''}
-              onChange={(e) => setFormData({ ...formData, ghiChu: e.target.value })}
-              className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:border-indigo-400 text-xs bg-white text-slate-800"
-              placeholder="Nhập ghi chú thêm..."
-            />
+          {/* ── 4. LIÊN HỆ ── */}
+          <div className="border border-slate-200/90 rounded-xl p-4 sm:p-5 bg-white shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <span className="font-bold text-xs text-[#406c89] tracking-wider uppercase">LIÊN HỆ</span>
+              <span className="text-xs text-slate-400 font-normal">Điện thoại, email và địa chỉ</span>
+            </div>
+
+            {/* Row 1: ĐIỆN THOẠI + EMAIL + FACEBOOK (3 col) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div>
+                <label className={labelCls}>ĐIỆN THOẠI</label>
+                <input
+                  type="text"
+                  value={formData.dienThoai || ''}
+                  onChange={(e) => setFormData({ ...formData, dienThoai: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: 0912345678"
+                />
+              </div>
+              <div>
+                <label className={labelCls}>EMAIL</label>
+                <input
+                  type="email"
+                  value={formData.email || ''}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: email@example.com"
+                />
+              </div>
+              <div>
+                <label className={labelCls}>FACEBOOK</label>
+                <input
+                  type="text"
+                  value={formData.facebook || ''}
+                  onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: https://facebook.com/..."
+                />
+              </div>
+            </div>
+
+            {/* Row 2: ĐỊA CHỈ ĐANG Ở (full width) */}
+            <div>
+              <label className={labelCls}>ĐỊA CHỈ ĐANG Ở</label>
+              <input
+                type="text"
+                value={formData.diaChiHienTai || ''}
+                onChange={(e) => setFormData({ ...formData, diaChiHienTai: e.target.value })}
+                className={inputCls}
+                placeholder="VD: Số nhà, đường, phường/xã, quận/huyện..."
+              />
+            </div>
+
+            {/* Row 3: ĐỊA CHỈ HỘ KHẨU (full width) */}
+            <div>
+              <label className={labelCls}>ĐỊA CHỈ HỘ KHẨU</label>
+              <input
+                type="text"
+                value={formData.diaChiHoKhau || ''}
+                onChange={(e) => setFormData({ ...formData, diaChiHoKhau: e.target.value })}
+                className={inputCls}
+                placeholder="VD: Địa chỉ thường trú theo hộ khẩu..."
+              />
+            </div>
           </div>
 
-          {/* Footer Buttons */}
-          <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+          {/* ── 5. CÔNG TÁC ── */}
+          <div className="border border-slate-200/90 rounded-xl p-4 sm:p-5 bg-white shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <span className="font-bold text-xs text-[#406c89] tracking-wider uppercase">CÔNG TÁC</span>
+              <span className="text-xs text-slate-400 font-normal">Vị trí và trạng thái làm việc</span>
+            </div>
+
+            {/* Row 1: PHÒNG BAN + CHỨC VỤ + TRẠNG THÁI (3 col) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="relative" ref={deptDropdownRef}>
+                <label className={labelCls}>PHÒNG BAN</label>
+                <button
+                  type="button"
+                  onClick={() => setIsDeptOpen(!isDeptOpen)}
+                  className="w-full h-9 px-3 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89]/20 bg-white text-xs text-slate-800 transition flex items-center justify-between cursor-pointer"
+                >
+                  <span className="font-medium text-slate-800">
+                    {formData.phongBan || departments[0]}
+                  </span>
+                  <IconChevronDown
+                    size={14}
+                    className={`text-slate-400 transition-transform ${isDeptOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {/* Dropdown Menu matching screenshot */}
+                {isDeptOpen && (
+                  <div className="absolute z-50 left-0 right-0 bottom-full mb-1 bg-white border border-slate-200 rounded-xl shadow-2xl py-1.5 max-h-72 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
+                    {departments.map((dept) => {
+                      const isSelected = (formData.phongBan || departments[0]) === dept;
+                      return (
+                        <div
+                          key={dept}
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, phongBan: dept }));
+                            setIsDeptOpen(false);
+                          }}
+                          className={`px-3.5 py-2 text-xs flex items-center justify-between cursor-pointer transition-colors ${
+                            isSelected
+                              ? 'bg-slate-50/90 font-medium text-slate-900'
+                              : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                          }`}
+                        >
+                          <span>{dept}</span>
+                          {isSelected && <IconCheck size={16} className="text-slate-800 shrink-0" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className={labelCls}>CHỨC VỤ</label>
+                <input
+                  type="text"
+                  value={formData.chucVu || ''}
+                  onChange={(e) => setFormData({ ...formData, chucVu: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: Nhân viên, Kỹ thuật viên..."
+                />
+              </div>
+              <div>
+                <label className={labelCls}>TRẠNG THÁI</label>
+                <div className="relative">
+                  <select
+                    value={formData.trangThai || 'Đang làm việc'}
+                    onChange={(e) => setFormData({ ...formData, trangThai: e.target.value })}
+                    className={selectCls}
+                  >
+                    {statuses.map((tt) => (
+                      <option key={tt} value={tt}>{tt}</option>
+                    ))}
+                  </select>
+                  <IconChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── 6. HỌC VẤN & TUYỂN DỤNG ── */}
+          <div className="border border-slate-200/90 rounded-xl p-4 sm:p-5 bg-white shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <span className="font-bold text-xs text-[#406c89] tracking-wider uppercase">HỌC VẤN & TUYỂN DỤNG</span>
+            </div>
+
+            {/* Row 1: TRƯỜNG HỌC + CHUYÊN NGÀNH + BẰNG CẤP + NGUỒN TUYỂN DỤNG (4 col) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              <div>
+                <label className={labelCls}>TRƯỜNG HỌC</label>
+                <input
+                  type="text"
+                  value={formData.truongHoc || ''}
+                  onChange={(e) => setFormData({ ...formData, truongHoc: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: Đại học Xây dựng..."
+                />
+              </div>
+              <div>
+                <label className={labelCls}>CHUYÊN NGÀNH</label>
+                <input
+                  type="text"
+                  value={formData.chuyenNganh || ''}
+                  onChange={(e) => setFormData({ ...formData, chuyenNganh: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: Kiến trúc..."
+                />
+              </div>
+              <div>
+                <label className={labelCls}>BẰNG CẤP / TRÌNH ĐỘ</label>
+                <input
+                  type="text"
+                  value={formData.bangCapTrinhDo || ''}
+                  onChange={(e) => setFormData({ ...formData, bangCapTrinhDo: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: Cử nhân, Kỹ sư..."
+                />
+              </div>
+              <div>
+                <label className={labelCls}>NGUỒN TUYỂN DỤNG</label>
+                <input
+                  type="text"
+                  value={formData.nguonTuyenDung || ''}
+                  onChange={(e) => setFormData({ ...formData, nguonTuyenDung: e.target.value })}
+                  className={inputCls}
+                  placeholder="VD: VietnamWorks, Giới thiệu..."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ── 7. Footer Action Buttons ── */}
+          <div className="flex items-center justify-end gap-3 pt-3 pb-1 border-t border-slate-100 bg-white sticky bottom-0">
             <button
               type="button"
+              disabled={isSubmitting}
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold cursor-pointer"
+              className="px-5 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 font-medium text-xs cursor-pointer transition shadow-2xs"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="px-4 py-1.5 rounded-lg bg-[#ba8e3a] hover:bg-[#a67d32] text-white font-bold cursor-pointer transition shadow-sm"
+              disabled={isSubmitting}
+              className="px-6 py-2 rounded-lg bg-[#406c89] hover:bg-[#345870] disabled:opacity-70 text-white font-medium text-xs cursor-pointer transition shadow-xs flex items-center gap-1.5"
             >
-              Lưu thay đổi
+              {isSubmitting && <IconLoader2 size={14} className="animate-spin" />}
+              <span>{isSubmitting ? 'Đang lưu...' : 'Lưu'}</span>
             </button>
           </div>
         </form>

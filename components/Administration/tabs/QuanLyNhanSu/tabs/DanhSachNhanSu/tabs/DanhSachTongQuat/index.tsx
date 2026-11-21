@@ -23,6 +23,7 @@ import {
   IconFileText,
   IconSelector,
   IconRefresh,
+  IconCheck,
 } from '@tabler/icons-react';
 
 // ─── Data Types ───────────────────────────────────────────────────────
@@ -200,6 +201,15 @@ export default function DanhSachTongQuatTab({
     setCurrentPage(1);
   };
 
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3500);
+  };
+
   // Add / Edit Handlers
   const handleOpenAdd = () => {
     setIsAddModalOpen(true);
@@ -223,6 +233,16 @@ export default function DanhSachTongQuatTab({
 
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-white">
+      {/* ── Toast Notification ── */}
+      {toastMessage && (
+        <div className="fixed top-6 right-6 z-60 flex items-center gap-2.5 bg-slate-900/95 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-medium border border-slate-700/50 backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-200">
+          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <IconCheck size={15} stroke={2.5} />
+          </div>
+          <span className="leading-tight">{toastMessage}</span>
+        </div>
+      )}
+
       {/* ── Table Container ── */}
       <div className="flex-1 min-h-0 px-5 py-3 flex flex-col">
         <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200 rounded-lg shadow-2xs overflow-hidden">
@@ -498,6 +518,7 @@ export default function DanhSachTongQuatTab({
         defaultMaNV={`NV${(data.length + 1).toString().padStart(3, '0')}`}
         onSave={(newItem) => {
           setData((prev) => [newItem, ...prev]);
+          showToast(`Đã thêm mới nhân sự "${newItem.hoTen}" thành công!`);
           fetchStaffData();
         }}
         onClose={() => setIsAddModalOpen(false)}
@@ -518,6 +539,7 @@ export default function DanhSachTongQuatTab({
           setData((prev) =>
             prev.map((it) => (it.id === updated.id ? updated : it))
           );
+          showToast(`Đã cập nhật thông tin nhân sự "${updated.hoTen}" thành công!`);
         }}
         onClose={() => setEditingItem(null)}
       />
@@ -528,6 +550,7 @@ export default function DanhSachTongQuatTab({
         item={deletingItem}
         onConfirm={(itemToDelete) => {
           setData((prev) => prev.filter((it) => it.id !== itemToDelete.id));
+          showToast(`Đã xóa nhân sự "${itemToDelete.hoTen}" khỏi danh sách!`);
         }}
         onClose={() => setDeletingItem(null)}
       />

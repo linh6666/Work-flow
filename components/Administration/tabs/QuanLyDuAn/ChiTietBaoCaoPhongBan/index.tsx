@@ -30,6 +30,8 @@ import {
 } from '@tabler/icons-react';
 import XoaCongViecModal from './modal/XoaCongViecModal';
 import XemBaoCaoModal from './modal/XemBaoCaoModal';
+import ThemCongViecModal from './modal/ThemCongViecModal';
+import SuaCongViecModal from './modal/SuaCongViecModal';
 import {
   getDeptProjectForms,
   updateDeptProjectForm,
@@ -53,7 +55,7 @@ interface ChiTietBaoCaoPhongBanProps {
   onBackToProjectList?: () => void;
 }
 
-interface ReportTask {
+export interface ReportTask {
   id: string;
   code?: string;
   title: string;
@@ -320,16 +322,52 @@ export default function ChiTietBaoCaoPhongBan({
       setSavingData(false);
     }
   };
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3500);
+  };
   const [draggedReportId, setDraggedReportId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [dropPosition, setDropPosition] = useState<'before' | 'after' | null>(null);
-  const [activeModal, setActiveModal] = useState<{ type: 'delete' | 'view'; taskId?: string; taskTitle?: string } | null>(null);
+  const [activeModal, setActiveModal] = useState<{ type: 'delete' | 'view' | 'add' | 'edit'; taskId?: string; taskTitle?: string; targetItem?: ReportTask } | null>(null);
   const [reportGroupById, setReportGroupById] = useState<Record<string, string>>({});
 
   const selectedTask = activeModal?.taskId ? reportRows.find((item) => item.id === activeModal.taskId) ?? null : null;
 
   const handleOpenViewModal = (item: ReportTask) => setActiveModal({ type: 'view', taskId: item.id, taskTitle: item.title });
   const handleOpenDeleteModal = (item: ReportTask) => setActiveModal({ type: 'delete', taskId: item.id, taskTitle: item.title });
+  const handleOpenAddModal = (item?: ReportTask) => setActiveModal({ type: 'add', taskId: item?.id, taskTitle: item?.title, targetItem: item });
+  const handleOpenEditModal = (item: ReportTask) => setActiveModal({ type: 'edit', taskId: item.id, taskTitle: item.title, targetItem: item });
+
+  const handleConfirmUpdateTask = async (updatedTask: ReportTask) => {
+    const nextReports = reportRows.map((item) => (item.id === updatedTask.id ? updatedTask : item));
+    setReportRows(nextReports);
+    await saveTasksToApi(nextReports);
+    NotificationExtension.Success(`Đã cập nhật công việc "${updatedTask.title}" thành công!`);
+    showToast(`Đã cập nhật công việc "${updatedTask.title}" thành công!`);
+  };
+
+  const handleConfirmAddTask = async (newTask: ReportTask) => {
+    const nextReports = [...reportRows];
+    if (activeModal?.targetItem) {
+      const currentIndex = nextReports.findIndex((report) => report.id === activeModal.targetItem!.id);
+      if (currentIndex >= 0) {
+        nextReports.splice(currentIndex + 1, 0, newTask);
+      } else {
+        nextReports.push(newTask);
+      }
+    } else {
+      nextReports.push(newTask);
+    }
+    setReportRows(nextReports);
+    await saveTasksToApi(nextReports);
+    NotificationExtension.Success(`Đã thêm công việc "${newTask.title}" thành công!`);
+    showToast(`Đã thêm công việc "${newTask.title}" thành công!`);
+  };
 
   const getReportGroup = (reportId: string) => {
     if (['rpt-15', 'rpt-16'].includes(reportId)) return 'HOẠT ĐỘNG DOANH NGHIỆP';
@@ -467,7 +505,17 @@ export default function ChiTietBaoCaoPhongBan({
   }, [filteredReports]);
 
   return (
-    <div className="w-full h-full min-h-0 bg-white p-3 sm:p-5 flex flex-col space-y-2.5 animate-fade-in select-none overflow-x-auto no-scrollbar">
+    <div className="w-full h-full min-h-0 bg-white p-3 sm:p-5 flex flex-col space-y-2.5 animate-fade-in select-none overflow-x-auto no-scrollbar relative">
+      {/* ── Toast Notification Banner ── */}
+      {toastMessage && (
+        <div className="fixed top-6 right-6 z-70 flex items-center gap-2.5 bg-slate-900/95 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-medium border border-slate-700/50 backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-200">
+          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <IconCheck size={15} stroke={2.5} />
+          </div>
+          <span className="leading-tight">{toastMessage}</span>
+        </div>
+      )}
+
       <div className="min-w-[1250px] flex-1 flex flex-col min-h-0 space-y-2.5">
         <XemBaoCaoModal
           isOpen={activeModal?.type === 'view'}
@@ -479,6 +527,25 @@ export default function ChiTietBaoCaoPhongBan({
           taskTitle={activeModal?.taskTitle || selectedTask?.title || 'Công việc'}
           onClose={() => setActiveModal(null)}
           onConfirm={handleDeleteTask}
+        />
+        <ThemCongViecModal
+          isOpen={activeModal?.type === 'add'}
+          departmentName={department.name}
+          defaultGroup={activeModal?.targetItem?.group || 'KHỞI TẠO VÀ PHÊ DUYỆT'}
+          targetTask={activeModal?.targetItem || null}
+          availableAssignees={availableAssignees}
+          existingGroups={dynamicGroups.map((g) => g.title)}
+          onClose={() => setActiveModal(null)}
+          onAddTask={handleConfirmAddTask}
+        />
+        <SuaCongViecModal
+          isOpen={activeModal?.type === 'edit'}
+          departmentName={department.name}
+          task={activeModal?.targetItem || selectedTask || null}
+          availableAssignees={availableAssignees}
+          existingGroups={dynamicGroups.map((g) => g.title)}
+          onClose={() => setActiveModal(null)}
+          onUpdateTask={handleConfirmUpdateTask}
         />
       
       {/* ROW 1: TITLE & TOP ACTION BUTTONS */}
@@ -831,14 +898,22 @@ export default function ChiTietBaoCaoPhongBan({
 
                               {/* THAO TÁC */}
                               <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
-                                <div className="flex items-center justify-center gap-2 text-white/90">
+                                <div className="flex items-center justify-center gap-1.5 text-white/90">
                                   <button
                                     type="button"
-                                    onClick={() => handleAddTaskAfter(item)}
+                                    onClick={() => handleOpenAddModal(item)}
                                     className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
-                                    title="Thêm"
+                                    title="Thêm công việc phía dưới"
                                   >
                                     <IconPlus size={13} strokeWidth={2.5} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenEditModal(item)}
+                                    className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                                    title="Chỉnh sửa công việc"
+                                  >
+                                    <IconEdit size={13} strokeWidth={2} />
                                   </button>
                                   <button
                                     type="button"

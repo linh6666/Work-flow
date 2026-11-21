@@ -48,6 +48,21 @@ export interface NhanSuItem {
   email: string;
   ghiChuLuong: string;
   ghiChu: string;
+  // Chi tiết mở rộng theo hồ sơ
+  tinhTrangHonNhan?: string;
+  chieuCaoCanNang?: string;
+  tenThuongDung?: string;
+  facebook?: string;
+  diaChiHienTai?: string;
+  diaChiHoKhau?: string;
+  ngayChinhThuc?: string;
+  ngayBatDauNghi?: string;
+  truongHoc?: string;
+  chuyenNganh?: string;
+  bangCapTrinhDo?: string;
+  nguonTuyenDung?: string;
+  sttBoSung?: string | number;
+  [key: string]: any;
 }
 
 export const formatVND = (n: number) =>

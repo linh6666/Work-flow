@@ -54,4 +54,10 @@ export const API_ROUTE = {
   INTERVIEW_EVALUATION_LIST: "/api/v1/entities/InterviewEvaluation",
   INTERVIEW_EVALUATION_UPDATE: "/api/v1/entities/InterviewEvaluation/{InterviewEvaluation_id}",
   INTERVIEW_EVALUATION_DELETE: "/api/v1/entities/InterviewEvaluation/{InterviewEvaluation_id}",
+
+  ///STAFF - Entities - Staff / Employee / NhanSu
+  STAFF_LIST: "/api/v1/entities/Staff",
+  STAFF_CREATE: "/api/v1/entities/Staff",
+  STAFF_UPDATE: "/api/v1/entities/Staff/{Staff_id}",
+  STAFF_DELETE: "/api/v1/entities/Staff/{Staff_id}",
 };

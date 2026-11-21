@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import XoaNhanSuModal, { XoaNhanSuRef } from '../../modal/XoaNhanSu';
 import ChinhSuaNhanSuModal from '../../modal/ChinhSuaNhanSu';
+import { getStaffList } from '@/api/apiGetStaffList';
 import {
   IconSearch,
   IconDownload,
@@ -19,6 +20,7 @@ import {
   IconFileSpreadsheet,
   IconFileText,
   IconSelector,
+  IconRefresh,
 } from '@tabler/icons-react';
 
 // ─── Data Types ───────────────────────────────────────────────────────
@@ -126,9 +128,35 @@ export default function DanhSachTongQuatTab({
   };
 
   const [data, setData] = useState<NhanSuItem[]>(INITIAL_DATA);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [internalSearch, setInternalSearch] = useState('');
   const [internalPhongBan, setInternalPhongBan] = useState('ALL');
   const [internalTrangThai, setInternalTrangThai] = useState('ALL');
+
+  const fetchStaffData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setApiError(null);
+      const res = await getStaffList();
+      if (res && res.length > 0) {
+        setData(res);
+      } else {
+        // Fallback to INITIAL_DATA if API returned empty
+        setData(INITIAL_DATA);
+      }
+    } catch (err: any) {
+      console.warn("Lỗi khi gọi API nhân sự:", err);
+      setApiError(err?.message || "Không thể tải dữ liệu từ API");
+      setData(INITIAL_DATA);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStaffData();
+  }, [fetchStaffData]);
 
   const search = searchQuery !== undefined ? searchQuery : internalSearch;
   const filterPhongBan = selectedPhongBan !== undefined ? selectedPhongBan : internalPhongBan;
@@ -136,7 +164,7 @@ export default function DanhSachTongQuatTab({
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 15;
 
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -262,7 +290,7 @@ export default function DanhSachTongQuatTab({
             onMouseLeave={stopDrag}
           >
             <table className="min-w-max w-full text-xs text-left border-collapse">
-              <thead className="sticky top-0 z-10 bg-[#406c89] text-white border-b border-[#345870] shadow-2xs">
+              <thead className="sticky top-0 z-30 bg-[#406c89] text-white border-b border-[#345870] shadow-2xs">
                 <tr>
                   <th className="px-4 py-3 font-bold text-white text-xs whitespace-nowrap">STT</th>
                   <th className="px-4 py-3 font-bold text-white text-xs whitespace-nowrap">
@@ -317,13 +345,22 @@ export default function DanhSachTongQuatTab({
                       <IconSelector size={13} className="text-white/60" />
                     </div>
                   </th>
-                  <th className="sticky right-0 z-20 bg-[#406c89] px-4 py-3 font-bold text-white text-xs text-center whitespace-nowrap shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">
+                  <th className="sticky right-0 top-0 z-40 bg-[#406c89] px-4 py-3 font-bold text-white text-xs text-center whitespace-nowrap shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">
                     Thao tác
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {paginatedData.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan={14} className="text-center py-16 text-slate-500">
+                      <div className="inline-flex items-center gap-2">
+                        <div className="w-5 h-5 border-2 border-[#ba8e3a] border-t-transparent rounded-full animate-spin" />
+                        <span className="text-xs font-semibold text-slate-600">Đang tải dữ liệu nhân sự từ hệ thống...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : paginatedData.length === 0 ? (
                   <tr>
                     <td colSpan={14} className="text-center py-12 text-slate-400">
                       <IconUser size={36} className="mx-auto mb-2 text-slate-300 stroke-1" />

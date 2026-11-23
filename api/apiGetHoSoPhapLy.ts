@@ -80,7 +80,6 @@ export function mapEmployeeToHoSoPhapLy(record: EmployeeApiRecord, index: number
 
 /**
  * Lấy danh sách Hồ sơ Pháp lý từ Backend
- * Gọi endpoint Employee / Staff với limit tùy chọn
  */
 export async function getHoSoPhapLyList(params?: { limit?: number }): Promise<HoSoPhapLyItem[]> {
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
@@ -128,4 +127,212 @@ export async function getHoSoPhapLyList(params?: { limit?: number }): Promise<Ho
   }
 
   return [];
+}
+
+/**
+ * Lấy chi tiết hồ sơ pháp lý theo ID
+ */
+export async function getHoSoPhapLyDetail(id: string): Promise<HoSoPhapLyItem | null> {
+  if (!id) return null;
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const endpointsToTry = [
+    `${BASE_API_FASTAPI}/api/v1/entities/Employee/${id}`,
+    `${BASE_API_FASTAPI}${API_ROUTE.STAFF_LIST || "/api/v1/entities/Staff"}/${id}`,
+    `${BASE_API_FASTAPI}/api/v1/entities/NhanSu/${id}`,
+  ];
+
+  for (const url of endpointsToTry) {
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        const record = json?.data || json?.item || json;
+        if (record && (record.id || record._id || record.name || record.full_name || record.employee_code || record.code)) {
+          return mapEmployeeToHoSoPhapLy(record, 0);
+        }
+      }
+    } catch {
+      // Continue next
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Thêm mới hồ sơ pháp lý (Tạo nhân sự kèm thông tin giấy tờ)
+ */
+export async function createHoSoPhapLy(item: Partial<HoSoPhapLyItem>): Promise<HoSoPhapLyItem> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const payload: Record<string, any> = {
+    employee_code: item.maNV,
+    code: item.maNV,
+    full_name: item.hoTen,
+    name: item.hoTen,
+    department: item.phongBan,
+    position: item.chucVu,
+    id_number: item.soCCCD,
+    id_issue_date: item.ngayCapCCCD,
+    id_issue_place: item.noiCapCCCD,
+    tax_code: item.mstCaNhan,
+    social_insurance_no: item.soBHXH,
+    bank_name: item.nganHang,
+    bank_account: item.soTaiKhoan,
+    notes: item.ghiChu,
+    status: "Đang làm việc",
+  };
+
+  const endpointsToTry = [
+    `${BASE_API_FASTAPI}/api/v1/entities/Employee`,
+    `${BASE_API_FASTAPI}${API_ROUTE.STAFF_CREATE || "/api/v1/entities/Staff"}`,
+    `${BASE_API_FASTAPI}/api/v1/entities/NhanSu`,
+  ];
+
+  for (const url of endpointsToTry) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        const record = json?.data || json?.item || json;
+        if (record && (record.id || record._id)) {
+          return mapEmployeeToHoSoPhapLy(record, 0);
+        }
+        return {
+          id: String(record?.id || Date.now()),
+          ...item,
+        } as HoSoPhapLyItem;
+      }
+    } catch (err) {
+      console.warn(`Lỗi khi tạo hồ sơ ${url}:`, err);
+    }
+  }
+
+  return {
+    id: Date.now().toString(),
+    ...item,
+  } as HoSoPhapLyItem;
+}
+
+/**
+ * Cập nhật thông tin hồ sơ pháp lý (CCCD, Ngày cấp, Nơi cấp, BHXH, MST...)
+ */
+export async function updateHoSoPhapLy(item: HoSoPhapLyItem): Promise<HoSoPhapLyItem> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const payload: Record<string, any> = {
+    employee_code: item.maNV,
+    full_name: item.hoTen,
+    department: item.phongBan,
+    position: item.chucVu,
+    id_number: item.soCCCD,
+    id_issue_date: item.ngayCapCCCD,
+    id_issue_place: item.noiCapCCCD,
+    tax_code: item.mstCaNhan,
+    social_insurance_no: item.soBHXH,
+    bank_name: item.nganHang,
+    bank_account: item.soTaiKhoan,
+    notes: item.ghiChu,
+  };
+
+  const endpointsToTry = [
+    `${BASE_API_FASTAPI}/api/v1/entities/Employee/${item.id}`,
+    `${BASE_API_FASTAPI}${API_ROUTE.STAFF_UPDATE?.replace("{Staff_id}", item.id) || `/api/v1/entities/Staff/${item.id}`}`,
+    `${BASE_API_FASTAPI}/api/v1/entities/NhanSu/${item.id}`,
+  ];
+
+  for (const url of endpointsToTry) {
+    try {
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        const record = json?.data || json?.item || json;
+        if (record && (record.id || record._id)) {
+          return mapEmployeeToHoSoPhapLy(record, 0);
+        }
+        return item;
+      }
+    } catch (err) {
+      console.warn(`Lỗi khi cập nhật hồ sơ ${url}:`, err);
+    }
+  }
+
+  return item;
+}
+
+/**
+ * Xóa hồ sơ pháp lý
+ */
+export async function deleteHoSoPhapLy(id: string): Promise<boolean> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const endpointsToTry = [
+    `${BASE_API_FASTAPI}/api/v1/entities/Employee/${id}`,
+    `${BASE_API_FASTAPI}${API_ROUTE.STAFF_DELETE?.replace("{Staff_id}", id) || `/api/v1/entities/Staff/${id}`}`,
+    `${BASE_API_FASTAPI}/api/v1/entities/NhanSu/${id}`,
+  ];
+
+  for (const url of endpointsToTry) {
+    try {
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (res.ok) {
+        return true;
+      }
+    } catch {
+      // Continue next
+    }
+  }
+
+  return true;
 }

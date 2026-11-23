@@ -68,9 +68,9 @@ export function mapStaffApiToNhanSuItem(record: StaffApiRecord, index: number): 
     bacLuong: record.salary_level || record.salary_grade || record.bacLuong || "Bậc 1",
     mucLuongHienTai: Number(
       record.current_salary ??
-        record.total_income ??
-        record.mucLuongHienTai ??
-        (Number(record.base_salary || 0) + Number(record.soft_salary || 0))
+      record.total_income ??
+      record.mucLuongHienTai ??
+      (Number(record.base_salary || 0) + Number(record.soft_salary || 0))
     ),
     mucLuongCung: Number(record.base_salary ?? record.mucLuongCung ?? 0),
     mucLuongMem: Number(record.soft_salary ?? record.mucLuongMem ?? 0),
@@ -139,10 +139,10 @@ export async function getDanhSachTongQuatList(params?: { limit?: number }): Prom
         const records: StaffApiRecord[] = Array.isArray(json)
           ? json
           : Array.isArray(json?.items)
-          ? json.items
-          : Array.isArray(json?.data)
-          ? json.data
-          : [];
+            ? json.items
+            : Array.isArray(json?.data)
+              ? json.data
+              : [];
 
         if (records.length > 0) {
           return records.map((r, i) => mapStaffApiToNhanSuItem(r, i));

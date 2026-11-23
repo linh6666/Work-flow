@@ -19,9 +19,10 @@ import {
 } from '@tabler/icons-react';
 import { PHONG_BAN_LIST, TRANG_THAI_LIST, NhanSuItem } from '../DanhSachTongQuat';
 import { getHoSoPhapLyList } from '@/api/apiGetHoSoPhapLy';
-import ModalXemChiTiet from '../DanhSachTongQuat/modal/ModalXemChiTiet';
-import ModalChinhSua from '../DanhSachTongQuat/modal/ModalChinhSua';
-import ModalXoa from '../DanhSachTongQuat/modal/ModalXoa';
+import ModalXemChiTietHoSo from './modal/ModalXemChiTietHoSo';
+import ModalChinhSuaHoSo from './modal/ModalChinhSuaHoSo';
+import ModalXoaHoSo from './modal/ModalXoaHoSo';
+import ModalThemHoSo from './modal/ModalThemHoSo';
 
 export interface HoSoPhapLyItem {
   id: string;
@@ -65,10 +66,22 @@ export default function HoSoPhapLyTab({
   const itemsPerPage = 12;
 
   // Modal States
-  const [selectedStaff, setSelectedStaff] = useState<NhanSuItem | null>(null);
+  const [selectedHoSo, setSelectedHoSo] = useState<HoSoPhapLyItem | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+
+  // Lắng nghe sự kiện click nút "+ Thêm" từ Toolbar ngoài
+  useEffect(() => {
+    const handleAddClick = (e: any) => {
+      if (e.detail?.tab === 'ho-so-phap-ly') {
+        setIsAddOpen(true);
+      }
+    };
+    window.addEventListener('nhan-su-add-click', handleAddClick);
+    return () => window.removeEventListener('nhan-su-add-click', handleAddClick);
+  }, []);
 
   // Fetch API dữ liệu nhân sự thực tế qua apiGetHoSoPhapLy
   const fetchHoSoData = useCallback(async () => {
@@ -124,104 +137,17 @@ export default function HoSoPhapLyTab({
   const paginatedData = filteredData.slice(startIndex, endIndex);
 
   const handleOpenView = (item: HoSoPhapLyItem) => {
-    setSelectedStaff(
-      item.rawItem || {
-        id: item.id,
-        maNV: item.maNV,
-        hoTen: item.hoTen,
-        phongBan: item.phongBan,
-        chucVu: item.chucVu,
-        trangThai: 'Đang làm việc',
-        ngaySinh: '—',
-        gioiTinh: 'Nam',
-        dienThoai: '—',
-        ngayVao: '—',
-        thamNien: '—',
-        bacLuong: '—',
-        mucLuongHienTai: 0,
-        mucLuongCung: 0,
-        mucLuongMem: 0,
-        tongTroCap: 0,
-        thoiDiemTangLuong: '—',
-        thoiDiemTangBacBacLuongDuKien: '—',
-        email: '',
-        ghiChuLuong: '',
-        ghiChu: item.ghiChu,
-        soCCCD: item.soCCCD,
-        ngayCapCCCD: item.ngayCapCCCD,
-        noiCapCCCD: item.noiCapCCCD,
-        mstCaNhan: item.mstCaNhan,
-        soBHXH: item.soBHXH,
-      }
-    );
+    setSelectedHoSo(item);
     setIsViewOpen(true);
   };
 
   const handleOpenEdit = (item: HoSoPhapLyItem) => {
-    setSelectedStaff(
-      item.rawItem || {
-        id: item.id,
-        maNV: item.maNV,
-        hoTen: item.hoTen,
-        phongBan: item.phongBan,
-        chucVu: item.chucVu,
-        trangThai: 'Đang làm việc',
-        ngaySinh: '—',
-        gioiTinh: 'Nam',
-        dienThoai: '—',
-        ngayVao: '—',
-        thamNien: '—',
-        bacLuong: '—',
-        mucLuongHienTai: 0,
-        mucLuongCung: 0,
-        mucLuongMem: 0,
-        tongTroCap: 0,
-        thoiDiemTangLuong: '—',
-        thoiDiemTangBacBacLuongDuKien: '—',
-        email: '',
-        ghiChuLuong: '',
-        ghiChu: item.ghiChu,
-        soCCCD: item.soCCCD,
-        ngayCapCCCD: item.ngayCapCCCD,
-        noiCapCCCD: item.noiCapCCCD,
-        mstCaNhan: item.mstCaNhan,
-        soBHXH: item.soBHXH,
-      }
-    );
+    setSelectedHoSo(item);
     setIsEditOpen(true);
   };
 
   const handleOpenDelete = (item: HoSoPhapLyItem) => {
-    setSelectedStaff(
-      item.rawItem || {
-        id: item.id,
-        maNV: item.maNV,
-        hoTen: item.hoTen,
-        phongBan: item.phongBan,
-        chucVu: item.chucVu,
-        trangThai: 'Đang làm việc',
-        ngaySinh: '—',
-        gioiTinh: 'Nam',
-        dienThoai: '—',
-        ngayVao: '—',
-        thamNien: '—',
-        bacLuong: '—',
-        mucLuongHienTai: 0,
-        mucLuongCung: 0,
-        mucLuongMem: 0,
-        tongTroCap: 0,
-        thoiDiemTangLuong: '—',
-        thoiDiemTangBacBacLuongDuKien: '—',
-        email: '',
-        ghiChuLuong: '',
-        ghiChu: item.ghiChu,
-        soCCCD: item.soCCCD,
-        ngayCapCCCD: item.ngayCapCCCD,
-        noiCapCCCD: item.noiCapCCCD,
-        mstCaNhan: item.mstCaNhan,
-        soBHXH: item.soBHXH,
-      }
-    );
+    setSelectedHoSo(item);
     setIsDeleteOpen(true);
   };
 
@@ -425,50 +351,60 @@ export default function HoSoPhapLyTab({
       </div>
 
       {/* ── Modal Xem chi tiết hồ sơ ── */}
-      {selectedStaff && (
-        <ModalXemChiTiet
+      {selectedHoSo && (
+        <ModalXemChiTietHoSo
           isOpen={isViewOpen}
-          item={selectedStaff}
+          item={selectedHoSo}
           onClose={() => {
             setIsViewOpen(false);
-            setSelectedStaff(null);
+            setSelectedHoSo(null);
           }}
         />
       )}
 
       {/* ── Modal Chỉnh sửa hồ sơ ── */}
-      {selectedStaff && (
-        <ModalChinhSua
+      {selectedHoSo && (
+        <ModalChinhSuaHoSo
           isOpen={isEditOpen}
-          item={selectedStaff}
+          item={selectedHoSo}
           onClose={() => {
             setIsEditOpen(false);
-            setSelectedStaff(null);
+            setSelectedHoSo(null);
           }}
-          onSave={() => {
+          onSuccess={() => {
             fetchHoSoData();
             setIsEditOpen(false);
-            setSelectedStaff(null);
+            setSelectedHoSo(null);
           }}
         />
       )}
 
-      {/* ── Modal Xác nhận xóa ── */}
-      {selectedStaff && (
-        <ModalXoa
+      {/* ── Modal Xác nhận xóa hồ sơ ── */}
+      {selectedHoSo && (
+        <ModalXoaHoSo
           isOpen={isDeleteOpen}
-          item={selectedStaff}
+          item={selectedHoSo}
           onClose={() => {
             setIsDeleteOpen(false);
-            setSelectedStaff(null);
+            setSelectedHoSo(null);
           }}
-          onConfirm={() => {
+          onSuccess={() => {
             fetchHoSoData();
             setIsDeleteOpen(false);
-            setSelectedStaff(null);
+            setSelectedHoSo(null);
           }}
         />
       )}
+
+      {/* ── Modal Thêm mới hồ sơ ── */}
+      <ModalThemHoSo
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        onSuccess={() => {
+          fetchHoSoData();
+          setIsAddOpen(false);
+        }}
+      />
     </div>
   );
 }

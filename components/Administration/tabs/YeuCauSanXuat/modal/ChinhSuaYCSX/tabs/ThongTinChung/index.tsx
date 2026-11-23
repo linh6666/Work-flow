@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
-import { IconLink } from '@tabler/icons-react';
+import React, { useState, useEffect } from 'react';
+import { IconLink, IconLoader2 } from '@tabler/icons-react';
+import { getContractList, ContractRecord } from '@/api/apiGetContract';
+import { getQuotationById } from '@/api/apiGetQuotation';
 
 export interface ChinhSuaThongTinChungTabProps {
   soYcsx?: string;

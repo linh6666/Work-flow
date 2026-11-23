@@ -390,7 +390,11 @@ export default function YeuCauSanXuat() {
       </div>
 
       {/* Modals */}
-      <TaoYCSXModal isOpen={isTaoModalOpen} onClose={() => setIsTaoModalOpen(false)} />
+      <TaoYCSXModal
+        isOpen={isTaoModalOpen}
+        onClose={() => setIsTaoModalOpen(false)}
+        onSubmitSuccess={() => fetchYcsxData()}
+      />
       <ChinhSuaYCSXModal
         isOpen={isChinhSuaModalOpen}
         itemData={selectedItemToEdit}

@@ -482,64 +482,64 @@ export default function BaoGia() {
           }`}
         >
           <table className="w-full text-xs text-left border-collapse min-w-[960px] sm:min-w-[1100px]">
-            <thead className="sticky top-0 z-10 bg-slate-50 shadow-2xs border-b border-slate-200">
-              <tr className="bg-slate-50 text-slate-500 font-semibold text-xs">
-                <th className="sticky left-0 z-20 px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-r border-slate-200 min-w-[280px] max-w-[380px] cursor-pointer shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]" onClick={() => handleSort('soBg')}>
-                  <span className="inline-flex items-center gap-1 font-bold text-slate-600">
-                    Số BG <IconArrowsSort size={12} className="text-slate-300" />
+            <thead className="sticky top-0 z-20 bg-[#f8fafc] border-b border-slate-200 shadow-2xs">
+              <tr className="bg-[#f8fafc] text-slate-500 font-semibold text-xs">
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 min-w-[280px] max-w-[380px] cursor-pointer" onClick={() => handleSort('soBg')}>
+                  <span className="inline-flex items-center gap-1 font-bold text-slate-700">
+                    Số BG <IconArrowsSort size={12} className="text-slate-400" />
                   </span>
                 </th>
 
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('loai')}>
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('loai')}>
                   <span className="inline-flex items-center gap-1 font-bold text-slate-600">
                     Loại <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
                 </th>
 
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('khachHang')}>
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('khachHang')}>
                   <span className="inline-flex items-center gap-1 font-bold text-slate-600">
                     Khách hàng <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
                 </th>
 
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('ngay')}>
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('ngay')}>
                   <span className="inline-flex items-center gap-1 font-bold text-slate-600">
                     Ngày <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
                 </th>
 
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('nguoiLap')}>
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('nguoiLap')}>
                   <span className="inline-flex items-center gap-1 font-bold text-slate-600">
                     Người lập <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
                 </th>
 
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('tyLe')}>
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('tyLe')}>
                   <span className="inline-flex items-center gap-1 font-bold text-slate-600">
                     Tỷ lệ <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
                 </th>
 
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('kichThuoc')}>
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('kichThuoc')}>
                   <span className="inline-flex items-center gap-1 font-bold text-slate-600">
                     Kích thước <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
                 </th>
 
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('tongSauThue')}>
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('tongSauThue')}>
                   <span className="inline-flex items-center gap-1 font-bold text-slate-600">
                     Tổng sau thuế <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
                 </th>
 
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('trangThai')}>
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('trangThai')}>
                   <span className="inline-flex items-center gap-1 font-bold text-slate-600">
                     Trạng thái <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
                 </th>
 
-                <th className="sticky right-0 z-20 px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-l border-slate-200 whitespace-nowrap text-center shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.05)]">
-                  <span className="font-bold text-slate-600">Thao tác</span>
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap text-center">
+                  <span className="font-bold text-slate-700">Thao tác</span>
                 </th>
               </tr>
             </thead>
@@ -566,8 +566,8 @@ export default function BaoGia() {
                       key={item.id}
                       className={`hover:bg-slate-50/70 transition-colors group ${isSelected ? 'bg-slate-50' : ''}`}
                     >
-                      {/* Số BG (Sticky Left) */}
-                      <td className="sticky left-0 z-10 px-4 py-4 align-top min-w-[280px] max-w-[380px] bg-white group-hover:bg-slate-50 transition-colors border-r border-slate-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                      {/* Số BG */}
+                      <td className="px-4 py-4 align-top min-w-[280px] max-w-[380px]">
                         <span className="font-bold text-[#406c89] text-xs leading-relaxed cursor-pointer hover:underline break-words">
                           {item.soBg}
                         </span>
@@ -648,8 +648,8 @@ export default function BaoGia() {
                         </div>
                       </td>
 
-                      {/* Thao tác (Sticky Right) */}
-                      <td className="sticky right-0 z-10 px-4 py-4 align-top whitespace-nowrap text-center bg-white group-hover:bg-slate-50 transition-colors border-l border-slate-100 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                      {/* Thao tác */}
+                      <td className="px-4 py-4 align-top whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-2 text-slate-400">
                           <button
                             type="button"

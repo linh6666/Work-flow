@@ -7,6 +7,7 @@ import XoaBaoGiaModal from './modal/XoaBaoGia';
 import XemChiTietBaoGiaModal from './modal/XemChiTiet';
 import QuanLyTemplateModal from './modal/QuanLyTemplate';
 import Pagination from '@/common/pagination';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 import {
   getQuotationList,
   createQuotation,
@@ -200,10 +201,14 @@ export default function BaoGia() {
 
       if (res.success && res.data?.id) {
         await fetchQuotations();
+        NotificationExtension.Success(`Tạo mới báo giá ${newItemData.soBg} thành công!`);
         return;
+      } else if (!res.success && res.error) {
+        NotificationExtension.Fails(res.error, 'Không thể tạo báo giá');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('Lỗi khi gọi API tạo báo giá:', err);
+      NotificationExtension.Fails(err?.message || 'Có lỗi xảy ra khi tạo báo giá');
     }
 
     // Fallback local update
@@ -215,6 +220,7 @@ export default function BaoGia() {
       kichThuoc: newItemData.kichThuoc || '2000x1500mm',
     };
     setItems(prev => [newItem, ...prev]);
+    NotificationExtension.Success(`Tạo mới báo giá ${newItemData.soBg} thành công!`);
   };
 
   const handleOpenEditModal = (item: BaoGiaItem) => {
@@ -228,6 +234,13 @@ export default function BaoGia() {
   };
 
   const handleSaveEditItem = async (updatedItem: BaoGiaItem) => {
+    // 1. Cập nhật ngay tại vị trí cũ trong state để dòng không bao giờ bị nhảy chỗ
+    setItems(prev => prev.map(i => (i.id === updatedItem.id ? updatedItem : i)));
+    setIsEditModalOpen(false);
+    setEditingItem(null);
+    NotificationExtension.Success(`Cập nhật báo giá ${updatedItem.soBg} thành công!`);
+
+    // 2. Gửi dữ liệu cập nhật ngầm lên server
     try {
       const res = await updateQuotation(updatedItem.id, {
         quote_number: updatedItem.soBg,
@@ -242,16 +255,13 @@ export default function BaoGia() {
         approval_status: updatedItem.trangThai,
       });
 
-      if (res.success) {
-        await fetchQuotations();
+      if (!res.success && res.error) {
+        NotificationExtension.Warn(res.error, 'Cảnh báo đồng bộ máy chủ');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('Lỗi khi gọi API cập nhật báo giá:', err);
+      NotificationExtension.Warn(err?.message || 'Không thể đồng bộ với máy chủ');
     }
-
-    setItems(prev => prev.map(i => (i.id === updatedItem.id ? updatedItem : i)));
-    setIsEditModalOpen(false);
-    setEditingItem(null);
   };
 
   const handleOpenDeleteModal = (item: BaoGiaItem) => {
@@ -261,17 +271,24 @@ export default function BaoGia() {
 
   const handleConfirmDelete = async () => {
     if (!deletingItem) return;
-    try {
-      await deleteQuotation(deletingItem.id);
-      await fetchQuotations();
-    } catch (err) {
-      console.warn('Lỗi khi gọi API xóa báo giá:', err);
-    }
+    const deletedName = deletingItem.soBg;
+    const deletedId = deletingItem.id;
 
-    setItems(prev => prev.filter(i => i.id !== deletingItem.id));
-    setSelectedIds(prev => prev.filter(id => id !== deletingItem.id));
+    // Cập nhật UI ngay lập tức
+    setItems(prev => prev.filter(i => i.id !== deletedId));
+    setSelectedIds(prev => prev.filter(id => id !== deletedId));
     setIsDeleteModalOpen(false);
     setDeletingItem(null);
+    NotificationExtension.Success(`Đã xóa báo giá ${deletedName} thành công!`);
+
+    try {
+      const res = await deleteQuotation(deletedId);
+      if (!res.success && res.error) {
+        NotificationExtension.Warn(res.error, 'Cảnh báo đồng bộ máy chủ');
+      }
+    } catch (err: any) {
+      console.warn('Lỗi khi gọi API xóa báo giá:', err);
+    }
   };
 
   const handleDuplicate = (item: BaoGiaItem) => {

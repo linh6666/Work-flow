@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   IconSearch,
   IconDownload,
@@ -8,13 +8,20 @@ import {
   IconPlus,
   IconPencil,
   IconTrash,
+  IconEye,
   IconChevronLeft,
   IconChevronRight,
   IconChevronDown,
   IconShieldCheck,
   IconFileText,
+  IconRefresh,
+  IconLoader2,
 } from '@tabler/icons-react';
-import { PHONG_BAN_LIST, TRANG_THAI_LIST } from '../DanhSachTongQuat';
+import { PHONG_BAN_LIST, TRANG_THAI_LIST, NhanSuItem } from '../DanhSachTongQuat';
+import { getHoSoPhapLyList } from '@/api/apiGetHoSoPhapLy';
+import ModalXemChiTiet from '../DanhSachTongQuat/modal/ModalXemChiTiet';
+import ModalChinhSua from '../DanhSachTongQuat/modal/ModalChinhSua';
+import ModalXoa from '../DanhSachTongQuat/modal/ModalXoa';
 
 export interface HoSoPhapLyItem {
   id: string;
@@ -31,18 +38,10 @@ export interface HoSoPhapLyItem {
   soTaiKhoan: string;
   tinhTrangHoSo: 'Đầy đủ' | 'Thiếu CCCD' | 'Thiếu BHXH' | 'Thiếu MST' | 'Chưa nộp';
   ghiChu: string;
+  rawItem?: NhanSuItem;
 }
 
-export const INITIAL_HO_SO_DATA: HoSoPhapLyItem[] = [
-  { id: '1', maNV: 'NV001', hoTen: 'Bùi Thị Duyên', phongBan: 'Phòng Kinh doanh', chucVu: 'Trưởng phòng Kinh doanh', soCCCD: '037190001234', ngayCapCCCD: '15/05/2021', noiCapCCCD: 'Cục Cảnh sát QLHC', mstCaNhan: '8392019283', soBHXH: '7912345678', nganHang: 'Vietcombank', soTaiKhoan: '1012398472', tinhTrangHoSo: 'Đầy đủ', ghiChu: 'Đã xác minh đầy đủ' },
-  { id: '2', maNV: 'NV002', hoTen: 'Nguyễn Phú Quang', phongBan: 'Phòng Khai triển', chucVu: 'Trưởng phòng Khai triển', soCCCD: '037088002345', ngayCapCCCD: '20/10/2022', noiCapCCCD: 'Cục Cảnh sát QLHC', mstCaNhan: '8401928374', soBHXH: '7923456789', nganHang: 'Techcombank', soTaiKhoan: '19034827192', tinhTrangHoSo: 'Đầy đủ', ghiChu: '' },
-  { id: '3', maNV: 'NV003', hoTen: 'Kỳ Anh', phongBan: 'Phòng Cảnh Quan', chucVu: 'Chuyên viên Cảnh quan', soCCCD: '038095003456', ngayCapCCCD: '12/03/2023', noiCapCCCD: 'Cục Cảnh sát QLHC', mstCaNhan: '8512938475', soBHXH: '7934567890', nganHang: 'MB Bank', soTaiKhoan: '0812938471', tinhTrangHoSo: 'Đầy đủ', ghiChu: '' },
-  { id: '4', maNV: 'NV004', hoTen: 'Bùi Phương Uyên', phongBan: 'Phòng Điện', chucVu: 'Kỹ sư Điện & Chiếu sáng', soCCCD: '037196004567', ngayCapCCCD: '05/08/2022', noiCapCCCD: 'Cục Cảnh sát QLHC', mstCaNhan: '8623049586', soBHXH: '7945678901', nganHang: 'VietinBank', soTaiKhoan: '1088273645', tinhTrangHoSo: 'Thiếu BHXH', ghiChu: 'Chờ chốt sổ công ty cũ' },
-  { id: '5', maNV: 'NV005', hoTen: 'Thao Phung', phongBan: 'Phòng Mộc Sơn', chucVu: 'KTV Sơn hoàn thiện', soCCCD: '037198005678', ngayCapCCCD: '18/11/2023', noiCapCCCD: 'Cục Cảnh sát QLHC', mstCaNhan: '—', soBHXH: '—', nganHang: 'VPBank', soTaiKhoan: '9827364512', tinhTrangHoSo: 'Chưa nộp', ghiChu: 'Đang thử việc, hẹn nộp tuần tới' },
-  { id: '6', maNV: 'NV006', hoTen: 'Lê Hoàng Long', phongBan: 'Phòng Cắt', chucVu: 'KTV Laser & CNC', soCCCD: '037092006789', ngayCapCCCD: '22/01/2022', noiCapCCCD: 'Cục Cảnh sát QLHC', mstCaNhan: '8734150697', soBHXH: '7956789012', nganHang: 'Vietcombank', soTaiKhoan: '1029384756', tinhTrangHoSo: 'Đầy đủ', ghiChu: '' },
-  { id: '7', maNV: 'NV007', hoTen: 'Trần Văn Mạnh', phongBan: 'Lắp đặt', chucVu: 'Đội trưởng Lắp đặt', soCCCD: '037089007890', ngayCapCCCD: '09/09/2021', noiCapCCCD: 'Cục Cảnh sát QLHC', mstCaNhan: '8845261708', soBHXH: '7967890123', nganHang: 'Agribank', soTaiKhoan: '2200384756', tinhTrangHoSo: 'Đầy đủ', ghiChu: '' },
-  { id: '8', maNV: 'NV008', hoTen: 'Phạm Minh Trang', phongBan: 'Phòng Công nghệ và Thiết kế', chucVu: 'Kiến trúc sư 3D', soCCCD: '037197008901', ngayCapCCCD: '14/02/2024', noiCapCCCD: 'Cục Cảnh sát QLHC', mstCaNhan: '—', soBHXH: '—', nganHang: 'Techcombank', soTaiKhoan: '1902837465', tinhTrangHoSo: 'Thiếu MST', ghiChu: 'Đang đăng ký mã số thuế' },
-];
+export const INITIAL_HO_SO_DATA: HoSoPhapLyItem[] = [];
 
 interface HoSoPhapLyTabProps {
   searchQuery?: string;
@@ -55,12 +54,45 @@ export default function HoSoPhapLyTab({
   selectedPhongBan,
   selectedTinhTrang,
 }: HoSoPhapLyTabProps) {
-  const [data, setData] = useState<HoSoPhapLyItem[]>(INITIAL_HO_SO_DATA);
+  const [data, setData] = useState<HoSoPhapLyItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+
   const [internalSearch, setInternalSearch] = useState('');
   const [internalPhongBan, setInternalPhongBan] = useState('ALL');
   const [internalTinhTrang, setInternalTinhTrang] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 12;
+
+  // Modal States
+  const [selectedStaff, setSelectedStaff] = useState<NhanSuItem | null>(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  // Fetch API dữ liệu nhân sự thực tế qua apiGetHoSoPhapLy
+  const fetchHoSoData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setApiError(null);
+      const res = await getHoSoPhapLyList();
+      if (res && res.length > 0) {
+        setData(res);
+      } else {
+        setData([]);
+      }
+    } catch (err: any) {
+      console.warn('Lỗi khi tải dữ liệu hồ sơ pháp lý:', err);
+      setApiError(err?.message || 'Không thể kết nối đến máy chủ');
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchHoSoData();
+  }, [fetchHoSoData]);
 
   const search = searchQuery !== undefined ? searchQuery : internalSearch;
   const filterPhongBan = selectedPhongBan !== undefined ? selectedPhongBan : internalPhongBan;
@@ -75,7 +107,8 @@ export default function HoSoPhapLyTab({
         item.maNV.toLowerCase().includes(q) ||
         item.soCCCD.toLowerCase().includes(q) ||
         item.phongBan.toLowerCase().includes(q) ||
-        item.mstCaNhan.toLowerCase().includes(q);
+        item.mstCaNhan.toLowerCase().includes(q) ||
+        item.soBHXH.toLowerCase().includes(q);
 
       const matchPB = filterPhongBan === 'ALL' || item.phongBan === filterPhongBan;
       const matchTT = filterTinhTrang === 'ALL' || item.tinhTrangHoSo === filterTinhTrang;
@@ -90,6 +123,108 @@ export default function HoSoPhapLyTab({
   const endIndex = Math.min(startIndex + itemsPerPage, totalRecords);
   const paginatedData = filteredData.slice(startIndex, endIndex);
 
+  const handleOpenView = (item: HoSoPhapLyItem) => {
+    setSelectedStaff(
+      item.rawItem || {
+        id: item.id,
+        maNV: item.maNV,
+        hoTen: item.hoTen,
+        phongBan: item.phongBan,
+        chucVu: item.chucVu,
+        trangThai: 'Đang làm việc',
+        ngaySinh: '—',
+        gioiTinh: 'Nam',
+        dienThoai: '—',
+        ngayVao: '—',
+        thamNien: '—',
+        bacLuong: '—',
+        mucLuongHienTai: 0,
+        mucLuongCung: 0,
+        mucLuongMem: 0,
+        tongTroCap: 0,
+        thoiDiemTangLuong: '—',
+        thoiDiemTangBacBacLuongDuKien: '—',
+        email: '',
+        ghiChuLuong: '',
+        ghiChu: item.ghiChu,
+        soCCCD: item.soCCCD,
+        ngayCapCCCD: item.ngayCapCCCD,
+        noiCapCCCD: item.noiCapCCCD,
+        mstCaNhan: item.mstCaNhan,
+        soBHXH: item.soBHXH,
+      }
+    );
+    setIsViewOpen(true);
+  };
+
+  const handleOpenEdit = (item: HoSoPhapLyItem) => {
+    setSelectedStaff(
+      item.rawItem || {
+        id: item.id,
+        maNV: item.maNV,
+        hoTen: item.hoTen,
+        phongBan: item.phongBan,
+        chucVu: item.chucVu,
+        trangThai: 'Đang làm việc',
+        ngaySinh: '—',
+        gioiTinh: 'Nam',
+        dienThoai: '—',
+        ngayVao: '—',
+        thamNien: '—',
+        bacLuong: '—',
+        mucLuongHienTai: 0,
+        mucLuongCung: 0,
+        mucLuongMem: 0,
+        tongTroCap: 0,
+        thoiDiemTangLuong: '—',
+        thoiDiemTangBacBacLuongDuKien: '—',
+        email: '',
+        ghiChuLuong: '',
+        ghiChu: item.ghiChu,
+        soCCCD: item.soCCCD,
+        ngayCapCCCD: item.ngayCapCCCD,
+        noiCapCCCD: item.noiCapCCCD,
+        mstCaNhan: item.mstCaNhan,
+        soBHXH: item.soBHXH,
+      }
+    );
+    setIsEditOpen(true);
+  };
+
+  const handleOpenDelete = (item: HoSoPhapLyItem) => {
+    setSelectedStaff(
+      item.rawItem || {
+        id: item.id,
+        maNV: item.maNV,
+        hoTen: item.hoTen,
+        phongBan: item.phongBan,
+        chucVu: item.chucVu,
+        trangThai: 'Đang làm việc',
+        ngaySinh: '—',
+        gioiTinh: 'Nam',
+        dienThoai: '—',
+        ngayVao: '—',
+        thamNien: '—',
+        bacLuong: '—',
+        mucLuongHienTai: 0,
+        mucLuongCung: 0,
+        mucLuongMem: 0,
+        tongTroCap: 0,
+        thoiDiemTangLuong: '—',
+        thoiDiemTangBacBacLuongDuKien: '—',
+        email: '',
+        ghiChuLuong: '',
+        ghiChu: item.ghiChu,
+        soCCCD: item.soCCCD,
+        ngayCapCCCD: item.ngayCapCCCD,
+        noiCapCCCD: item.noiCapCCCD,
+        mstCaNhan: item.mstCaNhan,
+        soBHXH: item.soBHXH,
+      }
+    );
+    setIsDeleteOpen(true);
+  };
+
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-white">
       {/* ── Table Container ── */}
@@ -97,93 +232,150 @@ export default function HoSoPhapLyTab({
         <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200 rounded-lg shadow-2xs overflow-hidden">
           <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
             <table className="min-w-max w-full text-xs text-left border-collapse">
-              <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200 shadow-2xs">
+              <thead className="sticky top-0 z-10 bg-[#406c89] text-white">
                 <tr>
-                  <th className="px-4 py-3 font-bold text-slate-500 text-xs whitespace-nowrap">STT</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mã NV</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Họ và tên</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Phòng ban</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Số CCCD / CMND</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Ngày cấp</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Nơi cấp</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mã số thuế</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Số sổ BHXH</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Ngân hàng</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Số tài khoản</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Tình trạng hồ sơ</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Ghi chú</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs text-right whitespace-nowrap">Thao tác</th>
+                  <th className="px-4 py-3 font-semibold text-xs whitespace-nowrap">Nhân sự</th>
+                  <th className="px-4 py-3 font-semibold text-xs whitespace-nowrap">Phòng ban</th>
+                  <th className="px-4 py-3 font-semibold text-xs whitespace-nowrap">Số CCCD</th>
+                  <th className="px-4 py-3 font-semibold text-xs whitespace-nowrap">Ngày cấp</th>
+                  <th className="px-4 py-3 font-semibold text-xs whitespace-nowrap">Số sổ BHXH</th>
+                  <th className="px-4 py-3 font-semibold text-xs whitespace-nowrap">Mã số thuế</th>
+                  <th className="px-4 py-3 font-semibold text-xs whitespace-nowrap">Hồ sơ</th>
+                  <th className="px-4 py-3 font-semibold text-xs whitespace-nowrap">Còn thiếu</th>
+                  <th className="px-4 py-3 font-semibold text-xs text-center whitespace-nowrap">Hành động</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {paginatedData.length === 0 ? (
+                {loading ? (
                   <tr>
-                    <td colSpan={14} className="text-center py-12 text-slate-400">
+                    <td colSpan={9} className="text-center py-16 text-slate-400">
+                      <IconLoader2 size={32} className="mx-auto mb-2 text-[#406c89] animate-spin" />
+                      <p className="font-semibold text-xs text-slate-600">Đang tải dữ liệu hồ sơ pháp lý từ hệ thống...</p>
+                    </td>
+                  </tr>
+                ) : paginatedData.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="text-center py-12 text-slate-400">
                       <IconShieldCheck size={36} className="mx-auto mb-2 text-slate-300 stroke-1" />
                       <p className="font-semibold text-xs text-slate-600">Không tìm thấy hồ sơ pháp lý phù hợp</p>
                     </td>
                   </tr>
                 ) : (
-                  paginatedData.map((item, idx) => (
-                    <tr key={item.id} className="hover:bg-slate-50/80 transition-colors group">
-                      <td className="px-4 py-3.5 align-middle text-slate-400 font-medium whitespace-nowrap">
-                        {startIndex + idx + 1}
-                      </td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap font-bold text-slate-700">
-                        {item.maNV}
-                      </td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-700 font-bold flex items-center justify-center text-[10px] shrink-0 border border-blue-100">
-                            {item.hoTen.charAt(0)}
+                  paginatedData.map((item) => {
+                    // Xác định danh sách giấy tờ còn thiếu
+                    const missingList: string[] = [];
+                    if (item.soCCCD === '—' || !item.soCCCD) missingList.push('CCCD');
+                    if (item.soBHXH === '—' || !item.soBHXH) missingList.push('Sổ BHXH');
+                    if (item.mstCaNhan === '—' || !item.mstCaNhan) missingList.push('MST');
+                    if (item.tinhTrangHoSo === 'Thiếu CCCD' && !missingList.includes('CCCD')) missingList.push('CCCD');
+                    if (item.tinhTrangHoSo === 'Thiếu BHXH' && !missingList.includes('Sổ BHXH')) missingList.push('Sổ BHXH');
+                    if (item.tinhTrangHoSo === 'Thiếu MST' && !missingList.includes('MST')) missingList.push('MST');
+
+                    return (
+                      <tr key={item.id} className="hover:bg-slate-50/80 transition-colors group">
+                        {/* Nhân sự (Avatar + Tên + Mã NV) */}
+                        <td className="px-4 py-3 align-middle whitespace-nowrap">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-slate-100 text-[#406c89] font-bold flex items-center justify-center text-xs shrink-0 border border-slate-200">
+                              {item.hoTen.charAt(0)}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-slate-800 text-xs">{item.hoTen}</span>
+                              <span className="text-[11px] text-slate-400">{item.maNV}</span>
+                            </div>
                           </div>
-                          <span className="font-bold text-slate-800 text-xs">{item.hoTen}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">{item.phongBan}</td>
-                      <td className="px-4 py-3.5 align-middle font-mono font-semibold text-slate-700 whitespace-nowrap">{item.soCCCD}</td>
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">{item.ngayCapCCCD}</td>
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">{item.noiCapCCCD}</td>
-                      <td className="px-4 py-3.5 align-middle font-mono text-slate-700 whitespace-nowrap">{item.mstCaNhan}</td>
-                      <td className="px-4 py-3.5 align-middle font-mono text-slate-700 whitespace-nowrap">{item.soBHXH}</td>
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">{item.nganHang}</td>
-                      <td className="px-4 py-3.5 align-middle font-mono font-bold text-slate-800 whitespace-nowrap">{item.soTaiKhoan}</td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${
-                            item.tinhTrangHoSo === 'Đầy đủ'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : item.tinhTrangHoSo === 'Chưa nộp'
-                              ? 'bg-rose-50 text-rose-700 border-rose-200'
-                              : 'bg-amber-50 text-amber-700 border-amber-200'
-                          }`}
-                        >
-                          {item.tinhTrangHoSo}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 align-middle text-slate-400 whitespace-nowrap">{item.ghiChu || '—'}</td>
-                      <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap">
-                        <div className="inline-flex items-center gap-1">
-                          <button
-                            type="button"
-                            title="Chỉnh sửa"
-                            onClick={() => alert(`Chỉnh sửa hồ sơ: ${item.hoTen}`)}
-                            className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                        </td>
+
+                        {/* Phòng ban */}
+                        <td className="px-4 py-3 align-middle text-slate-600 whitespace-nowrap">
+                          {item.phongBan}
+                        </td>
+
+                        {/* Số CCCD */}
+                        <td className="px-4 py-3 align-middle font-mono font-medium text-slate-700 whitespace-nowrap">
+                          {item.soCCCD}
+                        </td>
+
+                        {/* Ngày cấp */}
+                        <td className="px-4 py-3 align-middle text-slate-600 whitespace-nowrap">
+                          {item.ngayCapCCCD}
+                        </td>
+
+                        {/* Số sổ BHXH */}
+                        <td className="px-4 py-3 align-middle font-mono text-slate-700 whitespace-nowrap">
+                          {item.soBHXH}
+                        </td>
+
+                        {/* Mã số thuế */}
+                        <td className="px-4 py-3 align-middle font-mono text-slate-700 whitespace-nowrap">
+                          {item.mstCaNhan}
+                        </td>
+
+                        {/* Hồ sơ (Status Badge) */}
+                        <td className="px-4 py-3 align-middle whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${
+                              item.tinhTrangHoSo === 'Đầy đủ'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : item.tinhTrangHoSo === 'Chưa nộp'
+                                ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                            }`}
                           >
-                            <IconPencil size={13} />
-                          </button>
-                          <button
-                            type="button"
-                            title="Xóa"
-                            onClick={() => alert(`Xóa hồ sơ: ${item.hoTen}`)}
-                            className="p-1.5 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
-                          >
-                            <IconTrash size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                            {item.tinhTrangHoSo}
+                          </span>
+                        </td>
+
+                        {/* Còn thiếu */}
+                        <td className="px-4 py-3 align-middle whitespace-nowrap">
+                          {missingList.length === 0 ? (
+                            <span className="text-slate-400 text-xs">—</span>
+                          ) : (
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {missingList.map((m, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-rose-50 text-rose-600 border border-rose-100"
+                                >
+                                  {m}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Hành động (Xem + Sửa + Xóa) */}
+                        <td className="px-4 py-3 align-middle text-center whitespace-nowrap">
+                          <div className="inline-flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              title="Xem chi tiết"
+                              onClick={() => handleOpenView(item)}
+                              className="p-1.5 rounded text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                            >
+                              <IconEye size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              title="Chỉnh sửa"
+                              onClick={() => handleOpenEdit(item)}
+                              className="p-1.5 rounded text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
+                            >
+                              <IconPencil size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              title="Xóa"
+                              onClick={() => handleOpenDelete(item)}
+                              className="p-1.5 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            >
+                              <IconTrash size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -231,6 +423,52 @@ export default function HoSoPhapLyTab({
           </div>
         </div>
       </div>
+
+      {/* ── Modal Xem chi tiết hồ sơ ── */}
+      {selectedStaff && (
+        <ModalXemChiTiet
+          isOpen={isViewOpen}
+          item={selectedStaff}
+          onClose={() => {
+            setIsViewOpen(false);
+            setSelectedStaff(null);
+          }}
+        />
+      )}
+
+      {/* ── Modal Chỉnh sửa hồ sơ ── */}
+      {selectedStaff && (
+        <ModalChinhSua
+          isOpen={isEditOpen}
+          item={selectedStaff}
+          onClose={() => {
+            setIsEditOpen(false);
+            setSelectedStaff(null);
+          }}
+          onSave={() => {
+            fetchHoSoData();
+            setIsEditOpen(false);
+            setSelectedStaff(null);
+          }}
+        />
+      )}
+
+      {/* ── Modal Xác nhận xóa ── */}
+      {selectedStaff && (
+        <ModalXoa
+          isOpen={isDeleteOpen}
+          item={selectedStaff}
+          onClose={() => {
+            setIsDeleteOpen(false);
+            setSelectedStaff(null);
+          }}
+          onConfirm={() => {
+            fetchHoSoData();
+            setIsDeleteOpen(false);
+            setSelectedStaff(null);
+          }}
+        />
+      )}
     </div>
   );
 }

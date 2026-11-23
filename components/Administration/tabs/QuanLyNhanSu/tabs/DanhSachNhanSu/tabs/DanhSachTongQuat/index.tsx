@@ -5,7 +5,7 @@ import ModalThemMoi from './modal/ModalThemMoi';
 import ModalXemChiTiet from './modal/ModalXemChiTiet';
 import ModalChinhSua from './modal/ModalChinhSua';
 import ModalXoa from './modal/ModalXoa';
-import { getStaffList } from '@/api/apiGetStaffList';
+import { getDanhSachTongQuatList } from '@/api/apiGetDanhSachTongQuat';
 import {
   IconSearch,
   IconDownload,
@@ -142,7 +142,7 @@ export default function DanhSachTongQuatTab({
     try {
       setLoading(true);
       setApiError(null);
-      const res = await getStaffList();
+      const res = await getDanhSachTongQuatList();
       if (res && res.length > 0) {
         setData(res);
       } else {

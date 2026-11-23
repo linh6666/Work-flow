@@ -10,7 +10,7 @@ import {
   BAC_LUONG_LIST,
   formatVND,
 } from '../../index';
-import { createStaff } from '@/api/apiGetStaffList';
+import { createDanhSachTongQuatItem } from '@/api/apiGetDanhSachTongQuat';
 
 interface ModalThemMoiProps {
   isOpen: boolean;
@@ -165,7 +165,7 @@ export default function ModalThemMoi({
 
     try {
       setIsSubmitting(true);
-      const createdItem = await createStaff(newItem);
+      const createdItem = await createDanhSachTongQuatItem(newItem);
       onSave(createdItem);
       onClose();
     } catch (err: any) {

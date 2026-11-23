@@ -9,7 +9,7 @@ import {
   GIOI_TINH_LIST,
   formatVND,
 } from '../../index';
-import { updateStaff } from '@/api/apiGetStaffList';
+import { updateDanhSachTongQuatItem } from '@/api/apiGetDanhSachTongQuat';
 
 interface ModalChinhSuaProps {
   isOpen: boolean;
@@ -76,7 +76,7 @@ export default function ModalChinhSua({
 
     try {
       setIsSubmitting(true);
-      const resItem = await updateStaff(updated);
+      const resItem = await updateDanhSachTongQuatItem(updated);
       onSave(resItem || updated);
       onClose();
     } catch (err: any) {

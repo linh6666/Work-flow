@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { IconTrash, IconLoader2 } from '@tabler/icons-react';
 import { NhanSuItem } from '../../index';
-import { deleteStaff } from '@/api/apiGetStaffList';
+import { deleteDanhSachTongQuatItem } from '@/api/apiGetDanhSachTongQuat';
 
 interface ModalXoaProps {
   isOpen: boolean;
@@ -25,7 +25,7 @@ export default function ModalXoa({
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      await deleteStaff(item.id);
+      await deleteDanhSachTongQuatItem(item.id);
       onConfirm(item);
       onClose();
     } catch (err: any) {

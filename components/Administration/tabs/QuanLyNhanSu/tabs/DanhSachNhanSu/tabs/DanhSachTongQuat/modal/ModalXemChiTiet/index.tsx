@@ -12,7 +12,7 @@ import {
   IconLoader2,
 } from '@tabler/icons-react';
 import { NhanSuItem } from '../../index';
-import { getStaffDetail } from '@/api/apiGetStaffList';
+import { getDanhSachTongQuatDetail } from '@/api/apiGetDanhSachTongQuat';
 
 interface ModalXemChiTietProps {
   isOpen: boolean;
@@ -34,7 +34,7 @@ export default function ModalXemChiTiet({ isOpen, item, onClose }: ModalXemChiTi
         if (!item.id) return;
         try {
           setLoading(true);
-          const res = await getStaffDetail(item.id);
+          const res = await getDanhSachTongQuatDetail(item.id);
           if (isMounted && res) {
             setDetailData({ ...item, ...res });
           }

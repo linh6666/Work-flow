@@ -172,10 +172,10 @@ export async function getStaffList(params?: { limit?: number }): Promise<NhanSuI
         const records: StaffApiRecord[] = Array.isArray(json)
           ? json
           : Array.isArray(json?.items)
-          ? json.items
-          : Array.isArray(json?.data)
-          ? json.data
-          : [];
+            ? json.items
+            : Array.isArray(json?.data)
+              ? json.data
+              : [];
 
         if (records.length > 0) {
           return records.map((r, i) => mapStaffApiToNhanSuItem(r, i));

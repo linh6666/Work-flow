@@ -99,6 +99,67 @@ export default function ChinhSuaThongTinChungTab(props: ChinhSuaThongTinChungTab
   const ghiChu = props.ghiChu !== undefined ? props.ghiChu : localGhiChu;
   const setGhiChu = props.setGhiChu || setLocalGhiChu;
 
+  // ── API State: Danh sách hợp đồng & Báo giá tự động ──
+  const [contractList, setContractList] = useState<ContractRecord[]>([]);
+  const [isLoadingContracts, setIsLoadingContracts] = useState(false);
+  const [linkedQuoteNumber, setLinkedQuoteNumber] = useState('');
+  const [isLoadingQuote, setIsLoadingQuote] = useState(false);
+
+  useEffect(() => {
+    setIsLoadingContracts(true);
+    getContractList(200)
+      .then((data) => {
+        setContractList(data);
+      })
+      .finally(() => {
+        setIsLoadingContracts(false);
+      });
+  }, []);
+
+  const handleSelectContract = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setLienKetHopDong(val);
+
+    const found = contractList.find(c => c.id === val || c.contract_number === val);
+    if (found) {
+      if (setDinhHuongHopDong && found.contract_number) {
+        setDinhHuongHopDong(`Theo hợp đồng số ${found.contract_number}`);
+      }
+      if (setTenDuAn && found.project_name && !tenDuAn) {
+        setTenDuAn(found.project_name);
+      }
+      if (setKhachHang && found.customer_name && !khachHang) {
+        setKhachHang(found.customer_name);
+      }
+      if (setTyLe && found.scale && (!tyLe || tyLe === '1/1000')) {
+        setTyLe(found.scale);
+      }
+      if (setKichThuoc && found.size && (!kichThuoc || kichThuoc === '1300×2400mm')) {
+        setKichThuoc(found.size);
+      }
+
+      if (found.quotation_id) {
+        setIsLoadingQuote(true);
+        try {
+          const q = await getQuotationById(found.quotation_id);
+          if (q) {
+            setLinkedQuoteNumber(q.quote_number || q.code || `BG-${found.quotation_id.slice(0, 8)}`);
+          } else {
+            setLinkedQuoteNumber(`BG-${found.quotation_id.slice(0, 8)}`);
+          }
+        } catch {
+          setLinkedQuoteNumber(`BG-${found.quotation_id.slice(0, 8)}`);
+        } finally {
+          setIsLoadingQuote(false);
+        }
+      } else {
+        setLinkedQuoteNumber('');
+      }
+    } else {
+      setLinkedQuoteNumber('');
+    }
+  };
+
   return (
     <div className="space-y-4 animate-fade-in text-xs text-slate-800">
       
@@ -111,9 +172,21 @@ export default function ChinhSuaThongTinChungTab(props: ChinhSuaThongTinChungTab
             <IconLink size={16} className="text-[#406c89]" />
             <span>Liên kết Báo giá</span>
           </div>
-          <p className="text-xs text-slate-400 italic font-normal">
-            Tự động liên kết từ hợp đồng
-          </p>
+          {isLoadingQuote ? (
+            <div className="flex items-center gap-1.5 text-xs text-[#406c89] font-medium">
+              <IconLoader2 size={13} className="animate-spin text-[#406c89]" />
+              <span>Đang lấy báo giá...</span>
+            </div>
+          ) : linkedQuoteNumber ? (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-emerald-300 rounded-lg text-xs font-semibold text-emerald-700 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>{linkedQuoteNumber}</span>
+            </div>
+          ) : (
+            <p className="text-xs text-slate-400 italic font-normal">
+              Tự động liên kết từ hợp đồng
+            </p>
+          )}
         </div>
 
         {/* Right: Liên kết Hợp đồng */}
@@ -124,13 +197,16 @@ export default function ChinhSuaThongTinChungTab(props: ChinhSuaThongTinChungTab
           </div>
           <select
             value={lienKetHopDong}
-            onChange={(e) => setLienKetHopDong(e.target.value)}
-            className="w-full sm:w-[260px] text-xs bg-white border border-[#406c89]/40 focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89] rounded-xl px-3.5 py-2 text-slate-700 focus:outline-none transition-all cursor-pointer shadow-2xs"
+            onChange={handleSelectContract}
+            disabled={isLoadingContracts}
+            className="w-full sm:w-[280px] text-xs bg-white border border-[#406c89]/40 focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89] rounded-xl px-3.5 py-2 text-slate-700 focus:outline-none transition-all cursor-pointer shadow-2xs disabled:opacity-50"
           >
-            <option value="">-- Chọn hợp đồng --</option>
-            <option value="hd-01">HĐ-01/2026/MHV - Dự án HAUS COASTAL</option>
-            <option value="hd-02">HĐ-02/2026/MHV - Sa bàn 22 Liễu Giai</option>
-            <option value="hd-03">HĐ-03/2026/MHV - The Heritage Tây Ninh</option>
+            <option value="">{isLoadingContracts ? 'Đang tải danh sách hợp đồng...' : '-- Chọn hợp đồng --'}</option>
+            {contractList.map((c) => (
+              <option key={c.id} value={c.contract_number || c.id}>
+                {c.contract_number} {c.project_name ? `· ${c.project_name}` : ''}
+              </option>
+            ))}
           </select>
         </div>
 

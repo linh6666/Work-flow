@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { IconX, IconShieldCheck, IconUser } from '@tabler/icons-react';
-import { HoSoPhapLyItem } from '../index';
+import { HoSoPhapLyItem } from '../../index';
 
 interface ModalXemChiTietHoSoProps {
   isOpen: boolean;

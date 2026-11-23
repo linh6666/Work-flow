@@ -1,49 +1,44 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { IconX, IconPencil, IconLoader2 } from '@tabler/icons-react';
-import { HoSoPhapLyItem } from '../index';
-import { updateHoSoPhapLy } from '@/api/apiGetHoSoPhapLy';
+import React, { useState } from 'react';
+import { IconX, IconPlus, IconLoader2, IconShieldCheck } from '@tabler/icons-react';
+import { HoSoPhapLyItem } from '../../index';
+import { createHoSoPhapLy } from '@/api/apiGetHoSoPhapLy';
+import { PHONG_BAN_LIST } from '../../../DanhSachTongQuat';
 
-interface ModalChinhSuaHoSoProps {
+export interface ModalThemHoSoProps {
   isOpen: boolean;
-  item: HoSoPhapLyItem | null;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function ModalChinhSuaHoSo({
+export default function ModalThemHoSo({
   isOpen,
-  item,
   onClose,
   onSuccess,
-}: ModalChinhSuaHoSoProps) {
-  const [formData, setFormData] = useState<Partial<HoSoPhapLyItem>>({});
+}: ModalThemHoSoProps) {
+  const [formData, setFormData] = useState<Partial<HoSoPhapLyItem>>({
+    phongBan: 'Phòng Kinh doanh',
+    chucVu: 'Nhân viên',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (item) {
-      setFormData({
-        soCCCD: item.soCCCD === '—' ? '' : item.soCCCD,
-        ngayCapCCCD: item.ngayCapCCCD === '—' ? '' : item.ngayCapCCCD,
-        noiCapCCCD: item.noiCapCCCD === '—' ? '' : item.noiCapCCCD,
-        mstCaNhan: item.mstCaNhan === '—' ? '' : item.mstCaNhan,
-        soBHXH: item.soBHXH === '—' ? '' : item.soBHXH,
-        nganHang: item.nganHang === '—' ? '' : item.nganHang,
-        soTaiKhoan: item.soTaiKhoan === '—' ? '' : item.soTaiKhoan,
-        ghiChu: item.ghiChu || '',
-      });
-    }
-  }, [item]);
-
-  if (!isOpen || !item) return null;
+  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.hoTen?.trim() || !formData.maNV?.trim()) {
+      alert('Vui lòng nhập Mã NV và Họ và tên!');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
-      const updatedItem: HoSoPhapLyItem = {
-        ...item,
+      await createHoSoPhapLy({
+        maNV: formData.maNV.trim(),
+        hoTen: formData.hoTen.trim(),
+        phongBan: formData.phongBan || 'Khối Văn phòng',
+        chucVu: formData.chucVu || 'Nhân viên',
         soCCCD: formData.soCCCD || '—',
         ngayCapCCCD: formData.ngayCapCCCD || '—',
         noiCapCCCD: formData.noiCapCCCD || '—',
@@ -52,14 +47,13 @@ export default function ModalChinhSuaHoSo({
         nganHang: formData.nganHang || '—',
         soTaiKhoan: formData.soTaiKhoan || '—',
         ghiChu: formData.ghiChu || '',
-      };
+      });
 
-      await updateHoSoPhapLy(updatedItem);
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error('Lỗi khi cập nhật hồ sơ:', err);
-      alert(err?.message || 'Có lỗi xảy ra khi cập nhật hồ sơ');
+      console.error('Lỗi khi thêm hồ sơ:', err);
+      alert(err?.message || 'Không thể tạo mới hồ sơ');
     } finally {
       setIsSubmitting(false);
     }
@@ -75,8 +69,8 @@ export default function ModalChinhSuaHoSo({
         {/* Header */}
         <div className="bg-[#406c89] text-white px-5 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <IconPencil size={18} className="text-white/90" />
-            <h3 className="font-bold text-sm tracking-wide">Chỉnh sửa Hồ sơ Pháp lý</h3>
+            <IconPlus size={18} className="text-white/90" />
+            <h3 className="font-bold text-sm tracking-wide">Thêm mới Hồ sơ Pháp lý</h3>
           </div>
           <button
             type="button"
@@ -89,23 +83,71 @@ export default function ModalChinhSuaHoSo({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit}>
-          <div className="p-5 max-h-[80vh] overflow-y-auto space-y-3.5 text-xs">
-            {/* Nhân sự info header */}
-            <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
-              <div className="font-bold text-slate-800 text-sm">{item.hoTen}</div>
-              <div className="text-slate-500 text-[11px] font-mono mt-0.5">
-                Mã NV: <strong>{item.maNV}</strong> • {item.phongBan}
-              </div>
-            </div>
-
+          <div className="p-5 max-h-[80vh] overflow-y-auto space-y-3 text-xs">
+            {/* Thông tin nhân sự cơ bản */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>
+                  Mã nhân sự <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.maNV || ''}
+                  onChange={(e) => setFormData((p) => ({ ...p, maNV: e.target.value }))}
+                  placeholder="VD: NV099"
+                  className={inputCls}
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>
+                  Họ và tên <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.hoTen || ''}
+                  onChange={(e) => setFormData((p) => ({ ...p, hoTen: e.target.value }))}
+                  placeholder="Nguyễn Văn A"
+                  className={inputCls}
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>Phòng ban</label>
+                <select
+                  value={formData.phongBan || 'Phòng Kinh doanh'}
+                  onChange={(e) => setFormData((p) => ({ ...p, phongBan: e.target.value }))}
+                  className={inputCls}
+                >
+                  {PHONG_BAN_LIST.map((pb) => (
+                    <option key={pb} value={pb}>
+                      {pb}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className={labelCls}>Chức vụ</label>
+                <input
+                  type="text"
+                  value={formData.chucVu || ''}
+                  onChange={(e) => setFormData((p) => ({ ...p, chucVu: e.target.value }))}
+                  placeholder="VD: Chuyên viên"
+                  className={inputCls}
+                />
+              </div>
+
+              {/* Thông tin giấy tờ pháp lý */}
               <div>
                 <label className={labelCls}>Số CCCD / CMND</label>
                 <input
                   type="text"
                   value={formData.soCCCD || ''}
                   onChange={(e) => setFormData((p) => ({ ...p, soCCCD: e.target.value }))}
-                  placeholder="Nhập 12 chữ số CCCD"
+                  placeholder="12 chữ số"
                   className={inputCls}
                 />
               </div>
@@ -122,7 +164,7 @@ export default function ModalChinhSuaHoSo({
               </div>
 
               <div className="sm:col-span-2">
-                <label className={labelCls}>Nơi cấp</label>
+                <label className={labelCls}>Nơi cấp CCCD</label>
                 <input
                   type="text"
                   value={formData.noiCapCCCD || ''}
@@ -138,7 +180,7 @@ export default function ModalChinhSuaHoSo({
                   type="text"
                   value={formData.soBHXH || ''}
                   onChange={(e) => setFormData((p) => ({ ...p, soBHXH: e.target.value }))}
-                  placeholder="Mã số BHXH 10 chữ số"
+                  placeholder="Mã số BHXH"
                   className={inputCls}
                 />
               </div>
@@ -149,7 +191,7 @@ export default function ModalChinhSuaHoSo({
                   type="text"
                   value={formData.mstCaNhan || ''}
                   onChange={(e) => setFormData((p) => ({ ...p, mstCaNhan: e.target.value }))}
-                  placeholder="Mã số thuế cá nhân"
+                  placeholder="Mã số thuế"
                   className={inputCls}
                 />
               </div>
@@ -160,7 +202,7 @@ export default function ModalChinhSuaHoSo({
                   type="text"
                   value={formData.nganHang || ''}
                   onChange={(e) => setFormData((p) => ({ ...p, nganHang: e.target.value }))}
-                  placeholder="VD: Vietcombank, Techcombank"
+                  placeholder="VD: Vietcombank"
                   className={inputCls}
                 />
               </div>
@@ -171,18 +213,18 @@ export default function ModalChinhSuaHoSo({
                   type="text"
                   value={formData.soTaiKhoan || ''}
                   onChange={(e) => setFormData((p) => ({ ...p, soTaiKhoan: e.target.value }))}
-                  placeholder="Số tài khoản ngân hàng"
+                  placeholder="Số tài khoản"
                   className={inputCls}
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className={labelCls}>Ghi chú hồ sơ</label>
+                <label className={labelCls}>Ghi chú</label>
                 <textarea
                   rows={2}
                   value={formData.ghiChu || ''}
                   onChange={(e) => setFormData((p) => ({ ...p, ghiChu: e.target.value }))}
-                  placeholder="Ghi chú thêm về giấy tờ còn thiếu hoặc cần bổ sung..."
+                  placeholder="Ghi chú về tình trạng nộp hồ sơ..."
                   className="w-full p-2.5 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89]/20 text-xs text-slate-800 bg-white transition resize-none"
                 />
               </div>
@@ -202,15 +244,18 @@ export default function ModalChinhSuaHoSo({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#406c89] hover:bg-[#345870] text-white font-semibold text-xs shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#ba8e3a] hover:bg-[#a67c2e] text-white font-bold text-xs shadow-sm transition-colors cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
                   <IconLoader2 size={14} className="animate-spin" />
-                  <span>Đang lưu...</span>
+                  <span>Đang thêm...</span>
                 </>
               ) : (
-                <span>Lưu thay đổi</span>
+                <>
+                  <IconPlus size={14} />
+                  <span>Thêm hồ sơ</span>
+                </>
               )}
             </button>
           </div>

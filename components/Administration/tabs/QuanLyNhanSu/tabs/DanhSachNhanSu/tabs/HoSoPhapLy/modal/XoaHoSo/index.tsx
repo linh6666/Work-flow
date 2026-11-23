@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { IconTrash, IconLoader2, IconAlertTriangle } from '@tabler/icons-react';
-import { HoSoPhapLyItem } from '../index';
+import { HoSoPhapLyItem } from '../../index';
 import { deleteHoSoPhapLy } from '@/api/apiGetHoSoPhapLy';
 
 interface ModalXoaHoSoProps {

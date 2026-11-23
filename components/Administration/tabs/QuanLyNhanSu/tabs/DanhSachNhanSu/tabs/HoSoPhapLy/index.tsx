@@ -19,10 +19,10 @@ import {
 } from '@tabler/icons-react';
 import { PHONG_BAN_LIST, TRANG_THAI_LIST, NhanSuItem } from '../DanhSachTongQuat';
 import { getHoSoPhapLyList } from '@/api/apiGetHoSoPhapLy';
-import ModalXemChiTietHoSo from './modal/ModalXemChiTietHoSo';
-import ModalChinhSuaHoSo from './modal/ModalChinhSuaHoSo';
-import ModalXoaHoSo from './modal/ModalXoaHoSo';
-import ModalThemHoSo from './modal/ModalThemHoSo';
+import ModalXemChiTietHoSo from './modal/XemChiTietHoSo';
+import ModalChinhSuaHoSo from './modal/ChinhSuaHoSo';
+import ModalXoaHoSo from './modal/XoaHoSo';
+import ModalThemHoSo from './modal/ThemHoSo';
 
 export interface HoSoPhapLyItem {
   id: string;

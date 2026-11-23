@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   IconPlus,
   IconSearch,
@@ -15,6 +15,8 @@ import {
   IconCopy,
   IconLoader2,
   IconRefresh,
+  IconCircleCheck,
+  IconCircleX,
 } from '@tabler/icons-react';
 import TaoYCSXModal from './modal/TaoYCSX';
 import ChinhSuaYCSXModal from './modal/ChinhSuaYCSX';
@@ -74,6 +76,40 @@ export default function YeuCauSanXuat() {
   const [isChinhSuaModalOpen, setIsChinhSuaModalOpen] = useState(false);
   const [selectedItemToDelete, setSelectedItemToDelete] = useState<YcsxItem | null>(null);
   const [isXoaModalOpen, setIsXoaModalOpen] = useState(false);
+
+  // ── Drag to scroll ngang bằng chuột (Giữ chuột lướt bảng) ──
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftState, setScrollLeftState] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Không bắt đầu drag nếu click vào button, input, select hoặc link
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('input') || target.closest('a') || target.closest('[role="button"]')) {
+      return;
+    }
+    if (!tableContainerRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - tableContainerRef.current.offsetLeft);
+    setScrollLeftState(tableContainerRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !tableContainerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - tableContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; // Hệ số cuộn mượt
+    tableContainerRef.current.scrollLeft = scrollLeftState - walk;
+  };
 
   // Fetch dữ liệu từ API Backend ProductionRequest
   const fetchYcsxData = useCallback(async () => {
@@ -137,6 +173,19 @@ export default function YeuCauSanXuat() {
     }
   };
 
+  const handleQuickApprove = async (id: string) => {
+    const item = ycsxList.find(i => i.id === id);
+    let nextStatus = 'QL KD đã duyệt';
+    if (item?.trangThai === 'QL KD đã duyệt' || item?.trangThai === 'Chờ duyệt Phó GĐ') {
+      nextStatus = 'PGĐ đã duyệt';
+    }
+    await handleSelectStatus(id, nextStatus);
+  };
+
+  const handleQuickReject = async (id: string) => {
+    await handleSelectStatus(id, 'Từ chối');
+  };
+
   const handleDeleteItem = async (id: string) => {
     const ok = await deleteYcsx(id);
     if (ok) {
@@ -169,10 +218,12 @@ export default function YeuCauSanXuat() {
   );
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-white space-y-2.5 sm:space-y-3 p-1">
+    <div className="flex-1 flex flex-col min-h-0 bg-white space-y-2.5 sm:space-y-3 p-1 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
       <style>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;
+          width: 0;
+          height: 0;
         }
         .no-scrollbar {
           -ms-overflow-style: none;
@@ -237,7 +288,16 @@ export default function YeuCauSanXuat() {
 
       {/* ── Table ── */}
       <div className="flex-1 flex flex-col min-h-[350px] sm:min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+        <div
+          ref={tableContainerRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className={`flex-1 overflow-x-auto sm:overflow-auto min-h-0 overscroll-x-contain [-webkit-overflow-scrolling:touch] no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+            isDragging ? 'cursor-grabbing select-none' : 'cursor-grab'
+          }`}
+        >
           <table className="w-full text-xs text-left border-collapse min-w-[960px] sm:min-w-[1100px]">
             <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200">
               <tr>
@@ -270,9 +330,7 @@ export default function YeuCauSanXuat() {
                     Không tìm thấy yêu cầu sản xuất nào.
                   </td>
                 </tr>
-              ) : paginatedList.map((item) => {
-                const isOpen = openStatusDropdownId === item.id;
-                return (
+              ) : paginatedList.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
                     {/* Số YCSX */}
                     <td className="px-3 py-3 align-top whitespace-nowrap min-w-[150px]">
@@ -322,29 +380,9 @@ export default function YeuCauSanXuat() {
 
                     {/* Trạng thái */}
                     <td className="px-3 py-3 align-top whitespace-nowrap">
-                      <div className="relative inline-block">
-                        <button type="button"
-                          onClick={() => setOpenStatusDropdownId(isOpen ? null : item.id)}
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold transition-colors cursor-pointer active:scale-95 ${getStatusStyle(item.trangThai)}`}>
-                          <span>{item.trangThai}</span>
-                          <IconChevronDown size={11} className={`opacity-60 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                        {isOpen && (
-                          <>
-                            <div className="fixed inset-0 z-20" onClick={() => setOpenStatusDropdownId(null)} />
-                            <div className="absolute left-0 top-full mt-1 z-30 bg-white border border-slate-200 rounded-lg shadow-lg py-1 min-w-[180px]">
-                              {STATUS_OPTIONS.map((opt) => (
-                                <button key={opt} type="button"
-                                  onClick={() => handleSelectStatus(item.id, opt)}
-                                  className="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-left hover:bg-slate-50 transition-colors cursor-pointer active:scale-95">
-                                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-semibold ${getStatusStyle(opt)}`}>{opt}</span>
-                                  {item.trangThai === opt && <IconCheck size={12} className="text-[#406c89] shrink-0" />}
-                                </button>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </div>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full border text-[10px] font-semibold ${getStatusStyle(item.trangThai)}`}>
+                        {item.trangThai}
+                      </span>
                     </td>
 
                     {/* Hành động */}
@@ -369,8 +407,7 @@ export default function YeuCauSanXuat() {
                       </div>
                     </td>
                   </tr>
-                );
-              })}
+                ))}
             </tbody>
           </table>
         </div>

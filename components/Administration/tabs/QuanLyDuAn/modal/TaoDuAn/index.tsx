@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ThongTinCoBan from './tabs/ThongTinCoBan';
 import ThongTinChung from './tabs/ThongTinChung';
 import TienDoDiaDiem from './tabs/TienDoDiaDiem';
@@ -8,9 +8,18 @@ import {
   IconClipboardList, 
   IconX, 
   IconLink, 
-  IconLayoutGrid 
+  IconLayoutGrid,
+  IconLoader2 
 } from '@tabler/icons-react';
 import { NotificationExtension } from '@/common/extension/NotificationExtension';
+import {
+  getProductionRequestList,
+  ProductionRequestItem,
+} from '@/api/apiGetProductionRequest';
+import {
+  getProjectFormTemplateList,
+  ProjectFormTemplateItem,
+} from '@/api/apiGetProjectFormTemplate';
 
 interface TaoDuAnModalProps {
   isOpen: boolean;
@@ -50,9 +59,33 @@ type TabType = 'basic' | 'general' | 'progress';
 export default function TaoDuAnModal({ isOpen, onClose, onSubmit }: TaoDuAnModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('basic');
   
+  // Dynamic API state for YCSX & Templates
+  const [ycsxList, setYcsxList] = useState<ProductionRequestItem[]>([]);
+  const [templateList, setTemplateList] = useState<ProjectFormTemplateItem[]>([]);
+  const [loadingYcsx, setLoadingYcsx] = useState(false);
+  const [loadingTemplate, setLoadingTemplate] = useState(false);
+
   // Top level selections
   const [ycsxId, setYcsxId] = useState('');
   const [templateId, setTemplateId] = useState('');
+
+  // Fetch dữ liệu từ API khi mở modal
+  useEffect(() => {
+    if (isOpen) {
+      setLoadingYcsx(true);
+      setLoadingTemplate(true);
+
+      getProductionRequestList({ limit: 100 })
+        .then((res) => setYcsxList(res))
+        .catch((err) => console.warn('Lỗi tải YCSX:', err))
+        .finally(() => setLoadingYcsx(false));
+
+      getProjectFormTemplateList({ limit: 100 })
+        .then((res) => setTemplateList(res))
+        .catch((err) => console.warn('Lỗi tải Template:', err))
+        .finally(() => setLoadingTemplate(false));
+    }
+  }, [isOpen]);
 
   // Form states matching mockup - Tab 1 (Thông tin cơ bản)
   const [maDuAn, setMaDuAn] = useState('');
@@ -79,6 +112,25 @@ export default function TaoDuAnModal({ isOpen, onClose, onSubmit }: TaoDuAnModal
   const [duKienLapDat, setDuKienLapDat] = useState('');
   const [soNvLapDat, setSoNvLapDat] = useState('');
   const [khoiLuongNtLan1, setKhoiLuongNtLan1] = useState('');
+
+  // Tự động điền thông tin dự án khi người dùng chọn YCSX
+  const handleSelectYcsx = (selectedId: string) => {
+    setYcsxId(selectedId);
+    if (!selectedId) return;
+
+    const matched = ycsxList.find((y) => y.id === selectedId);
+    if (matched) {
+      if (matched.project_name) setTenDuAn(matched.project_name);
+      if (matched.project_code) setMaDuAn(matched.project_code);
+      if (matched.customer_name) setKhachHang(matched.customer_name);
+      if (matched.scale) setTyLe(matched.scale);
+      if (matched.size) setKichThuoc(matched.size);
+      if (matched.install_location) setDiaDiemLapDat(matched.install_location);
+      if (matched.start_date) setNgayBatDau(matched.start_date);
+      if (matched.end_date) setNgayKetThuc(matched.end_date);
+      if (matched.notes) setMoTa(matched.notes);
+    }
+  };
 
   // Extra hidden fields
   const [indexText, setIndexText] = useState('—');
@@ -175,26 +227,45 @@ export default function TaoDuAnModal({ isOpen, onClose, onSubmit }: TaoDuAnModal
           
           {/* TOP CARD 1: Liên kết YCSX */}
           <div className="bg-blue-50/40 border border-blue-100/70 rounded-xl p-3.5 space-y-1.5 text-left text-xs">
-            <div className="flex items-center gap-1.5 text-[#1d4ed8] font-bold">
-              <IconLink size={15} />
-              <span>Liên kết YCSX đã duyệt</span>
+            <div className="flex items-center justify-between text-[#1d4ed8] font-bold">
+              <div className="flex items-center gap-1.5">
+                <IconLink size={15} />
+                <span>Liên kết YCSX đã duyệt</span>
+              </div>
+              {loadingYcsx && (
+                <div className="flex items-center gap-1 text-[11px] font-normal text-blue-500">
+                  <IconLoader2 size={12} className="animate-spin" />
+                  <span>Đang tải...</span>
+                </div>
+              )}
             </div>
             <select
               value={ycsxId}
-              onChange={(e) => setYcsxId(e.target.value)}
+              onChange={(e) => handleSelectYcsx(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
             >
               <option value="">-- Chọn YCSX --</option>
-              <option value="ycsx-01">YCSX-2026-001 (Thiết kế L'Aurora)</option>
-              <option value="ycsx-02">YCSX-2026-002 (Mô hình Heritage Tây Ninh)</option>
+              {ycsxList.map((y) => (
+                <option key={y.id} value={y.id}>
+                  {y.request_number} — {y.project_name} {y.approval_status ? `(${y.approval_status})` : ''}
+                </option>
+              ))}
             </select>
           </div>
 
           {/* TOP CARD 2: Áp dụng template */}
           <div className="bg-emerald-50/40 border border-emerald-100/70 rounded-xl p-3.5 space-y-1.5 text-left text-xs">
-            <div className="flex items-center gap-1.5 text-emerald-700 font-bold">
-              <IconLayoutGrid size={15} />
-              <span>Áp dụng template hồ sơ phòng ban</span>
+            <div className="flex items-center justify-between text-emerald-700 font-bold">
+              <div className="flex items-center gap-1.5">
+                <IconLayoutGrid size={15} />
+                <span>Áp dụng template hồ sơ phòng ban</span>
+              </div>
+              {loadingTemplate && (
+                <div className="flex items-center gap-1 text-[11px] font-normal text-emerald-600">
+                  <IconLoader2 size={12} className="animate-spin" />
+                  <span>Đang tải...</span>
+                </div>
+              )}
             </div>
             <select
               value={templateId}
@@ -202,8 +273,11 @@ export default function TaoDuAnModal({ isOpen, onClose, onSubmit }: TaoDuAnModal
               className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
             >
               <option value="">-- Không áp dụng template --</option>
-              <option value="temp-01">Template mô hình quy hoạch</option>
-              <option value="temp-02">Template mô hình công trình cao tầng</option>
+              {templateList.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.template_name} {t.department ? `(${t.department})` : ''}
+                </option>
+              ))}
             </select>
           </div>
 

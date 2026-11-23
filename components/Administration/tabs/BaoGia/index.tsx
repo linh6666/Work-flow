@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ThemBaoGiaModal from './modal/ThemBaoGiaModal';
 import SuaBaoGiaModal from './modal/SuaBaoGia';
 import XoaBaoGiaModal from './modal/XoaBaoGia';
+import XemChiTietBaoGiaModal from './modal/XemChiTiet';
 import QuanLyTemplateModal from './modal/QuanLyTemplate';
 import Pagination from '@/common/pagination';
 import {
@@ -19,6 +20,7 @@ import {
   IconPencil,
   IconTrash,
   IconCopy,
+  IconEye,
   IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
@@ -60,11 +62,13 @@ export default function BaoGia() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
 
   // Form active data
   const [editingItem, setEditingItem] = useState<BaoGiaItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<BaoGiaItem | null>(null);
+  const [viewingItem, setViewingItem] = useState<BaoGiaItem | null>(null);
 
   // Hàm map record từ API sang BaoGiaItem
   const mapApiToBaoGiaItem = (rec: QuotationRecord): BaoGiaItem => {
@@ -216,6 +220,11 @@ export default function BaoGia() {
   const handleOpenEditModal = (item: BaoGiaItem) => {
     setEditingItem(item);
     setIsEditModalOpen(true);
+  };
+
+  const handleOpenDetailModal = (item: BaoGiaItem) => {
+    setViewingItem(item);
+    setIsDetailModalOpen(true);
   };
 
   const handleSaveEditItem = async (updatedItem: BaoGiaItem) => {
@@ -475,7 +484,7 @@ export default function BaoGia() {
           <table className="w-full text-xs text-left border-collapse min-w-[960px] sm:min-w-[1100px]">
             <thead className="sticky top-0 z-10 bg-slate-50 shadow-2xs border-b border-slate-200">
               <tr className="bg-slate-50 text-slate-500 font-semibold text-xs">
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 min-w-[280px] max-w-[380px] cursor-pointer" onClick={() => handleSort('soBg')}>
+                <th className="sticky left-0 z-20 px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-r border-slate-200 min-w-[280px] max-w-[380px] cursor-pointer shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]" onClick={() => handleSort('soBg')}>
                   <span className="inline-flex items-center gap-1 font-bold text-slate-600">
                     Số BG <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
@@ -529,7 +538,7 @@ export default function BaoGia() {
                   </span>
                 </th>
 
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap text-center">
+                <th className="sticky right-0 z-20 px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-l border-slate-200 whitespace-nowrap text-center shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                   <span className="font-bold text-slate-600">Thao tác</span>
                 </th>
               </tr>
@@ -557,8 +566,8 @@ export default function BaoGia() {
                       key={item.id}
                       className={`hover:bg-slate-50/70 transition-colors group ${isSelected ? 'bg-slate-50' : ''}`}
                     >
-                      {/* Số BG */}
-                      <td className="px-4 py-4 align-top min-w-[280px] max-w-[380px]">
+                      {/* Số BG (Sticky Left) */}
+                      <td className="sticky left-0 z-10 px-4 py-4 align-top min-w-[280px] max-w-[380px] bg-white group-hover:bg-slate-50 transition-colors border-r border-slate-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                         <span className="font-bold text-[#406c89] text-xs leading-relaxed cursor-pointer hover:underline break-words">
                           {item.soBg}
                         </span>
@@ -639,9 +648,17 @@ export default function BaoGia() {
                         </div>
                       </td>
 
-                      {/* Thao tác (Sửa, Xóa) */}
-                      <td className="px-4 py-4 align-top whitespace-nowrap text-center">
+                      {/* Thao tác (Sticky Right) */}
+                      <td className="sticky right-0 z-10 px-4 py-4 align-top whitespace-nowrap text-center bg-white group-hover:bg-slate-50 transition-colors border-l border-slate-100 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                         <div className="flex items-center justify-center gap-2 text-slate-400">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDetailModal(item)}
+                            className="p-1 rounded hover:bg-slate-100 hover:text-slate-700 cursor-pointer transition-colors active:scale-95"
+                            title="Xem chi tiết"
+                          >
+                            <IconEye size={15} />
+                          </button>
                           <button
                             type="button"
                             onClick={() => handleOpenEditModal(item)}
@@ -699,6 +716,12 @@ export default function BaoGia() {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
         deletingItem={deletingItem}
+      />
+
+      <XemChiTietBaoGiaModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        item={viewingItem}
       />
 
       <QuanLyTemplateModal

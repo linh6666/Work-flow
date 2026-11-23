@@ -5,6 +5,7 @@ import ThemBaoGiaModal from './modal/ThemBaoGiaModal';
 import SuaBaoGiaModal from './modal/SuaBaoGia';
 import XoaBaoGiaModal from './modal/XoaBaoGia';
 import QuanLyTemplateModal from './modal/QuanLyTemplate';
+import Pagination from '@/common/pagination';
 import {
   getQuotationList,
   createQuotation,
@@ -933,49 +934,14 @@ export default function BaoGia() {
         </div>
 
         {/* PAGINATION FOOTER */}
-        <div className="shrink-0 border-t border-slate-100 px-3 sm:px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50/60">
-          <div className="text-center sm:text-left">
-            Hiển thị <span className="font-bold text-slate-700">{totalFiltered > 0 ? startIndex + 1 : 0}</span> - <span className="font-bold text-slate-700">{endIndex}</span> trên tổng số <span className="font-bold text-slate-700">{totalFiltered}</span> báo giá
-          </div>
-
-          {/* Page Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-1">
-            <button
-              type="button"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer active:scale-95"
-            >
-              <IconChevronLeft size={13} />
-              <span>Trước</span>
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-              <button
-                key={page}
-                type="button"
-                onClick={() => setCurrentPage(page)}
-                className={`w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer active:scale-95 ${
-                  currentPage === page
-                    ? 'bg-[#406c89] text-white shadow-2xs'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              type="button"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer active:scale-95"
-            >
-              <span>Sau</span>
-              <IconChevronRight size={13} />
-            </button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalFiltered}
+          itemsPerPage={ITEMS_PER_PAGE}
+          itemName="báo giá"
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Modals */}

@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ThemBaoGiaModal from './modal/ThemBaoGiaModal';
 import SuaBaoGiaModal from './modal/SuaBaoGia';
 import XoaBaoGiaModal from './modal/XoaBaoGia';
 import QuanLyTemplateModal from './modal/QuanLyTemplate';
+import {
+  getQuotationList,
+  createQuotation,
+  updateQuotation,
+  deleteQuotation,
+  QuotationRecord,
+} from '@/api/apiGetQuotation';
 import {
   IconPlus,
   IconSearch,
@@ -20,6 +27,8 @@ import {
   IconAdjustmentsAlt,
   IconArrowsSort,
   IconCheck,
+  IconLoader2,
+  IconRefresh,
 } from '@tabler/icons-react';
 
 // ─── DATA TYPES ──────────────────────────────────────────────────────────────
@@ -305,6 +314,7 @@ const INITIAL_DATA: BaoGiaItem[] = [
 
 export default function BaoGia() {
   const [items, setItems] = useState<BaoGiaItem[]>(INITIAL_DATA);
+  const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState<keyof BaoGiaItem | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
@@ -320,6 +330,55 @@ export default function BaoGia() {
   const [editingItem, setEditingItem] = useState<BaoGiaItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<BaoGiaItem | null>(null);
 
+  // Hàm map record từ API sang BaoGiaItem
+  const mapApiToBaoGiaItem = (rec: QuotationRecord): BaoGiaItem => {
+    let trangThai: BaoGiaItem['trangThai'] = 'Bản nháp';
+    const statusRaw = (rec.approval_status || rec.status || '').toLowerCase();
+    if (statusRaw.includes('đã gửi') || statusRaw.includes('sent')) trangThai = 'Đã gửi';
+    else if (statusRaw.includes('đang theo dõi') || statusRaw.includes('following')) trangThai = 'Đang theo dõi';
+    else if (statusRaw.includes('đã chốt') || statusRaw.includes('closed') || statusRaw.includes('approved')) trangThai = 'Đã chốt';
+    else if (statusRaw.includes('từ chối') || statusRaw.includes('rejected')) trangThai = 'Đã từ chối';
+    else if (statusRaw.includes('chờ') || statusRaw.includes('pending')) trangThai = 'Chờ duyệt';
+    else if (statusRaw.includes('soạn') || statusRaw.includes('drafting')) trangThai = 'Đang soạn';
+
+    const numTotal = typeof rec.total_after_tax === 'number' 
+      ? rec.total_after_tax 
+      : parseFloat(String(rec.total_after_tax || 0).replace(/[^\d.-]/g, '')) || 0;
+
+    return {
+      id: rec.id || String(Math.random()),
+      soBg: rec.quote_number || rec.code || rec.project_name || 'Báo giá',
+      loai: rec.type || 'Mô hình Quy hoạch',
+      khachHang: rec.customer_name || '—',
+      ngay: rec.quote_date || rec.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+      nguoiLap: rec.creator_name || rec.created_by || '—',
+      tyLe: rec.scale || '—',
+      kichThuoc: rec.size || '—',
+      tongSauThue: numTotal,
+      trangThai,
+    };
+  };
+
+  // Fetch danh sách Quotation từ API
+  const fetchQuotations = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const data = await getQuotationList(200);
+      if (Array.isArray(data) && data.length > 0) {
+        const mapped = data.map(mapApiToBaoGiaItem);
+        setItems(mapped);
+      }
+    } catch (err) {
+      console.warn('Lỗi khi fetch danh sách Quotation:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchQuotations();
+  }, [fetchQuotations]);
+
   // Form inputs
   const [formSoBg, setFormSoBg] = useState('');
   const [formLoai, setFormLoai] = useState('Mô hình Quy hoạch');
@@ -328,11 +387,43 @@ export default function BaoGia() {
   const [formTongSauThue, setFormTongSauThue] = useState('');
   const [formTrangThai, setFormTrangThai] = useState<BaoGiaItem['trangThai']>('Bản nháp');
 
-  // Summary Cards values
-  const totalCount = 22; // Matching screenshot 22 total
-  const pendingCount = 16;
-  const chotCount = 0;
-  const closedValue = 0;
+  // Summary Cards values tính tự động từ items
+  const totalCount = items.length;
+  const pendingCount = items.filter(i => i.trangThai === 'Bản nháp' || i.trangThai === 'Chờ duyệt' || i.trangThai === 'Đang soạn').length;
+  const chotCount = items.filter(i => i.trangThai === 'Đã chốt').length;
+  const closedValue = items
+    .filter(i => i.trangThai === 'Đã chốt')
+    .reduce((sum, i) => sum + (i.tongSauThue || 0), 0);
+
+  // Drag-to-scroll table state & handlers
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftState, setScrollLeftState] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const container = tableContainerRef.current;
+    if (!container) return;
+    // Don't trigger drag on interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button, input, select, a, textarea')) return;
+
+    setIsDragging(true);
+    setStartX(e.pageX - container.offsetLeft);
+    setScrollLeftState(container.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !tableContainerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - tableContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; // Drag speed multiplier
+    tableContainerRef.current.scrollLeft = scrollLeftState - walk;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    setIsDragging(false);
+  };
 
   const formatCurrency = (amount: number) => {
     if (amount === 0) return '—';
@@ -352,7 +443,30 @@ export default function BaoGia() {
     setIsCreateModalOpen(true);
   };
 
-  const handleSaveNewItem = (newItemData: Omit<BaoGiaItem, 'id'>) => {
+  const handleSaveNewItem = async (newItemData: Omit<BaoGiaItem, 'id'>) => {
+    try {
+      const res = await createQuotation({
+        quote_number: newItemData.soBg,
+        project_name: newItemData.soBg,
+        type: newItemData.loai,
+        customer_name: newItemData.khachHang,
+        quote_date: newItemData.ngay,
+        creator_name: newItemData.nguoiLap || 'Kỳ Anh',
+        scale: newItemData.tyLe || '1/500',
+        size: newItemData.kichThuoc || '2000x1500mm',
+        total_after_tax: newItemData.tongSauThue,
+        approval_status: newItemData.trangThai,
+      });
+
+      if (res.success && res.data?.id) {
+        await fetchQuotations();
+        return;
+      }
+    } catch (err) {
+      console.warn('Lỗi khi gọi API tạo báo giá:', err);
+    }
+
+    // Fallback local update
     const newItem: BaoGiaItem = {
       id: Date.now().toString(),
       ...newItemData,
@@ -368,8 +482,29 @@ export default function BaoGia() {
     setIsEditModalOpen(true);
   };
 
-  const handleSaveEditItem = (updatedItem: BaoGiaItem) => {
-    setItems(prev => prev.map(i => i.id === updatedItem.id ? updatedItem : i));
+  const handleSaveEditItem = async (updatedItem: BaoGiaItem) => {
+    try {
+      const res = await updateQuotation(updatedItem.id, {
+        quote_number: updatedItem.soBg,
+        project_name: updatedItem.soBg,
+        type: updatedItem.loai,
+        customer_name: updatedItem.khachHang,
+        quote_date: updatedItem.ngay,
+        creator_name: updatedItem.nguoiLap,
+        scale: updatedItem.tyLe,
+        size: updatedItem.kichThuoc,
+        total_after_tax: updatedItem.tongSauThue,
+        approval_status: updatedItem.trangThai,
+      });
+
+      if (res.success) {
+        await fetchQuotations();
+      }
+    } catch (err) {
+      console.warn('Lỗi khi gọi API cập nhật báo giá:', err);
+    }
+
+    setItems(prev => prev.map(i => (i.id === updatedItem.id ? updatedItem : i)));
     setIsEditModalOpen(false);
     setEditingItem(null);
   };
@@ -379,8 +514,15 @@ export default function BaoGia() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deletingItem) return;
+    try {
+      await deleteQuotation(deletingItem.id);
+      await fetchQuotations();
+    } catch (err) {
+      console.warn('Lỗi khi gọi API xóa báo giá:', err);
+    }
+
     setItems(prev => prev.filter(i => i.id !== deletingItem.id));
     setSelectedIds(prev => prev.filter(id => id !== deletingItem.id));
     setIsDeleteModalOpen(false);
@@ -483,6 +625,17 @@ export default function BaoGia() {
         <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-auto w-full sm:w-auto">
           <button
             type="button"
+            onClick={fetchQuotations}
+            disabled={isLoading}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 py-1.5 sm:py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[11px] font-semibold rounded-md shadow-2xs transition-colors cursor-pointer active:scale-95 disabled:opacity-60"
+            title="Tải lại danh sách từ server"
+          >
+            <IconRefresh size={13} className={`text-slate-500 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>{isLoading ? 'Đang tải...' : 'Làm mới'}</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => alert('Xuất danh sách báo giá thành công (Excel)')}
             className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 py-1.5 sm:py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[11px] font-semibold rounded-md shadow-2xs transition-colors cursor-pointer active:scale-95"
           >
@@ -519,26 +672,26 @@ export default function BaoGia() {
         </div>
       </div>
 
-      {/* ── Summary Stats Row (2x2 on Mobile, 4 Cols on Desktop) ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3 shrink-0">
-        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-3.5 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[64px]">
-          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">Tổng báo giá</p>
-          <p className="text-base sm:text-xl font-black text-[#406c89] tracking-tight">{totalCount}</p>
+      {/* ── Summary Stats Row (Compact Size) ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2.5 shrink-0">
+        <div className="bg-white border border-slate-200/80 rounded-lg p-2 sm:px-3 sm:py-2 shadow-2xs flex flex-col justify-center min-h-[46px] sm:min-h-[50px]">
+          <p className="text-[10px] text-slate-400 font-semibold mb-0.5 truncate">Tổng báo giá</p>
+          <p className="text-sm sm:text-base font-black text-[#406c89] tracking-tight leading-none">{totalCount}</p>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-3.5 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[64px]">
-          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">Đang chờ</p>
-          <p className="text-base sm:text-xl font-black text-[#d97706] tracking-tight">{pendingCount}</p>
+        <div className="bg-white border border-slate-200/80 rounded-lg p-2 sm:px-3 sm:py-2 shadow-2xs flex flex-col justify-center min-h-[46px] sm:min-h-[50px]">
+          <p className="text-[10px] text-slate-400 font-semibold mb-0.5 truncate">Đang chờ</p>
+          <p className="text-sm sm:text-base font-black text-[#d97706] tracking-tight leading-none">{pendingCount}</p>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-3.5 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[64px]">
-          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">Đã chốt</p>
-          <p className="text-base sm:text-xl font-black text-[#059669] tracking-tight">{chotCount}</p>
+        <div className="bg-white border border-slate-200/80 rounded-lg p-2 sm:px-3 sm:py-2 shadow-2xs flex flex-col justify-center min-h-[46px] sm:min-h-[50px]">
+          <p className="text-[10px] text-slate-400 font-semibold mb-0.5 truncate">Đã chốt</p>
+          <p className="text-sm sm:text-base font-black text-[#059669] tracking-tight leading-none">{chotCount}</p>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 sm:p-3.5 shadow-2xs flex flex-col justify-center min-h-[54px] sm:min-h-[64px]">
-          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold mb-0.5 truncate">Giá trị đã chốt</p>
-          <p className="text-base sm:text-xl font-black text-[#406c89] tracking-tight truncate">
+        <div className="bg-white border border-slate-200/80 rounded-lg p-2 sm:px-3 sm:py-2 shadow-2xs flex flex-col justify-center min-h-[46px] sm:min-h-[50px]">
+          <p className="text-[10px] text-slate-400 font-semibold mb-0.5 truncate">Giá trị đã chốt</p>
+          <p className="text-sm sm:text-base font-black text-[#406c89] tracking-tight leading-none truncate">
             {chotCount > 0 ? `${closedValue.toLocaleString('vi-VN')} đ` : '—'}
           </p>
         </div>
@@ -573,20 +726,20 @@ export default function BaoGia() {
 
       {/* ── Table Data (Matches Screenshot Columns & Rows 100%) ── */}
       <div className="flex-1 flex flex-col min-h-[350px] sm:min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+        <div
+          ref={tableContainerRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          onMouseLeave={handleMouseUpOrLeave}
+          className={`flex-1 overflow-x-auto sm:overflow-auto min-h-0 overscroll-x-contain [-webkit-overflow-scrolling:touch] select-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+            isDragging ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
+        >
           <table className="w-full text-xs text-left border-collapse min-w-[960px] sm:min-w-[1100px]">
             <thead className="sticky top-0 z-10 bg-slate-50 shadow-2xs border-b border-slate-200">
               <tr className="bg-slate-50 text-slate-500 font-semibold text-xs">
-                <th className="px-3 py-3 w-10 text-center bg-slate-50 border-b border-slate-200">
-                  <input
-                    type="checkbox"
-                    checked={sortedItems.length > 0 && selectedIds.length === sortedItems.length}
-                    onChange={handleToggleAll}
-                    className="w-3.5 h-3.5 rounded border-slate-300 text-[#406c89] focus:ring-[#406c89] cursor-pointer"
-                  />
-                </th>
-
-                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('soBg')}>
+                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 min-w-[280px] max-w-[380px] cursor-pointer" onClick={() => handleSort('soBg')}>
                   <span className="inline-flex items-center gap-1 font-bold text-slate-600">
                     Số BG <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
@@ -639,6 +792,10 @@ export default function BaoGia() {
                     Trạng thái <IconArrowsSort size={12} className="text-slate-300" />
                   </span>
                 </th>
+
+                <th className="px-4 py-3 font-semibold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap text-center">
+                  <span className="font-bold text-slate-600">Thao tác</span>
+                </th>
               </tr>
             </thead>
 
@@ -664,49 +821,11 @@ export default function BaoGia() {
                       key={item.id}
                       className={`hover:bg-slate-50/70 transition-colors group ${isSelected ? 'bg-slate-50' : ''}`}
                     >
-                      {/* Checkbox */}
-                      <td className="px-3.5 py-4 text-center align-middle">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleToggleSelect(item.id)}
-                          className="w-3.5 h-3.5 rounded border-slate-300 text-[#406c89] focus:ring-[#406c89] cursor-pointer"
-                        />
-                      </td>
-
-                      {/* Số BG + Actions */}
-                      <td className="px-4 py-4 align-top max-w-[220px]">
-                        <div className="flex flex-col gap-1.5">
-                          <span className="font-bold text-[#406c89] text-xs leading-snug cursor-pointer hover:underline">
-                            {item.soBg}
-                          </span>
-                          <div className="flex items-center gap-2 text-slate-400">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenEditModal(item)}
-                              className="hover:text-slate-700 cursor-pointer transition-colors active:scale-95"
-                              title="Sửa"
-                            >
-                              <IconPencil size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDuplicate(item)}
-                              className="hover:text-slate-700 cursor-pointer transition-colors active:scale-95"
-                              title="Nhân bản"
-                            >
-                              <IconCopy size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleOpenDeleteModal(item)}
-                              className="hover:text-rose-600 cursor-pointer transition-colors active:scale-95"
-                              title="Xóa"
-                            >
-                              <IconTrash size={14} />
-                            </button>
-                          </div>
-                        </div>
+                      {/* Số BG */}
+                      <td className="px-4 py-4 align-top min-w-[280px] max-w-[380px]">
+                        <span className="font-bold text-[#406c89] text-xs leading-relaxed cursor-pointer hover:underline break-words">
+                          {item.soBg}
+                        </span>
                       </td>
 
                       {/* Loại */}
@@ -781,6 +900,28 @@ export default function BaoGia() {
                               </button>
                             </div>
                           )}
+                        </div>
+                      </td>
+
+                      {/* Thao tác (Sửa, Xóa) */}
+                      <td className="px-4 py-4 align-top whitespace-nowrap text-center">
+                        <div className="flex items-center justify-center gap-2 text-slate-400">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditModal(item)}
+                            className="p-1 rounded hover:bg-slate-100 hover:text-[#406c89] cursor-pointer transition-colors active:scale-95"
+                            title="Sửa"
+                          >
+                            <IconPencil size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDeleteModal(item)}
+                            className="p-1 rounded hover:bg-rose-50 hover:text-rose-600 cursor-pointer transition-colors active:scale-95"
+                            title="Xóa"
+                          >
+                            <IconTrash size={15} />
+                          </button>
                         </div>
                       </td>
                     </tr>

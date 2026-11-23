@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   IconPlus,
   IconSearch,
@@ -13,10 +13,13 @@ import {
   IconChevronDown,
   IconCheck,
   IconCopy,
+  IconLoader2,
+  IconRefresh,
 } from '@tabler/icons-react';
 import TaoYCSXModal from './modal/TaoYCSX';
 import ChinhSuaYCSXModal from './modal/ChinhSuaYCSX';
 import XoaYCSXModal from './modal/XoaYCSX';
+import { getYcsxList, updateYcsxStatus, deleteYcsx } from '@/api/apiGetYcsx';
 
 export interface YcsxItem {
   id: string;
@@ -41,18 +44,7 @@ const STATUS_OPTIONS = [
   'Từ chối',
 ];
 
-const SAMPLE_YCSX_LIST: YcsxItem[] = [
-  { id: '1',  soYcsx: '26-2026/YCSX-MHV',    tenDuAn: 'KIEN GIANG MASTER PLAN PROJECT MODEL',      khachHang: 'CÔNG TY TNHH DAEWOO ENGINEERING & CONSTRUCTION VIỆT NAM', nguoiLap: 'Nguyễn Phú Quang', tyLe: '1/600',   kichThuoc: '2600×1800MM', ngayBatDau: '01/08/2026', ngayKetThuc: '15/09/2026', trangThai: 'PGĐ đã duyệt' },
-  { id: '2',  soYcsx: '23-2026/YCSX-MHV',    tenDuAn: 'QUY HOẠCH TỈNH HƯNG YÊN',                  khachHang: 'DATVIETGROUP',                                             nguoiLap: 'Duyên Bùi',         tyLe: '1/25000', kichThuoc: '5500×2900MM', ngayBatDau: '25/07/2026', ngayKetThuc: '13/09/2026', trangThai: 'PGĐ đã duyệt' },
-  { id: '3',  soYcsx: '22-2026/YCSX-MHV',    tenDuAn: 'CHỈNH SỬA MÔ HÌNH NEWEB',                  khachHang: 'LICOGI13FC',                                               nguoiLap: 'Nguyễn Phú Quang', tyLe: '1/500',   kichThuoc: '1400×1200MM', ngayBatDau: '28/07/2026', ngayKetThuc: '09/08/2026', trangThai: 'PGĐ đã duyệt' },
-  { id: '4',  soYcsx: '03-2026/YCSX-MHV',    tenDuAn: 'MÔ HÌNH DỰ ÁN 22 LIỄU GIAI',              khachHang: 'CĐT 22 LIỄU GIAI',                                        nguoiLap: 'Thảo Phùng',        tyLe: '1/75',    kichThuoc: '1890×1890mm', ngayBatDau: '12/03/2026', ngayKetThuc: '26/04/2026', trangThai: 'PGĐ đã duyệt' },
-  { id: '5',  soYcsx: '14.02-2026/YCSX-MHV', tenDuAn: 'THE HERITAGE TÂY NINH - Lắp đặt tại Tây Ninh', khachHang: 'The Heritage Tây Ninh',                             nguoiLap: 'Thảo Phùng',        tyLe: '1/400',   kichThuoc: '4200×1800MM', ngayBatDau: '27/04/2026', ngayKetThuc: '06/06/2026', trangThai: 'PGĐ đã duyệt' },
-  { id: '6',  soYcsx: '14.01-2026/YCSX-MHV', tenDuAn: 'THE HERITAGE TÂY NINH - Lắp đặt tại Hà Nội', khachHang: 'The Heritage Tây Ninh',                               nguoiLap: 'Thảo Phùng',        tyLe: '1/400',   kichThuoc: '4200×1800MM', ngayBatDau: '27/04/2026', ngayKetThuc: '06/06/2026', trangThai: 'PGĐ đã duyệt' },
-  { id: '7',  soYcsx: '16-2026/YCSX-MHV',    tenDuAn: 'IA25 - CIPUTRA',                           khachHang: 'IA25 - CIPUTRA',                                           nguoiLap: 'Thảo Phùng',        tyLe: '1/100',   kichThuoc: '3400×2400mm', ngayBatDau: '15/05/2026', ngayKetThuc: '29/06/2026', trangThai: 'PGĐ đã duyệt' },
-  { id: '8',  soYcsx: '17-2026/YCSX-MHV',    tenDuAn: 'HERITAGE VILLAGE MOC CHAU',                khachHang: 'HERIAGE VILLAGE MOC CHAU',                                 nguoiLap: 'Thảo Phùng',        tyLe: '1/500',   kichThuoc: '1600×1200mm', ngayBatDau: '18/05/2026', ngayKetThuc: '22/06/2026', trangThai: 'PGĐ đã duyệt' },
-  { id: '9',  soYcsx: '20-2026/YCSX-MHV',    tenDuAn: "CHỈNH SỬA MÔ HÌNH L'AURORA",              khachHang: "CĐT L'AURORA",                                             nguoiLap: 'Thảo Phùng',        tyLe: '1/150',   kichThuoc: '2200×3000mm', ngayBatDau: '09/06/2026', ngayKetThuc: '14/07/2026', trangThai: 'PGĐ đã duyệt' },
-  { id: '10', soYcsx: '21-2026/YCSX-MHV',    tenDuAn: 'VSIP LẠNG SƠN',                           khachHang: 'VSIP Lạng Sơn',                                            nguoiLap: '—',                 tyLe: '1/1000',  kichThuoc: '16.3m²',      ngayBatDau: '16/06/2026', ngayKetThuc: '13/07/2026', trangThai: 'PGĐ đã duyệt' },
-];
+export const SAMPLE_YCSX_LIST: YcsxItem[] = [];
 
 const ITEMS_PER_PAGE = 10;
 
@@ -68,7 +60,8 @@ const getStatusStyle = (status: string) => {
 };
 
 export default function YeuCauSanXuat() {
-  const [ycsxList, setYcsxList] = useState<YcsxItem[]>(SAMPLE_YCSX_LIST);
+  const [ycsxList, setYcsxList] = useState<YcsxItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortKey, setSortKey] = useState<keyof YcsxItem | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
@@ -80,6 +73,24 @@ export default function YeuCauSanXuat() {
   const [isChinhSuaModalOpen, setIsChinhSuaModalOpen] = useState(false);
   const [selectedItemToDelete, setSelectedItemToDelete] = useState<YcsxItem | null>(null);
   const [isXoaModalOpen, setIsXoaModalOpen] = useState(false);
+
+  // Fetch dữ liệu từ API Backend ProductionRequest
+  const fetchYcsxData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await getYcsxList({ limit: 200 });
+      setYcsxList(res);
+    } catch (err) {
+      console.warn('Lỗi tải danh sách YCSX:', err);
+      setYcsxList([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchYcsxData();
+  }, [fetchYcsxData]);
 
   const filtered = ycsxList.filter((item) => {
     const q = searchTerm.toLowerCase();
@@ -111,13 +122,17 @@ export default function YeuCauSanXuat() {
     else { setSortKey(key); setSortDir('asc'); }
   };
 
-  const handleSelectStatus = (id: string, newStatus: string) => {
+  const handleSelectStatus = async (id: string, newStatus: string) => {
+    // Cập nhật UI ngay lập tức
     setYcsxList(prev => prev.map(i => i.id === id ? { ...i, trangThai: newStatus } : i));
     setOpenStatusDropdownId(null);
+    // Gửi cập nhật lên backend
+    await updateYcsxStatus(id, newStatus);
   };
 
-  const handleDeleteItem = (id: string) => {
+  const handleDeleteItem = async (id: string) => {
     setYcsxList(prev => prev.filter(item => item.id !== id));
+    await deleteYcsx(id);
   };
 
   const handleDuplicateItem = (item: YcsxItem) => {
@@ -223,13 +238,23 @@ export default function YeuCauSanXuat() {
                 <SortTh col="ngayBatDau" label="Ngày bắt đầu" />
                 <SortTh col="ngayKetThuc" label="Ngày kết thúc" />
                 <SortTh col="trangThai"  label="Trạng thái" />
+                <th className="px-3 py-3 text-center whitespace-nowrap">
+                  <span className="font-bold text-slate-600 text-[11px]">Hành động</span>
+                </th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-100">
-              {paginatedList.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-10 text-center text-xs text-slate-400">
+                  <td colSpan={10} className="px-4 py-16 text-center text-xs text-slate-400">
+                    <IconLoader2 size={28} className="mx-auto mb-2 text-[#406c89] animate-spin" />
+                    <p className="font-semibold text-slate-600">Đang tải danh sách Yêu cầu sản xuất...</p>
+                  </td>
+                </tr>
+              ) : paginatedList.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-4 py-10 text-center text-xs text-slate-400">
                     Không tìm thấy yêu cầu sản xuất nào.
                   </td>
                 </tr>
@@ -238,38 +263,10 @@ export default function YeuCauSanXuat() {
                 return (
                   <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
                     {/* Số YCSX */}
-                    <td className="px-3 py-3 align-top whitespace-nowrap min-w-[190px]">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-[#406c89] text-[11px] leading-snug cursor-pointer hover:underline">
-                          {item.soYcsx}
-                        </span>
-                        <div className="flex items-center gap-1 text-slate-400">
-                          <button
-                            type="button"
-                            onClick={() => { setSelectedItemToEdit(item); setIsChinhSuaModalOpen(true); }}
-                            className="hover:text-slate-700 cursor-pointer transition-colors p-0.5 active:scale-95"
-                            title="Chỉnh sửa"
-                          >
-                            <IconPencil size={13} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDuplicateItem(item)}
-                            className="hover:text-slate-700 cursor-pointer transition-colors p-0.5 active:scale-95"
-                            title="Sao chép"
-                          >
-                            <IconCopy size={13} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => { setSelectedItemToDelete(item); setIsXoaModalOpen(true); }}
-                            className="hover:text-rose-600 cursor-pointer transition-colors p-0.5 active:scale-95"
-                            title="Xóa"
-                          >
-                            <IconTrash size={13} />
-                          </button>
-                        </div>
-                      </div>
+                    <td className="px-3 py-3 align-top whitespace-nowrap min-w-[150px]">
+                      <span className="font-bold text-[#406c89] text-[11px] leading-snug cursor-pointer hover:underline">
+                        {item.soYcsx}
+                      </span>
                     </td>
 
                     {/* Khách hàng */}
@@ -335,6 +332,28 @@ export default function YeuCauSanXuat() {
                             </div>
                           </>
                         )}
+                      </div>
+                    </td>
+
+                    {/* Hành động */}
+                    <td className="px-3 py-3 align-top whitespace-nowrap text-center">
+                      <div className="inline-flex items-center justify-center gap-1 text-slate-400">
+                        <button
+                          type="button"
+                          onClick={() => { setSelectedItemToEdit(item); setIsChinhSuaModalOpen(true); }}
+                          className="hover:text-amber-600 hover:bg-amber-50 p-1.5 rounded transition-colors cursor-pointer active:scale-95"
+                          title="Chỉnh sửa"
+                        >
+                          <IconPencil size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setSelectedItemToDelete(item); setIsXoaModalOpen(true); }}
+                          className="hover:text-rose-600 hover:bg-rose-50 p-1.5 rounded transition-colors cursor-pointer active:scale-95"
+                          title="Xóa"
+                        >
+                          <IconTrash size={14} />
+                        </button>
                       </div>
                     </td>
                   </tr>

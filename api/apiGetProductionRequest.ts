@@ -45,10 +45,10 @@ export async function getProductionRequestList(params?: { limit?: number }): Pro
       const records: any[] = Array.isArray(json)
         ? json
         : Array.isArray(json?.items)
-        ? json.items
-        : Array.isArray(json?.data)
-        ? json.data
-        : [];
+          ? json.items
+          : Array.isArray(json?.data)
+            ? json.data
+            : [];
 
       return records.map((r) => ({
         id: String(r.id),

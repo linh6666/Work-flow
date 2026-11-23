@@ -7,6 +7,7 @@ import ThongTinChungTab from './tabs/ThongTinChung';
 import YeuCauKyThuatTab from './tabs/YeuCauKyThuat';
 import TienDoTab from './tabs/TienDo';
 import { createProductionRequest } from '@/api/apiCreateProductionRequest';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 
 interface TaoYCSXModalProps {
   isOpen: boolean;
@@ -76,6 +77,50 @@ export default function TaoYCSXModal({ isOpen, onClose, onSubmitSuccess }: TaoYC
   const [isSubmitting, setIsSubmitting] = useState<string | null>(null); // 'draft' | 'submit' | null
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Hàm xóa trắng toàn bộ dữ liệu nhập để form trở về trạng thái ban đầu
+  const resetForm = () => {
+    setActiveTab('thongTinChung');
+    setSoYcsx('');
+    setMaDuAn('');
+    setTenDuAn('');
+    setKhachHang('');
+    setCapDoDuAn('V');
+    setTyLe('1/1000');
+    setKichThuoc('1300×2400mm');
+    setDiaDiemLapDat('');
+    setLienKetHopDong('');
+    setDinhHuongHopDong('');
+    setHoSoXacNhan(DEFAULT_HO_SO_XAC_NHAN);
+    setKhoiLuongNghiemThu(DEFAULT_KHOI_LUONG_NGHIEM_THU);
+    setGhiChu('');
+
+    setKhungSatMatBang(DEFAULT_KHUNG_SAT);
+    setChanMoHinh(DEFAULT_CHAN_MO_HINH);
+    setCongTrinh(DEFAULT_CONG_TRINH);
+    setNoiThat('Không');
+    setNenCanhQuan('');
+    setHeThongAnhSang('');
+    setYeuCauDacBietAnhSang('Không có');
+    setKinhBaoVe('Không có');
+    setHopVanChuyen('Đi xe nguyên chuyến');
+    setYeuCauDacBietKhac('');
+
+    setThoiGianBatDau('');
+    setThoiGianKetThuc('');
+    setTongThoiGian('');
+    setNghiemThuLan1('');
+    setNghiemThuCuoiCung('');
+    setDuKienVanChuyen('');
+    setDuKienLapDat('');
+    setSoNhanSuLapDat('');
+    setErrorMessage(null);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   const handleSave = async (status: 'Bản nháp' | 'Chờ QL KD duyệt') => {
@@ -83,11 +128,13 @@ export default function TaoYCSXModal({ isOpen, onClose, onSubmitSuccess }: TaoYC
     if (!tenDuAn.trim()) {
       setActiveTab('thongTinChung');
       setErrorMessage('Vui lòng nhập Tên dự án!');
+      NotificationExtension.Warn('Vui lòng nhập Tên dự án!', 'Thiếu thông tin');
       return;
     }
     if (!khachHang.trim()) {
       setActiveTab('thongTinChung');
       setErrorMessage('Vui lòng nhập Tên khách hàng!');
+      NotificationExtension.Warn('Vui lòng nhập Tên khách hàng!', 'Thiếu thông tin');
       return;
     }
 
@@ -137,15 +184,26 @@ export default function TaoYCSXModal({ isOpen, onClose, onSubmitSuccess }: TaoYC
       const result = await createProductionRequest(payload);
 
       if (result.success) {
+        NotificationExtension.Success(
+          status === 'Bản nháp'
+            ? 'Lưu nháp Yêu cầu sản xuất thành công!'
+            : 'Tạo và gửi duyệt Yêu cầu sản xuất thành công!',
+          'Thành công'
+        );
+        resetForm();
         if (onSubmitSuccess) {
           onSubmitSuccess(result.data);
         }
         onClose();
       } else {
-        setErrorMessage(result.error || 'Có lỗi xảy ra khi tạo YCSX. Vui lòng thử lại!');
+        const msg = result.error || 'Có lỗi xảy ra khi tạo YCSX. Vui lòng thử lại!';
+        setErrorMessage(msg);
+        NotificationExtension.Fails(msg, 'Tạo YCSX thất bại');
       }
     } catch (err: any) {
-      setErrorMessage(err?.message || 'Lỗi hệ thống khi gửi yêu cầu!');
+      const msg = err?.message || 'Lỗi hệ thống khi gửi yêu cầu!';
+      setErrorMessage(msg);
+      NotificationExtension.Fails(msg, 'Lỗi hệ thống');
     } finally {
       setIsSubmitting(null);
     }
@@ -173,7 +231,7 @@ export default function TaoYCSXModal({ isOpen, onClose, onSubmitSuccess }: TaoYC
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isSubmitting !== null}
             className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all cursor-pointer disabled:opacity-40"
           >
@@ -325,7 +383,7 @@ export default function TaoYCSXModal({ isOpen, onClose, onSubmitSuccess }: TaoYC
           <div className="px-6 py-3.5 border-t border-slate-100 bg-white flex items-center justify-end gap-3 select-none shrink-0 shadow-2xs">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isSubmitting !== null}
               className="px-5 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs disabled:opacity-40"
             >

@@ -153,4 +153,6 @@ export async function deleteYcsx(id: string): Promise<boolean> {
 }
 
 export { createProductionRequest } from "./apiCreateProductionRequest";
+export { updateProductionRequest, getProductionRequestById } from "./apiUpdateProductionRequest";
+
 

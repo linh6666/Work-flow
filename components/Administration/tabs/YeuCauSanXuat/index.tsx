@@ -20,6 +20,7 @@ import TaoYCSXModal from './modal/TaoYCSX';
 import ChinhSuaYCSXModal from './modal/ChinhSuaYCSX';
 import XoaYCSXModal from './modal/XoaYCSX';
 import { getYcsxList, updateYcsxStatus, deleteYcsx } from '@/api/apiGetYcsx';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 
 export interface YcsxItem {
   id: string;
@@ -127,12 +128,23 @@ export default function YeuCauSanXuat() {
     setYcsxList(prev => prev.map(i => i.id === id ? { ...i, trangThai: newStatus } : i));
     setOpenStatusDropdownId(null);
     // Gửi cập nhật lên backend
-    await updateYcsxStatus(id, newStatus);
+    const ok = await updateYcsxStatus(id, newStatus);
+    if (ok) {
+      NotificationExtension.Success(`Cập nhật trạng thái thành "${newStatus}" thành công!`, 'Thành công');
+    } else {
+      NotificationExtension.Fails('Cập nhật trạng thái thất bại!', 'Lỗi');
+      fetchYcsxData();
+    }
   };
 
   const handleDeleteItem = async (id: string) => {
-    setYcsxList(prev => prev.filter(item => item.id !== id));
-    await deleteYcsx(id);
+    const ok = await deleteYcsx(id);
+    if (ok) {
+      setYcsxList(prev => prev.filter(item => item.id !== id));
+      NotificationExtension.Success('Đã xóa Yêu cầu sản xuất thành công!', 'Thành công');
+    } else {
+      NotificationExtension.Fails('Xóa Yêu cầu sản xuất thất bại!', 'Lỗi');
+    }
   };
 
   const handleDuplicateItem = (item: YcsxItem) => {
@@ -401,6 +413,7 @@ export default function YeuCauSanXuat() {
         onClose={() => setIsChinhSuaModalOpen(false)}
         onSaveSuccess={(updatedData) => {
           setYcsxList(prev => prev.map(item => item.id === updatedData.id ? updatedData : item));
+          fetchYcsxData();
         }}
       />
       <XoaYCSXModal

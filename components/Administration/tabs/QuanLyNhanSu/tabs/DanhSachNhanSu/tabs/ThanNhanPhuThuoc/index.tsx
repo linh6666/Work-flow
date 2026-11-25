@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   IconSearch,
   IconDownload,
   IconUpload,
   IconPlus,
+  IconEye,
   IconPencil,
   IconTrash,
   IconChevronLeft,
@@ -15,6 +16,10 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import { PHONG_BAN_LIST } from '../DanhSachTongQuat';
+import ThemThanNhanModal from './modal/ThemThanNhan';
+import XemThanNhanModal from './modal/XemThanNhan';
+import SuaThanNhanModal from './modal/SuaThanNhan';
+import XoaThanNhanModal from './modal/XoaThanNhan';
 
 export interface ThanNhanItem {
   id: string;
@@ -55,11 +60,27 @@ export default function ThanNhanPhuThuocTab({
   selectedPhuThuoc,
 }: ThanNhanPhuThuocTabProps) {
   const [data, setData] = useState<ThanNhanItem[]>(INITIAL_THAN_NHAN_DATA);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<ThanNhanItem | null>(null);
+  const [editingItem, setEditingItem] = useState<ThanNhanItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<ThanNhanItem | null>(null);
   const [internalSearch, setInternalSearch] = useState('');
   const [internalPhongBan, setInternalPhongBan] = useState('ALL');
   const [internalPhuThuoc, setInternalPhuThuoc] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+
+  useEffect(() => {
+    const handleAddClick = (event: Event) => {
+      const customEvent = event as CustomEvent<{ tab?: string }>;
+      if (customEvent.detail?.tab === 'than-nhan-phu-thuoc') {
+        setIsAddModalOpen(true);
+      }
+    };
+
+    window.addEventListener('nhan-su-add-click', handleAddClick);
+    return () => window.removeEventListener('nhan-su-add-click', handleAddClick);
+  }, []);
 
   const search = searchQuery !== undefined ? searchQuery : internalSearch;
   const filterPhongBan = selectedPhongBan !== undefined ? selectedPhongBan : internalPhongBan;
@@ -99,89 +120,54 @@ export default function ThanNhanPhuThuocTab({
         <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200 rounded-lg shadow-2xs overflow-hidden">
           <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
             <table className="min-w-max w-full text-xs text-left border-collapse">
-              <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200 shadow-2xs">
+              <thead className="sticky top-0 z-10 bg-[#456b89] border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3 font-bold text-slate-500 text-xs whitespace-nowrap">STT</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mã NV</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Nhân viên</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Phòng ban</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Họ tên thân nhân</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mối quan hệ</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Ngày sinh</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Số điện thoại</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Người phụ thuộc?</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">MST người phụ thuộc</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Từ tháng</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Đến tháng</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Ghi chú</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs text-right whitespace-nowrap">Thao tác</th>
+                  <th className="px-4 py-3 font-bold text-white text-xs whitespace-nowrap">Phòng ban</th>
+                  <th className="px-4 py-3 font-bold text-white text-xs whitespace-nowrap">Hôn nhân</th>
+                  <th className="px-4 py-3 font-bold text-white text-xs whitespace-nowrap">CCCD vợ/chồng</th>
+                  <th className="px-4 py-3 font-bold text-white text-xs whitespace-nowrap">Ngày cấp</th>
+                  <th className="px-4 py-3 font-bold text-white text-xs whitespace-nowrap">Số con</th>
+                  <th className="px-4 py-3 font-bold text-white text-xs whitespace-nowrap">Con (họ tên - ngày sinh)</th>
+                  <th className="px-4 py-3 font-bold text-white text-xs whitespace-nowrap">Người thân</th>
+                  <th className="px-4 py-3 font-bold text-white text-xs whitespace-nowrap">SĐT người thân</th>
+                  <th className="px-4 py-3 font-bold text-white text-xs text-right whitespace-nowrap">Hành động</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {paginatedData.length === 0 ? (
                   <tr>
-                    <td colSpan={14} className="text-center py-12 text-slate-400">
+                    <td colSpan={9} className="text-center py-12 text-slate-400">
                       <IconUserCheck size={36} className="mx-auto mb-2 text-slate-300 stroke-1" />
                       <p className="font-semibold text-xs text-slate-600">Không tìm thấy thông tin thân nhân</p>
                     </td>
                   </tr>
                 ) : (
-                  paginatedData.map((item, idx) => (
+                  paginatedData.map((item) => (
                     <tr key={item.id} className="hover:bg-slate-50/80 transition-colors group">
-                      <td className="px-4 py-3.5 align-middle text-slate-400 font-medium whitespace-nowrap">
-                        {startIndex + idx + 1}
-                      </td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap font-bold text-slate-700">
-                        {item.maNV}
-                      </td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap font-bold text-slate-800 text-xs">
-                        {item.hoTenNV}
-                      </td>
                       <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">{item.phongBan}</td>
-                      <td className="px-4 py-3.5 align-middle font-bold text-indigo-900 whitespace-nowrap">
-                        {item.hoTenThanNhan}
+                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">
+                        {data.some((relative) => relative.maNV === item.maNV && (relative.moiQuanHe === 'Vợ' || relative.moiQuanHe === 'Chồng')) ? 'Đã kết hôn' : '—'}
                       </td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                          {item.moiQuanHe}
-                        </span>
+                      <td className="px-4 py-3.5 align-middle font-mono text-slate-600 whitespace-nowrap">—</td>
+                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">—</td>
+                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">
+                        {data.filter((relative) => relative.maNV === item.maNV && relative.moiQuanHe === 'Con').length}
                       </td>
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">{item.ngaySinh}</td>
+                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">
+                        {data.filter((relative) => relative.maNV === item.maNV && relative.moiQuanHe === 'Con').map((child) => `${child.hoTenThanNhan} - ${child.ngaySinh}`).join(', ') || '—'}
+                      </td>
+                      <td className="px-4 py-3.5 align-middle font-bold text-indigo-900 whitespace-nowrap">{item.hoTenThanNhan}</td>
                       <td className="px-4 py-3.5 align-middle font-mono text-slate-600 whitespace-nowrap">{item.soDienThoai}</td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        {item.laNguoiPhuThuoc ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            Có (NPT)
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-50 text-slate-500 border border-slate-200">
-                            Không
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5 align-middle font-mono font-semibold text-slate-700 whitespace-nowrap">
-                        {item.maSoThueNPT}
-                      </td>
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">{item.tuThang}</td>
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">{item.denThang}</td>
-                      <td className="px-4 py-3.5 align-middle text-slate-400 whitespace-nowrap">{item.ghiChu || '—'}</td>
                       <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap">
                         <div className="inline-flex items-center gap-1">
-                          <button
-                            type="button"
-                            title="Chỉnh sửa"
-                            onClick={() => alert(`Chỉnh sửa thân nhân: ${item.hoTenThanNhan}`)}
-                            className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
-                          >
-                            <IconPencil size={13} />
+                          <button type="button" title="Xem" aria-label="Xem thân nhân" onClick={() => setViewingItem(item)} className="p-1.5 rounded hover:bg-sky-50 text-slate-500 hover:text-sky-700 transition-colors cursor-pointer">
+                            <IconEye size={14} />
                           </button>
-                          <button
-                            type="button"
-                            title="Xóa"
-                            onClick={() => alert(`Xóa thân nhân: ${item.hoTenThanNhan}`)}
-                            className="p-1.5 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
-                          >
-                            <IconTrash size={13} />
+                          <button type="button" title="Sửa" aria-label="Sửa thân nhân" onClick={() => setEditingItem(item)} className="p-1.5 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer">
+                            <IconPencil size={14} />
+                          </button>
+                          <button type="button" title="Xóa" aria-label="Xóa thân nhân" onClick={() => setDeletingItem(item)} className="p-1.5 rounded hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer">
+                            <IconTrash size={14} />
                           </button>
                         </div>
                       </td>
@@ -234,6 +220,35 @@ export default function ThanNhanPhuThuocTab({
           </div>
         </div>
       </div>
+      <ThemThanNhanModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={(newItem) => {
+          setData((current) => [...current, { ...newItem, id: Date.now().toString() }]);
+          setCurrentPage(1);
+        }}
+      />
+      <XemThanNhanModal
+        isOpen={!!viewingItem}
+        item={viewingItem}
+        onClose={() => setViewingItem(null)}
+      />
+      <SuaThanNhanModal
+        isOpen={!!editingItem}
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSubmit={(updated) => {
+          setData((current) => current.map((row) => (row.id === updated.id ? updated : row)));
+        }}
+      />
+      <XoaThanNhanModal
+        isOpen={!!deletingItem}
+        item={deletingItem}
+        onClose={() => setDeletingItem(null)}
+        onConfirm={(id) => {
+          setData((current) => current.filter((row) => row.id !== id));
+        }}
+      />
     </div>
   );
 }

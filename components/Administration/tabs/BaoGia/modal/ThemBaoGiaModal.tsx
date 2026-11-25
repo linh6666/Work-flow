@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   IconX, 
   IconInfoCircle, 
@@ -16,6 +16,7 @@ import ThongTinChungTab from './ThongTinChung';
 import DanhMucGiaTab, { BaoGiaSection, HangMucDong } from './DanhMucGia';
 import DieuKienBaoGiaTab, { DieuKienItem } from './DieuKienBaoGia';
 import { getQuoteRequestList, QuoteRequestRecord } from '@/api/apiGetQuoteRequest';
+import { getQuotationTemplateList, QuotationTemplateRecord } from '@/api/apiGetQuotationTemplate';
 
 interface ThemBaoGiaModalProps {
   isOpen: boolean;
@@ -34,9 +35,40 @@ export default function ThemBaoGiaModal({
   const [activeTab, setActiveTab] = useState<'info' | 'items' | 'terms' | 'attachments'>('info');
   const [danhSachFile, setDanhSachFile] = useState<File[]>([]);
 
-  // --- Tab 1: Thông tin chung states ---
+  // Danh sÃ¡ch Äá» xuáº¥t bÃ¡o giÃ¡ tá»« API
+  const [proposals, setProposals] = useState<QuoteRequestRecord[]>([]);
+  const [allTemplates, setAllTemplates] = useState<QuotationTemplateRecord[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      getQuoteRequestList(100).then((data) => {
+        if (Array.isArray(data)) setProposals(data);
+      });
+      getQuotationTemplateList(500).then((data) => {
+        if (Array.isArray(data)) setAllTemplates(data);
+      });
+    }
+  }, [isOpen]);
+
+  // Distinct quote_type list filtered by current language
   const [ngonNgu, setNgonNgu] = useState('vi');
-  const [loai, setLoai] = useState('Mô hình Quy hoạch');
+
+  const quoteTypeOptions = useMemo(() => {
+    const filtered = allTemplates.filter(
+      (t) => !t.quote_language || t.quote_language === ngonNgu
+    );
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const t of filtered) {
+      const qt = t.quote_type?.trim();
+      if (qt && !seen.has(qt)) { seen.add(qt); result.push(qt); }
+    }
+    return result;
+  }, [allTemplates, ngonNgu]);
+
+  // --- Tab 1: ThÃ´ng tin chung states ---
+
+  const [loai, setLoai] = useState('MÃ´ hÃ¬nh Quy hoáº¡ch');
   const [lienKetDeXuat, setLienKetDeXuat] = useState('');
   const [soBg, setSoBg] = useState('');
   const [ngay, setNgay] = useState('');
@@ -46,10 +78,10 @@ export default function ThemBaoGiaModal({
   const [tenDuAn, setTenDuAn] = useState('');
   const [tyLe, setTyLe] = useState('1/800');
   const [kichThuoc, setKichThuoc] = useState('2650X1900MM');
-  const [trangThai, setTrangThai] = useState('Bản nháp');
+  const [trangThai, setTrangThai] = useState('Báº£n nhÃ¡p');
 
-  // --- Tab 2: Danh mục & Giá states ---
-  const [loaiBaoGiaSelect, setLoaiBaoGiaSelect] = useState('Mô hình Quy hoạch');
+  // --- Tab 2: Danh má»¥c & GiÃ¡ states ---
+  const [loaiBaoGiaSelect, setLoaiBaoGiaSelect] = useState('MÃ´ hÃ¬nh Quy hoáº¡ch');
   const [chietKhauChecked, setChietKhauChecked] = useState(true);
   const [sauChietKhauChecked, setSauChietKhauChecked] = useState(true);
   const [chietKhauPercent, setChietKhauPercent] = useState(0);
@@ -58,20 +90,20 @@ export default function ThemBaoGiaModal({
   const [sections, setSections] = useState<BaoGiaSection[]>([]);
   const [tongSauThue, setTongSauThue] = useState(0);
 
-  // --- Tab 3: Điều kiện báo giá states ---
+  // --- Tab 3: Äiá»u kiá»‡n bÃ¡o giÃ¡ states ---
   const [thoiGianSanXuat, setThoiGianSanXuat] = useState(60);
   const [baoHanhThang, setBaoHanhThang] = useState(18);
-  const [phuongThucThanhToan, setPhuongThucThanhToan] = useState('Tạm ứng: 50%, Thanh toán lần 1: 40% sau khi đạt 90% khối lượng công việc, Thanh toán cuối cùng: 10%');
+  const [phuongThucThanhToan, setPhuongThucThanhToan] = useState('Táº¡m á»©ng: 50%, Thanh toÃ¡n láº§n 1: 40% sau khi Ä‘áº¡t 90% khá»‘i lÆ°á»£ng cÃ´ng viá»‡c, Thanh toÃ¡n cuá»‘i cÃ¹ng: 10%');
   const [dieuKienList, setDieuKienList] = useState<DieuKienItem[]>([
     {
       id: '1',
-      tieuDe: '1. Dự tính thời gian sản xuất mô hình',
-      noiDung: '45-50 ngày làm việc (trừ chủ nhật và ngày lễ) kể từ ngày tạm ứng và nhận đầy đủ bản vẽ. Quý khách vui lòng đặt lịch sản xuất mô hình trước 1 tháng. Nếu mô hình có thêm lựa chọn hệ thống điều khiển ánh sáng, thời gian sản xuất mô hình sẽ phụ thuộc vào lựa chọn của khách hàng và phần hệ thống điều khiển ánh sáng.'
+      tieuDe: '1. Dá»± tÃ­nh thá»i gian sáº£n xuáº¥t mÃ´ hÃ¬nh',
+      noiDung: '45-50 ngÃ y lÃ m viá»‡c (trá»« chá»§ nháº­t vÃ  ngÃ y lá»…) ká»ƒ tá»« ngÃ y táº¡m á»©ng vÃ  nháº­n Ä‘áº§y Ä‘á»§ báº£n váº½. QuÃ½ khÃ¡ch vui lÃ²ng Ä‘áº·t lá»‹ch sáº£n xuáº¥t mÃ´ hÃ¬nh trÆ°á»›c 1 thÃ¡ng. Náº¿u mÃ´ hÃ¬nh cÃ³ thÃªm lá»±a chá»n há»‡ thá»‘ng Ä‘iá»u khiá»ƒn Ã¡nh sÃ¡ng, thá»i gian sáº£n xuáº¥t mÃ´ hÃ¬nh sáº½ phá»¥ thuá»™c vÃ o lá»±a chá»n cá»§a khÃ¡ch hÃ ng vÃ  pháº§n há»‡ thá»‘ng Ä‘iá»u khiá»ƒn Ã¡nh sÃ¡ng.'
     },
     {
       id: '2',
-      tieuDe: '2. Báo giá dựa trên hồ sơ',
-      noiDung: 'Báo giá dựa trên hồ sơ được cung cấp ngày 16/05/2026 và trên cơ sở hồ sơ dùng để sản xuất mô hình là hồ sơ CAD. Nếu hồ sơ có sự thay đổi hoặc hồ sơ sản xuất mô hình không phải hồ sơ CAD thì các thời gian sản xuất và giá trị của báo giá cũng sẽ được điều chỉnh dựa trên hồ sơ mới'
+      tieuDe: '2. BÃ¡o giÃ¡ dá»±a trÃªn há»“ sÆ¡',
+      noiDung: 'BÃ¡o giÃ¡ dá»±a trÃªn há»“ sÆ¡ Ä‘Æ°á»£c cung cáº¥p ngÃ y 16/05/2026 vÃ  trÃªn cÆ¡ sá»Ÿ há»“ sÆ¡ dÃ¹ng Ä‘á»ƒ sáº£n xuáº¥t mÃ´ hÃ¬nh lÃ  há»“ sÆ¡ CAD. Náº¿u há»“ sÆ¡ cÃ³ sá»± thay Ä‘á»•i hoáº·c há»“ sÆ¡ sáº£n xuáº¥t mÃ´ hÃ¬nh khÃ´ng pháº£i há»“ sÆ¡ CAD thÃ¬ cÃ¡c thá»i gian sáº£n xuáº¥t vÃ  giÃ¡ trá»‹ cá»§a bÃ¡o giÃ¡ cÅ©ng sáº½ Ä‘Æ°á»£c Ä‘iá»u chá»‰nh dá»±a trÃªn há»“ sÆ¡ má»›i'
     }
   ]);
 
@@ -94,7 +126,7 @@ export default function ThemBaoGiaModal({
     if (isOpen) {
       setActiveTab('info');
       setNgonNgu('vi');
-      setLoai('Mô hình Quy hoạch');
+      setLoai('MÃ´ hÃ¬nh Quy hoáº¡ch');
       setLienKetDeXuat('');
       setSoBg(suggestedSoBg);
       const today = new Date().toISOString().split('T')[0];
@@ -105,9 +137,9 @@ export default function ThemBaoGiaModal({
       setTenDuAn('');
       setTyLe('1/800');
       setKichThuoc('2650X1900MM');
-      setTrangThai('Bản nháp');
+      setTrangThai('Báº£n nhÃ¡p');
 
-      setLoaiBaoGiaSelect('Mô hình Quy hoạch');
+      setLoaiBaoGiaSelect('MÃ´ hÃ¬nh Quy hoáº¡ch');
       setChietKhauChecked(true);
       setSauChietKhauChecked(true);
       setChietKhauPercent(0);
@@ -117,17 +149,17 @@ export default function ThemBaoGiaModal({
 
       setThoiGianSanXuat(60);
       setBaoHanhThang(18);
-      setPhuongThucThanhToan('Tạm ứng: 50%, Thanh toán lần 1: 40% sau khi đạt 90% khối lượng công việc, Thanh toán cuối cùng: 10%');
+      setPhuongThucThanhToan('Táº¡m á»©ng: 50%, Thanh toÃ¡n láº§n 1: 40% sau khi Ä‘áº¡t 90% khá»‘i lÆ°á»£ng cÃ´ng viá»‡c, Thanh toÃ¡n cuá»‘i cÃ¹ng: 10%');
       setDieuKienList([
         {
           id: '1',
-          tieuDe: '1. Dự tính thời gian sản xuất mô hình',
-          noiDung: '45-50 ngày làm việc (trừ chủ nhật và ngày lễ) kể từ ngày tạm ứng và nhận đầy đủ bản vẽ. Quý khách vui lòng đặt lịch sản xuất mô hình trước 1 tháng. Nếu mô hình có thêm lựa chọn hệ thống điều khiển ánh sáng, thời gian sản xuất mô hình sẽ phụ thuộc vào lựa chọn của khách hàng và phần hệ thống điều khiển ánh sáng.'
+          tieuDe: '1. Dá»± tÃ­nh thá»i gian sáº£n xuáº¥t mÃ´ hÃ¬nh',
+          noiDung: '45-50 ngÃ y lÃ m viá»‡c (trá»« chá»§ nháº­t vÃ  ngÃ y lá»…) ká»ƒ tá»« ngÃ y táº¡m á»©ng vÃ  nháº­n Ä‘áº§y Ä‘á»§ báº£n váº½. QuÃ½ khÃ¡ch vui lÃ²ng Ä‘áº·t lá»‹ch sáº£n xuáº¥t mÃ´ hÃ¬nh trÆ°á»›c 1 thÃ¡ng. Náº¿u mÃ´ hÃ¬nh cÃ³ thÃªm lá»±a chá»n há»‡ thá»‘ng Ä‘iá»u khiá»ƒn Ã¡nh sÃ¡ng, thá»i gian sáº£n xuáº¥t mÃ´ hÃ¬nh sáº½ phá»¥ thuá»™c vÃ o lá»±a chá»n cá»§a khÃ¡ch hÃ ng vÃ  pháº§n há»‡ thá»‘ng Ä‘iá»u khiá»ƒn Ã¡nh sÃ¡ng.'
         },
         {
           id: '2',
-          tieuDe: '2. Báo giá dựa trên hồ sơ',
-          noiDung: 'Báo giá dựa trên hồ sơ được cung cấp ngày 16/05/2026 và trên cơ sở hồ sơ dùng để sản xuất mô hình là hồ sơ CAD. Nếu hồ sơ có sự thay đổi hoặc hồ sơ sản xuất mô hình không phải hồ sơ CAD thì các thời gian sản xuất và giá trị của báo giá cũng sẽ được điều chỉnh dựa trên hồ sơ mới'
+          tieuDe: '2. BÃ¡o giÃ¡ dá»±a trÃªn há»“ sÆ¡',
+          noiDung: 'BÃ¡o giÃ¡ dá»±a trÃªn há»“ sÆ¡ Ä‘Æ°á»£c cung cáº¥p ngÃ y 16/05/2026 vÃ  trÃªn cÆ¡ sá»Ÿ há»“ sÆ¡ dÃ¹ng Ä‘á»ƒ sáº£n xuáº¥t mÃ´ hÃ¬nh lÃ  há»“ sÆ¡ CAD. Náº¿u há»“ sÆ¡ cÃ³ sá»± thay Ä‘á»•i hoáº·c há»“ sÆ¡ sáº£n xuáº¥t mÃ´ hÃ¬nh khÃ´ng pháº£i há»“ sÆ¡ CAD thÃ¬ cÃ¡c thá»i gian sáº£n xuáº¥t vÃ  giÃ¡ trá»‹ cá»§a bÃ¡o giÃ¡ cÅ©ng sáº½ Ä‘Æ°á»£c Ä‘iá»u chá»‰nh dá»±a trÃªn há»“ sÆ¡ má»›i'
         }
       ]);
     }
@@ -150,15 +182,15 @@ export default function ThemBaoGiaModal({
     const newSection: BaoGiaSection = {
       id: Date.now().toString(),
       index: sections.length + 1,
-      tenPhan: 'PHÂN MỚI',
+      tenPhan: 'PHÃ‚N Má»šI',
       ckChecked: true,
       collapsed: false,
       dongs: [
         {
           id: Date.now().toString() + '-d1',
           stt: '1',
-          congViec: 'TÊN HẠNG MỤC',
-          loaiVatLieu: 'Mô tả...',
+          congViec: 'TÃŠN Háº NG Má»¤C',
+          loaiVatLieu: 'MÃ´ táº£...',
           soLuong: 1,
           donVi: 'm2',
           donGia: 0,
@@ -235,17 +267,6 @@ export default function ThemBaoGiaModal({
     setSections([]);
   };
 
-  // Danh sách Đề xuất báo giá từ API
-  const [proposals, setProposals] = useState<QuoteRequestRecord[]>([]);
-
-  useEffect(() => {
-    if (isOpen) {
-      getQuoteRequestList(100).then((data) => {
-        if (Array.isArray(data)) setProposals(data);
-      });
-    }
-  }, [isOpen]);
-
   const handleAutoFill = (proposalId: string) => {
     setLienKetDeXuat(proposalId);
     const found = proposals.find((p) => p.id === proposalId || p.request_number === proposalId);
@@ -266,20 +287,20 @@ export default function ThemBaoGiaModal({
 
     if (proposalId === 'dx01') {
       setKhachHangSelect('KH001');
-      setTenKhachHangManual('Tập đoàn T&T');
-      setTenDuAn('Mô hình quy hoạch phân khu A - Tập đoàn T&T');
+      setTenKhachHangManual('Táº­p Ä‘oÃ n T&T');
+      setTenDuAn('MÃ´ hÃ¬nh quy hoáº¡ch phÃ¢n khu A - Táº­p Ä‘oÃ n T&T');
       setTyLe('1/500');
       setKichThuoc('2000X1500MM');
-      setLoai('Mô hình Quy hoạch');
-      setLoaiBaoGiaSelect('Mô hình Quy hoạch');
+      setLoai('MÃ´ hÃ¬nh Quy hoáº¡ch');
+      setLoaiBaoGiaSelect('MÃ´ hÃ¬nh Quy hoáº¡ch');
     } else if (proposalId === 'dx02') {
       setKhachHangSelect('KH004');
-      setTenKhachHangManual('Công ty CP Flamingo');
-      setTenDuAn('Mô hình kiến trúc resort nghỉ dưỡng Flamingo');
+      setTenKhachHangManual('CÃ´ng ty CP Flamingo');
+      setTenDuAn('MÃ´ hÃ¬nh kiáº¿n trÃºc resort nghá»‰ dÆ°á»¡ng Flamingo');
       setTyLe('1/200');
       setKichThuoc('1800X1200MM');
-      setLoai('Mô hình Kiến trúc');
-      setLoaiBaoGiaSelect('Mô hình Kiến trúc');
+      setLoai('MÃ´ hÃ¬nh Kiáº¿n trÃºc');
+      setLoaiBaoGiaSelect('MÃ´ hÃ¬nh Kiáº¿n trÃºc');
     } else {
       setKhachHangSelect('');
       setTenKhachHangManual('');
@@ -293,30 +314,30 @@ export default function ThemBaoGiaModal({
     let defaultDong: HangMucDong = {
       id: Date.now().toString() + '-d1',
       stt: '1',
-      congViec: 'Sản xuất sa bàn quy hoạch đô thị 1/500',
-      loaiVatLieu: 'Gỗ công nghiệp MDF, Led, Mica...',
+      congViec: 'Sáº£n xuáº¥t sa bÃ n quy hoáº¡ch Ä‘Ã´ thá»‹ 1/500',
+      loaiVatLieu: 'Gá»— cÃ´ng nghiá»‡p MDF, Led, Mica...',
       soLuong: 1,
       donVi: 'm2',
       donGia: 800000000
     };
-    if (loaiBaoGiaSelect === 'Mô hình Kiến trúc') {
+    if (loaiBaoGiaSelect === 'MÃ´ hÃ¬nh Kiáº¿n trÃºc') {
       defaultDong = {
         id: Date.now().toString() + '-d1',
         stt: '1',
-        congViec: 'Sản xuất mô hình kiến trúc cao tầng 1/200',
-        loaiVatLieu: 'Nhựa Formex, Nhựa ABS, Sơn cao cấp...',
+        congViec: 'Sáº£n xuáº¥t mÃ´ hÃ¬nh kiáº¿n trÃºc cao táº§ng 1/200',
+        loaiVatLieu: 'Nhá»±a Formex, Nhá»±a ABS, SÆ¡n cao cáº¥p...',
         soLuong: 1,
-        donVi: 'bộ',
+        donVi: 'bá»™',
         donGia: 1200000000
       };
-    } else if (loaiBaoGiaSelect === 'Mô hình Nội thất') {
+    } else if (loaiBaoGiaSelect === 'MÃ´ hÃ¬nh Ná»™i tháº¥t') {
       defaultDong = {
         id: Date.now().toString() + '-d1',
         stt: '1',
-        congViec: 'Sản xuất sa bàn nội thất căn hộ luxury 1/20',
-        loaiVatLieu: 'Mica tản sáng, phụ kiện mini...',
+        congViec: 'Sáº£n xuáº¥t sa bÃ n ná»™i tháº¥t cÄƒn há»™ luxury 1/20',
+        loaiVatLieu: 'Mica táº£n sÃ¡ng, phá»¥ kiá»‡n mini...',
         soLuong: 1,
-        donVi: 'căn',
+        donVi: 'cÄƒn',
         donGia: 350000000
       };
     }
@@ -324,7 +345,7 @@ export default function ThemBaoGiaModal({
     const newSec: BaoGiaSection = {
       id: Date.now().toString(),
       index: sections.length + 1,
-      tenPhan: 'PHẦN MẪU BÁO GIÁ',
+      tenPhan: 'PHáº¦N MáºªU BÃO GIÃ',
       ckChecked: true,
       collapsed: false,
       dongs: [defaultDong]
@@ -333,16 +354,16 @@ export default function ThemBaoGiaModal({
   };
 
   const handleImportExcel = () => {
-    alert('Nhập khẩu danh mục từ Excel thành công! Nạp 2 hạng mục mẫu vào Phân đoạn mới.');
+    alert('Nháº­p kháº©u danh má»¥c tá»« Excel thÃ nh cÃ´ng! Náº¡p 2 háº¡ng má»¥c máº«u vÃ o PhÃ¢n Ä‘oáº¡n má»›i.');
     const importedSection: BaoGiaSection = {
       id: Date.now().toString(),
       index: sections.length + 1,
-      tenPhan: 'DANH MỤC EXCEL IMPORT',
+      tenPhan: 'DANH Má»¤C EXCEL IMPORT',
       ckChecked: true,
       collapsed: false,
       dongs: [
-        { id: Date.now().toString() + '-e1', stt: '1', congViec: 'Gia công phần khung thép chịu lực mô hình', loaiVatLieu: 'Thép hộp mạ kẽm', soLuong: 1, donVi: 'kg', donGia: 12000000 },
-        { id: Date.now().toString() + '-e2', stt: '2', congViec: 'Lắp ráp hệ thống mạch điện điều khiển led 3 chế độ', loaiVatLieu: 'Mạch nạp ESP32, Relay', soLuong: 1, donVi: 'bộ', donGia: 28000000 }
+        { id: Date.now().toString() + '-e1', stt: '1', congViec: 'Gia cÃ´ng pháº§n khung thÃ©p chá»‹u lá»±c mÃ´ hÃ¬nh', loaiVatLieu: 'ThÃ©p há»™p máº¡ káº½m', soLuong: 1, donVi: 'kg', donGia: 12000000 },
+        { id: Date.now().toString() + '-e2', stt: '2', congViec: 'Láº¯p rÃ¡p há»‡ thá»‘ng máº¡ch Ä‘iá»‡n Ä‘iá»u khiá»ƒn led 3 cháº¿ Ä‘á»™', loaiVatLieu: 'Máº¡ch náº¡p ESP32, Relay', soLuong: 1, donVi: 'bá»™', donGia: 28000000 }
       ]
     };
     setSections(prev => [...prev, importedSection]);
@@ -381,12 +402,12 @@ export default function ThemBaoGiaModal({
     }
 
     // Map tracking status to the required status format in index.tsx
-    let mainStatus: BaoGiaItem['trangThai'] = 'Đang soạn';
-    if (trangThai === 'Đã gửi') mainStatus = 'Đã gửi';
-    else if (trangThai === 'Đã chốt') mainStatus = 'Đã chốt';
-    else if (trangThai === 'Từ chối báo giá') mainStatus = 'Đã từ chối';
-    else if (trangThai === 'Đang đàm phán') mainStatus = 'Chờ duyệt';
-    else if (trangThai === 'Bản nháp') mainStatus = 'Đang soạn';
+    let mainStatus: BaoGiaItem['trangThai'] = 'Äang soáº¡n';
+    if (trangThai === 'ÄÃ£ gá»­i') mainStatus = 'ÄÃ£ gá»­i';
+    else if (trangThai === 'ÄÃ£ chá»‘t') mainStatus = 'ÄÃ£ chá»‘t';
+    else if (trangThai === 'Tá»« chá»‘i bÃ¡o giÃ¡') mainStatus = 'ÄÃ£ tá»« chá»‘i';
+    else if (trangThai === 'Äang Ä‘Ã m phÃ¡n') mainStatus = 'Chá» duyá»‡t';
+    else if (trangThai === 'Báº£n nhÃ¡p') mainStatus = 'Äang soáº¡n';
 
     onSave({
       soBg: soBg.trim(),
@@ -407,7 +428,7 @@ export default function ThemBaoGiaModal({
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
             <IconReceipt size={20} className="text-[#406c89]" />
-            <h3 className="text-base font-bold text-slate-800">Tạo báo giá mới</h3>
+            <h3 className="text-base font-bold text-slate-800">Táº¡o bÃ¡o giÃ¡ má»›i</h3>
           </div>
           <button 
             type="button"
@@ -430,7 +451,7 @@ export default function ThemBaoGiaModal({
             }`}
           >
             <IconInfoCircle size={16} />
-            <span>Thông tin chung</span>
+            <span>ThÃ´ng tin chung</span>
           </button>
           <button
             type="button"
@@ -442,7 +463,7 @@ export default function ThemBaoGiaModal({
             }`}
           >
             <IconListDetails size={16} />
-            <span>Danh mục & Giá</span>
+            <span>Danh má»¥c & GiÃ¡</span>
             <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
               activeTab === 'items' ? 'bg-[#406c89]/10 text-[#406c89]' : 'bg-slate-200 text-slate-600'
             }`}>
@@ -459,7 +480,7 @@ export default function ThemBaoGiaModal({
             }`}
           >
             <IconReceipt size={16} />
-            <span>Điều kiện báo giá</span>
+            <span>Äiá»u kiá»‡n bÃ¡o giÃ¡</span>
           </button>
           <button
             type="button"
@@ -471,7 +492,7 @@ export default function ThemBaoGiaModal({
             }`}
           >
             <IconPaperclip size={16} />
-            <span>Hồ sơ đính kèm</span>
+            <span>Há»“ sÆ¡ Ä‘Ã­nh kÃ¨m</span>
             {danhSachFile.length > 0 && (
               <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-[#406c89]/10 text-[#406c89]">
                 {danhSachFile.length}
@@ -483,7 +504,7 @@ export default function ThemBaoGiaModal({
         {/* Scrollable Modal Content */}
         <div className="flex-1 overflow-y-auto no-scrollbar p-6 text-left">
           
-          {/* TAB 1: THÔNG TIN CHUNG */}
+          {/* TAB 1: THÃ”NG TIN CHUNG */}
           {activeTab === 'info' && (
             <ThongTinChungTab
               ngonNgu={ngonNgu}
@@ -514,7 +535,7 @@ export default function ThemBaoGiaModal({
             />
           )}
 
-          {/* TAB 2: DANH MỤC & GIÁ */}
+          {/* TAB 2: DANH Má»¤C & GIÃ */}
           {activeTab === 'items' && (
             <DanhMucGiaTab
               sections={sections}
@@ -529,6 +550,7 @@ export default function ThemBaoGiaModal({
               onClearAllSections={handleClearAllSections}
               loaiBaoGiaSelect={loaiBaoGiaSelect}
               setLoaiBaoGiaSelect={setLoaiBaoGiaSelect}
+              quoteTypeOptions={quoteTypeOptions}
               onLoadTemplate={handleLoadTemplate}
               chietKhauChecked={chietKhauChecked}
               setChietKhauChecked={setChietKhauChecked}
@@ -548,7 +570,7 @@ export default function ThemBaoGiaModal({
             />
           )}
 
-          {/* TAB 3: ĐIỀU KIỆN BÁO GIÁ */}
+          {/* TAB 3: ÄIá»€U KIá»†N BÃO GIÃ */}
           {activeTab === 'terms' && (
             <DieuKienBaoGiaTab
               thoiGianSanXuat={thoiGianSanXuat}
@@ -564,12 +586,12 @@ export default function ThemBaoGiaModal({
             />
           )}
 
-          {/* TAB 4: HỒ SƠ ĐÍNH KÈM */}
+          {/* TAB 4: Há»’ SÆ  ÄÃNH KÃˆM */}
           {activeTab === 'attachments' && (
             <div className="p-4 rounded-xl border border-slate-200/80 bg-[#f8fafc]/60 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
                 <h5 className="text-xs font-bold text-slate-800">
-                  Tài liệu / Hình ảnh đính kèm (phục vụ phê duyệt)
+                  TÃ i liá»‡u / HÃ¬nh áº£nh Ä‘Ã­nh kÃ¨m (phá»¥c vá»¥ phÃª duyá»‡t)
                 </h5>
                 <IconChevronUp size={16} className="text-slate-400" />
               </div>
@@ -577,17 +599,17 @@ export default function ThemBaoGiaModal({
               <div className="space-y-3">
                 <div>
                   <h6 className="text-xs font-bold text-slate-800">
-                    Tài liệu / Hình ảnh đính kèm (phục vụ phê duyệt)
+                    TÃ i liá»‡u / HÃ¬nh áº£nh Ä‘Ã­nh kÃ¨m (phá»¥c vá»¥ phÃª duyá»‡t)
                   </h6>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    Tải lên bản vẽ, hồ sơ, hình ảnh tham khảo... để phục vụ phê duyệt báo giá.
+                    Táº£i lÃªn báº£n váº½, há»“ sÆ¡, hÃ¬nh áº£nh tham kháº£o... Ä‘á»ƒ phá»¥c vá»¥ phÃª duyá»‡t bÃ¡o giÃ¡.
                   </p>
                 </div>
 
                 <div>
                   <label className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer">
                     <IconUpload size={14} className="text-[#406c89]" />
-                    <span>Chọn tệp để tải lên</span>
+                    <span>Chá»n tá»‡p Ä‘á»ƒ táº£i lÃªn</span>
                     <input type="file" multiple className="hidden" onChange={handleFileUpload} />
                   </label>
                 </div>
@@ -605,7 +627,7 @@ export default function ThemBaoGiaModal({
                           type="button"
                           onClick={() => handleRemoveFile(idx)}
                           className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer transition-colors"
-                          title="Xóa tệp"
+                          title="XÃ³a tá»‡p"
                         >
                           <IconTrash size={14} />
                         </button>
@@ -630,7 +652,7 @@ export default function ThemBaoGiaModal({
               onClick={onClose}
               className="px-4 py-2 border border-slate-200 text-slate-500 text-xs font-bold rounded-lg hover:bg-slate-100 transition-all cursor-pointer"
             >
-              Hủy
+              Há»§y
             </button>
             
             {activeTab !== 'attachments' ? (
@@ -640,7 +662,7 @@ export default function ThemBaoGiaModal({
                   if (activeTab === 'info') {
                     const finalKh = tenKhachHangManual.trim() || khachHangSelect.trim();
                     if (!soBg.trim() || !finalKh) {
-                      alert('Vui lòng điền đầy đủ Số BG và Tên Khách hàng trước khi tiếp tục!');
+                      alert('Vui lÃ²ng Ä‘iá»n Ä‘áº§y Ä‘á»§ Sá»‘ BG vÃ  TÃªn KhÃ¡ch hÃ ng trÆ°á»›c khi tiáº¿p tá»¥c!');
                       return;
                     }
                     setActiveTab('items');
@@ -652,7 +674,7 @@ export default function ThemBaoGiaModal({
                 }}
                 className="px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-lg transition-all cursor-pointer"
               >
-                Tiếp tục
+                Tiáº¿p tá»¥c
               </button>
             ) : (
               <button
@@ -660,7 +682,7 @@ export default function ThemBaoGiaModal({
                 onClick={handleSubmit}
                 className="px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-lg transition-all cursor-pointer"
               >
-                Xác nhận
+                XÃ¡c nháº­n
               </button>
             )}
           </div>

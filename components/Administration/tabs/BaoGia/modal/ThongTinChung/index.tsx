@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { getQuoteRequestList, QuoteRequestRecord } from '@/api/apiGetQuoteRequest';
+import { getQuotationTemplateList, QuotationTemplateRecord } from '@/api/apiGetQuotationTemplate';
 
 interface ThongTinChungTabProps {
   ngonNgu: string;
@@ -78,6 +79,7 @@ export default function ThongTinChungTab({
   onAutoFill,
 }: ThongTinChungTabProps) {
   const [proposals, setProposals] = useState<QuoteRequestRecord[]>([]);
+  const [allTemplates, setAllTemplates] = useState<QuotationTemplateRecord[]>([]);
 
   useEffect(() => {
     getQuoteRequestList(100).then((data) => {
@@ -85,7 +87,29 @@ export default function ThongTinChungTab({
         setProposals(data);
       }
     });
+    getQuotationTemplateList(500).then((data) => {
+      if (Array.isArray(data)) setAllTemplates(data);
+    });
   }, []);
+
+  // Distinct quote_type list filtered by current language
+  const quoteTypeOptions = useMemo(() => {
+    const langMap: Record<string, string> = { vi: 'vi', en: 'en', 'vi-en': 'vi-en' };
+    const activeLang = langMap[ngonNgu] ?? 'vi';
+    const filtered = allTemplates.filter(
+      (t) => !t.quote_language || t.quote_language === activeLang
+    );
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const t of filtered) {
+      const qt = t.quote_type?.trim();
+      if (qt && !seen.has(qt)) {
+        seen.add(qt);
+        result.push(qt);
+      }
+    }
+    return result;
+  }, [allTemplates, ngonNgu]);
   const handleKhachHangChange = (ma: string) => {
     setKhachHangSelect(ma);
     const kh = LIST_KHACH_HANG.find(k => k.ma === ma);
@@ -147,13 +171,27 @@ export default function ThongTinChungTab({
             onChange={(e) => setLoai(e.target.value)}
             className="w-full text-xs bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
           >
-            <option value="Mô hình Quy hoạch">Báo giá Mô hình Quy hoạch</option>
-            <option value="Mô hình Kiến trúc">Báo giá Mô hình Kiến trúc</option>
-            <option value="Mô hình Nội thất">Báo giá Mô hình Nội thất</option>
-            <option value="Khác">Báo giá Khác</option>
+            {quoteTypeOptions.length > 0 ? (
+              quoteTypeOptions.map((qt) => (
+                <option key={qt} value={qt}>
+                  {qt.startsWith('Báo giá') ? qt : `Báo giá ${qt}`}
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="Mô hình Quy hoạch">Báo giá Mô hình Quy hoạch</option>
+                <option value="Mô hình Kiến trúc">Báo giá Mô hình Kiến trúc</option>
+                <option value="Mô hình Nội thất">Báo giá Mô hình Nội thất</option>
+                <option value="Khác">Báo giá Khác</option>
+              </>
+            )}
           </select>
           <span className="text-[10px] text-blue-500 font-medium mt-1 block">
-            Chi hiển thị mẫu hỗ trợ ngôn ngữ Tiếng Việt
+            {ngonNgu === 'vi'
+              ? 'Chỉ hiển thị mẫu hỗ trợ ngôn ngữ Tiếng Việt'
+              : ngonNgu === 'en'
+              ? 'Only showing templates supporting English'
+              : 'Hiển thị mẫu hỗ trợ cả Việt - Anh'}
           </span>
         </div>
       </div>

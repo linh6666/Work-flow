@@ -46,6 +46,8 @@ interface DanhMucGiaTabProps {
   
   loaiBaoGiaSelect: string;
   setLoaiBaoGiaSelect: (v: string) => void;
+  /** Danh sách loại báo giá dynamic từ API; nếu rỗng thì dùng fallback hardcode */
+  quoteTypeOptions?: string[];
   onLoadTemplate: () => void;
   onAddTemplateItem: () => void;
   onImportExcel: () => void;
@@ -79,6 +81,7 @@ export default function DanhMucGiaTab({
   onClearAllSections,
   loaiBaoGiaSelect,
   setLoaiBaoGiaSelect,
+  quoteTypeOptions,
   onLoadTemplate,
   chietKhauChecked,
   setChietKhauChecked,
@@ -108,10 +111,20 @@ export default function DanhMucGiaTab({
             onChange={(e) => setLoaiBaoGiaSelect(e.target.value)}
             className="flex-1 text-xs bg-white border border-slate-200 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#406c89] h-9 text-slate-800"
           >
-            <option value="Mô hình Quy hoạch">Báo giá Mô hình Quy hoạch</option>
-            <option value="Mô hình Kiến trúc">Báo giá Mô hình Kiến trúc</option>
-            <option value="Mô hình Nội thất">Báo giá Mô hình Nội thất</option>
-            <option value="Khác">Báo giá Khác</option>
+            {quoteTypeOptions && quoteTypeOptions.length > 0 ? (
+              quoteTypeOptions.map((qt) => (
+                <option key={qt} value={qt}>
+                  {qt.startsWith('Báo giá') ? qt : `Báo giá ${qt}`}
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="Mô hình Quy hoạch">Báo giá Mô hình Quy hoạch</option>
+                <option value="Mô hình Kiến trúc">Báo giá Mô hình Kiến trúc</option>
+                <option value="Mô hình Nội thất">Báo giá Mô hình Nội thất</option>
+                <option value="Khác">Báo giá Khác</option>
+              </>
+            )}
           </select>
           <button
             type="button"

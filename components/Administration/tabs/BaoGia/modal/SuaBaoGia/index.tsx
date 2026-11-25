@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   IconX, 
   IconInfoCircle, 
@@ -16,6 +16,7 @@ import ThongTinChungTab from './ThongTinChung';
 import DanhMucGiaTab, { BaoGiaSection, HangMucDong } from './DanhMucGia';
 import DieuKienBaoGiaTab, { DieuKienItem } from './DieuKienBaoGia';
 import HoSoDinhKemTab from './HoSoDinhKem';
+import { getQuotationTemplateList, QuotationTemplateRecord } from '@/api/apiGetQuotationTemplate';
 
 interface SuaBaoGiaModalProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ export default function SuaBaoGiaModal({
   // Active Tab: 'info' | 'items' | 'terms' | 'attachments'
   const [activeTab, setActiveTab] = useState<'info' | 'items' | 'terms' | 'attachments'>('info');
   const [danhSachFile, setDanhSachFile] = useState<File[]>([]);
+  const [allTemplates, setAllTemplates] = useState<QuotationTemplateRecord[]>([]);
 
   // --- Tab 1: Thông tin chung states ---
   const [ngonNgu, setNgonNgu] = useState('vi');
@@ -50,6 +52,23 @@ export default function SuaBaoGiaModal({
 
   // --- Tab 2: Danh mục & Giá states ---
   const [loaiBaoGiaSelect, setLoaiBaoGiaSelect] = useState('Mô hình Quy hoạch');
+
+  // Distinct quote_type list filtered by current language
+  const quoteTypeOptions = useMemo(() => {
+    const filtered = allTemplates.filter(
+      (t) => !t.quote_language || t.quote_language === ngonNgu
+    );
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const t of filtered) {
+      const qt = t.quote_type?.trim();
+      if (qt && !seen.has(qt)) {
+        seen.add(qt);
+        result.push(qt);
+      }
+    }
+    return result;
+  }, [allTemplates, ngonNgu]);
   const [chietKhauChecked, setChietKhauChecked] = useState(true);
   const [sauChietKhauChecked, setSauChietKhauChecked] = useState(true);
   const [chietKhauPercent, setChietKhauPercent] = useState(0);
@@ -93,6 +112,11 @@ export default function SuaBaoGiaModal({
 
   // Prefill form when editingItem changes
   useEffect(() => {
+    if (isOpen) {
+      getQuotationTemplateList(500).then((data) => {
+        if (Array.isArray(data)) setAllTemplates(data);
+      });
+    }
     if (isOpen && editingItem) {
       setActiveTab('info');
       setNgonNgu(editingItem.quoteLanguage || 'vi');
@@ -484,6 +508,7 @@ export default function SuaBaoGiaModal({
               onClearAllSections={handleClearAllSections}
               loaiBaoGiaSelect={loaiBaoGiaSelect}
               setLoaiBaoGiaSelect={setLoaiBaoGiaSelect}
+              quoteTypeOptions={quoteTypeOptions}
               onLoadTemplate={handleLoadTemplate}
               chietKhauChecked={chietKhauChecked}
               setChietKhauChecked={setChietKhauChecked}

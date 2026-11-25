@@ -22,6 +22,8 @@ import EditProposalModal from './edit/EditProposalModal';
 import DeleteConfirmModal from './delete/DeleteConfirmModal';
 import TrienKhaiHoanTatModal from './trienKhaiHoanTat/TrienKhaiHoanTatModal';
 import TrienKhaiChuaLamModal from './trienKhaiChuaLam/TrienKhaiChuaLamModal';
+import DuyetDeXuatModal from './duyet/DuyetDeXuatModal';
+import TuChoiDeXuatModal from './tuChoi/TuChoiDeXuatModal';
 import { getQuoteRequestList, QuoteRequestRecord } from '@/api/apiGetQuoteRequest';
 import { createQuoteRequest } from '@/api/apiCreateQuoteRequest';
 import { updateQuoteRequest } from '@/api/apiUpdateQuoteRequest';
@@ -69,6 +71,7 @@ export interface DeXuat {
   duongDanHoSo?: string;
   ghiChu?: string;
   danhSachFile?: File[];
+  approvalStatusRaw?: string;
 }
 
 // ─── Mock data matching screenshot data 100% ──────
@@ -76,7 +79,7 @@ export interface DeXuat {
 const STATUS_CONFIG: Record<TrangThai, { label: string; color: string }> = {
   'cho-tp':      { label: 'Chờ QL KD duyệt',      color: 'text-amber-700 bg-amber-50 border-amber-300' },
   'tp-duyet':    { label: 'TP đã duyệt',          color: 'text-[#406c89] bg-sky-50 border-sky-200' },
-  'tp-tu-choi':  { label: 'TP từ chối',           color: 'text-rose-600 bg-rose-50 border-rose-200' },
+  'tp-tu-choi':  { label: 'QL KD từ chối',        color: 'text-rose-600 bg-rose-50 border-rose-200' },
   'cho-pgd':     { label: 'Chờ PGĐ duyệt',       color: 'text-purple-600 bg-purple-50 border-purple-200' },
   'pgd-duyet':   { label: 'PGĐ KD-HC đã duyệt',  color: 'text-emerald-700 bg-emerald-50 border-emerald-300' },
   'pgd-tu-choi': { label: 'PGĐ KD-HC từ chối',   color: 'text-rose-700 bg-rose-50 border-rose-300' },
@@ -113,6 +116,8 @@ export default function DeXuatBaoGia() {
   const [isTrienKhaiHoanTatModalOpen, setIsTrienKhaiHoanTatModalOpen] = useState(false);
   const [isTrienKhaiChuaLamModalOpen, setIsTrienKhaiChuaLamModalOpen] = useState(false);
   const [selectedProposalForTrienKhai, setSelectedProposalForTrienKhai] = useState<DeXuat | null>(null);
+  const [approvingProposal, setApprovingProposal] = useState<DeXuat | null>(null);
+  const [rejectingProposal, setRejectingProposal] = useState<DeXuat | null>(null);
 
   // Drag-to-scroll cho bảng
   const tableScrollRef = useRef<HTMLDivElement>(null);
@@ -293,11 +298,12 @@ export default function DeXuatBaoGia() {
 
 const mapApprovalStatusToTrangThai = (status?: string): TrangThai => {
   const s = (status || '').toLowerCase();
-  if (s.includes('pgđ') && s.includes('duyệt')) return 'pgd-duyet';
-  if (s.includes('pgđ') && s.includes('từ chối')) return 'pgd-tu-choi';
   if (s.includes('chờ pgđ')) return 'cho-pgd';
-  if (s.includes('tp') && s.includes('duyệt')) return 'tp-duyet';
+  if (s.includes('pgđ') && s.includes('từ chối')) return 'pgd-tu-choi';
+  if (s.includes('pgđ') && s.includes('duyệt')) return 'pgd-duyet';
+  if (s.includes('chờ tp')) return 'cho-tp';
   if (s.includes('tp') && s.includes('từ chối')) return 'tp-tu-choi';
+  if (s.includes('tp') && s.includes('duyệt')) return 'tp-duyet';
   return 'cho-tp';
 };
 
@@ -335,6 +341,7 @@ const mapQuoteRequestToDeXuat = (r: QuoteRequestRecord): DeXuat => {
     nguoiLap: r.submitter_name || '',
     ngay: r.date || (r.created_date ? String(r.created_date).slice(0, 10) : ''),
     trangThai: tt,
+    approvalStatusRaw: r.approval_status || undefined,
     buocHoanTat: tt === 'pgd-duyet' ? 2 : tt === 'tp-duyet' ? 1 : 0,
     tongBuoc: 2,
     lyDoTuChoi: r.pgd_rejection_reason || r.tp_rejection_reason || undefined,
@@ -439,10 +446,10 @@ const mapQuoteRequestToDeXuat = (r: QuoteRequestRecord): DeXuat => {
     }
   };
 
-  const handleReject = async (id: string) => {
-    const res = await updateQuoteRequest(id, { approval_status: 'TP từ chối', tp_rejection_reason: 'Từ chối phê duyệt' });
+  const handleReject = async (id: string, reason = 'Từ chối phê duyệt') => {
+    const res = await updateQuoteRequest(id, { approval_status: 'TP từ chối', tp_rejection_reason: reason });
     if (res.success) {
-      setData(prev => prev.map(item => item.id === id ? { ...item, trangThai: 'tp-tu-choi', lyDoTuChoi: 'Từ chối phê duyệt' } : item));
+      setData(prev => prev.map(item => item.id === id ? { ...item, trangThai: 'tp-tu-choi', lyDoTuChoi: reason } : item));
       NotificationExtension.Success('Đã từ chối đề xuất báo giá!');
     } else {
       NotificationExtension.Fails(res.error || 'Không thể từ chối đề xuất!');
@@ -748,7 +755,7 @@ const mapQuoteRequestToDeXuat = (r: QuoteRequestRecord): DeXuat => {
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <button
                                 type="button"
-                                onClick={() => handleApprove(row.id)}
+                                onClick={() => setApprovingProposal(row)}
                                 className="px-2 py-0.5 rounded border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-bold flex items-center gap-0.5 transition-colors cursor-pointer active:scale-95"
                               >
                                 <IconCheck size={11} />
@@ -756,7 +763,7 @@ const mapQuoteRequestToDeXuat = (r: QuoteRequestRecord): DeXuat => {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => handleReject(row.id)}
+                                onClick={() => setRejectingProposal(row)}
                                 className="px-2 py-0.5 rounded border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 text-[10px] font-bold flex items-center gap-0.5 transition-colors cursor-pointer active:scale-95"
                               >
                                 <IconX size={11} />
@@ -891,6 +898,20 @@ const mapQuoteRequestToDeXuat = (r: QuoteRequestRecord): DeXuat => {
         }}
         onUpdateSteps={handleUpdateSteps}
         proposal={selectedProposalForTrienKhai}
+      />
+
+      <DuyetDeXuatModal
+        isOpen={!!approvingProposal}
+        proposal={approvingProposal}
+        onClose={() => setApprovingProposal(null)}
+        onConfirm={handleApprove}
+      />
+
+      <TuChoiDeXuatModal
+        isOpen={!!rejectingProposal}
+        proposal={rejectingProposal}
+        onClose={() => setRejectingProposal(null)}
+        onConfirm={handleReject}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { IconChevronDown } from '@tabler/icons-react';
 import { getQuoteRequestList, QuoteRequestRecord } from '@/api/apiGetQuoteRequest';
 import { getQuotationTemplateList, QuotationTemplateRecord } from '@/api/apiGetQuotationTemplate';
 
@@ -31,13 +32,6 @@ interface ThongTinChungTabProps {
   setTrangThai: (v: string) => void;
   onAutoFill: (proposalId: string) => void;
 }
-
-const LIST_KHACH_HANG = [
-  { ma: 'KH001', ten: 'Tập đoàn T&T' },
-  { ma: 'KH002', ten: 'CÔNG TY TNHH BẤT ĐỘNG SẢN HỒ AN' },
-  { ma: 'KH003', ten: 'CÔNG TY CỔ PHẦN ĐẦU TƯ KINH DOANH BĐS NHSLAND' },
-  { ma: 'KH004', ten: 'Công ty CP Flamingo' },
-];
 
 const STATUSES = [
   'Bản nháp',
@@ -80,6 +74,18 @@ export default function ThongTinChungTab({
 }: ThongTinChungTabProps) {
   const [proposals, setProposals] = useState<QuoteRequestRecord[]>([]);
   const [allTemplates, setAllTemplates] = useState<QuotationTemplateRecord[]>([]);
+  const [isProposalOpen, setIsProposalOpen] = useState(false);
+  const proposalDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (proposalDropdownRef.current && !proposalDropdownRef.current.contains(event.target as Node)) {
+        setIsProposalOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     getQuoteRequestList(100).then((data) => {
@@ -112,12 +118,7 @@ export default function ThongTinChungTab({
   }, [allTemplates, ngonNgu]);
   const handleKhachHangChange = (ma: string) => {
     setKhachHangSelect(ma);
-    const kh = LIST_KHACH_HANG.find(k => k.ma === ma);
-    if (kh) {
-      setTenKhachHangManual(kh.ten);
-    } else {
-      setTenKhachHangManual('');
-    }
+    setTenKhachHangManual(ma);
   };
 
   return (
@@ -178,12 +179,7 @@ export default function ThongTinChungTab({
                 </option>
               ))
             ) : (
-              <>
-                <option value="Mô hình Quy hoạch">Báo giá Mô hình Quy hoạch</option>
-                <option value="Mô hình Kiến trúc">Báo giá Mô hình Kiến trúc</option>
-                <option value="Mô hình Nội thất">Báo giá Mô hình Nội thất</option>
-                <option value="Khác">Báo giá Khác</option>
-              </>
+              <option value="">Chưa có loại báo giá</option>
             )}
           </select>
           <span className="text-[10px] text-blue-500 font-medium mt-1 block">
@@ -199,25 +195,64 @@ export default function ThongTinChungTab({
       {/* SECTION 2: LIÊN KẾT ĐỀ XUẤT (AMBER WRAPPER) */}
       <div className="p-4 bg-amber-50/10 border border-amber-100 rounded-xl">
         <label className="block text-amber-700 font-bold mb-1">Liên kết Đề xuất Báo giá (tùy chọn)</label>
-        <select
-          value={lienKetDeXuat}
-          onChange={(e) => onAutoFill(e.target.value)}
-          className="w-full text-xs bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
-        >
-          <option value="">Chọn đề xuất để tự điền thông tin...</option>
-          {proposals.length > 0 ? (
-            proposals.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.request_number || 'ĐXBG'} - {p.project_name} ({p.customer_name || 'Khách hàng'})
-              </option>
-            ))
-          ) : (
-            <>
-              <option value="dx01">ĐXBG-001-2026 (Tập đoàn T&T)</option>
-              <option value="dx02">ĐXBG-002-2026 (Công ty CP Flamingo)</option>
-            </>
+        <div ref={proposalDropdownRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setIsProposalOpen((prev) => !prev)}
+            className="w-full flex items-center justify-between text-xs bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-1 focus:ring-[#406c89] cursor-pointer text-left"
+          >
+            <span className="truncate">
+              {(() => {
+                if (!lienKetDeXuat) return 'Chọn đề xuất để tự điền thông tin...';
+                const found = proposals.find((p) => p.id === lienKetDeXuat);
+                if (found) {
+                  return `${found.request_number || 'ĐXBG'} - ${found.project_name} (${found.customer_name || 'Khách hàng'})`;
+                }
+                return 'Chọn đề xuất để tự điền thông tin...';
+              })()}
+            </span>
+            <IconChevronDown
+              size={14}
+              className={`shrink-0 text-slate-400 transition-transform ${isProposalOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
+
+          {isProposalOpen && (
+            <div className="absolute top-full left-0 right-0 mt-1 z-30 max-h-60 overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-lg py-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onAutoFill('');
+                  setIsProposalOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-50 cursor-pointer ${
+                  !lienKetDeXuat ? 'bg-slate-50 font-semibold text-[#406c89]' : 'text-slate-500'
+                }`}
+              >
+                Chọn đề xuất để tự điền thông tin...
+              </button>
+              {proposals.length > 0 ? (
+                proposals.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      onAutoFill(p.id);
+                      setIsProposalOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-50 cursor-pointer truncate ${
+                      lienKetDeXuat === p.id ? 'bg-blue-50/60 font-semibold text-[#406c89]' : 'text-slate-700'
+                    }`}
+                  >
+                    {p.request_number || 'ĐXBG'} - {p.project_name} ({p.customer_name || 'Khách hàng'})
+                  </button>
+                ))
+              ) : (
+                <div className="px-3 py-2 text-xs text-slate-400">Chưa có đề xuất báo giá</div>
+              )}
+            </div>
           )}
-        </select>
+        </div>
       </div>
 
       {/* SECTION 3: CORE FORM FIELDS */}
@@ -264,9 +299,6 @@ export default function ThongTinChungTab({
             className="w-full text-xs bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
           >
             <option value="">Chọn từ danh sách...</option>
-            {LIST_KHACH_HANG.map(kh => (
-              <option key={kh.ma} value={kh.ma}>{kh.ten}</option>
-            ))}
           </select>
         </div>
         <div>

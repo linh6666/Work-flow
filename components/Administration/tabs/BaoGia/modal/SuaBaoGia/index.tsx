@@ -367,28 +367,23 @@ export default function SuaBaoGiaModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 transition-all">
-      <div 
-        className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200"
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+      <div
+        className="bg-white w-full max-w-4xl rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh] transform transition-all animate-scale-up"
         role="dialog"
         aria-modal="true"
       >
-        {/* Modal Top Bar */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white select-none">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#406c89]/10 border border-[#406c89]/20 flex items-center justify-center text-[#406c89] font-bold text-sm">
-              BG
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-800">Chỉnh sửa Báo giá</h3>
-              <p className="text-[11px] text-slate-400 font-medium">Mã báo giá: {editingItem.soBg}</p>
-            </div>
+        {/* Modal Header */}
+        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-2">
+            <IconReceipt size={20} className="text-[#406c89]" />
+            <h3 className="text-base font-bold text-slate-800">Chỉnh sửa báo giá</h3>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-all cursor-pointer"
+            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
           >
             <IconX size={18} />
           </button>

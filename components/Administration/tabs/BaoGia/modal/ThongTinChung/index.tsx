@@ -1,6 +1,7 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getQuoteRequestList, QuoteRequestRecord } from '@/api/apiGetQuoteRequest';
 
 interface ThongTinChungTabProps {
   ngonNgu: string;
@@ -76,6 +77,15 @@ export default function ThongTinChungTab({
   setTrangThai,
   onAutoFill,
 }: ThongTinChungTabProps) {
+  const [proposals, setProposals] = useState<QuoteRequestRecord[]>([]);
+
+  useEffect(() => {
+    getQuoteRequestList(100).then((data) => {
+      if (Array.isArray(data) && data.length > 0) {
+        setProposals(data);
+      }
+    });
+  }, []);
   const handleKhachHangChange = (ma: string) => {
     setKhachHangSelect(ma);
     const kh = LIST_KHACH_HANG.find(k => k.ma === ma);
@@ -157,8 +167,18 @@ export default function ThongTinChungTab({
           className="w-full text-xs bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-1 focus:ring-[#406c89]"
         >
           <option value="">Chọn đề xuất để tự điền thông tin...</option>
-          <option value="dx01">ĐXBG-001-2026 (Tập đoàn T&T)</option>
-          <option value="dx02">ĐXBG-002-2026 (Công ty CP Flamingo)</option>
+          {proposals.length > 0 ? (
+            proposals.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.request_number || 'ĐXBG'} - {p.project_name} ({p.customer_name || 'Khách hàng'})
+              </option>
+            ))
+          ) : (
+            <>
+              <option value="dx01">ĐXBG-001-2026 (Tập đoàn T&T)</option>
+              <option value="dx02">ĐXBG-002-2026 (Công ty CP Flamingo)</option>
+            </>
+          )}
         </select>
       </div>
 

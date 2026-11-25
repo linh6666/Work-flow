@@ -95,36 +95,55 @@ export default function SuaBaoGiaModal({
   useEffect(() => {
     if (isOpen && editingItem) {
       setActiveTab('info');
-      setNgonNgu('vi');
+      setNgonNgu(editingItem.quoteLanguage || 'vi');
       setLoai(editingItem.loai || 'Mô hình Quy hoạch');
-      setLienKetDeXuat('');
-      setSoBg(editingItem.soBg || '');
+      setLienKetDeXuat(editingItem.quoteRequestId || '');
+      setSoBg(editingItem.quoteNumber || editingItem.soBg || '');
       setNgay(editingItem.ngay || new Date().toISOString().split('T')[0]);
-      setHieuLucNgay(10);
-      setKhachHangSelect(editingItem.khachHang || '');
+      setHieuLucNgay(editingItem.validDays || 10);
+      setKhachHangSelect(editingItem.customerId || editingItem.khachHang || '');
       setTenKhachHangManual(editingItem.khachHang || '');
-      setTenDuAn(editingItem.soBg || '');
-      setTyLe(editingItem.tyLe || '1/500');
-      setKichThuoc(editingItem.kichThuoc || '2000X1500MM');
+      setTenDuAn(editingItem.projectName || editingItem.soBg || '');
+      setTyLe(editingItem.tyLe || '1/300');
+      setKichThuoc(editingItem.kichThuoc || '7000x3800MM');
       setTrangThai(editingItem.trangThai || 'Bản nháp');
 
       setLoaiBaoGiaSelect(editingItem.loai || 'Mô hình Quy hoạch');
       setChietKhauChecked(true);
       setSauChietKhauChecked(true);
-      setChietKhauPercent(0);
-      setVatPercent(8);
+      setChietKhauPercent(editingItem.discountPercent || 0);
+      setVatPercent(editingItem.vatPercent ?? 8);
       setTongSauThue(editingItem.tongSauThue || 0);
+      setThoiGianSanXuat(editingItem.productionDays || 60);
+      setBaoHanhThang(editingItem.warrantyMonths || 18);
+      if (editingItem.paymentTerms) {
+        setPhuongThucThanhToan(editingItem.paymentTerms);
+      }
+      if (editingItem.notes) {
+        try {
+          const parsed = typeof editingItem.notes === 'string' ? JSON.parse(editingItem.notes) : editingItem.notes;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setDieuKienList(parsed.map((n: any, idx: number) => ({
+              id: String(n.id || idx + 1),
+              tieuDe: n.title || n.tieuDe || `Điều kiện ${idx + 1}`,
+              noiDung: n.content || n.noiDung || '',
+            })));
+          }
+        } catch (e) {
+          console.warn('Lỗi parse notes:', e);
+        }
+      }
       setDanhSachFile([]);
 
       // Initialize prefilled section with the item's total
       const initialDong: HangMucDong = {
         id: 'edit-row-1',
         stt: '1',
-        congViec: editingItem.soBg,
+        congViec: editingItem.projectName || editingItem.soBg,
         loaiVatLieu: editingItem.loai,
         soLuong: 1,
         donVi: 'bộ',
-        donGia: editingItem.tongSauThue ? Math.round(editingItem.tongSauThue / 1.08) : 500000000,
+        donGia: editingItem.subtotalBeforeDiscount || (editingItem.tongSauThue ? Math.round(editingItem.tongSauThue / 1.08) : 500000000),
       };
 
       setSections([
@@ -300,6 +319,8 @@ export default function SuaBaoGiaModal({
     onSave({
       ...editingItem,
       soBg: soBg.trim(),
+      quoteNumber: soBg.trim(),
+      projectName: tenDuAn.trim() || soBg.trim(),
       loai,
       khachHang: finalKh,
       ngay,
@@ -307,6 +328,15 @@ export default function SuaBaoGiaModal({
       tyLe,
       kichThuoc,
       tongSauThue: tongSauThue || 0,
+      subtotalAfterDiscount: afterDiscount,
+      subtotalBeforeDiscount: subtotal,
+      discountPercent: chietKhauPercent,
+      vatPercent: vatPercent,
+      productionDays: thoiGianSanXuat,
+      warrantyMonths: baoHanhThang,
+      validDays: hieuLucNgay,
+      paymentTerms: phuongThucThanhToan,
+      notes: JSON.stringify(dieuKienList.map(dk => ({ id: dk.id, title: dk.tieuDe, content: dk.noiDung }))),
       trangThai,
     });
     onClose();

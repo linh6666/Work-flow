@@ -15,6 +15,7 @@ import { BaoGiaItem } from '../index';
 import ThongTinChungTab from './ThongTinChung';
 import DanhMucGiaTab, { BaoGiaSection, HangMucDong } from './DanhMucGia';
 import DieuKienBaoGiaTab, { DieuKienItem } from './DieuKienBaoGia';
+import { getQuoteRequestList, QuoteRequestRecord } from '@/api/apiGetQuoteRequest';
 
 interface ThemBaoGiaModalProps {
   isOpen: boolean;
@@ -234,8 +235,35 @@ export default function ThemBaoGiaModal({
     setSections([]);
   };
 
+  // Danh sách Đề xuất báo giá từ API
+  const [proposals, setProposals] = useState<QuoteRequestRecord[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      getQuoteRequestList(100).then((data) => {
+        if (Array.isArray(data)) setProposals(data);
+      });
+    }
+  }, [isOpen]);
+
   const handleAutoFill = (proposalId: string) => {
     setLienKetDeXuat(proposalId);
+    const found = proposals.find((p) => p.id === proposalId || p.request_number === proposalId);
+    if (found) {
+      if (found.customer_name) {
+        setKhachHangSelect(found.customer_id || found.customer_name);
+        setTenKhachHangManual(found.customer_name);
+      }
+      if (found.project_name) setTenDuAn(found.project_name);
+      if (found.model_scale) setTyLe(found.model_scale);
+      if (found.model_size) setKichThuoc(found.model_size);
+      if (found.model_needing_time) {
+        const parsedDays = parseInt(found.model_needing_time.replace(/[^\d]/g, ''));
+        if (parsedDays) setThoiGianSanXuat(parsedDays);
+      }
+      return;
+    }
+
     if (proposalId === 'dx01') {
       setKhachHangSelect('KH001');
       setTenKhachHangManual('Tập đoàn T&T');

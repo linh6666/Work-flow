@@ -1,7 +1,12 @@
 "use client";
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  getQuotationTemplateList,
+  deleteQuotationTemplate,
+  QuotationTemplateRecord,
+} from '@/api/apiGetQuotationTemplate';
 import {
   IconX,
   IconWorld,
@@ -15,7 +20,9 @@ import {
   IconTrash,
   IconBuilding,
   IconClock,
-  IconShieldCheck
+  IconShieldCheck,
+  IconLoader2,
+  IconRefresh,
 } from '@tabler/icons-react';
 import ChinhSuaTemplateModal from './modal/ChinhSuaTemplate';
 
@@ -195,9 +202,51 @@ export default function QuanLyTemplateModal({
   onClose,
   onSelectTemplate,
 }: QuanLyTemplateModalProps) {
-  const [savedTemplates, setSavedTemplates] = useState<SavedTemplateItem[]>(INITIAL_SAVED_TEMPLATES);
+  const [savedTemplates, setSavedTemplates] = useState<SavedTemplateItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<SavedTemplateItem | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Gọi API lấy danh sách Template từ server
+  const fetchTemplates = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const data = await getQuotationTemplateList(200);
+      if (Array.isArray(data) && data.length > 0) {
+        const mapped: SavedTemplateItem[] = data.map((item) => ({
+          id: item.id,
+          title: item.template_name || item.project_name || item.quote_type || 'Mẫu Báo giá',
+          badgeTitle: item.quote_type || 'Báo giá',
+          langCode: item.quote_language?.toUpperCase() === 'EN' ? 'GB' : 'VN',
+          isSystem: item.is_system !== false,
+          savedDate: item.created_date ? new Date(item.created_date).toLocaleDateString('vi-VN') : '—',
+          author: item.created_by_name || 'Hệ thống',
+          categoryCount: `${item.production_days || 60} ngày`,
+          duAnMau: item.project_name || '',
+          tyLe: item.scale || '',
+          kichThuoc: item.size || '',
+          loaiBaoGia: item.quote_type || '',
+          itemSummary: `${item.scale ? `Tỷ lệ ${item.scale}` : ''} ${item.size ? `• KT ${item.size}` : ''}`,
+          productionTime: `${item.production_days || 60} ngày sản xuất`,
+          warrantyPeriod: `${item.warranty_months || 18} tháng bảo hành`,
+        }));
+        setSavedTemplates(mapped);
+      } else {
+        setSavedTemplates(INITIAL_SAVED_TEMPLATES);
+      }
+    } catch (err) {
+      console.warn('Lỗi khi fetch templates:', err);
+      setSavedTemplates(INITIAL_SAVED_TEMPLATES);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchTemplates();
+    }
+  }, [isOpen, fetchTemplates]);
 
   if (!isOpen) return null;
 
@@ -210,8 +259,13 @@ export default function QuanLyTemplateModal({
     setSavedTemplates((prev) => [newItem, ...prev]);
   };
 
-  const handleDeleteSaved = (id: string) => {
+  const handleDeleteSaved = async (id: string) => {
     setSavedTemplates((prev) => prev.filter((item) => item.id !== id));
+    try {
+      await deleteQuotationTemplate(id);
+    } catch (err) {
+      console.warn('Lỗi khi xóa template:', err);
+    }
   };
 
   const handleOpenEdit = (item: SavedTemplateItem) => {

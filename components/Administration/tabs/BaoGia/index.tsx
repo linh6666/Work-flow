@@ -39,15 +39,53 @@ import {
 export interface BaoGiaItem {
   id: string;
   soBg: string;
+  projectName?: string;
+  quoteNumber?: string;
   loai: string;
   khachHang: string;
+  customerId?: string;
   ngay: string;
   nguoiLap?: string;
+  creatorId?: string;
   tyLe?: string;
   kichThuoc?: string;
   tongSauThue: number;
-  trangThai: 'Bản nháp' | 'Đang soạn' | 'Chờ duyệt' | 'Đã gửi' | 'Đã chốt' | 'Đã từ chối' | 'Đang theo dõi';
+  subtotalBeforeDiscount?: number;
+  subtotalAfterDiscount?: number;
+  discountPercent?: number;
+  discountAmount?: number;
+  vatPercent?: number;
+  vatAmount?: number;
+  trangThai: string;
+  approvalStatus?: string;
+  pgdApproverName?: string;
+  pgdApprovalDate?: string;
+  qlkdApproverName?: string;
+  qlkdApprovalDate?: string;
+  installLocation?: string;
+  productionDays?: number;
+  warrantyMonths?: number;
+  validDays?: number;
+  paymentTerms?: string;
+  notes?: string;
+  attachmentsJson?: string;
+  itemsJson?: string;
+  quoteRequestId?: string;
+  quoteLanguage?: string;
+  raw?: QuotationRecord;
 }
+
+export const STATUS_OPTIONS = [
+  'Bản nháp',
+  'Đã gửi',
+  'Đang theo dõi',
+  'Đang bổ sung thông tin',
+  'Đang đàm phán',
+  'Tạm dừng',
+  'Đã chốt',
+  'Từ chối báo giá',
+  'Không thực hiện',
+];
 
 const INITIAL_DATA: BaoGiaItem[] = [];
 
@@ -70,33 +108,71 @@ export default function BaoGia() {
   const [editingItem, setEditingItem] = useState<BaoGiaItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<BaoGiaItem | null>(null);
   const [viewingItem, setViewingItem] = useState<BaoGiaItem | null>(null);
+  const [openStatusDropdownId, setOpenStatusDropdownId] = useState<string | null>(null);
 
-  // Hàm map record từ API sang BaoGiaItem
+  // Đóng dropdown khi click ra ngoài
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.status-dropdown-container')) {
+        setOpenStatusDropdownId(null);
+      }
+    };
+    window.addEventListener('click', handleGlobalClick);
+    return () => window.removeEventListener('click', handleGlobalClick);
+  }, []);
+
+  // Hàm map record từ API sang BaoGiaItem - lấy đầy đủ 100% dữ liệu thực từ backend
   const mapApiToBaoGiaItem = (rec: QuotationRecord): BaoGiaItem => {
-    let trangThai: BaoGiaItem['trangThai'] = 'Bản nháp';
-    const statusRaw = (rec.status || rec.approval_status || '').toLowerCase();
-    if (statusRaw.includes('đã gửi') || statusRaw.includes('sent')) trangThai = 'Đã gửi';
-    else if (statusRaw.includes('đang theo dõi') || statusRaw.includes('following')) trangThai = 'Đang theo dõi';
-    else if (statusRaw.includes('đã chốt') || statusRaw.includes('closed') || statusRaw.includes('đã duyệt')) trangThai = 'Đã chốt';
-    else if (statusRaw.includes('từ chối') || statusRaw.includes('rejected')) trangThai = 'Đã từ chối';
-    else if (statusRaw.includes('chờ') || statusRaw.includes('pending')) trangThai = 'Chờ duyệt';
-    else if (statusRaw.includes('soạn') || statusRaw.includes('drafting')) trangThai = 'Đang soạn';
+    const trangThai = rec.status || 'Bản nháp';
+    const approvalStatus = rec.approval_status || '';
 
     const numTotal = typeof rec.total_after_tax === 'number' 
       ? rec.total_after_tax 
       : parseFloat(String(rec.total_after_tax || 0).replace(/[^\d.-]/g, '')) || 0;
 
+    const numSubtotalBefore = parseFloat(String(rec.subtotal_before_discount || 0)) || 0;
+    const numSubtotalAfter = parseFloat(String(rec.subtotal_after_discount || 0)) || 0;
+    const numVat = parseFloat(String(rec.vat_amount || 0)) || 0;
+    const numDiscount = parseFloat(String(rec.discount_amount || 0)) || 0;
+
     return {
       id: rec.id || String(Math.random()),
       soBg: rec.quote_number || rec.code || rec.project_name || 'Báo giá',
+      projectName: rec.project_name || '',
+      quoteNumber: rec.quote_number || rec.code || '',
       loai: rec.quote_type || rec.type || 'Mô hình Quy hoạch',
       khachHang: rec.customer_name || '—',
+      customerId: rec.customer_id || '',
       ngay: rec.date || rec.quote_date || rec.created_at?.split('T')[0] || rec.created_date?.split('T')[0] || new Date().toISOString().split('T')[0],
-      nguoiLap: rec.pgd_approver_name || rec.creator_name || rec.created_by || '—',
+      nguoiLap: rec.creator_name || rec.created_by || rec.pgd_approver_name || '—',
+      creatorId: rec.created_by_id || '',
       tyLe: rec.scale || '—',
       kichThuoc: rec.size || '—',
       tongSauThue: numTotal,
+      subtotalBeforeDiscount: numSubtotalBefore,
+      subtotalAfterDiscount: numSubtotalAfter,
+      discountPercent: parseFloat(String(rec.discount_percent || 0)) || 0,
+      discountAmount: numDiscount,
+      vatPercent: parseFloat(String(rec.vat_percent || 8)) || 8,
+      vatAmount: numVat,
       trangThai,
+      approvalStatus,
+      pgdApproverName: rec.pgd_approver_name || '',
+      pgdApprovalDate: rec.pgd_approval_date || '',
+      qlkdApproverName: rec.qlkd_approver_name || '',
+      qlkdApprovalDate: rec.qlkd_approval_date || '',
+      installLocation: rec.install_location || '',
+      productionDays: parseFloat(String(rec.production_days || 60)) || 60,
+      warrantyMonths: parseFloat(String(rec.warranty_months || 18)) || 18,
+      validDays: parseFloat(String(rec.valid_days || 10)) || 10,
+      paymentTerms: rec.payment_terms || '',
+      notes: rec.notes || '',
+      attachmentsJson: rec.attachments_json || '',
+      itemsJson: rec.items_json || '',
+      quoteRequestId: rec.quote_request_id || '',
+      quoteLanguage: rec.quote_language || 'vi',
+      raw: rec,
     };
   };
 
@@ -243,16 +319,32 @@ export default function BaoGia() {
     // 2. Gửi dữ liệu cập nhật ngầm lên server
     try {
       const res = await updateQuotation(updatedItem.id, {
-        quote_number: updatedItem.soBg,
-        project_name: updatedItem.soBg,
-        type: updatedItem.loai,
+        quote_number: updatedItem.quoteNumber || updatedItem.soBg,
+        project_name: updatedItem.projectName || updatedItem.soBg,
+        quote_type: updatedItem.loai,
         customer_name: updatedItem.khachHang,
+        customer_id: updatedItem.customerId,
+        date: updatedItem.ngay,
         quote_date: updatedItem.ngay,
         creator_name: updatedItem.nguoiLap,
         scale: updatedItem.tyLe,
         size: updatedItem.kichThuoc,
         total_after_tax: updatedItem.tongSauThue,
-        approval_status: updatedItem.trangThai,
+        subtotal_before_discount: updatedItem.subtotalBeforeDiscount,
+        subtotal_after_discount: updatedItem.subtotalAfterDiscount,
+        discount_percent: updatedItem.discountPercent,
+        discount_amount: updatedItem.discountAmount,
+        vat_percent: updatedItem.vatPercent,
+        vat_amount: updatedItem.vatAmount,
+        status: updatedItem.trangThai,
+        approval_status: updatedItem.approvalStatus || updatedItem.trangThai,
+        production_days: updatedItem.productionDays,
+        warranty_months: updatedItem.warrantyMonths,
+        valid_days: updatedItem.validDays,
+        payment_terms: updatedItem.paymentTerms,
+        notes: updatedItem.notes,
+        attachments_json: updatedItem.attachmentsJson,
+        items_json: updatedItem.itemsJson,
       });
 
       if (!res.success && res.error) {
@@ -301,12 +393,72 @@ export default function BaoGia() {
     setItems(prev => [duplicatedItem, ...prev]);
   };
 
-  const handleApproveInline = (id: string) => {
-    setItems(prev => prev.map(item => item.id === id ? { ...item, trangThai: 'Đã gửi' } : item));
+  const handleChangeStatus = async (item: BaoGiaItem, newStatus: string) => {
+    setOpenStatusDropdownId(null);
+    if (item.trangThai === newStatus) return;
+
+    // Cập nhật UI ngay lập tức
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, trangThai: newStatus } : i));
+    NotificationExtension.Success(`Đã chuyển trạng thái sang "${newStatus}"!`);
+
+    // Gửi cập nhật lên máy chủ
+    try {
+      let approval_status = newStatus;
+      if (newStatus === 'Đã chốt') approval_status = 'PGĐ đã duyệt';
+      else if (newStatus === 'Từ chối báo giá') approval_status = 'Từ chối';
+
+      const res = await updateQuotation(item.id, {
+        status: newStatus,
+        approval_status,
+      });
+
+      if (!res.success && res.error) {
+        NotificationExtension.Warn(res.error, 'Cảnh báo đồng bộ máy chủ');
+      }
+    } catch (err: any) {
+      console.warn('Lỗi khi cập nhật trạng thái:', err);
+      NotificationExtension.Warn(err?.message || 'Không thể đồng bộ với máy chủ');
+    }
   };
 
-  const handleRejectInline = (id: string) => {
+  const handleApproveInline = async (id: string) => {
+    // 1. Cập nhật trạng thái ngay trên UI thành "Đã gửi"
+    setItems(prev => prev.map(item => item.id === id ? { ...item, trangThai: 'Đã gửi' } : item));
+    NotificationExtension.Success('Đã duyệt báo giá thành công!');
+
+    // 2. Gửi cập nhật lên máy chủ qua API PUT /api/v1/entities/Quotation/{id}
+    try {
+      const res = await updateQuotation(id, {
+        approval_status: 'PGĐ đã duyệt',
+        status: 'Đã gửi',
+      });
+      if (!res.success && res.error) {
+        NotificationExtension.Warn(res.error, 'Cảnh báo đồng bộ máy chủ');
+      }
+    } catch (err: any) {
+      console.warn('Lỗi khi gọi API duyệt báo giá:', err);
+      NotificationExtension.Warn(err?.message || 'Không thể đồng bộ với máy chủ');
+    }
+  };
+
+  const handleRejectInline = async (id: string) => {
+    // 1. Cập nhật trạng thái ngay trên UI thành "Đã từ chối"
     setItems(prev => prev.map(item => item.id === id ? { ...item, trangThai: 'Đã từ chối' } : item));
+    NotificationExtension.Info('Đã từ chối báo giá');
+
+    // 2. Gửi cập nhật lên máy chủ qua API PUT /api/v1/entities/Quotation/{id}
+    try {
+      const res = await updateQuotation(id, {
+        approval_status: 'Từ chối',
+        status: 'Đã từ chối',
+      });
+      if (!res.success && res.error) {
+        NotificationExtension.Warn(res.error, 'Cảnh báo đồng bộ máy chủ');
+      }
+    } catch (err: any) {
+      console.warn('Lỗi khi gọi API từ chối báo giá:', err);
+      NotificationExtension.Warn(err?.message || 'Không thể đồng bộ với máy chủ');
+    }
   };
 
   const handleToggleSelect = (id: string) => {
@@ -555,6 +707,12 @@ export default function BaoGia() {
                   </span>
                 </th>
 
+                <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap cursor-pointer" onClick={() => handleSort('approvalStatus')}>
+                  <span className="inline-flex items-center gap-1 font-bold text-slate-600 uppercase">
+                    TRẠNG THÁI PHÊ DUYỆT <IconArrowsSort size={12} className="text-slate-300" />
+                  </span>
+                </th>
+
                 <th className="sticky top-0 z-20 px-4 py-3 font-semibold text-xs bg-[#f8fafc] border-b border-slate-200 whitespace-nowrap text-center">
                   <span className="font-bold text-slate-700">Thao tác</span>
                 </th>
@@ -564,7 +722,7 @@ export default function BaoGia() {
             <tbody className="divide-y divide-slate-100">
               {paginatedList.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-xs text-slate-400">
+                  <td colSpan={11} className="px-4 py-10 text-center text-xs text-slate-400">
                     Không tìm thấy báo giá nào.
                   </td>
                 </tr>
@@ -574,20 +732,34 @@ export default function BaoGia() {
 
                   let statusBadge = 'bg-slate-100 text-slate-600 border-slate-200';
                   if (item.trangThai === 'Đã gửi') statusBadge = 'bg-sky-50 text-[#406c89] border-sky-200';
-                  if (item.trangThai === 'Đang theo dõi') statusBadge = 'bg-cyan-50 text-cyan-700 border-cyan-300';
-                  if (item.trangThai === 'Đã chốt') statusBadge = 'bg-emerald-50 text-emerald-700 border-emerald-300';
-                  if (item.trangThai === 'Đã từ chối') statusBadge = 'bg-rose-50 text-rose-700 border-rose-300';
+                  else if (item.trangThai === 'Đang theo dõi') statusBadge = 'bg-cyan-50 text-cyan-700 border-cyan-300';
+                  else if (item.trangThai === 'Đang bổ sung thông tin') statusBadge = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+                  else if (item.trangThai === 'Đang đàm phán') statusBadge = 'bg-purple-50 text-purple-700 border-purple-200';
+                  else if (item.trangThai === 'Tạm dừng') statusBadge = 'bg-amber-50 text-amber-700 border-amber-200';
+                  else if (item.trangThai === 'Đã chốt') statusBadge = 'bg-emerald-50 text-emerald-700 border-emerald-300';
+                  else if (item.trangThai === 'Từ chối báo giá' || item.trangThai === 'Đã từ chối') statusBadge = 'bg-rose-50 text-rose-700 border-rose-300';
+                  else if (item.trangThai === 'Không thực hiện') statusBadge = 'bg-gray-100 text-gray-500 border-gray-300';
 
                   return (
                     <tr
                       key={item.id}
                       className={`hover:bg-slate-50/70 transition-colors group ${isSelected ? 'bg-slate-50' : ''}`}
                     >
-                      {/* Số BG */}
+                      {/* Số BG & Tên Dự Án */}
                       <td className="px-4 py-4 align-top min-w-[280px] max-w-[380px]">
-                        <span className="font-bold text-[#406c89] text-xs leading-relaxed cursor-pointer hover:underline break-words">
-                          {item.soBg}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span 
+                            onClick={() => handleOpenDetailModal(item)}
+                            className="font-bold text-[#406c89] text-xs leading-relaxed cursor-pointer hover:underline break-words"
+                          >
+                            {item.soBg}
+                          </span>
+                          {item.projectName && item.projectName !== item.soBg && (
+                            <span className="text-[11px] text-slate-600 font-medium leading-snug break-words">
+                              {item.projectName}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Loại */}
@@ -634,20 +806,51 @@ export default function BaoGia() {
                       {/* Trạng thái */}
                       <td className="px-4 py-4 align-top whitespace-nowrap">
                         <div className="flex flex-col gap-1.5 items-start">
-                          <button
-                            type="button"
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-semibold transition-colors cursor-pointer ${statusBadge}`}
-                          >
-                            <span>{item.trangThai}</span>
-                            <IconChevronDown size={12} className="opacity-60" />
-                          </button>
+                          <div className="relative status-dropdown-container">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenStatusDropdownId(openStatusDropdownId === item.id ? null : item.id);
+                              }}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-semibold transition-all cursor-pointer shadow-2xs hover:opacity-90 active:scale-95 ${statusBadge}`}
+                            >
+                              <span>{item.trangThai}</span>
+                              <IconChevronDown size={13} className="opacity-70" />
+                            </button>
 
-                          {item.trangThai === 'Bản nháp' && (
+                            {/* Dropdown Menu nổi chuẩn ảnh mẫu */}
+                            {openStatusDropdownId === item.id && (
+                              <div className="absolute left-0 top-full mt-1.5 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                                {STATUS_OPTIONS.map((opt) => {
+                                  const isSelected = item.trangThai === opt;
+                                  return (
+                                    <button
+                                      key={opt}
+                                      type="button"
+                                      onClick={() => handleChangeStatus(item, opt)}
+                                      className={`w-full px-3.5 py-2 text-left text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                                        isSelected
+                                          ? 'bg-slate-100/80 font-bold text-slate-900'
+                                          : 'text-slate-700 hover:bg-slate-50 font-normal'
+                                      }`}
+                                    >
+                                      <span>{opt}</span>
+                                      {isSelected && <IconCheck size={14} className="text-slate-800" />}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* 2 nút Duyệt & Từ chối hiển thị bên trường Trạng thái */}
+                          {(!item.approvalStatus || item.approvalStatus === 'Chờ duyệt' || item.trangThai === 'Bản nháp') && !item.approvalStatus?.includes('đã duyệt') && (
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <button
                                 type="button"
                                 onClick={() => handleApproveInline(item.id)}
-                                className="px-1.5 py-0.5 rounded border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-bold flex items-center gap-0.5 transition-colors cursor-pointer active:scale-95"
+                                className="px-2 py-0.5 rounded border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-bold flex items-center gap-0.5 transition-colors cursor-pointer active:scale-95"
                               >
                                 <IconCheck size={11} />
                                 <span>Duyệt</span>
@@ -655,12 +858,31 @@ export default function BaoGia() {
                               <button
                                 type="button"
                                 onClick={() => handleRejectInline(item.id)}
-                                className="px-1.5 py-0.5 rounded border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 text-[10px] font-bold flex items-center gap-0.5 transition-colors cursor-pointer active:scale-95"
+                                className="px-2 py-0.5 rounded border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 text-[10px] font-bold flex items-center gap-0.5 transition-colors cursor-pointer active:scale-95"
                               >
                                 <IconX size={11} />
                                 <span>Từ chối</span>
                               </button>
                             </div>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* TRẠNG THÁI PHÊ DUYỆT */}
+                      <td className="px-4 py-4 align-top whitespace-nowrap">
+                        <div className="flex flex-col gap-1 items-start">
+                          {item.approvalStatus ? (
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-semibold ${
+                              item.approvalStatus.includes('đã duyệt') || item.approvalStatus.includes('approved')
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                                : item.approvalStatus.includes('từ chối') || item.approvalStatus.includes('rejected')
+                                ? 'bg-rose-50 text-rose-700 border-rose-300'
+                                : 'bg-amber-50 text-amber-700 border-amber-300'
+                            }`}>
+                              {item.approvalStatus}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 font-medium px-2">—</span>
                           )}
                         </div>
                       </td>

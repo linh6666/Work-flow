@@ -4,9 +4,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   getQuotationTemplateList,
+  getQuotationTemplateById,
+  createQuotationTemplate,
+  updateQuotationTemplate,
   deleteQuotationTemplate,
   QuotationTemplateRecord,
 } from '@/api/apiGetQuotationTemplate';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 import {
   IconX,
   IconWorld,
@@ -31,6 +35,7 @@ export interface BaoGiaTemplateItem {
   langCode: string;
   title: string;
   subtitle: string;
+  raw?: QuotationTemplateRecord;
 }
 
 export interface SavedTemplateItem {
@@ -49,6 +54,7 @@ export interface SavedTemplateItem {
   itemSummary: string;
   productionTime: string;
   warrantyPeriod: string;
+  raw?: QuotationTemplateRecord;
 }
 
 interface QuanLyTemplateModalProps {
@@ -57,151 +63,13 @@ interface QuanLyTemplateModalProps {
   onSelectTemplate?: (template: any) => void;
 }
 
-const ENGLISH_TEMPLATE_LIST: BaoGiaTemplateItem[] = [
-  {
-    id: 'eng-1',
-    langCode: 'GB',
-    title: 'Building Model Quotation (ENG)',
-    subtitle: 'Template hệ thống tiếng Anh',
-  },
-  {
-    id: 'eng-2',
-    langCode: 'GB',
-    title: 'Lighting Control System Quotation (ENG)',
-    subtitle: 'Template hệ thống tiếng Anh',
-  },
-  {
-    id: 'eng-3',
-    langCode: 'GB',
-    title: 'Masterplan Model Quotation (ENG)',
-    subtitle: 'Template hệ thống tiếng Anh',
-  },
-  {
-    id: 'eng-4',
-    langCode: 'GB',
-    title: 'Galaxy Tab Control Quotation (ENG)',
-    subtitle: 'Template hệ thống tiếng Anh',
-  },
-  {
-    id: 'eng-5',
-    langCode: 'GB',
-    title: 'Advanced Lighting System Quotation (ENG)',
-    subtitle: 'Template hệ thống tiếng Anh',
-  },
-  {
-    id: 'eng-6',
-    langCode: 'GB',
-    title: 'Running Car System Quotation (ENG)',
-    subtitle: 'Template hệ thống tiếng Anh',
-  },
-];
-
-const VIETNAMESE_TEMPLATE_LIST: BaoGiaTemplateItem[] = [
-  {
-    id: 'vn-1',
-    langCode: 'VN',
-    title: 'Báo giá Mô hình Quy hoạch',
-    subtitle: 'Template hệ thống tiếng Việt',
-  },
-  {
-    id: 'vn-2',
-    langCode: 'VN',
-    title: 'Báo giá Mô hình Công trình',
-    subtitle: 'Template hệ thống tiếng Việt',
-  },
-  {
-    id: 'vn-3',
-    langCode: 'VN',
-    title: 'Báo giá Mô hình Biệt thự - Nội thất',
-    subtitle: 'Template hệ thống tiếng Việt',
-  },
-  {
-    id: 'vn-4',
-    langCode: 'VN',
-    title: 'Báo giá Vận chuyển mô hình',
-    subtitle: 'Template hệ thống tiếng Việt',
-  },
-  {
-    id: 'vn-5',
-    langCode: 'VN',
-    title: 'Báo giá Lựa chọn Công nghệ',
-    subtitle: 'Template hệ thống tiếng Việt',
-  },
-  {
-    id: 'vn-6',
-    langCode: 'VN',
-    title: 'Báo giá Điều khiển Ánh sáng',
-    subtitle: 'Template hệ thống tiếng Việt',
-  },
-  {
-    id: 'vn-7',
-    langCode: 'VN',
-    title: 'Báo giá Lựa chọn Điều khiển Ánh sáng Galaxy Tab',
-    subtitle: 'Template hệ thống tiếng Việt',
-  },
-  {
-    id: 'vn-8',
-    langCode: 'VN',
-    title: 'Báo giá Hệ thống Ánh sáng Nâng cao',
-    subtitle: 'Template hệ thống tiếng Việt',
-  },
-  {
-    id: 'vn-9',
-    langCode: 'VN',
-    title: 'Báo giá Lựa chọn Hệ thống Xe chạy',
-    subtitle: 'Template hệ thống tiếng Việt',
-  },
-];
-
-const INITIAL_SAVED_TEMPLATES: SavedTemplateItem[] = [
-  {
-    id: 'saved-1',
-    title: 'Elevator System Quotation (ENG)',
-    badgeTitle: 'Elevator System Quotation (ENG)',
-    langCode: 'GB',
-    isSystem: false,
-    savedDate: '17/7/2026',
-    author: '—',
-    categoryCount: '1 phần',
-    itemSummary: '1 phần, 2 hạng mục',
-    productionTime: '60 ngày sản xuất',
-    warrantyPeriod: '18 tháng bảo hành',
-  },
-  {
-    id: 'saved-2',
-    title: 'QUOTATION FOR BUILDING MODEL',
-    badgeTitle: 'Building Model Quotation',
-    langCode: 'GB',
-    isSystem: true,
-    savedDate: '26/6/2026',
-    author: 'Thao Phung',
-    categoryCount: '4 phần',
-    duAnMau: 'CÔNG TY TNHH BẤT ĐỘNG SẢN HỒ AN',
-    itemSummary: '4 phần, 9 hạng mục',
-    productionTime: '60 ngày sản xuất',
-    warrantyPeriod: '18 tháng bảo hành',
-  },
-  {
-    id: 'saved-3',
-    title: 'QUOTATION MASTER PLAN MODEL',
-    badgeTitle: 'Masterplan Model Quotation',
-    langCode: 'GB',
-    isSystem: true,
-    savedDate: '26/6/2026',
-    author: 'Thao Phung',
-    categoryCount: '4 phần',
-    duAnMau: 'CÔNG TY TNHH BẤT ĐỘNG SẢN HỒ AN',
-    itemSummary: '4 phần, 9 hạng mục',
-    productionTime: '60 ngày sản xuất',
-    warrantyPeriod: '18 tháng bảo hành',
-  },
-];
-
 export default function QuanLyTemplateModal({
   isOpen,
   onClose,
   onSelectTemplate,
 }: QuanLyTemplateModalProps) {
+  const [englishTemplates, setEnglishTemplates] = useState<BaoGiaTemplateItem[]>([]);
+  const [vietnameseTemplates, setVietnameseTemplates] = useState<BaoGiaTemplateItem[]>([]);
   const [savedTemplates, setSavedTemplates] = useState<SavedTemplateItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<SavedTemplateItem | null>(null);
@@ -213,11 +81,45 @@ export default function QuanLyTemplateModal({
       setIsLoading(true);
       const data = await getQuotationTemplateList(200);
       if (Array.isArray(data) && data.length > 0) {
+        // 1. Phân loại Mẫu hệ thống tiếng Anh
+        const enList: BaoGiaTemplateItem[] = data
+          .filter(item => {
+            const lang = (item.quote_language || '').toLowerCase();
+            const name = (item.template_name || item.quote_type || '').toLowerCase();
+            return lang === 'en' || name.includes('quotation') || name.includes('model') || name.includes('system') || name.includes('tab');
+          })
+          .map(item => ({
+            id: item.id,
+            langCode: 'GB',
+            title: item.template_name || item.quote_type || 'Quotation Template (ENG)',
+            subtitle: item.project_name || `Template hệ thống • Tỷ lệ ${item.scale || '—'} • KT ${item.size || '—'}`,
+            raw: item,
+          }));
+        setEnglishTemplates(enList);
+
+        // 2. Phân loại Mẫu hệ thống tiếng Việt
+        const viList: BaoGiaTemplateItem[] = data
+          .filter(item => {
+            const lang = (item.quote_language || '').toLowerCase();
+            const name = (item.template_name || item.quote_type || '').toLowerCase();
+            const isEnglish = lang === 'en' || name.includes('quotation') || name.includes('model') || name.includes('system') || name.includes('tab');
+            return !isEnglish;
+          })
+          .map(item => ({
+            id: item.id,
+            langCode: 'VN',
+            title: item.template_name || item.quote_type || 'Mẫu Báo giá (VN)',
+            subtitle: item.project_name || `Template hệ thống • Tỷ lệ ${item.scale || '—'} • KT ${item.size || '—'}`,
+            raw: item,
+          }));
+        setVietnameseTemplates(viList);
+
+        // 3. Toàn bộ mẫu đã lưu (Saved Templates)
         const mapped: SavedTemplateItem[] = data.map((item) => ({
           id: item.id,
           title: item.template_name || item.project_name || item.quote_type || 'Mẫu Báo giá',
           badgeTitle: item.quote_type || 'Báo giá',
-          langCode: item.quote_language?.toUpperCase() === 'EN' ? 'GB' : 'VN',
+          langCode: item.quote_language?.toUpperCase() === 'EN' ? 'GB' : item.quote_language?.toUpperCase() === 'VI-EN' ? 'VNGB' : 'VN',
           isSystem: item.is_system !== false,
           savedDate: item.created_date ? new Date(item.created_date).toLocaleDateString('vi-VN') : '—',
           author: item.created_by_name || 'Hệ thống',
@@ -229,14 +131,16 @@ export default function QuanLyTemplateModal({
           itemSummary: `${item.scale ? `Tỷ lệ ${item.scale}` : ''} ${item.size ? `• KT ${item.size}` : ''}`,
           productionTime: `${item.production_days || 60} ngày sản xuất`,
           warrantyPeriod: `${item.warranty_months || 18} tháng bảo hành`,
+          raw: item,
         }));
         setSavedTemplates(mapped);
       } else {
-        setSavedTemplates(INITIAL_SAVED_TEMPLATES);
+        setEnglishTemplates([]);
+        setVietnameseTemplates([]);
+        setSavedTemplates([]);
       }
     } catch (err) {
       console.warn('Lỗi khi fetch templates:', err);
-      setSavedTemplates(INITIAL_SAVED_TEMPLATES);
     } finally {
       setIsLoading(false);
     }
@@ -250,19 +154,42 @@ export default function QuanLyTemplateModal({
 
   if (!isOpen) return null;
 
-  const handleDuplicateSaved = (item: SavedTemplateItem) => {
-    const newItem: SavedTemplateItem = {
-      ...item,
-      id: `saved-${Date.now()}`,
-      title: `${item.title} (Bản sao)`,
-    };
-    setSavedTemplates((prev) => [newItem, ...prev]);
+  const handleDuplicateSaved = async (item: SavedTemplateItem) => {
+    const newTitle = `${item.title} (Bản sao)`;
+    try {
+      const res = await createQuotationTemplate({
+        template_name: newTitle,
+        project_name: item.duAnMau || newTitle,
+        quote_type: item.loaiBaoGia || item.badgeTitle,
+        quote_language: item.langCode === 'GB' ? 'en' : 'vi',
+        scale: item.tyLe,
+        size: item.kichThuoc,
+        is_system: false,
+        production_days: parseFloat(item.productionTime) || 60,
+        warranty_months: parseFloat(item.warrantyPeriod) || 18,
+      });
+
+      if (res.success) {
+        NotificationExtension.Success(`Nhân bản mẫu ${newTitle} thành công!`);
+        await fetchTemplates();
+      } else {
+        NotificationExtension.Warn(res.error || 'Không thể nhân bản mẫu');
+      }
+    } catch (err: any) {
+      console.warn('Lỗi khi nhân bản template:', err);
+      NotificationExtension.Warn(err?.message || 'Lỗi kết nối khi nhân bản');
+    }
   };
 
   const handleDeleteSaved = async (id: string) => {
+    const target = savedTemplates.find((t) => t.id === id);
     setSavedTemplates((prev) => prev.filter((item) => item.id !== id));
+    NotificationExtension.Success(`Đã xóa mẫu ${target?.title || ''} thành công!`);
     try {
-      await deleteQuotationTemplate(id);
+      const res = await deleteQuotationTemplate(id);
+      if (!res.success && res.error) {
+        NotificationExtension.Warn(res.error, 'Cảnh báo đồng bộ máy chủ');
+      }
     } catch (err) {
       console.warn('Lỗi khi xóa template:', err);
     }
@@ -273,12 +200,36 @@ export default function QuanLyTemplateModal({
     setIsEditModalOpen(true);
   };
 
-  const handleSaveEdit = (updatedItem: SavedTemplateItem) => {
+  const handleSaveEdit = async (updatedItem: SavedTemplateItem) => {
+    // 1. Cập nhật state UI ngay lập tức
     setSavedTemplates((prev) =>
       prev.map((t) => (t.id === updatedItem.id ? updatedItem : t))
     );
     setIsEditModalOpen(false);
     setEditingTemplate(null);
+    NotificationExtension.Success(`Cập nhật mẫu ${updatedItem.title} thành công!`);
+
+    // 2. Gửi API PUT lên server
+    try {
+      const payload: Partial<QuotationTemplateRecord> = {
+        template_name: updatedItem.title,
+        project_name: updatedItem.duAnMau || updatedItem.title,
+        quote_type: updatedItem.loaiBaoGia || updatedItem.badgeTitle,
+        quote_language: updatedItem.langCode === 'GB' ? 'en' : updatedItem.langCode === 'VNGB' ? 'vi-en' : 'vi',
+        scale: updatedItem.tyLe,
+        size: updatedItem.kichThuoc,
+        production_days: parseFloat(updatedItem.productionTime) || 60,
+        warranty_months: parseFloat(updatedItem.warrantyPeriod) || 18,
+      };
+
+      const res = await updateQuotationTemplate(updatedItem.id, payload);
+      if (!res.success && res.error) {
+        NotificationExtension.Warn(res.error, 'Cảnh báo đồng bộ máy chủ');
+      }
+    } catch (err: any) {
+      console.warn('Lỗi khi cập nhật template:', err);
+      NotificationExtension.Warn(err?.message || 'Không thể đồng bộ với máy chủ');
+    }
   };
 
   return (
@@ -312,93 +263,110 @@ export default function QuanLyTemplateModal({
         {/* Scrollable Body Content */}
         <div className="p-6 overflow-y-auto flex-1 space-y-7 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           
-          {/* SECTION 1: NẠP MẪU HỆ THỐNG - TIẾNG ANH */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base">
-              <div className="w-6 h-6 rounded-lg bg-[#406c89]/10 text-[#406c89] flex items-center justify-center shrink-0">
-                <IconWorld size={16} />
-              </div>
-              <span>Nạp mẫu Hệ thống - Tiếng Anh</span>
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-2">
+              <IconLoader2 size={24} className="animate-spin text-[#406c89]" />
+              <span className="text-xs">Đang tải danh sách mẫu báo giá từ server...</span>
             </div>
-
-            <div className="space-y-2.5">
-              {ENGLISH_TEMPLATE_LIST.map((tmpl) => (
-                <div
-                  key={tmpl.id}
-                  className="bg-[#f8fafc]/90 border border-slate-200/80 rounded-2xl p-4 flex items-center justify-between gap-4 transition-all hover:border-slate-300 shadow-2xs"
-                >
-                  {/* Left Title & Subtitle */}
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
-                      <span className="text-slate-500 font-mono text-[11px] uppercase">{tmpl.langCode}</span>
-                      <span>{tmpl.title}</span>
+          ) : (
+            <>
+              {/* SECTION 1: NẠP MẪU HỆ THỐNG - TIẾNG ANH */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base">
+                    <div className="w-6 h-6 rounded-lg bg-[#406c89]/10 text-[#406c89] flex items-center justify-center shrink-0">
+                      <IconWorld size={16} />
                     </div>
-                    <p className="text-xs text-slate-400 font-normal">
-                      {tmpl.subtitle}
-                    </p>
+                    <span>Nạp mẫu Hệ thống - Tiếng Anh ({englishTemplates.length})</span>
                   </div>
-
-                  {/* Right Action Button (+ Nạp) - #406c89 */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (onSelectTemplate) onSelectTemplate(tmpl);
-                      onClose();
-                    }}
-                    className="flex items-center gap-1 px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs shrink-0"
-                  >
-                    <IconPlus size={14} />
-                    <span>Nạp</span>
-                  </button>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* SECTION 2: NẠP MẪU HỆ THỐNG - TIẾNG VIỆT */}
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base">
-              <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                <IconHome size={16} />
+                <div className="space-y-2.5">
+                  {englishTemplates.length === 0 ? (
+                    <p className="text-xs text-slate-400 italic py-2">Không có mẫu tiếng Anh nào.</p>
+                  ) : (
+                    englishTemplates.map((tmpl) => (
+                      <div
+                        key={tmpl.id}
+                        className="bg-[#f8fafc]/90 border border-slate-200/80 rounded-2xl p-4 flex items-center justify-between gap-4 transition-all hover:border-slate-300 shadow-2xs"
+                      >
+                        {/* Left Title & Subtitle */}
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
+                            <span className="text-slate-500 font-mono text-[11px] uppercase">{tmpl.langCode}</span>
+                            <span>{tmpl.title}</span>
+                          </div>
+                          <p className="text-xs text-slate-400 font-normal">
+                            {tmpl.subtitle}
+                          </p>
+                        </div>
+
+                        {/* Right Action Button (+ Nạp) - #406c89 */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (onSelectTemplate) onSelectTemplate(tmpl.raw || tmpl);
+                            onClose();
+                          }}
+                          className="flex items-center gap-1 px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs shrink-0"
+                        >
+                          <IconPlus size={14} />
+                          <span>Nạp</span>
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
-              <span>Nạp mẫu Hệ thống - Tiếng Việt</span>
-            </div>
 
-            <div className="space-y-2.5">
-              {VIETNAMESE_TEMPLATE_LIST.map((tmpl) => (
-                <div
-                  key={tmpl.id}
-                  className="bg-[#f4fbf7]/90 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between gap-4 transition-all hover:border-emerald-300 shadow-2xs"
-                >
-                  {/* Left Title & Subtitle */}
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
-                      <span className="text-slate-500 font-mono text-[11px] uppercase">{tmpl.langCode}</span>
-                      <span>{tmpl.title}</span>
-                    </div>
-                    <p className="text-xs text-slate-400 font-normal">
-                      {tmpl.subtitle}
-                    </p>
+              {/* SECTION 2: NẠP MẪU HỆ THỐNG - TIẾNG VIỆT */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base">
+                  <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <IconHome size={16} />
                   </div>
-
-                  {/* Right Action Button (+ Nạp) - Emerald Green */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (onSelectTemplate) onSelectTemplate(tmpl);
-                      onClose();
-                    }}
-                    className="flex items-center gap-1 px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs shrink-0"
-                  >
-                    <IconPlus size={14} />
-                    <span>Nạp</span>
-                  </button>
+                  <span>Nạp mẫu Hệ thống - Tiếng Việt ({vietnameseTemplates.length})</span>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* SECTION 3: MẪU ĐÃ LƯU */}
+                <div className="space-y-2.5">
+                  {vietnameseTemplates.length === 0 ? (
+                    <p className="text-xs text-slate-400 italic py-2">Không có mẫu tiếng Việt nào.</p>
+                  ) : (
+                    vietnameseTemplates.map((tmpl) => (
+                      <div
+                        key={tmpl.id}
+                        className="bg-[#f4fbf7]/90 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between gap-4 transition-all hover:border-emerald-300 shadow-2xs"
+                      >
+                        {/* Left Title & Subtitle */}
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
+                            <span className="text-slate-500 font-mono text-[11px] uppercase">{tmpl.langCode}</span>
+                            <span>{tmpl.title}</span>
+                          </div>
+                          <p className="text-xs text-slate-400 font-normal">
+                            {tmpl.subtitle}
+                          </p>
+                        </div>
+
+                        {/* Right Action Button (+ Nạp) - Emerald Green */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (onSelectTemplate) onSelectTemplate(tmpl.raw || tmpl);
+                            onClose();
+                          }}
+                          className="flex items-center gap-1 px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs shrink-0"
+                        >
+                          <IconPlus size={14} />
+                          <span>Nạp</span>
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* SECTION 3: MẪU ĐÃ LƯU */}
           <div className="space-y-3 pt-2">
             <div className="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base">
               <IconPin size={18} className="text-red-500 fill-red-500 rotate-45" />
@@ -510,6 +478,8 @@ export default function QuanLyTemplateModal({
               ))}
             </div>
           </div>
+            </>
+          )}
 
         </div>
 

@@ -1,0 +1,146 @@
+{
+  "info": {
+    "_postman_id": "c1f7b8a2-7311-4e84-adcd-4b02a40c7170",
+    "name": "Entities - QuotationTemplate (Workflow API)",
+    "description": "Bộ sưu tập API hoàn chỉnh cho thực thể Mẫu báo giá (QuotationTemplate) của hệ thống Mô Hình Việt.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://192.168.1.80:8007",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "d13879b12cff9c7e8114a359345214a4dc05ef36f9c4b3cc8a3ebf938feabf5c",
+      "type": "string"
+    },
+    {
+      "key": "templateId",
+      "value": "bf5f7bda-7616-51d8-a4f2-27792ab4df03",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. GET - Danh sách tất cả Template",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "api_key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/entities/QuotationTemplate?limit=200",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "entities", "QuotationTemplate"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "200"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. GET - Chi tiết Template theo ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "api_key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/entities/QuotationTemplate/{{templateId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "entities", "QuotationTemplate", "{{templateId}}"]
+        }
+      }
+    },
+    {
+      "name": "3. POST - Tạo mới một Template",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "api_key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"template_name\": \"MẪU BÁO GIÁ QUY HOẠCH ĐÔ THỊ 2026\",\n  \"quote_type\": \"Báo giá Mô hình Quy hoạch\",\n  \"quote_language\": \"vi\",\n  \"project_name\": \"DỰ ÁN KHU ĐÔ THỊ MỚI\",\n  \"scale\": \"1/500\",\n  \"size\": \"2500X1800 MM\",\n  \"vat_percent\": 8.0,\n  \"production_days\": 45.0,\n  \"warranty_months\": 18.0,\n  \"is_system\": false,\n  \"notes\": \"[{\\\"id\\\":\\\"prod_time\\\",\\\"title\\\":\\\"Thời gian sản xuất\\\",\\\"content\\\":\\\"45 ngày làm việc\\\"}]\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/entities/QuotationTemplate",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "entities", "QuotationTemplate"]
+        }
+      }
+    },
+    {
+      "name": "4. PUT - Cập nhật Template theo ID",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "api_key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"template_name\": \"MẪU BÁO GIÁ ĐÃ CẬP NHẬT\",\n  \"scale\": \"1/800\",\n  \"size\": \"3000X2000 MM\",\n  \"production_days\": 50.0,\n  \"warranty_months\": 24.0\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/entities/QuotationTemplate/{{templateId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "entities", "QuotationTemplate", "{{templateId}}"]
+        }
+      }
+    },
+    {
+      "name": "5. DELETE - Xóa Template theo ID",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "api_key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/entities/QuotationTemplate/{{templateId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "entities", "QuotationTemplate", "{{templateId}}"]
+        }
+      }
+    }
+  ]
+}

@@ -12,6 +12,7 @@ import {
 import { SavedTemplateItem } from '../../index';
 import { BaoGiaSection, HangMucDong } from '../../../DanhMucGia';
 import { DieuKienItem } from '../../../DieuKienBaoGia';
+import { getQuotationTemplateById } from '@/api/apiGetQuotationTemplate';
 
 import CaiDatMauTab from './CaiDatMau';
 import DanhMucGiaTabWrapper from './DanhMucGia';
@@ -116,6 +117,43 @@ export default function ChinhSuaTemplateModal({
     if (template) {
       setFormData({ ...template });
       setActiveTab('settings');
+
+      // Tải chi tiết template từ API nếu có ID hợp lệ
+      if (template.id && !template.id.startsWith('saved-')) {
+        getQuotationTemplateById(template.id).then((detail) => {
+          if (detail) {
+            setFormData(prev => prev ? ({
+              ...prev,
+              title: detail.template_name || prev.title,
+              duAnMau: detail.project_name || prev.duAnMau,
+              loaiBaoGia: detail.quote_type || prev.loaiBaoGia,
+              langCode: detail.quote_language?.toUpperCase() === 'EN' ? 'GB' : detail.quote_language?.toUpperCase() === 'VI-EN' ? 'VNGB' : 'VN',
+              tyLe: detail.scale || prev.tyLe,
+              kichThuoc: detail.size || prev.kichThuoc,
+              productionTime: `${detail.production_days || 60} ngày sản xuất`,
+              warrantyPeriod: `${detail.warranty_months || 18} tháng bảo hành`,
+            }) : prev);
+
+            if (detail.production_days) setThoiGianSanXuat(parseFloat(String(detail.production_days)) || 60);
+            if (detail.warranty_months) setBaoHanhThang(parseFloat(String(detail.warranty_months)) || 18);
+            if (detail.vat_percent) setVatPercent(parseFloat(String(detail.vat_percent)) || 8);
+
+            // Parse notes
+            if (detail.notes) {
+              try {
+                const parsed = typeof detail.notes === 'string' ? JSON.parse(detail.notes) : detail.notes;
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  setDieuKienList(parsed.map((n: any, idx: number) => ({
+                    id: String(n.id || idx + 1),
+                    tieuDe: n.title || n.tieuDe || `Điều kiện ${idx + 1}`,
+                    noiDung: n.content || n.noiDung || '',
+                  })));
+                }
+              } catch (e) {}
+            }
+          }
+        }).catch(err => console.warn('Lỗi tải chi tiết template:', err));
+      }
     }
   }, [template]);
 

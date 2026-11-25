@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { getCustomerList, CustomerRecord } from '@/api/apiGetCustomer';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 import {
   IconClipboardList,
   IconX,
@@ -68,6 +70,15 @@ export default function CreateProposalModal({ isOpen, onClose, onSubmit }: Creat
   
   // Form fields
   const [khachHangCrm, setKhachHangCrm] = useState('');
+  const [customers, setCustomers] = useState<CustomerRecord[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      getCustomerList(500).then((data) => {
+        if (Array.isArray(data)) setCustomers(data);
+      });
+    }
+  }, [isOpen]);
   const [noiDungYeuCau, setNoiDungYeuCau] = useState('');
   const [tenDuAn, setTenDuAn] = useState('');
   const [tyLeMoHinh, setTyLeMoHinh] = useState('');
@@ -147,7 +158,7 @@ export default function CreateProposalModal({ isOpen, onClose, onSubmit }: Creat
       !noiDungYeuCau.trim() || 
       !tenDuAn.trim()
     ) {
-      alert("Vui lòng điền đầy đủ các thông tin bắt buộc!");
+      NotificationExtension.Fails("Vui lòng điền đầy đủ các thông tin bắt buộc!");
       return;
     }
 
@@ -266,15 +277,21 @@ export default function CreateProposalModal({ isOpen, onClose, onSubmit }: Creat
                     setKhachHangCrm(val);
                     if (val) {
                       setDonViLienHe(val);
+                      const matched = customers.find((c) => c.name === val);
+                      if (matched) {
+                        if (matched.contact_person) setNguoiLienHe(matched.contact_person);
+                        if (matched.phone) setDienThoai(matched.phone);
+                      }
                     }
                   }}
                   className="w-full h-9 px-3 pr-8 rounded-lg border border-slate-200 bg-white text-xs text-slate-700 outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89] transition appearance-none cursor-pointer"
                 >
                   <option value="">Chọn khách hàng từ CRM...</option>
-                  <option value="CÔNG TY CỔ PHẦN THÁI NAM LAND">CÔNG TY CỔ PHẦN THÁI NAM LAND</option>
-                  <option value="CÔNG TY CỔ PHẦN THƯƠNG MẠI DƯƠNG PHÚC THẮNG">CÔNG TY CỔ PHẦN THƯƠNG MẠI DƯƠNG PHÚC THẮNG</option>
-                  <option value="CÔNG TY TNHH BIM KIÊN GIANG">CÔNG TY TNHH BIM KIÊN GIANG</option>
-                  <option value="CÔNG TY CỔ PHẦN TẬP ĐOÀN ĐẤT VIỆT">CÔNG TY CỔ PHẦN TẬP ĐOÀN ĐẤT VIỆT</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.name || ''}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400">
                   <IconChevronDown size={14} />

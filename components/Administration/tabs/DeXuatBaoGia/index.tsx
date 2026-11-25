@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   IconPlus,
   IconSearch,
@@ -22,6 +22,12 @@ import EditProposalModal from './edit/EditProposalModal';
 import DeleteConfirmModal from './delete/DeleteConfirmModal';
 import TrienKhaiHoanTatModal from './trienKhaiHoanTat/TrienKhaiHoanTatModal';
 import TrienKhaiChuaLamModal from './trienKhaiChuaLam/TrienKhaiChuaLamModal';
+import { getQuoteRequestList, QuoteRequestRecord } from '@/api/apiGetQuoteRequest';
+import { createQuoteRequest } from '@/api/apiCreateQuoteRequest';
+import { updateQuoteRequest } from '@/api/apiUpdateQuoteRequest';
+import { deleteQuoteRequest } from '@/api/apiDeleteQuoteRequest';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
+import Pagination from '@/common/pagination';
 
 // ─── Types ────────────────────────────────────────────────────────────
 export type TrangThai =
@@ -60,139 +66,10 @@ export interface DeXuat {
   thoiGianMoHinh?: string;
   duongDanHoSo?: string;
   ghiChu?: string;
+  danhSachFile?: File[];
 }
 
 // ─── Mock data matching screenshot data 100% ──────
-const MOCK: DeXuat[] = [
-  {
-    id: '1',
-    soDX: 'ĐXBG-009-2026',
-    maPhu: '',
-    tenDuAn: 'DỰ ÁN IA25 - CIPUTRA',
-    donViLienHe: 'CÔNG TY CỔ PHẦN THÁI NAM LAND',
-    nguoiLienHe: 'Chị Dương',
-    dienThoai: '0376943469',
-    nguoiLap: 'Nguyễn Phú Quang',
-    ngay: '2026-08-03',
-    trangThai: 'cho-tp',
-    buocHoanTat: 0,
-    tongBuoc: 2,
-  },
-  {
-    id: '2',
-    soDX: '008-2026',
-    maPhu: 'ĐXBG-MHV',
-    tenDuAn: 'Tiện ích dự án Hanoi Parkcentric',
-    donViLienHe: 'CÔNG TY CỔ PHẦN THƯƠNG MẠI DƯƠNG PHÚC THẮNG',
-    nguoiLienHe: 'Bà Nguyễn Phương Mi',
-    dienThoai: '0983324492',
-    nguoiLap: 'Bùi Phương Uyên',
-    ngay: '2026-08-01',
-    trangThai: 'pgd-tu-choi',
-    buocHoanTat: 0,
-    tongBuoc: 2,
-    lyDoTuChoi: 'Chưa có hình ảnh kèm t...',
-  },
-  {
-    id: '3',
-    soDX: 'ĐXBG-007-2026',
-    maPhu: '',
-    tenDuAn: 'CHỈNH SỬA MÔ HÌNH MARINA PHÚ QUỐC',
-    donViLienHe: 'CÔNG TY TNHH BIM KIÊN GIANG',
-    nguoiLienHe: 'Phạm Thanh Hằng',
-    dienThoai: '0913393935',
-    nguoiLap: 'Bùi Thị Duyên',
-    ngay: '2026-07-28',
-    trangThai: 'pgd-duyet',
-    buocHoanTat: 1,
-    tongBuoc: 2,
-  },
-  {
-    id: '4',
-    soDX: '006-2026',
-    maPhu: 'ĐXBG-MHV',
-    tenDuAn: 'MÔ HÌNH QUY HOẠCH TỈNH HƯNG YÊN',
-    donViLienHe: 'CÔNG TY CỔ PHẦN TẬP ĐOÀN ĐẤT VIỆT',
-    nguoiLienHe: 'Chị Vân',
-    dienThoai: '0973139830',
-    nguoiLap: 'Nguyễn Phú Quang',
-    ngay: '2026-07-24',
-    trangThai: 'pgd-duyet',
-    buocHoanTat: 2,
-    tongBuoc: 2,
-  },
-  {
-    id: '5',
-    soDX: '005-2026',
-    maPhu: 'ĐXBG-MHV',
-    tenDuAn: 'KHU CHUNG CƯ THÀNH CÔNG HARBOR VIEW',
-    donViLienHe: 'Công ty Cổ phần Liên Tinh',
-    nguoiLienHe: 'Đào Minh Thư',
-    dienThoai: '0986918703',
-    nguoiLap: 'Nguyễn Phú Quang',
-    ngay: '2026-07-23',
-    trangThai: 'pgd-duyet',
-    buocHoanTat: 1,
-    tongBuoc: 2,
-  },
-  {
-    id: '6',
-    soDX: '004-2026',
-    maPhu: 'ĐXBG-MHV',
-    tenDuAn: 'HỆ THỐNG THOÁT NƯỚC TP HÀ NỘI',
-    donViLienHe: 'CÔNG TY TNHH MTV THOÁT NƯỚC TP HÀ NỘI',
-    nguoiLienHe: 'LẠI VĂN HIẾU',
-    dienThoai: '',
-    nguoiLap: 'Nguyễn Phú Quang',
-    ngay: '2026-07-22',
-    trangThai: 'pgd-duyet',
-    buocHoanTat: 1,
-    tongBuoc: 2,
-  },
-  {
-    id: '7',
-    soDX: '003.02-2026',
-    maPhu: 'ĐXBG-MHV',
-    tenDuAn: 'MẪU BIỆT THỰ, CĂN HỘ ECOPARK-VINH',
-    donViLienHe: 'CÔNG TY CP - TỔNG CÔNG TY HỢP TÁC KINH TẾ VIỆT LÀO',
-    nguoiLienHe: 'Thùy',
-    dienThoai: '',
-    nguoiLap: 'Bùi Thị Duyên',
-    ngay: '2026-07-22',
-    trangThai: 'pgd-duyet',
-    buocHoanTat: 0,
-    tongBuoc: 2,
-  },
-  {
-    id: '8',
-    soDX: '002-2026',
-    maPhu: 'ĐXBG-MHV',
-    tenDuAn: 'INDUSTRIAL ZONE PHNOM PENH',
-    donViLienHe: 'WORLDBRIDGE GROUP',
-    nguoiLienHe: 'Mr. Jonathan Lee',
-    dienThoai: '',
-    nguoiLap: 'Bùi Phương Uyên',
-    ngay: '2026-07-11',
-    trangThai: 'pgd-duyet',
-    buocHoanTat: 1,
-    tongBuoc: 2,
-  },
-  {
-    id: '9',
-    soDX: '003.01-2026',
-    maPhu: 'ĐXBG-MHV',
-    tenDuAn: 'CHỈNH SỬA MH ECOPARK-VINH',
-    donViLienHe: 'CÔNG TY CP - TỔNG CÔNG TY HỢP TÁC KINH TẾ VIỆT LÀO',
-    nguoiLienHe: 'Thùy',
-    dienThoai: '',
-    nguoiLap: 'Bùi Thị Duyên',
-    ngay: '2026-07-22',
-    trangThai: 'pgd-duyet',
-    buocHoanTat: 1,
-    tongBuoc: 2,
-  },
-];
-
 // ─── Status config ────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<TrangThai, { label: string; color: string }> = {
   'cho-tp':      { label: 'Chờ QL KD duyệt',      color: 'text-amber-700 bg-amber-50 border-amber-300' },
@@ -219,7 +96,7 @@ const ITEMS_PER_PAGE = 10;
 export default function DeXuatBaoGia() {
   const [search, setSearch]   = useState('');
   const [filter, setFilter]   = useState<TrangThai | 'all'>('all');
-  const [data, setData]       = useState<DeXuat[]>(MOCK);
+  const [data, setData]       = useState<DeXuat[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   
   // Modals state
@@ -235,40 +112,195 @@ export default function DeXuatBaoGia() {
   const [isTrienKhaiChuaLamModalOpen, setIsTrienKhaiChuaLamModalOpen] = useState(false);
   const [selectedProposalForTrienKhai, setSelectedProposalForTrienKhai] = useState<DeXuat | null>(null);
 
+  // Drag-to-scroll cho bảng
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const dragStateRef = useRef({ isDown: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
+
+  const handleTableMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, select, textarea')) return;
+    const el = tableScrollRef.current;
+    if (!el) return;
+    dragStateRef.current = {
+      isDown: true,
+      startX: e.pageX - el.offsetLeft,
+      startY: e.pageY - el.offsetTop,
+      scrollLeft: el.scrollLeft,
+      scrollTop: el.scrollTop,
+    };
+  };
+
+  const handleTableMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!dragStateRef.current.isDown) return;
+    const el = tableScrollRef.current;
+    if (!el) return;
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    const y = e.pageY - el.offsetTop;
+    el.scrollLeft = dragStateRef.current.scrollLeft - (x - dragStateRef.current.startX);
+    el.scrollTop = dragStateRef.current.scrollTop - (y - dragStateRef.current.startY);
+  };
+
+  const handleTableMouseUp = () => {
+    dragStateRef.current.isDown = false;
+  };
+
+const mapApprovalStatusToTrangThai = (status?: string): TrangThai => {
+  const s = (status || '').toLowerCase();
+  if (s.includes('pgđ') && s.includes('duyệt')) return 'pgd-duyet';
+  if (s.includes('pgđ') && s.includes('từ chối')) return 'pgd-tu-choi';
+  if (s.includes('chờ pgđ')) return 'cho-pgd';
+  if (s.includes('tp') && s.includes('duyệt')) return 'tp-duyet';
+  if (s.includes('tp') && s.includes('từ chối')) return 'tp-tu-choi';
+  return 'cho-tp';
+};
+
+const mapTrangThaiToApprovalStatus = (tt: TrangThai): string => {
+  switch (tt) {
+    case 'tp-duyet': return 'TP đã duyệt';
+    case 'tp-tu-choi': return 'TP từ chối';
+    case 'cho-pgd': return 'Chờ PGĐ duyệt';
+    case 'pgd-duyet': return 'PGĐ đã duyệt';
+    case 'pgd-tu-choi': return 'PGĐ từ chối';
+    default: return 'Chờ TP duyệt';
+  }
+};
+
+const parseJsonStringArray = (raw?: string | string[] | null): string[] => {
+  if (Array.isArray(raw)) return raw;
+  if (!raw || typeof raw !== 'string') return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const mapQuoteRequestToDeXuat = (r: QuoteRequestRecord): DeXuat => {
+  const tt = mapApprovalStatusToTrangThai(r.approval_status);
+  return {
+    id: r.id,
+    soDX: r.request_number || 'ĐXBG',
+    tenDuAn: r.project_name || '',
+    donViLienHe: r.contact_company || r.customer_name || '',
+    nguoiLienHe: r.contact_person || '',
+    dienThoai: r.contact_phone || '',
+    nguoiLap: r.submitter_name || '',
+    ngay: r.date || (r.created_date ? String(r.created_date).slice(0, 10) : ''),
+    trangThai: tt,
+    buocHoanTat: tt === 'pgd-duyet' ? 2 : tt === 'tp-duyet' ? 1 : 0,
+    tongBuoc: 2,
+    lyDoTuChoi: r.pgd_rejection_reason || r.tp_rejection_reason || undefined,
+    khachHangCrm: r.customer_name || r.customer_id || undefined,
+    noiDungYeuCau: r.quoting_content || undefined,
+    tyLeMoHinh: r.model_scale || undefined,
+    kichThuocDuKien: r.model_size || undefined,
+    diaDiemLapDat: r.install_location || undefined,
+    loaiChan: r.leg_type || undefined,
+    kinh: r.glass_type || undefined,
+    anhSang: parseJsonStringArray(r.lighting_types),
+    congNghe: parseJsonStringArray(r.tech_types),
+    tinhTrangHoSo: r.drawing_status || undefined,
+    thoiGianBaoGia: r.quotation_time || undefined,
+    thoiGianMoHinh: r.model_needing_time || undefined,
+    duongDanHoSo: r.document_shortcut || undefined,
+    ghiChu: r.notes || undefined,
+  };
+};
+
   // Reset page to 1 when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [search, filter]);
 
-  const handleCreateProposal = (newDX: Omit<DeXuat, 'id' | 'buocHoanTat' | 'tongBuoc'>) => {
-    const newId = (data.length + 1).toString();
-    const fullNewDX: DeXuat = {
-      ...newDX,
-      id: newId,
-      tenDuAn: newDX.tenDuAn || 'Mô hình dự án mới',
-      buocHoanTat: newDX.trangThai === 'pgd-duyet' ? 2 : (newDX.trangThai === 'tp-duyet' ? 1 : 0),
-      tongBuoc: 2,
-    };
-    setData([fullNewDX, ...data]);
-  };
+  useEffect(() => {
+    getQuoteRequestList(200).then((records) => {
+      if (Array.isArray(records) && records.length > 0) {
+        setData(records.map(mapQuoteRequestToDeXuat));
+      }
+    });
+  }, []);
 
-  const handleEditProposal = (updatedDX: DeXuat) => {
-    setData(prev => prev.map(item => item.id === updatedDX.id ? updatedDX : item));
-  };
+  const handleCreateProposal = async (newDX: Omit<DeXuat, 'id' | 'buocHoanTat' | 'tongBuoc'>) => {
+    const res = await createQuoteRequest({
+      request_number: newDX.soDX,
+      project_name: newDX.tenDuAn || '',
+      quoting_content: newDX.noiDungYeuCau || newDX.tenDuAn || 'Yêu cầu báo giá',
+      contact_company: newDX.donViLienHe,
+      customer_name: newDX.donViLienHe,
+      contact_person: newDX.nguoiLienHe,
+      contact_phone: newDX.dienThoai,
+      submitter_name: newDX.nguoiLap,
+      date: newDX.ngay,
+      approval_status: mapTrangThaiToApprovalStatus(newDX.trangThai),
+      attachments_json:
+        newDX.danhSachFile && newDX.danhSachFile.length > 0
+          ? JSON.stringify(newDX.danhSachFile.map((f) => ({ name: f.name, url: '' })))
+          : undefined,
+    });
 
-  const handleDeleteConfirm = () => {
-    if (selectedProposalForDelete) {
-      setData(prev => prev.filter(item => item.id !== selectedProposalForDelete.id));
-      setSelectedProposalForDelete(null);
+    if (res.success && res.data) {
+      setData((prev) => [mapQuoteRequestToDeXuat(res.data!), ...prev]);
+      NotificationExtension.Success('Đã tạo đề xuất báo giá mới!');
+    } else {
+      NotificationExtension.Fails(res.error || 'Không thể tạo đề xuất báo giá!');
     }
   };
 
-  const handleApprove = (id: string) => {
-    setData(prev => prev.map(item => item.id === id ? { ...item, trangThai: 'pgd-duyet', buocHoanTat: 1 } : item));
+  const handleEditProposal = async (updatedDX: DeXuat) => {
+    const res = await updateQuoteRequest(updatedDX.id, {
+      request_number: updatedDX.soDX,
+      project_name: updatedDX.tenDuAn,
+      contact_company: updatedDX.donViLienHe,
+      customer_name: updatedDX.donViLienHe,
+      contact_person: updatedDX.nguoiLienHe,
+      contact_phone: updatedDX.dienThoai,
+      submitter_name: updatedDX.nguoiLap,
+      date: updatedDX.ngay,
+      approval_status: mapTrangThaiToApprovalStatus(updatedDX.trangThai),
+    });
+
+    if (res.success) {
+      setData(prev => prev.map(item => item.id === updatedDX.id ? updatedDX : item));
+      NotificationExtension.Success('Đã cập nhật đề xuất báo giá!');
+    } else {
+      NotificationExtension.Fails(res.error || 'Không thể cập nhật đề xuất báo giá!');
+    }
   };
 
-  const handleReject = (id: string) => {
-    setData(prev => prev.map(item => item.id === id ? { ...item, trangThai: 'tp-tu-choi', lyDoTuChoi: 'Từ chối phê duyệt' } : item));
+  const handleDeleteConfirm = async () => {
+    if (selectedProposalForDelete) {
+      const targetId = selectedProposalForDelete.id;
+      const res = await deleteQuoteRequest(targetId);
+      if (res.success) {
+        setData(prev => prev.filter(item => item.id !== targetId));
+        setSelectedProposalForDelete(null);
+        NotificationExtension.Success('Đã xóa đề xuất báo giá!');
+      } else {
+        NotificationExtension.Fails(res.error || 'Không thể xóa đề xuất báo giá!');
+      }
+    }
+  };
+
+  const handleApprove = async (id: string) => {
+    const res = await updateQuoteRequest(id, { approval_status: 'PGĐ đã duyệt' });
+    if (res.success) {
+      setData(prev => prev.map(item => item.id === id ? { ...item, trangThai: 'pgd-duyet', buocHoanTat: 1 } : item));
+      NotificationExtension.Success('Đã duyệt đề xuất báo giá!');
+    } else {
+      NotificationExtension.Fails(res.error || 'Không thể duyệt đề xuất!');
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    const res = await updateQuoteRequest(id, { approval_status: 'TP từ chối', tp_rejection_reason: 'Từ chối phê duyệt' });
+    if (res.success) {
+      setData(prev => prev.map(item => item.id === id ? { ...item, trangThai: 'tp-tu-choi', lyDoTuChoi: 'Từ chối phê duyệt' } : item));
+      NotificationExtension.Success('Đã từ chối đề xuất báo giá!');
+    } else {
+      NotificationExtension.Fails(res.error || 'Không thể từ chối đề xuất!');
+    }
   };
 
   const handleUpdateSteps = (proposalId: string, steps: number) => {
@@ -447,7 +479,14 @@ export default function DeXuatBaoGia() {
 
       {/* ── Table (Matches Screenshot Columns & Data 100%) ── */}
       <div className="flex-1 flex flex-col min-h-[350px] sm:min-h-0 bg-white border border-slate-200/80 rounded-lg shadow-2xs overflow-hidden">
-        <div className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+        <div
+          ref={tableScrollRef}
+          onMouseDown={handleTableMouseDown}
+          onMouseMove={handleTableMouseMove}
+          onMouseUp={handleTableMouseUp}
+          onMouseLeave={handleTableMouseUp}
+          className="flex-1 overflow-x-auto sm:overflow-auto min-h-0 overscroll-x-contain [-webkit-overflow-scrolling:touch] no-scrollbar cursor-grab active:cursor-grabbing select-none"
+        >
           <table className="w-full text-xs text-left border-collapse min-w-[880px] sm:min-w-[960px]">
             <thead className="sticky top-0 z-10 bg-slate-50 shadow-2xs border-b border-slate-200">
               <tr className="bg-slate-50 text-slate-600">
@@ -471,6 +510,9 @@ export default function DeXuatBaoGia() {
                 </th>
                 <th className="px-4 py-3 font-bold text-xs bg-slate-50 border-b border-slate-200 whitespace-nowrap">
                   <span className="inline-flex items-center gap-1">Trạng thái <IconArrowsSort size={12} className="text-slate-300" /></span>
+                </th>
+                <th className="px-4 py-3 font-bold text-xs bg-slate-50 border-b border-slate-200 text-right whitespace-nowrap">
+                  Hành động
                 </th>
               </tr>
             </thead>
@@ -499,30 +541,6 @@ export default function DeXuatBaoGia() {
                                 {row.maPhu}
                               </p>
                             )}
-                          </div>
-                          <div className="flex items-center gap-1 ml-1 shrink-0">
-                            <button 
-                              type="button" 
-                              onClick={() => {
-                                setSelectedProposalForEdit(row);
-                                setIsEditModalOpen(true);
-                              }}
-                              className="p-1 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer active:scale-95"
-                              title="Sửa"
-                            >
-                              <IconPencil size={13} />
-                            </button>
-                            <button 
-                              type="button" 
-                              onClick={() => {
-                                setSelectedProposalForDelete(row);
-                                setIsDeleteModalOpen(true);
-                              }}
-                              className="p-1 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer active:scale-95"
-                              title="Xóa"
-                            >
-                              <IconTrash size={13} />
-                            </button>
                           </div>
                         </div>
                       </td>
@@ -630,6 +648,34 @@ export default function DeXuatBaoGia() {
                           )}
                         </div>
                       </td>
+
+                      {/* Hành động */}
+                      <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedProposalForEdit(row);
+                              setIsEditModalOpen(true);
+                            }}
+                            className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer active:scale-95"
+                            title="Sửa"
+                          >
+                            <IconPencil size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedProposalForDelete(row);
+                              setIsDeleteModalOpen(true);
+                            }}
+                            className="p-1.5 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer active:scale-95"
+                            title="Xóa"
+                          >
+                            <IconTrash size={13} />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   );
                 })
@@ -639,49 +685,14 @@ export default function DeXuatBaoGia() {
         </div>
 
         {/* PAGINATION FOOTER */}
-        <div className="shrink-0 border-t border-slate-100 px-3 sm:px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50/60">
-          <div className="text-center sm:text-left">
-            Hiển thị <span className="font-bold text-slate-700">{totalFiltered > 0 ? startIndex + 1 : 0}</span> - <span className="font-bold text-slate-700">{endIndex}</span> trên tổng số <span className="font-bold text-slate-700">{totalFiltered}</span> đề xuất
-          </div>
-
-          {/* Page Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-1">
-            <button
-              type="button"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer active:scale-95"
-            >
-              <IconChevronLeft size={13} />
-              <span>Trước</span>
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-              <button
-                key={page}
-                type="button"
-                onClick={() => setCurrentPage(page)}
-                className={`w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer active:scale-95 ${
-                  currentPage === page
-                    ? 'bg-[#406c89] text-white shadow-2xs'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              type="button"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-              className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer active:scale-95"
-            >
-              <span>Sau</span>
-              <IconChevronRight size={13} />
-            </button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalFiltered}
+          itemsPerPage={ITEMS_PER_PAGE}
+          itemName="đề xuất"
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       <CreateProposalModal

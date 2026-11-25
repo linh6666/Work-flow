@@ -1,16 +1,31 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   proposalCode: string;
 }
 
 export default function DeleteConfirmModal({ isOpen, onClose, onConfirm, proposalCode }: DeleteConfirmModalProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      await onConfirm();
+      onClose();
+    } catch {
+      NotificationExtension.Fails('Có lỗi xảy ra khi xóa đề xuất!');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all">
@@ -31,20 +46,19 @@ export default function DeleteConfirmModal({ isOpen, onClose, onConfirm, proposa
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="button"
+            disabled={isDeleting}
             onClick={onClose}
-            className="px-5 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer transition-all active:scale-95 bg-white"
+            className="px-5 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50 cursor-pointer transition-all active:scale-95 bg-white"
           >
             Hủy
           </button>
           <button
             type="button"
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
-            className="px-5 py-2 rounded-lg text-white text-sm font-semibold shadow-sm transition-all cursor-pointer bg-[#406c89] hover:bg-[#345972] active:scale-95"
+            disabled={isDeleting}
+            onClick={handleConfirm}
+            className="px-5 py-2 rounded-lg text-white text-sm font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50 bg-[#406c89] hover:bg-[#345972] active:scale-95"
           >
-            Xóa
+            {isDeleting ? 'Đang xóa...' : 'Xóa'}
           </button>
         </div>
       </div>

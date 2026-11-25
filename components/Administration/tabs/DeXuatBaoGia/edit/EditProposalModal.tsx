@@ -10,6 +10,8 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { DeXuat, TrangThai } from '../index';
+import { getCustomerList, CustomerRecord } from '@/api/apiGetCustomer';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 
 interface EditProposalModalProps {
   isOpen: boolean;
@@ -62,8 +64,15 @@ export default function EditProposalModal({ isOpen, onClose, onSubmit, proposal 
   const [ghiChu, setGhiChu] = useState('');
   const [danhSachFile, setDanhSachFile] = useState<File[]>([]);
 
+  const [customers, setCustomers] = useState<CustomerRecord[]>([]);
+
   // Prefill form fields when proposal updates
   useEffect(() => {
+    if (isOpen) {
+      getCustomerList(500).then((data) => {
+        if (Array.isArray(data)) setCustomers(data);
+      });
+    }
     if (isOpen && proposal) {
       setSoDX(proposal.soDX || '');
       setDonViLienHe(proposal.donViLienHe || '');
@@ -124,7 +133,7 @@ export default function EditProposalModal({ isOpen, onClose, onSubmit, proposal 
       !noiDungYeuCau.trim() || 
       !tenDuAn.trim()
     ) {
-      alert("Vui lòng điền đầy đủ các thông tin bắt buộc!");
+      NotificationExtension.Fails("Vui lòng điền đầy đủ các thông tin bắt buộc!");
       return;
     }
 
@@ -242,15 +251,21 @@ export default function EditProposalModal({ isOpen, onClose, onSubmit, proposal 
                     setKhachHangCrm(val);
                     if (val) {
                       setDonViLienHe(val);
+                      const matched = customers.find((c) => c.name === val);
+                      if (matched) {
+                        if (matched.contact_person) setNguoiLienHe(matched.contact_person);
+                        if (matched.phone) setDienThoai(matched.phone);
+                      }
                     }
                   }}
                   className="w-full h-9 px-3 pr-8 rounded-lg border border-slate-200 bg-white text-xs text-slate-700 outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89] transition appearance-none cursor-pointer"
                 >
                   <option value="">Chọn khách hàng từ CRM...</option>
-                  <option value="CÔNG TY CỔ PHẦN THÁI NAM LAND">CÔNG TY CỔ PHẦN THÁI NAM LAND</option>
-                  <option value="CÔNG TY CỔ PHẦN THƯƠNG MẠI DƯƠNG PHÚC THẮNG">CÔNG TY CỔ PHẦN THƯƠNG MẠI DƯƠNG PHÚC THẮNG</option>
-                  <option value="CÔNG TY TNHH BIM KIÊN GIANG">CÔNG TY TNHH BIM KIÊN GIANG</option>
-                  <option value="CÔNG TY CỔ PHẦN TẬP ĐOÀN ĐẤT VIỆT">CÔNG TY CỔ PHẦN TẬP ĐOÀN ĐẤT VIỆT</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.name || ''}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400">
                   <IconChevronDown size={14} />

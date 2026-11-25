@@ -26,8 +26,10 @@ import { getQuoteRequestList, QuoteRequestRecord } from '@/api/apiGetQuoteReques
 import { createQuoteRequest } from '@/api/apiCreateQuoteRequest';
 import { updateQuoteRequest } from '@/api/apiUpdateQuoteRequest';
 import { deleteQuoteRequest } from '@/api/apiDeleteQuoteRequest';
+import { bulkCreateQuoteRequest } from '@/api/apiBulkCreateQuoteRequest';
 import { NotificationExtension } from '@/common/extension/NotificationExtension';
 import Pagination from '@/common/pagination';
+import * as XLSX from 'xlsx';
 
 // ─── Types ────────────────────────────────────────────────────────────
 export type TrangThai =
@@ -114,6 +116,150 @@ export default function DeXuatBaoGia() {
 
   // Drag-to-scroll cho bảng
   const tableScrollRef = useRef<HTMLDivElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  const parseCsvRows = (text: string): string[][] => {
+    const rows: string[][] = [];
+    let row: string[] = [];
+    let cell = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (inQuotes) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') {
+            cell += '"';
+            i++;
+          } else {
+            inQuotes = false;
+          }
+        } else {
+          cell += ch;
+        }
+      } else if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        row.push(cell.trim());
+        cell = '';
+      } else if (ch === '\r' || ch === '\n') {
+        if (ch === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell.trim());
+        if (row.some((c) => c !== '')) rows.push(row);
+        row = [];
+        cell = '';
+      } else {
+        cell += ch;
+      }
+    }
+    if (cell.length > 0 || row.length > 0) {
+      row.push(cell.trim());
+      if (row.some((c) => c !== '')) rows.push(row);
+    }
+    return rows;
+  };
+
+  const mapImportedRowToQuoteRequest = (obj: Record<string, any>): Partial<QuoteRequestRecord> => {
+    const projectName = String(obj.project_name || obj['Tên dự án'] || obj.tenDuAn || '').trim();
+    const contactCompany = String(obj.contact_company || obj['Đơn vị liên hệ'] || obj.donViLienHe || '').trim();
+    return {
+      request_number: String(obj.request_number || obj['Số ĐX'] || obj.soDX || '').trim(),
+      date: String(obj.date || obj['Ngày'] || obj.ngay || new Date().toISOString().slice(0, 10)).trim(),
+      contact_company: contactCompany,
+      customer_name: String(obj.customer_name || contactCompany).trim(),
+      contact_person: String(obj.contact_person || obj['Người liên hệ'] || obj.nguoiLienHe || '').trim(),
+      contact_phone: String(obj.contact_phone || obj['Điện thoại'] || obj.dienThoai || '').trim(),
+      project_name: projectName,
+      quoting_content: String(obj.quoting_content || obj['Nội dung YC'] || obj.noiDungYeuCau || projectName || 'Import').trim(),
+      model_scale: String(obj.model_scale || obj['Tỷ lệ'] || obj.tyLeMoHinh || '').trim(),
+      model_size: String(obj.model_size || obj['Kích thước'] || obj.kichThuocDuKien || '').trim(),
+      submitter_name: String(obj.submitter_name || obj['Người lập'] || obj.nguoiLap || '').trim(),
+      approval_status: String(obj.approval_status || obj['Trạng thái'] || 'Chờ TP duyệt').trim(),
+      notes: String(obj.notes || obj['Ghi chú'] || obj.ghiChu || '').trim(),
+    };
+  };
+
+  const handleExportExcel = () => {
+    if (filtered.length === 0) {
+      NotificationExtension.Fails('Không có dữ liệu để xuất Excel!');
+      return;
+    }
+
+    const rows = filtered.map((row) => ({
+      'Số ĐX': row.soDX,
+      'Ngày': row.ngay,
+      'Đơn vị liên hệ': row.donViLienHe,
+      'Người liên hệ': row.nguoiLienHe,
+      'Điện thoại': row.dienThoai || '',
+      'Tên dự án': row.tenDuAn || '',
+      'Nội dung YC': row.noiDungYeuCau || '',
+      'Tỷ lệ': row.tyLeMoHinh || '',
+      'Kích thước': row.kichThuocDuKien || '',
+      'Người lập': row.nguoiLap,
+      'Trạng thái': mapTrangThaiToApprovalStatus(row.trangThai),
+      'Ghi chú': row.ghiChu || '',
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'DeXuatBaoGia');
+    const fileName = `DeXuatBaoGia_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+    NotificationExtension.Success(`Đã xuất ${rows.length} đề xuất ra file ${fileName}!`);
+  };
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    try {
+      const lowerName = file.name.toLowerCase();
+      let items: Partial<QuoteRequestRecord>[] = [];
+
+      if (lowerName.endsWith('.json')) {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        items = Array.isArray(parsed) ? parsed : [parsed];
+      } else if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')) {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonRows = XLSX.utils.sheet_to_json<Record<string, any>>(firstSheet, { defval: '' });
+        items = jsonRows.map(mapImportedRowToQuoteRequest);
+      } else {
+        const text = await file.text();
+        const rows = parseCsvRows(text);
+        if (rows.length < 2) {
+          NotificationExtension.Fails('File CSV phải có dòng tiêu đề và ít nhất 1 dòng dữ liệu!');
+          return;
+        }
+        const headers = rows[0];
+        items = rows.slice(1).map((cols) => {
+          const obj: Record<string, string> = {};
+          headers.forEach((h, i) => {
+            if (h) obj[h] = cols[i] || '';
+          });
+          return mapImportedRowToQuoteRequest(obj);
+        });
+      }
+
+      if (items.length === 0) {
+        NotificationExtension.Fails('Không có dữ liệu hợp lệ để Import!');
+        return;
+      }
+
+      const res = await bulkCreateQuoteRequest(items);
+      if (res.success && res.data) {
+        setData((prev) => [...res.data!.map(mapQuoteRequestToDeXuat), ...prev]);
+        NotificationExtension.Success(`Đã Import thành công ${res.data.length} đề xuất!`);
+      } else {
+        NotificationExtension.Fails(res.error || 'Import thất bại!');
+      }
+    } catch {
+      NotificationExtension.Fails('Không thể đọc file Import!');
+    }
+  };
   const dragStateRef = useRef({ isDown: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
 
   const handleTableMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -370,16 +516,23 @@ const mapQuoteRequestToDeXuat = (r: QuoteRequestRecord): DeXuat => {
         <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-auto w-full sm:w-auto">
           <button
             type="button"
-            onClick={() => alert('Xuất danh sách đề xuất báo giá thành công (Excel)')}
+            onClick={handleExportExcel}
             className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 py-1.5 sm:py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[11px] font-semibold rounded-md shadow-2xs transition-colors cursor-pointer active:scale-95"
           >
             <IconDownload size={13} className="text-slate-500" />
             <span>Export</span>
           </button>
 
+          <input
+            ref={importInputRef}
+            type="file"
+            accept=".json,.csv,.xlsx,.xls"
+            onChange={handleImportFile}
+            className="hidden"
+          />
           <button
             type="button"
-            onClick={() => alert('Vui lòng chọn file Excel để Import')}
+            onClick={() => importInputRef.current?.click()}
             className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 py-1.5 sm:py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[11px] font-semibold rounded-md shadow-2xs transition-colors cursor-pointer active:scale-95"
           >
             <IconUpload size={13} className="text-slate-500" />

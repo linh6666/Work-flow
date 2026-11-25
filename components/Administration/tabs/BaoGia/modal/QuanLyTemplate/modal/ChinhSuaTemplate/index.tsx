@@ -7,12 +7,14 @@ import {
   IconCheck,
   IconSettings,
   IconListDetails,
-  IconReceipt
+  IconReceipt,
+  IconLoader2
 } from '@tabler/icons-react';
 import { SavedTemplateItem } from '../../index';
 import { BaoGiaSection, HangMucDong } from '../../../DanhMucGia';
 import { DieuKienItem } from '../../../DieuKienBaoGia';
-import { getQuotationTemplateById } from '@/api/apiGetQuotationTemplate';
+import { getQuotationTemplateById, updateQuotationTemplate } from '@/api/apiQuotationTemplate';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 
 import CaiDatMauTab from './CaiDatMau';
 import DanhMucGiaTabWrapper from './DanhMucGia';
@@ -22,137 +24,140 @@ interface ChinhSuaTemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
   template: SavedTemplateItem | null;
-  onSave: (updatedTemplate: SavedTemplateItem) => void;
+  onSave?: (updatedTemplate: SavedTemplateItem) => void;
+  onSaveSuccess?: () => void;
 }
-
-const DEFAULT_SECTIONS: BaoGiaSection[] = [
-  {
-    id: 'sec-1',
-    index: 1,
-    tenPhan: 'PHẦN A: MÔ HÌNH KIẾN TRÚC & QUY HOẠCH',
-    ckChecked: false,
-    collapsed: false,
-    dongs: [
-      {
-        id: 'row-1',
-        stt: '1',
-        congViec: 'Chế tạo Khối công trình chính',
-        loaiVatLieu: 'Chất liệu mica cao cấp nhập khẩu, sơn bóng phủ PU 2K',
-        soLuong: 1,
-        donVi: 'Bộ',
-        donGia: 120000000,
-      },
-      {
-        id: 'row-2',
-        stt: '2',
-        congViec: 'Hệ thống Ánh sáng Led thông minh',
-        loaiVatLieu: 'Led chíp Samsung, nguồn Meanwell 12V, lập trình vi điều khiển',
-        soLuong: 1,
-        donVi: 'Gói',
-        donGia: 35000000,
-      },
-    ],
-  },
-  {
-    id: 'sec-2',
-    index: 2,
-    tenPhan: 'PHẦN B: CHÂN ĐẾ MÔ HÌNH & BÀN NÂNG',
-    ckChecked: false,
-    collapsed: false,
-    dongs: [
-      {
-        id: 'row-3',
-        stt: '1',
-        congViec: 'Chân đế khung thép hộp 40x80mm',
-        loaiVatLieu: 'Thép mạ kẽm, ốp gỗ công nghiệp MDF chống ẩm An Cường',
-        soLuong: 1,
-        donVi: 'Bộ',
-        donGia: 25000000,
-      },
-    ],
-  },
-];
-
-const DEFAULT_DIEU_KIEN: DieuKienItem[] = [
-  {
-    id: 'dk-1',
-    tieuDe: '1. Báo giá dựa trên hồ sơ thiết kế',
-    noiDung: 'Giá trên được tính toán dựa trên file bản vẽ CAD/3D do bên A cung cấp. Trường hợp có chỉnh sửa thiết kế trong quá trình thi công sẽ tính phát sinh theo thỏa thuận.',
-  },
-  {
-    id: 'dk-2',
-    tieuDe: '2. Phạm vi bàn giao và lắp đặt',
-    noiDung: 'Bao gồm chi phí vận chuyển và lắp đặt hoàn thiện tại địa điểm của bên A trong phạm vi nội thành.',
-  },
-];
 
 export default function ChinhSuaTemplateModal({
   isOpen,
   onClose,
   template,
   onSave,
+  onSaveSuccess,
 }: ChinhSuaTemplateModalProps) {
   const [activeTab, setActiveTab] = useState<'settings' | 'items' | 'terms'>('settings');
-  
-  // Tab 1: Cài đặt mẫu state
   const [formData, setFormData] = useState<SavedTemplateItem | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Tab 2: Danh mục & Giá state
-  const [sections, setSections] = useState<BaoGiaSection[]>(DEFAULT_SECTIONS);
-  const [loaiBaoGiaSelect, setLoaiBaoGiaSelect] = useState('Mô hình Quy hoạch');
+  // States for Tab 2: Danh mục & Giá
+  const [sections, setSections] = useState<BaoGiaSection[]>([]);
+  const [loaiBaoGiaSelect, setLoaiBaoGiaSelect] = useState('BÁO GIÁ MH KHU CÔNG NGHIỆP');
   const [chietKhauChecked, setChietKhauChecked] = useState(false);
   const [sauChietKhauChecked, setSauChietKhauChecked] = useState(false);
   const [chietKhauPercent, setChietKhauPercent] = useState(0);
-  const [vatPercent, setVatPercent] = useState(10);
+  const [vatPercent, setVatPercent] = useState(8);
 
-  // Tab 3: Điều kiện & Thanh toán state
+  // States for Tab 3: Điều kiện & Thanh toán
   const [thoiGianSanXuat, setThoiGianSanXuat] = useState(60);
   const [baoHanhThang, setBaoHanhThang] = useState(18);
-  const [phuongThucThanhToan, setPhuongThucThanhToan] = useState(
-    '— Đợt 1: Tạm ứng 40% giá trị hợp đồng ngay sau khi ký hợp đồng.\n— Đợt 2: Thanh toán 40% sau khi duyệt xong khối công trình thô.\n— Đợt 3: Thanh toán 20% còn lại sau khi bàn giao, nghiệm thu.'
-  );
-  const [dieuKienList, setDieuKienList] = useState<DieuKienItem[]>(DEFAULT_DIEU_KIEN);
+  const [phuongThucThanhToan, setPhuongThucThanhToan] = useState('');
+  const [dieuKienList, setDieuKienList] = useState<DieuKienItem[]>([]);
+
+  // Helper load items_json
+  const loadItemsJson = async (itemsRaw: any) => {
+    if (!itemsRaw) return;
+    try {
+      let rawData = itemsRaw;
+      if (typeof itemsRaw === 'string') {
+        const trimmed = itemsRaw.trim();
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          // Fetch from URL
+          const res = await fetch(trimmed);
+          if (res.ok) {
+            rawData = await res.json();
+          }
+        } else if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+          rawData = JSON.parse(trimmed);
+        }
+      }
+
+      if (Array.isArray(rawData)) {
+        // Map database array to BaoGiaSection
+        const parsedSections: BaoGiaSection[] = rawData.map((sec: any, secIdx: number) => ({
+          id: sec.id || `sec-${secIdx + 1}`,
+          index: secIdx + 1,
+          tenPhan: sec.name || sec.tenPhan || `PHẦN ${sec.stt || secIdx + 1}: ${sec.title || ''}`,
+          ckChecked: sec.discountable !== undefined ? sec.discountable : (sec.ckChecked || false),
+          collapsed: sec.collapsed || false,
+          dongs: Array.isArray(sec.items)
+            ? sec.items.map((row: any, rIdx: number) => ({
+                id: row.id || `row-${secIdx}-${rIdx}`,
+                stt: String(row.stt || rIdx + 1),
+                congViec: row.name || row.congViec || '',
+                loaiVatLieu: row.description || row.loaiVatLieu || '',
+                soLuong: Number(row.qty !== undefined ? row.qty : row.soLuong) || 1,
+                donVi: row.unit || row.donVi || 'Bộ',
+                donGia: Number(row.unit_price !== undefined ? row.unit_price : row.donGia) || 0,
+                checked: row.checked || false,
+              }))
+            : Array.isArray(sec.dongs)
+            ? sec.dongs
+            : [],
+        }));
+
+        if (parsedSections.length > 0) {
+          setSections(parsedSections);
+        }
+      }
+    } catch (err) {
+      console.warn('Lỗi khi phân tích items_json:', err);
+    }
+  };
 
   useEffect(() => {
     if (template) {
       setFormData({ ...template });
       setActiveTab('settings');
 
-      // Tải chi tiết template từ API nếu có ID hợp lệ
       if (template.id && !template.id.startsWith('saved-')) {
-        getQuotationTemplateById(template.id).then((detail) => {
-          if (detail) {
-            setFormData(prev => prev ? ({
-              ...prev,
-              title: detail.template_name || prev.title,
-              duAnMau: detail.project_name || prev.duAnMau,
-              loaiBaoGia: detail.quote_type || prev.loaiBaoGia,
-              langCode: detail.quote_language?.toUpperCase() === 'EN' ? 'GB' : detail.quote_language?.toUpperCase() === 'VI-EN' ? 'VNGB' : 'VN',
-              tyLe: detail.scale || prev.tyLe,
-              kichThuoc: detail.size || prev.kichThuoc,
-              productionTime: `${detail.production_days || 60} ngày sản xuất`,
-              warrantyPeriod: `${detail.warranty_months || 18} tháng bảo hành`,
-            }) : prev);
+        setIsLoading(true);
+        getQuotationTemplateById(template.id)
+          .then(async (detail) => {
+            if (detail) {
+              setFormData((prev: any) => prev ? ({
+                ...prev,
+                title: detail.template_name || prev.title,
+                duAnMau: detail.project_name || prev.duAnMau,
+                loaiBaoGia: detail.quote_type || prev.loaiBaoGia,
+                langCode: detail.quote_language?.toUpperCase() === 'EN' ? 'GB' : detail.quote_language?.toUpperCase() === 'VI-EN' ? 'VNGB' : 'VN',
+                tyLe: detail.scale || prev.tyLe,
+                kichThuoc: detail.size || prev.kichThuoc,
+                productionTime: `${detail.production_days || 60} ngày`,
+                warrantyPeriod: `${detail.warranty_months || 18} tháng`,
+                isSystem: detail.is_system !== false,
+              }) : prev);
 
-            if (detail.production_days) setThoiGianSanXuat(parseFloat(String(detail.production_days)) || 60);
-            if (detail.warranty_months) setBaoHanhThang(parseFloat(String(detail.warranty_months)) || 18);
-            if (detail.vat_percent) setVatPercent(parseFloat(String(detail.vat_percent)) || 8);
+              if (detail.quote_type) setLoaiBaoGiaSelect(detail.quote_type);
+              if (detail.production_days) setThoiGianSanXuat(parseFloat(String(detail.production_days)) || 60);
+              if (detail.warranty_months) setBaoHanhThang(parseFloat(String(detail.warranty_months)) || 18);
+              if (detail.vat_percent) setVatPercent(parseFloat(String(detail.vat_percent)) || 8);
+              if (detail.payment_terms) setPhuongThucThanhToan(detail.payment_terms);
 
-            // Parse notes
-            if (detail.notes) {
-              try {
-                const parsed = typeof detail.notes === 'string' ? JSON.parse(detail.notes) : detail.notes;
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                  setDieuKienList(parsed.map((n: any, idx: number) => ({
-                    id: String(n.id || idx + 1),
-                    tieuDe: n.title || n.tieuDe || `Điều kiện ${idx + 1}`,
-                    noiDung: n.content || n.noiDung || '',
-                  })));
+              // Parse notes
+              if (detail.notes) {
+                try {
+                  const parsed = typeof detail.notes === 'string' ? JSON.parse(detail.notes) : detail.notes;
+                  if (Array.isArray(parsed) && parsed.length > 0) {
+                    setDieuKienList(parsed.map((n: any, idx: number) => ({
+                      id: String(n.id || idx + 1),
+                      tieuDe: n.title || n.tieuDe || `Điều kiện ${idx + 1}`,
+                      noiDung: n.content || n.noiDung || '',
+                    })));
+                  }
+                } catch (e) {
+                  // ignore
                 }
-              } catch (e) {}
+              }
+
+              // Load items_json
+              if (detail.items_json) {
+                await loadItemsJson(detail.items_json);
+              }
             }
-          }
-        }).catch(err => console.warn('Lỗi tải chi tiết template:', err));
+          })
+          .catch((err) => console.warn('Lỗi tải chi tiết template:', err))
+          .finally(() => setIsLoading(false));
       }
     }
   }, [template]);
@@ -171,11 +176,79 @@ export default function ChinhSuaTemplateModal({
   const vatVal = (baseForVat * vatPercent) / 100;
   const tongSauThue = afterDiscount + vatVal;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Xử lý Lưu thay đổi (Call API updateQuotationTemplate)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData) {
-      onSave(formData);
+    if (!formData) return;
+
+    try {
+      setIsSaving(true);
+
+      // 1. Chuyển đổi sections sang format items_json chuẩn
+      const formattedItems = sections.map((sec, idx) => ({
+        id: sec.id,
+        stt: String(sec.index || idx + 1),
+        name: sec.tenPhan,
+        discountable: sec.ckChecked,
+        items: sec.dongs.map((d, dIdx) => ({
+          id: d.id,
+          stt: d.stt || String(dIdx + 1),
+          name: d.congViec,
+          description: d.loaiVatLieu,
+          qty: d.soLuong,
+          unit: d.donVi,
+          unit_price: d.donGia,
+          total: (d.soLuong || 0) * (d.donGia || 0),
+        })),
+      }));
+
+      // 2. Chuyển đổi điều kiện sang format notes chuẩn
+      const formattedNotes = dieuKienList.map((dk) => ({
+        id: dk.id,
+        title: dk.tieuDe,
+        content: dk.noiDung,
+      }));
+
+      // 3. Payload gửi API
+      const payload = {
+        template_name: formData.title,
+        project_name: formData.duAnMau,
+        quote_type: formData.loaiBaoGia || loaiBaoGiaSelect,
+        quote_language: formData.langCode === 'GB' ? 'en' : 'vi',
+        scale: formData.tyLe,
+        size: formData.kichThuoc,
+        is_system: formData.isSystem !== false,
+        production_days: thoiGianSanXuat,
+        warranty_months: baoHanhThang,
+        vat_percent: vatPercent,
+        payment_terms: phuongThucThanhToan,
+        notes: JSON.stringify(formattedNotes),
+        items_json: JSON.stringify(formattedItems),
+      };
+
+      if (formData.id && !formData.id.startsWith('saved-')) {
+        await updateQuotationTemplate(formData.id, payload);
+      }
+
+      if (onSave) {
+        onSave({
+          ...formData,
+          productionTime: `${thoiGianSanXuat} ngày`,
+          warrantyPeriod: `${baoHanhThang} tháng`,
+        });
+      }
+
+      if (onSaveSuccess) {
+        onSaveSuccess();
+      }
+
+      NotificationExtension.Success(`Cập nhật template "${formData.title}" thành công!`);
       onClose();
+    } catch (err) {
+      console.error('Lỗi khi lưu template:', err);
+      NotificationExtension.Fails('Không thể lưu cập nhật template!');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -299,83 +372,75 @@ export default function ChinhSuaTemplateModal({
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#406c89]/10 text-[#406c89] flex items-center justify-center shrink-0">
+            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
               <IconPencil size={18} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 text-base tracking-tight">
+              <h3 className="text-sm font-bold text-slate-800 tracking-tight">
                 Chỉnh sửa Template Báo giá
               </h3>
-              <p className="text-[11px] text-slate-400 font-normal">Chỉnh sửa chi tiết thông tin mẫu, danh mục giá và điều kiện thanh toán</p>
+              <p className="text-[11px] text-slate-500 font-medium">
+                {isLoading ? 'Đang tải dữ liệu template...' : (formData.title || 'Mẫu chưa đặt tên')}
+              </p>
             </div>
           </div>
-
           <button
-            type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer p-1"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all cursor-pointer"
           >
             <IconX size={18} />
           </button>
         </div>
 
-        {/* 3 Tabs Header Bar */}
-        <div className="px-6 border-b border-slate-100 flex gap-6 shrink-0 bg-slate-50/50 select-none">
+        {/* 3 Tabs Navigation Bar */}
+        <div className="px-6 border-b border-slate-100 flex gap-6 bg-white shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('settings')}
-            className={`py-3 flex items-center gap-2 border-b-2 text-xs font-bold transition-all cursor-pointer focus:outline-none ${
+            className={`flex items-center gap-2 py-3 border-b-2 text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'settings'
                 ? 'border-[#406c89] text-[#406c89]'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                : 'border-transparent text-slate-400 hover:text-slate-600'
             }`}
           >
-            <IconSettings size={16} />
-            <span>Cài đặt mẫu</span>
+            <IconSettings size={15} />
+            <span>1. Cài đặt mẫu</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('items')}
-            className={`py-3 flex items-center gap-2 border-b-2 text-xs font-bold transition-all cursor-pointer focus:outline-none ${
+            className={`flex items-center gap-2 py-3 border-b-2 text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'items'
                 ? 'border-[#406c89] text-[#406c89]'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                : 'border-transparent text-slate-400 hover:text-slate-600'
             }`}
           >
-            <IconListDetails size={16} />
-            <span>Danh mục & Giá</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-              activeTab === 'items' ? 'bg-[#406c89]/10 text-[#406c89]' : 'bg-slate-200 text-slate-600'
-            }`}>
-              {sections.reduce((sum, sec) => sum + sec.dongs.length, 0)}
-            </span>
+            <IconListDetails size={15} />
+            <span>2. Danh mục & Giá ({sections.length} phần)</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('terms')}
-            className={`py-3 flex items-center gap-2 border-b-2 text-xs font-bold transition-all cursor-pointer focus:outline-none ${
+            className={`flex items-center gap-2 py-3 border-b-2 text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'terms'
                 ? 'border-[#406c89] text-[#406c89]'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                : 'border-transparent text-slate-400 hover:text-slate-600'
             }`}
           >
-            <IconReceipt size={16} />
-            <span>Điều kiện & Thanh toán</span>
+            <IconReceipt size={15} />
+            <span>3. Điều kiện & Thanh toán ({dieuKienList.length})</span>
           </button>
         </div>
 
-        {/* Scrollable Form Content based on active tab */}
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
-          <div className="p-6 overflow-y-auto flex-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {/* Tab Body Content */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
             
             {/* TAB 1: CÀI ĐẶT MẪU */}
             {activeTab === 'settings' && (
-              <CaiDatMauTab
-                formData={formData}
-                setFormData={setFormData}
-              />
+              <CaiDatMauTab formData={formData} setFormData={setFormData} />
             )}
 
             {/* TAB 2: DANH MỤC & GIÁ */}
@@ -432,16 +497,27 @@ export default function ChinhSuaTemplateModal({
             <button
               type="button"
               onClick={onClose}
+              disabled={isSaving}
               className="px-4 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="flex items-center gap-1.5 px-5 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs"
+              disabled={isSaving}
+              className="flex items-center gap-1.5 px-5 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs disabled:opacity-50"
             >
-              <IconCheck size={16} />
-              <span>Lưu thay đổi</span>
+              {isSaving ? (
+                <>
+                  <IconLoader2 size={16} className="animate-spin" />
+                  <span>Đang lưu...</span>
+                </>
+              ) : (
+                <>
+                  <IconCheck size={16} />
+                  <span>Lưu thay đổi</span>
+                </>
+              )}
             </button>
           </div>
         </form>

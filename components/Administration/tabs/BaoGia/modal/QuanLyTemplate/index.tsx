@@ -1,59 +1,48 @@
 "use client";
 
-
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  getQuotationTemplateList,
-  getQuotationTemplateById,
-  createQuotationTemplate,
-  updateQuotationTemplate,
-  deleteQuotationTemplate,
-  QuotationTemplateRecord,
-} from '@/api/apiGetQuotationTemplate';
-import { NotificationExtension } from '@/common/extension/NotificationExtension';
+import React, { useState, useEffect, useMemo } from "react";
 import {
   IconX,
-  IconWorld,
-  IconHome,
-  IconPlus,
-  IconTemplate,
-  IconPin,
+  IconFileDescription,
   IconPencil,
   IconCopy,
   IconDownload,
+  IconCircleArrowDown,
   IconTrash,
+  IconCalendar,
+  IconUser,
+  IconFolder,
   IconBuilding,
   IconClock,
   IconShieldCheck,
-  IconLoader2,
-  IconRefresh,
-} from '@tabler/icons-react';
-import ChinhSuaTemplateModal from './modal/ChinhSuaTemplate';
-
-export interface BaoGiaTemplateItem {
-  id: string;
-  langCode: string;
-  title: string;
-  subtitle: string;
-  raw?: QuotationTemplateRecord;
-}
+  IconTemplate,
+} from "@tabler/icons-react";
+import {
+  getQuotationTemplateList,
+  deleteQuotationTemplate,
+  updateQuotationTemplate,
+  createQuotationTemplate,
+  QuotationTemplateRecord,
+} from "@/api/apiQuotationTemplate";
+import { NotificationExtension } from "@/common/extension/NotificationExtension";
+import ChinhSuaTemplateModal from "./modal/ChinhSuaTemplate";
 
 export interface SavedTemplateItem {
   id: string;
   title: string;
-  badgeTitle: string;
+  loaiBaoGia: string;
   langCode: string;
-  isSystem?: boolean;
-  savedDate: string;
+  ngayTao: string;
   author: string;
-  categoryCount: string;
-  duAnMau?: string;
-  tyLe?: string;
-  kichThuoc?: string;
-  loaiBaoGia?: string;
-  itemSummary: string;
+  soPhan: number;
+  duAnMau: string;
   productionTime: string;
   warrantyPeriod: string;
+  isSystem?: boolean;
+  kichThuoc?: string;
+  tyLe?: string;
+  badgeTitle?: string;
+  savedDate?: string;
   raw?: QuotationTemplateRecord;
 }
 
@@ -68,444 +57,555 @@ export default function QuanLyTemplateModal({
   onClose,
   onSelectTemplate,
 }: QuanLyTemplateModalProps) {
-  const [englishTemplates, setEnglishTemplates] = useState<BaoGiaTemplateItem[]>([]);
-  const [vietnameseTemplates, setVietnameseTemplates] = useState<BaoGiaTemplateItem[]>([]);
-  const [savedTemplates, setSavedTemplates] = useState<SavedTemplateItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<SavedTemplateItem | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [templates, setTemplates] = useState<QuotationTemplateRecord[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Gọi API lấy danh sách Template từ server
-  const fetchTemplates = useCallback(async () => {
+  // Filters for Vietnamese column
+  const [searchVi, setSearchVi] = useState("");
+  const [typeFilterVi, setTypeFilterVi] = useState("");
+
+  // Filters for English column
+  const [searchEn, setSearchEn] = useState("");
+  const [typeFilterEn, setTypeFilterEn] = useState("");
+
+  // State for Edit Modal
+  const [selectedTemplateForEdit, setSelectedTemplateForEdit] = useState<SavedTemplateItem | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  // Fetch list of templates
+  const loadTemplates = async () => {
     try {
-      setIsLoading(true);
-      const data = await getQuotationTemplateList(200);
-      if (Array.isArray(data) && data.length > 0) {
-        // 1. Phân loại Mẫu hệ thống tiếng Anh
-        const enList: BaoGiaTemplateItem[] = data
-          .filter(item => {
-            const lang = (item.quote_language || '').toLowerCase();
-            const name = (item.template_name || item.quote_type || '').toLowerCase();
-            return lang === 'en' || name.includes('quotation') || name.includes('model') || name.includes('system') || name.includes('tab');
-          })
-          .map(item => ({
-            id: item.id,
-            langCode: 'GB',
-            title: item.template_name || item.quote_type || 'Quotation Template (ENG)',
-            subtitle: item.project_name || `Template hệ thống • Tỷ lệ ${item.scale || '—'} • KT ${item.size || '—'}`,
-            raw: item,
-          }));
-        setEnglishTemplates(enList);
-
-        // 2. Phân loại Mẫu hệ thống tiếng Việt
-        const viList: BaoGiaTemplateItem[] = data
-          .filter(item => {
-            const lang = (item.quote_language || '').toLowerCase();
-            const name = (item.template_name || item.quote_type || '').toLowerCase();
-            const isEnglish = lang === 'en' || name.includes('quotation') || name.includes('model') || name.includes('system') || name.includes('tab');
-            return !isEnglish;
-          })
-          .map(item => ({
-            id: item.id,
-            langCode: 'VN',
-            title: item.template_name || item.quote_type || 'Mẫu Báo giá (VN)',
-            subtitle: item.project_name || `Template hệ thống • Tỷ lệ ${item.scale || '—'} • KT ${item.size || '—'}`,
-            raw: item,
-          }));
-        setVietnameseTemplates(viList);
-
-        // 3. Toàn bộ mẫu đã lưu (Saved Templates)
-        const mapped: SavedTemplateItem[] = data.map((item) => ({
-          id: item.id,
-          title: item.template_name || item.project_name || item.quote_type || 'Mẫu Báo giá',
-          badgeTitle: item.quote_type || 'Báo giá',
-          langCode: item.quote_language?.toUpperCase() === 'EN' ? 'GB' : item.quote_language?.toUpperCase() === 'VI-EN' ? 'VNGB' : 'VN',
-          isSystem: item.is_system !== false,
-          savedDate: item.created_date ? new Date(item.created_date).toLocaleDateString('vi-VN') : '—',
-          author: item.created_by_name || 'Hệ thống',
-          categoryCount: `${item.production_days || 60} ngày`,
-          duAnMau: item.project_name || '',
-          tyLe: item.scale || '',
-          kichThuoc: item.size || '',
-          loaiBaoGia: item.quote_type || '',
-          itemSummary: `${item.scale ? `Tỷ lệ ${item.scale}` : ''} ${item.size ? `• KT ${item.size}` : ''}`,
-          productionTime: `${item.production_days || 60} ngày sản xuất`,
-          warrantyPeriod: `${item.warranty_months || 18} tháng bảo hành`,
-          raw: item,
-        }));
-        setSavedTemplates(mapped);
-      } else {
-        setEnglishTemplates([]);
-        setVietnameseTemplates([]);
-        setSavedTemplates([]);
+      setLoading(true);
+      const res = await getQuotationTemplateList(200);
+      if (Array.isArray(res)) {
+        setTemplates(res);
       }
     } catch (err) {
-      console.warn('Lỗi khi fetch templates:', err);
+      console.error("Failed to load quotation templates:", err);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     if (isOpen) {
-      fetchTemplates();
+      loadTemplates();
     }
-  }, [isOpen, fetchTemplates]);
+  }, [isOpen]);
+
+  // Separate Vietnamese vs English templates
+  const { vietnameseList, englishList } = useMemo(() => {
+    const vi: QuotationTemplateRecord[] = [];
+    const en: QuotationTemplateRecord[] = [];
+
+    templates.forEach((t) => {
+      const name = t.template_name || t.name || "";
+      const lang = (t.quote_language || "").toLowerCase();
+      if (lang === "en") {
+        en.push(t);
+      } else if (lang === "vi") {
+        vi.push(t);
+      } else {
+        // Fallback check name or quote_type
+        const text = `${name} ${t.quote_type || ""}`.toLowerCase();
+        if (
+          text.includes("quotation") ||
+          text.includes("lighting control") ||
+          text.includes("scale model") ||
+          text.includes("modification") ||
+          text.includes("transportation")
+        ) {
+          en.push(t);
+        } else {
+          vi.push(t);
+        }
+      }
+    });
+
+    return { vietnameseList: vi, englishList: en };
+  }, [templates]);
+
+  // Get distinct quote types for dropdowns
+  const viTypes = useMemo(() => {
+    const set = new Set<string>();
+    vietnameseList.forEach((t) => {
+      if (t.quote_type) set.add(t.quote_type);
+    });
+    return Array.from(set);
+  }, [vietnameseList]);
+
+  const enTypes = useMemo(() => {
+    const set = new Set<string>();
+    englishList.forEach((t) => {
+      if (t.quote_type) set.add(t.quote_type);
+    });
+    return Array.from(set);
+  }, [englishList]);
+
+  // Filtered lists
+  const filteredViList = useMemo(() => {
+    return vietnameseList.filter((item) => {
+      const name = item.template_name || item.name || "";
+      const matchSearch =
+        !searchVi ||
+        name.toLowerCase().includes(searchVi.toLowerCase()) ||
+        (item.quote_type && item.quote_type.toLowerCase().includes(searchVi.toLowerCase())) ||
+        (item.project_name && item.project_name.toLowerCase().includes(searchVi.toLowerCase())) ||
+        (item.created_by_name && item.created_by_name.toLowerCase().includes(searchVi.toLowerCase()));
+
+      const matchType = !typeFilterVi || item.quote_type === typeFilterVi;
+      return matchSearch && matchType;
+    });
+  }, [vietnameseList, searchVi, typeFilterVi]);
+
+  const filteredEnList = useMemo(() => {
+    return englishList.filter((item) => {
+      const name = item.template_name || item.name || "";
+      const matchSearch =
+        !searchEn ||
+        name.toLowerCase().includes(searchEn.toLowerCase()) ||
+        (item.quote_type && item.quote_type.toLowerCase().includes(searchEn.toLowerCase())) ||
+        (item.project_name && item.project_name.toLowerCase().includes(searchEn.toLowerCase())) ||
+        (item.created_by_name && item.created_by_name.toLowerCase().includes(searchEn.toLowerCase()));
+
+      const matchType = !typeFilterEn || item.quote_type === typeFilterEn;
+      return matchSearch && matchType;
+    });
+  }, [englishList, searchEn, typeFilterEn]);
+
+  // Helper date formatter
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "--/--/----";
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      const day = String(d.getDate()).padStart(2, "0");
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch {
+      return dateStr;
+    }
+  };
+
+  // Helper count sections/phần
+  const getSectionCount = (t: QuotationTemplateRecord) => {
+    if (!t.items_json) return 0;
+    try {
+      if (typeof t.items_json === "string" && (t.items_json.startsWith("[") || t.items_json.startsWith("{"))) {
+        const parsed = JSON.parse(t.items_json);
+        if (Array.isArray(parsed)) return parsed.length;
+        if (parsed.sections && Array.isArray(parsed.sections)) return parsed.sections.length;
+      }
+    } catch {
+      // ignore
+    }
+    return 0;
+  };
+
+  // Convert QuotationTemplateRecord to SavedTemplateItem for Edit Modal
+  const recordToSavedItem = (t: QuotationTemplateRecord): SavedTemplateItem => {
+    const isEn = (t.quote_language || "").toLowerCase() === "en";
+    return {
+      id: t.id,
+      title: t.template_name || t.name || "",
+      loaiBaoGia: t.quote_type || "",
+      langCode: isEn ? "GB" : "VN",
+      ngayTao: formatDate(t.created_date || t.updated_date),
+      author: t.created_by_name || "Thảo Phùng",
+      soPhan: getSectionCount(t),
+      duAnMau: t.project_name || "",
+      productionTime: `${t.production_days || 60} ngày`,
+      warrantyPeriod: `${t.warranty_months || 18} tháng`,
+      isSystem: t.is_system !== false,
+      kichThuoc: t.size || "",
+      tyLe: t.scale || "",
+      raw: t,
+    };
+  };
+
+  // Actions
+  const handleOpenEdit = (t: QuotationTemplateRecord) => {
+    setSelectedTemplateForEdit(recordToSavedItem(t));
+    setIsEditOpen(true);
+  };
+
+  const handleSaveEdit = async (updated: SavedTemplateItem) => {
+    try {
+      await updateQuotationTemplate(updated.id, {
+        template_name: updated.title,
+        project_name: updated.duAnMau,
+        quote_type: updated.loaiBaoGia,
+        quote_language: updated.langCode === "GB" ? "en" : "vi",
+        scale: updated.tyLe,
+        size: updated.kichThuoc,
+        is_system: updated.isSystem,
+      });
+      setIsEditOpen(false);
+      setSelectedTemplateForEdit(null);
+      await loadTemplates();
+    } catch (err) {
+      console.error("Lỗi khi lưu chỉnh sửa template:", err);
+      alert("Không thể lưu chỉnh sửa!");
+    }
+  };
+
+  const handleDuplicate = async (t: QuotationTemplateRecord) => {
+    try {
+      const name = t.template_name || t.name || "";
+      const payload: Partial<QuotationTemplateRecord> = {
+        template_name: `${name} (Bản sao)`,
+        quote_type: t.quote_type,
+        quote_language: t.quote_language,
+        project_name: t.project_name,
+        production_days: t.production_days,
+        warranty_months: t.warranty_months,
+        valid_days: t.valid_days,
+        is_system: t.is_system,
+        items_json: t.items_json,
+        notes: t.notes,
+        scale: t.scale,
+        size: t.size,
+      };
+      await createQuotationTemplate(payload);
+      NotificationExtension.Success(`Đã nhân bản template "${name}" thành công!`);
+      await loadTemplates();
+    } catch (err) {
+      console.error("Lỗi khi nhân bản template:", err);
+      NotificationExtension.Fails("Không thể sao chép template!");
+    }
+  };
+
+  const handleToggleSystem = async (t: QuotationTemplateRecord) => {
+    try {
+      const newStatus = !t.is_system;
+      const name = t.template_name || t.name || "";
+      await updateQuotationTemplate(t.id, { is_system: newStatus });
+      NotificationExtension.Success(
+        newStatus ? `Đã nâng cấp "${name}" thành mẫu Hệ thống!` : `Đã hạ cấp "${name}" khỏi mẫu Hệ thống!`
+      );
+      await loadTemplates();
+    } catch (err) {
+      console.error("Lỗi cập nhật phân loại hệ thống:", err);
+      NotificationExtension.Fails("Không thể thay đổi phân loại!");
+    }
+  };
+
+  const handleDelete = async (t: QuotationTemplateRecord) => {
+    const name = t.template_name || t.name || "";
+    if (confirm(`Bạn có chắc muốn xóa template "${name}"?`)) {
+      try {
+        await deleteQuotationTemplate(t.id);
+        NotificationExtension.Success(`Đã xóa template "${name}" thành công!`);
+        await loadTemplates();
+      } catch (err) {
+        console.error("Lỗi khi xóa template:", err);
+        NotificationExtension.Fails("Xóa template thất bại!");
+      }
+    }
+  };
+
+  const handleSelect = (t: QuotationTemplateRecord) => {
+    if (onSelectTemplate) {
+      const name = t.template_name || t.name || "";
+      onSelectTemplate(t);
+      NotificationExtension.Success(`Đã nạp template "${name}" vào báo giá!`);
+      onClose();
+    }
+  };
 
   if (!isOpen) return null;
 
-  const handleDuplicateSaved = async (item: SavedTemplateItem) => {
-    const newTitle = `${item.title} (Bản sao)`;
-    try {
-      const res = await createQuotationTemplate({
-        template_name: newTitle,
-        project_name: item.duAnMau || newTitle,
-        quote_type: item.loaiBaoGia || item.badgeTitle,
-        quote_language: item.langCode === 'GB' ? 'en' : 'vi',
-        scale: item.tyLe,
-        size: item.kichThuoc,
-        is_system: false,
-        production_days: parseFloat(item.productionTime) || 60,
-        warranty_months: parseFloat(item.warrantyPeriod) || 18,
-      });
+  // Render a template card exactly as shown in screenshot
+  const renderTemplateCard = (t: QuotationTemplateRecord) => {
+    const isEn = (t.quote_language || "").toLowerCase() === "en";
+    const sectionCount = getSectionCount(t);
+    const name = t.template_name || t.name || "";
 
-      if (res.success) {
-        NotificationExtension.Success(`Nhân bản mẫu ${newTitle} thành công!`);
-        await fetchTemplates();
-      } else {
-        NotificationExtension.Warn(res.error || 'Không thể nhân bản mẫu');
-      }
-    } catch (err: any) {
-      console.warn('Lỗi khi nhân bản template:', err);
-      NotificationExtension.Warn(err?.message || 'Lỗi kết nối khi nhân bản');
-    }
-  };
+    return (
+      <div
+        key={t.id}
+        className="bg-white border border-slate-200/90 rounded-md px-2 py-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-sm transition-shadow relative flex flex-col gap-0.5"
+      >
+        {/* Row 1: Title & Action icons */}
+        <div className="flex items-center justify-between gap-1">
+          <h4
+            className="text-[11.5px] font-bold text-slate-900 leading-tight flex-1 cursor-pointer hover:text-indigo-600 transition-colors uppercase line-clamp-1"
+            onClick={() => handleSelect(t)}
+            title={name}
+          >
+            {name}
+          </h4>
 
-  const handleDeleteSaved = async (id: string) => {
-    const target = savedTemplates.find((t) => t.id === id);
-    setSavedTemplates((prev) => prev.filter((item) => item.id !== id));
-    NotificationExtension.Success(`Đã xóa mẫu ${target?.title || ''} thành công!`);
-    try {
-      const res = await deleteQuotationTemplate(id);
-      if (!res.success && res.error) {
-        NotificationExtension.Warn(res.error, 'Cảnh báo đồng bộ máy chủ');
-      }
-    } catch (err) {
-      console.warn('Lỗi khi xóa template:', err);
-    }
-  };
+          {/* Action icon buttons */}
+          <div className="flex items-center gap-0.5 shrink-0 text-slate-400">
+            <button
+              onClick={() => handleOpenEdit(t)}
+              className="p-0.5 hover:bg-slate-100 rounded text-indigo-600 hover:text-indigo-800 transition-colors"
+              title="Chỉnh sửa"
+            >
+              <IconPencil size={13} stroke={1.8} />
+            </button>
+            <button
+              onClick={() => handleDuplicate(t)}
+              className="p-0.5 hover:bg-slate-100 rounded hover:text-slate-700 transition-colors"
+              title="Sao chép"
+            >
+              <IconCopy size={13} stroke={1.8} />
+            </button>
+            <button
+              onClick={() => handleSelect(t)}
+              className="p-0.5 hover:bg-slate-100 rounded hover:text-slate-700 transition-colors"
+              title="Nạp vào báo giá"
+            >
+              <IconDownload size={13} stroke={1.8} />
+            </button>
+            <button
+              onClick={() => handleToggleSystem(t)}
+              className="p-0.5 hover:bg-slate-100 rounded hover:text-slate-700 transition-colors"
+              title={t.is_system ? "Hạ cấp khỏi Hệ thống" : "Nâng cấp lên Hệ thống"}
+            >
+              <IconCircleArrowDown size={13} stroke={1.8} />
+            </button>
+            <button
+              onClick={() => handleDelete(t)}
+              className="p-0.5 hover:bg-rose-50 rounded text-rose-500 hover:text-rose-700 transition-colors"
+              title="Xóa"
+            >
+              <IconTrash size={13} stroke={1.8} />
+            </button>
+          </div>
+        </div>
 
-  const handleOpenEdit = (item: SavedTemplateItem) => {
-    setEditingTemplate(item);
-    setIsEditModalOpen(true);
-  };
+        {/* Row 2: Badges */}
+        <div className="flex flex-wrap items-center gap-1">
+          {t.quote_type && (
+            <span className="inline-block bg-indigo-50 text-indigo-700 border border-indigo-100 px-1 py-[1px] rounded font-semibold text-[9.5px] uppercase">
+              {t.quote_type}
+            </span>
+          )}
+          <span className="text-[9px] font-bold text-slate-500 font-mono tracking-wider uppercase">
+            {isEn ? "GB" : "VN"}
+          </span>
+          {t.is_system !== false && (
+            <span className="inline-block bg-amber-50 text-amber-800 border border-amber-200 px-1 py-[1px] rounded text-[9.5px] font-semibold">
+              Hệ thống
+            </span>
+          )}
+        </div>
 
-  const handleSaveEdit = async (updatedItem: SavedTemplateItem) => {
-    // 1. Cập nhật state UI ngay lập tức
-    setSavedTemplates((prev) =>
-      prev.map((t) => (t.id === updatedItem.id ? updatedItem : t))
+        {/* Row 3: Meta info with icons */}
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[10.5px] text-slate-500">
+          <div className="flex items-center gap-1 shrink-0">
+            <IconCalendar size={11} className="text-slate-400" />
+            <span>{formatDate(t.created_date || t.updated_date)}</span>
+          </div>
+
+          <div className="flex items-center gap-1 shrink-0">
+            <IconUser size={11} className="text-slate-400" />
+            <span className="font-medium text-slate-600">{t.created_by_name || "Thảo Phùng"}</span>
+          </div>
+
+          <div className="flex items-center gap-1 shrink-0">
+            <IconFolder size={11} className="text-slate-400" />
+            <span>{sectionCount} phần</span>
+          </div>
+
+          {t.project_name && (
+            <div className="flex items-center gap-1 shrink-0 max-w-[220px] truncate" title={t.project_name}>
+              <IconBuilding size={11} className="text-slate-400 shrink-0" />
+              <span className="truncate uppercase font-medium">{t.project_name}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Row 4: Specs (Production days, warranty) */}
+        {(t.production_days !== undefined || t.warranty_months !== undefined) && (
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[10.5px] text-slate-500">
+            {t.production_days !== undefined && Number(t.production_days) > 0 && (
+              <div className="flex items-center gap-1 shrink-0">
+                <IconClock size={11} className="text-slate-400" />
+                <span>{t.production_days} ngày</span>
+              </div>
+            )}
+            {t.warranty_months !== undefined && Number(t.warranty_months) > 0 && (
+              <div className="flex items-center gap-1 shrink-0">
+                <IconShieldCheck size={11} className="text-slate-400" />
+                <span>{t.warranty_months} tháng</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     );
-    setIsEditModalOpen(false);
-    setEditingTemplate(null);
-    NotificationExtension.Success(`Cập nhật mẫu ${updatedItem.title} thành công!`);
-
-    // 2. Gửi API PUT lên server
-    try {
-      const payload: Partial<QuotationTemplateRecord> = {
-        template_name: updatedItem.title,
-        project_name: updatedItem.duAnMau || updatedItem.title,
-        quote_type: updatedItem.loaiBaoGia || updatedItem.badgeTitle,
-        quote_language: updatedItem.langCode === 'GB' ? 'en' : updatedItem.langCode === 'VNGB' ? 'vi-en' : 'vi',
-        scale: updatedItem.tyLe,
-        size: updatedItem.kichThuoc,
-        production_days: parseFloat(updatedItem.productionTime) || 60,
-        warranty_months: parseFloat(updatedItem.warrantyPeriod) || 18,
-      };
-
-      const res = await updateQuotationTemplate(updatedItem.id, payload);
-      if (!res.success && res.error) {
-        NotificationExtension.Warn(res.error, 'Cảnh báo đồng bộ máy chủ');
-      }
-    } catch (err: any) {
-      console.warn('Lỗi khi cập nhật template:', err);
-      NotificationExtension.Warn(err?.message || 'Không thể đồng bộ với máy chủ');
-    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-fade-in">
-      {/* Modal Container */}
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 w-full max-w-4xl overflow-hidden animate-scale-up flex flex-col h-[90vh] max-h-[90vh]">
-        
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-[96vw] max-w-[1400px] h-[94vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#BB8D38]/10 text-[#BB8D38] flex items-center justify-center shrink-0">
-              <IconTemplate size={20} />
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-900 text-base tracking-tight">
+        <div className="px-5 py-2.5 border-b border-slate-200 flex items-start justify-between bg-white shrink-0">
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <IconFileDescription size={19} className="text-slate-800" />
+              <h2 className="text-[15px] font-bold text-slate-900 tracking-tight">
                 Quản lý Template Báo giá
-              </h3>
-              <p className="text-[11px] text-slate-400 font-normal">Nạp các mẫu báo giá chuẩn hệ thống và mẫu đã lưu</p>
+              </h2>
+              <span className="inline-flex items-center gap-1 bg-sky-50 text-[#306485] border border-sky-200 px-2 py-0.5 rounded text-[10.5px] font-semibold">
+                <IconTemplate size={12} />
+                Template hệ thống đã lưu
+              </span>
             </div>
+            <p className="text-[11px] text-slate-500 pl-0.5">
+              Mẫu hệ thống do quản lý lưu, dùng chung cho toàn team. Có thể chỉnh sửa, sao chép, xóa hoặc hạ cấp.
+            </p>
           </div>
 
           <button
-            type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer p-1"
+            className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1 rounded-lg transition-colors"
           >
             <IconX size={18} />
           </button>
         </div>
 
-        {/* Scrollable Body Content */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-7 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-2">
-              <IconLoader2 size={24} className="animate-spin text-[#406c89]" />
-              <span className="text-xs">Đang tải danh sách mẫu báo giá từ server...</span>
-            </div>
-          ) : (
-            <>
-              {/* SECTION 1: NẠP MẪU HỆ THỐNG - TIẾNG ANH */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base">
-                    <div className="w-6 h-6 rounded-lg bg-[#406c89]/10 text-[#406c89] flex items-center justify-center shrink-0">
-                      <IconWorld size={16} />
-                    </div>
-                    <span>Nạp mẫu Hệ thống - Tiếng Anh ({englishTemplates.length})</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2.5">
-                  {englishTemplates.length === 0 ? (
-                    <p className="text-xs text-slate-400 italic py-2">Không có mẫu tiếng Anh nào.</p>
-                  ) : (
-                    englishTemplates.map((tmpl) => (
-                      <div
-                        key={tmpl.id}
-                        className="bg-[#f8fafc]/90 border border-slate-200/80 rounded-2xl p-4 flex items-center justify-between gap-4 transition-all hover:border-slate-300 shadow-2xs"
-                      >
-                        {/* Left Title & Subtitle */}
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
-                            <span className="text-slate-500 font-mono text-[11px] uppercase">{tmpl.langCode}</span>
-                            <span>{tmpl.title}</span>
-                          </div>
-                          <p className="text-xs text-slate-400 font-normal">
-                            {tmpl.subtitle}
-                          </p>
-                        </div>
-
-                        {/* Right Action Button (+ Nạp) - #406c89 */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (onSelectTemplate) onSelectTemplate(tmpl.raw || tmpl);
-                            onClose();
-                          }}
-                          className="flex items-center gap-1 px-4 py-2 bg-[#406c89] hover:bg-[#345972] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs shrink-0"
-                        >
-                          <IconPlus size={14} />
-                          <span>Nạp</span>
-                        </button>
-                      </div>
-                    ))
-                  )}
+        {/* 2-Column Body Layout */}
+        <div className="flex-1 min-h-0 overflow-y-auto bg-[#f8fafc] flex flex-col">
+          {/* Khối 1: Template Hệ thống (2 cột) */}
+          <div className="grid grid-cols-2 divide-x divide-slate-200 border-b border-slate-200">
+            {/* Cột 1: Tiếng Việt */}
+            <div className="flex flex-col p-3">
+              {/* Header Cột VN */}
+              <div className="flex items-center justify-between pb-1.5 shrink-0">
+                <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[12px]">
+                  <span className="font-mono text-[9.5px] uppercase bg-slate-200 text-slate-700 px-1 py-0.2 rounded font-bold">VN</span>
+                  <span>Tiếng Việt</span>
+                  <span className="text-slate-500 font-normal">({filteredViList.length})</span>
                 </div>
               </div>
 
-              {/* SECTION 2: NẠP MẪU HỆ THỐNG - TIẾNG VIỆT */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base">
-                  <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                    <IconHome size={16} />
-                  </div>
-                  <span>Nạp mẫu Hệ thống - Tiếng Việt ({vietnameseTemplates.length})</span>
+              {/* Filter VN */}
+              <div className="grid grid-cols-[1fr_auto] gap-2 pb-2 shrink-0">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Tìm theo tên, loại, dự án, người lưu..."
+                    value={searchVi}
+                    onChange={(e) => setSearchVi(e.target.value)}
+                    className="w-full pl-2.5 pr-2.5 py-1 bg-white border border-slate-300 rounded text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
                 </div>
 
-                <div className="space-y-2.5">
-                  {vietnameseTemplates.length === 0 ? (
-                    <p className="text-xs text-slate-400 italic py-2">Không có mẫu tiếng Việt nào.</p>
-                  ) : (
-                    vietnameseTemplates.map((tmpl) => (
-                      <div
-                        key={tmpl.id}
-                        className="bg-[#f4fbf7]/90 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between gap-4 transition-all hover:border-emerald-300 shadow-2xs"
-                      >
-                        {/* Left Title & Subtitle */}
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
-                            <span className="text-slate-500 font-mono text-[11px] uppercase">{tmpl.langCode}</span>
-                            <span>{tmpl.title}</span>
-                          </div>
-                          <p className="text-xs text-slate-400 font-normal">
-                            {tmpl.subtitle}
-                          </p>
-                        </div>
-
-                        {/* Right Action Button (+ Nạp) - Emerald Green */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (onSelectTemplate) onSelectTemplate(tmpl.raw || tmpl);
-                            onClose();
-                          }}
-                          className="flex items-center gap-1 px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs shrink-0"
-                        >
-                          <IconPlus size={14} />
-                          <span>Nạp</span>
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              {/* SECTION 3: MẪU ĐÃ LƯU */}
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base">
-              <IconPin size={18} className="text-red-500 fill-red-500 rotate-45" />
-              <span>Mẫu đã lưu</span>
-            </div>
-
-            <div className="space-y-4">
-              {savedTemplates.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-[#f8fafc]/90 border border-slate-200/90 rounded-2xl p-5 space-y-3.5 shadow-2xs transition-all hover:border-slate-300"
+                <select
+                  value={typeFilterVi}
+                  onChange={(e) => setTypeFilterVi(e.target.value)}
+                  className="bg-white border border-slate-300 rounded text-xs px-2 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                 >
-                  {/* Top Row: Title, Badges & Action Buttons */}
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                    
-                    {/* Left Details */}
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-slate-900 text-sm sm:text-base tracking-tight">
-                        {item.title}
-                      </h4>
+                  <option value="">Tất cả loại</option>
+                  {viTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                      {/* Badges */}
-                      <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                        <span className="bg-[#406c89]/10 text-[#406c89] px-2.5 py-0.5 rounded-md text-[11px] font-semibold">
-                          {item.badgeTitle}
-                        </span>
-                        <span className="text-slate-400 font-mono text-[10px]">
-                          {item.langCode}
-                        </span>
-                        {item.isSystem && (
-                          <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md text-[11px] font-semibold">
-                            Hệ thống
-                          </span>
-                        )}
-                      </div>
+              {/* Danh sách thẻ VN */}
+              <div className="space-y-1.5 pr-1">
+                {loading ? (
+                  <div className="py-8 text-center text-xs text-slate-400">Đang tải danh sách...</div>
+                ) : filteredViList.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-slate-400">Không tìm thấy template nào</div>
+                ) : (
+                  filteredViList.map(renderTemplateCard)
+                )}
+              </div>
+            </div>
 
-                      {/* Meta line */}
-                      <p className="text-xs text-slate-400 font-normal pt-1">
-                        Lưu: <span className="text-slate-600 font-medium">{item.savedDate}</span> | Bởi: <span className="text-slate-600 font-medium">{item.author}</span> | Danh mục: <span className="text-slate-600 font-medium">{item.categoryCount}</span>
-                      </p>
-                    </div>
-
-                    {/* Right 4 Action Buttons */}
-                    <div className="flex items-center gap-2 flex-wrap shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenEdit(item)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[#406c89]/10 border border-[#406c89]/30 text-[#406c89] hover:bg-[#406c89]/20 rounded-xl text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
-                      >
-                        <IconPencil size={14} />
-                        <span>Chỉnh sửa</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDuplicateSaved(item)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
-                      >
-                        <IconCopy size={14} />
-                        <span>Sao chép</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
-                      >
-                        <IconDownload size={14} />
-                        <span>Xuất</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteSaved(item.id)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-red-200/90 text-red-500 hover:bg-red-50 rounded-xl text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
-                      >
-                        <IconTrash size={14} />
-                        <span>Xóa</span>
-                      </button>
-                    </div>
-
-                  </div>
-
-                  {/* Bottom Summary Box inside Card */}
-                  <div className="bg-white border border-slate-200/70 rounded-xl p-3.5 text-xs text-slate-600 space-y-1.5 font-normal">
-                    {item.duAnMau && (
-                      <div className="flex items-center gap-2 text-slate-700">
-                        <IconBuilding size={16} className="text-slate-400 shrink-0" />
-                        <span>Dự án mẫu: <strong className="font-bold text-slate-800">{item.duAnMau}</strong></span>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-2">
-                      <IconPin size={15} className="text-slate-400 shrink-0" />
-                      <span>{item.itemSummary}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <IconClock size={15} className="text-slate-400 shrink-0" />
-                      <span>{item.productionTime}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <IconShieldCheck size={15} className="text-slate-400 shrink-0" />
-                      <span>{item.warrantyPeriod}</span>
-                    </div>
-                  </div>
-
+            {/* Cột 2: Tiếng Anh */}
+            <div className="flex flex-col p-3">
+              {/* Header Cột GB */}
+              <div className="flex items-center justify-between pb-1.5 shrink-0">
+                <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[12px]">
+                  <span className="font-mono text-[9.5px] uppercase bg-slate-200 text-slate-700 px-1 py-0.2 rounded font-bold">GB</span>
+                  <span>Tiếng Anh</span>
+                  <span className="text-slate-500 font-normal">({filteredEnList.length})</span>
                 </div>
-              ))}
+              </div>
+
+              {/* Filter GB */}
+              <div className="grid grid-cols-[1fr_auto] gap-2 pb-2 shrink-0">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Tìm theo tên, loại, dự án, người lưu..."
+                    value={searchEn}
+                    onChange={(e) => setSearchEn(e.target.value)}
+                    className="w-full pl-2.5 pr-2.5 py-1 bg-white border border-slate-300 rounded text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+
+                <select
+                  value={typeFilterEn}
+                  onChange={(e) => setTypeFilterEn(e.target.value)}
+                  className="bg-white border border-slate-300 rounded text-xs px-2 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">Tất cả loại</option>
+                  {enTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Danh sách thẻ GB */}
+              <div className="space-y-1.5 pr-1">
+                {loading ? (
+                  <div className="py-8 text-center text-xs text-slate-400">Đang tải danh sách...</div>
+                ) : filteredEnList.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-slate-400">Không tìm thấy template nào</div>
+                ) : (
+                  filteredEnList.map(renderTemplateCard)
+                )}
+              </div>
             </div>
           </div>
-            </>
-          )}
 
+          {/* Khối 2: Mẫu cá nhân đã lưu */}
+          <div className="p-4 bg-white/70 flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-base">📌</span>
+              <h3 className="text-[13.5px] font-bold text-slate-900 tracking-tight">
+                Mẫu cá nhân đã lưu
+              </h3>
+            </div>
+
+            {/* Empty state nếu chưa có mẫu cá nhân */}
+            <div className="py-10 flex flex-col items-center justify-center text-center">
+              <p className="text-[13px] font-medium text-slate-600 mb-1">
+                Chưa có mẫu báo giá cá nhân nào được lưu.
+              </p>
+              <p className="text-[12px] text-slate-400">
+                Hãy chỉnh sửa mẫu hệ thống ở trên hoặc lưu báo giá làm mẫu từ trang Chi tiết báo giá.
+              </p>
+            </div>
+          </div>
         </div>
-
-        {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-slate-100 flex items-center justify-end bg-slate-50/60 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
-          >
-            Đóng
-          </button>
-        </div>
-
       </div>
 
-      {/* Edit Template Sub-Modal */}
-      <ChinhSuaTemplateModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setEditingTemplate(null);
-        }}
-        template={editingTemplate}
-        onSave={handleSaveEdit}
-      />
+      {/* Modal Chỉnh Sửa Template */}
+      {isEditOpen && selectedTemplateForEdit && (
+        <ChinhSuaTemplateModal
+          isOpen={isEditOpen}
+          template={selectedTemplateForEdit}
+          onClose={() => {
+            setIsEditOpen(false);
+            setSelectedTemplateForEdit(null);
+          }}
+          onSave={handleSaveEdit}
+        />
+      )}
     </div>
   );
 }

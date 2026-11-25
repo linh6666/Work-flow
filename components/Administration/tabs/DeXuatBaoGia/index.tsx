@@ -16,6 +16,7 @@ import {
   IconChevronRight,
   IconPhone,
   IconX,
+  IconEye,
 } from '@tabler/icons-react';
 import CreateProposalModal from './modal/CreateProposalModal';
 import EditProposalModal from './edit/EditProposalModal';
@@ -24,6 +25,7 @@ import TrienKhaiHoanTatModal from './trienKhaiHoanTat/TrienKhaiHoanTatModal';
 import TrienKhaiChuaLamModal from './trienKhaiChuaLam/TrienKhaiChuaLamModal';
 import DuyetDeXuatModal from './duyet/DuyetDeXuatModal';
 import TuChoiDeXuatModal from './tuChoi/TuChoiDeXuatModal';
+import ViewProposalModal from './view/ViewProposalModal';
 import { getQuoteRequestList, QuoteRequestRecord } from '@/api/apiGetQuoteRequest';
 import { createQuoteRequest } from '@/api/apiCreateQuoteRequest';
 import { updateQuoteRequest } from '@/api/apiUpdateQuoteRequest';
@@ -118,6 +120,7 @@ export default function DeXuatBaoGia() {
   const [selectedProposalForTrienKhai, setSelectedProposalForTrienKhai] = useState<DeXuat | null>(null);
   const [approvingProposal, setApprovingProposal] = useState<DeXuat | null>(null);
   const [rejectingProposal, setRejectingProposal] = useState<DeXuat | null>(null);
+  const [viewingProposal, setViewingProposal] = useState<DeXuat | null>(null);
 
   // Drag-to-scroll cho bảng
   const tableScrollRef = useRef<HTMLDivElement>(null);
@@ -814,6 +817,14 @@ const mapQuoteRequestToDeXuat = (r: QuoteRequestRecord): DeXuat => {
                         <div className="inline-flex items-center gap-1">
                           <button
                             type="button"
+                            onClick={() => setViewingProposal(row)}
+                            className="p-1.5 rounded border border-slate-200 hover:bg-sky-50 text-slate-500 hover:text-sky-700 transition-colors cursor-pointer active:scale-95"
+                            title="Xem chi tiết"
+                          >
+                            <IconEye size={13} />
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => {
                               setSelectedProposalForEdit(row);
                               setIsEditModalOpen(true);
@@ -912,6 +923,12 @@ const mapQuoteRequestToDeXuat = (r: QuoteRequestRecord): DeXuat => {
         proposal={rejectingProposal}
         onClose={() => setRejectingProposal(null)}
         onConfirm={handleReject}
+      />
+
+      <ViewProposalModal
+        isOpen={!!viewingProposal}
+        proposal={viewingProposal}
+        onClose={() => setViewingProposal(null)}
       />
     </div>
   );

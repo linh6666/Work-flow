@@ -1,38 +1,7 @@
 import { BASE_API_FASTAPI } from "../config";
+import { QuotationTemplateRecord, getQuotationTemplateHeaders } from "./types/quotationTemplate";
 
-export interface QuotationTemplateRecord {
-  id: string;
-  template_name?: string;
-  quote_type?: string;
-  quote_language?: string; // 'vi' | 'en' | 'vi-en'
-  scale?: string;
-  size?: string;
-  project_name?: string;
-  vat_percent?: number | string;
-  production_days?: number | string;
-  warranty_months?: number | string;
-  is_system?: boolean;
-  items_json?: string;
-  notes?: string;
-  created_by_name?: string;
-  created_date?: string;
-  updated_date?: string;
-  [key: string]: any;
-}
-
-const getHeaders = () => {
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  const apiKey =
-    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
-    process.env.NEXT_PUBLIC_API_KEY ||
-    "";
-
-  return {
-    "Content-Type": "application/json",
-    ...(apiKey ? { api_key: apiKey } : {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-};
+export * from "./types/quotationTemplate";
 
 /**
  * 1. Lấy danh sách mẫu báo giá (QuotationTemplate)
@@ -44,7 +13,7 @@ export async function getQuotationTemplateList(limit = 200): Promise<QuotationTe
   try {
     const res = await fetch(url, {
       method: "GET",
-      headers: getHeaders(),
+      headers: getQuotationTemplateHeaders(),
     });
 
     if (res.ok) {
@@ -72,7 +41,7 @@ export async function getQuotationTemplateById(id: string): Promise<QuotationTem
   try {
     const res = await fetch(url, {
       method: "GET",
-      headers: getHeaders(),
+      headers: getQuotationTemplateHeaders(),
     });
 
     if (res.ok) {
@@ -83,92 +52,4 @@ export async function getQuotationTemplateById(id: string): Promise<QuotationTem
   }
 
   return null;
-}
-
-/**
- * 3. Tạo mới mẫu báo giá
- * Endpoint: POST /api/v1/entities/QuotationTemplate
- */
-export async function createQuotationTemplate(payload: Partial<QuotationTemplateRecord>): Promise<{ success: boolean; data?: any; error?: string }> {
-  const url = `${BASE_API_FASTAPI}/api/v1/entities/QuotationTemplate`;
-
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      return { success: true, data };
-    }
-
-    const errJson = await res.json().catch(() => null);
-    return {
-      success: false,
-      error: errJson?.detail || errJson?.message || `Lỗi server: ${res.status}`,
-    };
-  } catch (err: any) {
-    console.error("Lỗi khi tạo QuotationTemplate:", err);
-    return { success: false, error: err?.message || "Không thể kết nối đến máy chủ" };
-  }
-}
-
-/**
- * 4. Cập nhật mẫu báo giá
- * Endpoint: PUT /api/v1/entities/QuotationTemplate/{id}
- */
-export async function updateQuotationTemplate(id: string, payload: Partial<QuotationTemplateRecord>): Promise<{ success: boolean; data?: any; error?: string }> {
-  const url = `${BASE_API_FASTAPI}/api/v1/entities/QuotationTemplate/${id}`;
-
-  try {
-    const res = await fetch(url, {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      return { success: true, data };
-    }
-
-    const errJson = await res.json().catch(() => null);
-    return {
-      success: false,
-      error: errJson?.detail || errJson?.message || `Lỗi server: ${res.status}`,
-    };
-  } catch (err: any) {
-    console.error(`Lỗi khi cập nhật QuotationTemplate [${id}]:`, err);
-    return { success: false, error: err?.message || "Không thể kết nối đến máy chủ" };
-  }
-}
-
-/**
- * 5. Xóa mẫu báo giá
- * Endpoint: DELETE /api/v1/entities/QuotationTemplate/{id}
- */
-export async function deleteQuotationTemplate(id: string): Promise<{ success: boolean; error?: string }> {
-  const url = `${BASE_API_FASTAPI}/api/v1/entities/QuotationTemplate/${id}`;
-
-  try {
-    const res = await fetch(url, {
-      method: "DELETE",
-      headers: getHeaders(),
-    });
-
-    if (res.ok) {
-      return { success: true };
-    }
-
-    const errJson = await res.json().catch(() => null);
-    return {
-      success: false,
-      error: errJson?.detail || errJson?.message || `Lỗi server: ${res.status}`,
-    };
-  } catch (err: any) {
-    console.error(`Lỗi khi xóa QuotationTemplate [${id}]:`, err);
-    return { success: false, error: err?.message || "Không thể kết nối đến máy chủ" };
-  }
 }

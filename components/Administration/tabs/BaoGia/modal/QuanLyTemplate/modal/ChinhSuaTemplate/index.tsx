@@ -13,7 +13,8 @@ import {
 import { SavedTemplateItem } from '../../index';
 import { BaoGiaSection, HangMucDong } from '../../../DanhMucGia';
 import { DieuKienItem } from '../../../DieuKienBaoGia';
-import { getQuotationTemplateById, updateQuotationTemplate } from '@/api/apiQuotationTemplate';
+import { getQuotationTemplateById } from '@/api/apiGetQuotationTemplate';
+import { updateQuotationTemplate } from '@/api/apiUpdateQuotationTemplate';
 import { NotificationExtension } from '@/common/extension/NotificationExtension';
 
 import CaiDatMauTab from './CaiDatMau';

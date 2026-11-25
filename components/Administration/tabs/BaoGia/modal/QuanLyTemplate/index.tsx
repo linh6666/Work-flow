@@ -17,15 +17,13 @@ import {
   IconShieldCheck,
   IconTemplate,
 } from "@tabler/icons-react";
-import {
-  getQuotationTemplateList,
-  deleteQuotationTemplate,
-  updateQuotationTemplate,
-  createQuotationTemplate,
-  QuotationTemplateRecord,
-} from "@/api/apiQuotationTemplate";
+import { getQuotationTemplateList } from "@/api/apiGetQuotationTemplate";
+import { createQuotationTemplate } from "@/api/apiCreateQuotationTemplate";
+import { updateQuotationTemplate } from "@/api/apiUpdateQuotationTemplate";
+import { QuotationTemplateRecord } from "@/api/types/quotationTemplate";
 import { NotificationExtension } from "@/common/extension/NotificationExtension";
 import ChinhSuaTemplateModal from "./modal/ChinhSuaTemplate";
+import XoaTemplateModal from "./modal/XoaTemplate";
 
 export interface SavedTemplateItem {
   id: string;
@@ -71,6 +69,10 @@ export default function QuanLyTemplateModal({
   // State for Edit Modal
   const [selectedTemplateForEdit, setSelectedTemplateForEdit] = useState<SavedTemplateItem | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+
+  // State for Delete Modal
+  const [selectedTemplateForDelete, setSelectedTemplateForDelete] = useState<QuotationTemplateRecord | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   // Fetch list of templates
   const loadTemplates = async () => {
@@ -291,18 +293,9 @@ export default function QuanLyTemplateModal({
     }
   };
 
-  const handleDelete = async (t: QuotationTemplateRecord) => {
-    const name = t.template_name || t.name || "";
-    if (confirm(`Bạn có chắc muốn xóa template "${name}"?`)) {
-      try {
-        await deleteQuotationTemplate(t.id);
-        NotificationExtension.Success(`Đã xóa template "${name}" thành công!`);
-        await loadTemplates();
-      } catch (err) {
-        console.error("Lỗi khi xóa template:", err);
-        NotificationExtension.Fails("Xóa template thất bại!");
-      }
-    }
+  const handleDelete = (t: QuotationTemplateRecord) => {
+    setSelectedTemplateForDelete(t);
+    setIsDeleteOpen(true);
   };
 
   const handleSelect = (t: QuotationTemplateRecord) => {
@@ -604,6 +597,19 @@ export default function QuanLyTemplateModal({
             setSelectedTemplateForEdit(null);
           }}
           onSave={handleSaveEdit}
+        />
+      )}
+
+      {/* Modal Xóa Template */}
+      {isDeleteOpen && selectedTemplateForDelete && (
+        <XoaTemplateModal
+          isOpen={isDeleteOpen}
+          template={selectedTemplateForDelete}
+          onClose={() => {
+            setIsDeleteOpen(false);
+            setSelectedTemplateForDelete(null);
+          }}
+          onSuccess={loadTemplates}
         />
       )}
     </div>

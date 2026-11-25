@@ -3,11 +3,13 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
   IconX,
+  IconSearch,
   IconFileDescription,
   IconPencil,
   IconCopy,
   IconDownload,
   IconCircleArrowDown,
+  IconCircleArrowUp,
   IconTrash,
   IconCalendar,
   IconUser,
@@ -95,12 +97,20 @@ export default function QuanLyTemplateModal({
     }
   }, [isOpen]);
 
-  // Separate Vietnamese vs English templates
-  const { vietnameseList, englishList } = useMemo(() => {
+  // Separate System Templates (Vietnamese vs English) and Personal Templates
+  const { systemViList, systemEnList, personalList } = useMemo(() => {
     const vi: QuotationTemplateRecord[] = [];
     const en: QuotationTemplateRecord[] = [];
+    const personal: QuotationTemplateRecord[] = [];
 
     templates.forEach((t) => {
+      // Nếu is_system === false => Mẫu cá nhân
+      if (t.is_system === false) {
+        personal.push(t);
+        return;
+      }
+
+      // Mẫu hệ thống phân chia theo ngôn ngữ
       const name = t.template_name || t.name || "";
       const lang = (t.quote_language || "").toLowerCase();
       if (lang === "en") {
@@ -108,7 +118,6 @@ export default function QuanLyTemplateModal({
       } else if (lang === "vi") {
         vi.push(t);
       } else {
-        // Fallback check name or quote_type
         const text = `${name} ${t.quote_type || ""}`.toLowerCase();
         if (
           text.includes("quotation") ||
@@ -124,29 +133,29 @@ export default function QuanLyTemplateModal({
       }
     });
 
-    return { vietnameseList: vi, englishList: en };
+    return { systemViList: vi, systemEnList: en, personalList: personal };
   }, [templates]);
 
   // Get distinct quote types for dropdowns
   const viTypes = useMemo(() => {
     const set = new Set<string>();
-    vietnameseList.forEach((t) => {
+    systemViList.forEach((t) => {
       if (t.quote_type) set.add(t.quote_type);
     });
     return Array.from(set);
-  }, [vietnameseList]);
+  }, [systemViList]);
 
   const enTypes = useMemo(() => {
     const set = new Set<string>();
-    englishList.forEach((t) => {
+    systemEnList.forEach((t) => {
       if (t.quote_type) set.add(t.quote_type);
     });
     return Array.from(set);
-  }, [englishList]);
+  }, [systemEnList]);
 
   // Filtered lists
   const filteredViList = useMemo(() => {
-    return vietnameseList.filter((item) => {
+    return systemViList.filter((item) => {
       const name = item.template_name || item.name || "";
       const matchSearch =
         !searchVi ||
@@ -158,10 +167,10 @@ export default function QuanLyTemplateModal({
       const matchType = !typeFilterVi || item.quote_type === typeFilterVi;
       return matchSearch && matchType;
     });
-  }, [vietnameseList, searchVi, typeFilterVi]);
+  }, [systemViList, searchVi, typeFilterVi]);
 
   const filteredEnList = useMemo(() => {
-    return englishList.filter((item) => {
+    return systemEnList.filter((item) => {
       const name = item.template_name || item.name || "";
       const matchSearch =
         !searchEn ||
@@ -173,7 +182,7 @@ export default function QuanLyTemplateModal({
       const matchType = !typeFilterEn || item.quote_type === typeFilterEn;
       return matchSearch && matchType;
     });
-  }, [englishList, searchEn, typeFilterEn]);
+  }, [systemEnList, searchEn, typeFilterEn]);
 
   // Helper date formatter
   const formatDate = (dateStr?: string) => {
@@ -284,9 +293,12 @@ export default function QuanLyTemplateModal({
       const name = t.template_name || t.name || "";
       await updateQuotationTemplate(t.id, { is_system: newStatus });
       NotificationExtension.Success(
-        newStatus ? `Đã nâng cấp "${name}" thành mẫu Hệ thống!` : `Đã hạ cấp "${name}" khỏi mẫu Hệ thống!`
+        newStatus ? `Đã nâng cấp "${name}" thành mẫu Hệ thống!` : `Đã chuyển "${name}" sang Mẫu cá nhân!`
       );
-      await loadTemplates();
+      // Cập nhật ngay trên local state để hiển thị lập tức
+      setTemplates((prev) =>
+        prev.map((item) => (item.id === t.id ? { ...item, is_system: newStatus } : item))
+      );
     } catch (err) {
       console.error("Lỗi cập nhật phân loại hệ thống:", err);
       NotificationExtension.Fails("Không thể thay đổi phân loại!");
@@ -356,9 +368,13 @@ export default function QuanLyTemplateModal({
             <button
               onClick={() => handleToggleSystem(t)}
               className="p-0.5 hover:bg-slate-100 rounded hover:text-slate-700 transition-colors"
-              title={t.is_system ? "Hạ cấp khỏi Hệ thống" : "Nâng cấp lên Hệ thống"}
+              title={t.is_system === false ? "Nâng cấp lên Hệ thống" : "Hạ cấp xuống Mẫu cá nhân"}
             >
-              <IconCircleArrowDown size={13} stroke={1.8} />
+              {t.is_system === false ? (
+                <IconCircleArrowUp size={13} stroke={1.8} className="text-amber-600 hover:text-amber-700" />
+              ) : (
+                <IconCircleArrowDown size={13} stroke={1.8} />
+              )}
             </button>
             <button
               onClick={() => handleDelete(t)}
@@ -479,20 +495,21 @@ export default function QuanLyTemplateModal({
 
               {/* Filter VN */}
               <div className="grid grid-cols-[1fr_auto] gap-2 pb-2 shrink-0">
-                <div className="relative">
+                <div className="relative flex items-center">
+                  <IconSearch size={14} className="absolute left-2.5 text-slate-400 pointer-events-none" />
                   <input
                     type="text"
                     placeholder="Tìm theo tên, loại, dự án, người lưu..."
                     value={searchVi}
                     onChange={(e) => setSearchVi(e.target.value)}
-                    className="w-full pl-2.5 pr-2.5 py-1 bg-white border border-slate-300 rounded text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full pl-8 pr-2.5 py-1 bg-white border border-slate-300 rounded text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
 
                 <select
                   value={typeFilterVi}
                   onChange={(e) => setTypeFilterVi(e.target.value)}
-                  className="bg-white border border-slate-300 rounded text-xs px-2 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="bg-white border border-slate-300 rounded text-xs px-2 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
                 >
                   <option value="">Tất cả loại</option>
                   {viTypes.map((type) => (
@@ -528,20 +545,21 @@ export default function QuanLyTemplateModal({
 
               {/* Filter GB */}
               <div className="grid grid-cols-[1fr_auto] gap-2 pb-2 shrink-0">
-                <div className="relative">
+                <div className="relative flex items-center">
+                  <IconSearch size={14} className="absolute left-2.5 text-slate-400 pointer-events-none" />
                   <input
                     type="text"
                     placeholder="Tìm theo tên, loại, dự án, người lưu..."
                     value={searchEn}
                     onChange={(e) => setSearchEn(e.target.value)}
-                    className="w-full pl-2.5 pr-2.5 py-1 bg-white border border-slate-300 rounded text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full pl-8 pr-2.5 py-1 bg-white border border-slate-300 rounded text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
 
                 <select
                   value={typeFilterEn}
                   onChange={(e) => setTypeFilterEn(e.target.value)}
-                  className="bg-white border border-slate-300 rounded text-xs px-2 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="bg-white border border-slate-300 rounded text-xs px-2 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
                 >
                   <option value="">Tất cả loại</option>
                   {enTypes.map((type) => (
@@ -570,19 +588,25 @@ export default function QuanLyTemplateModal({
             <div className="flex items-center gap-2">
               <span className="text-base">📌</span>
               <h3 className="text-[13.5px] font-bold text-slate-900 tracking-tight">
-                Mẫu cá nhân đã lưu
+                Mẫu cá nhân đã lưu {personalList.length > 0 && `(${personalList.length})`}
               </h3>
             </div>
 
-            {/* Empty state nếu chưa có mẫu cá nhân */}
-            <div className="py-10 flex flex-col items-center justify-center text-center">
-              <p className="text-[13px] font-medium text-slate-600 mb-1">
-                Chưa có mẫu báo giá cá nhân nào được lưu.
-              </p>
-              <p className="text-[12px] text-slate-400">
-                Hãy chỉnh sửa mẫu hệ thống ở trên hoặc lưu báo giá làm mẫu từ trang Chi tiết báo giá.
-              </p>
-            </div>
+            {/* Danh sách mẫu cá nhân hoặc Empty state */}
+            {personalList.length === 0 ? (
+              <div className="py-10 flex flex-col items-center justify-center text-center">
+                <p className="text-[13px] font-medium text-slate-600 mb-1">
+                  Chưa có mẫu báo giá cá nhân nào được lưu.
+                </p>
+                <p className="text-[12px] text-slate-400">
+                  Hãy chỉnh sửa mẫu hệ thống ở trên hoặc bấm biểu tượng mũi tên để chuyển thành mẫu cá nhân.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {personalList.map(renderTemplateCard)}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -609,7 +633,10 @@ export default function QuanLyTemplateModal({
             setIsDeleteOpen(false);
             setSelectedTemplateForDelete(null);
           }}
-          onSuccess={loadTemplates}
+          onSuccess={() => {
+            const delId = selectedTemplateForDelete.id;
+            setTemplates((prev) => prev.filter((item) => item.id !== delId));
+          }}
         />
       )}
     </div>

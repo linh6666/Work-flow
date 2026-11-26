@@ -9,12 +9,14 @@ import { NotificationExtension } from '@/common/extension/NotificationExtension'
 interface ThemHangModalProps {
   isOpen: boolean;
   departmentName?: string;
+  availableGroups?: string[];
   onClose: () => void;
   onSubmit: (task: Omit<ReportTask, 'id'>) => void;
 }
 
-export default function ThemHangModal({ isOpen, departmentName, onClose, onSubmit }: ThemHangModalProps) {
+export default function ThemHangModal({ isOpen, departmentName, availableGroups = [], onClose, onSubmit }: ThemHangModalProps) {
   const [title, setTitle] = useState('');
+  const [group, setGroup] = useState('');
   const [klDk, setKlDk] = useState('');
   const [klDp, setKlDp] = useState('0');
   const [assignee, setAssignee] = useState('');
@@ -50,6 +52,7 @@ export default function ThemHangModal({ isOpen, departmentName, onClose, onSubmi
     }
     onSubmit({
       title: title.trim(),
+      group: group || undefined,
       klDk: Number(klDk) || 0,
       klDp: Number(klDp) || 0,
       assignee: assignee.trim() || 'Chưa phân công',
@@ -61,6 +64,7 @@ export default function ThemHangModal({ isOpen, departmentName, onClose, onSubmi
       status: 'Chưa bắt đầu',
     });
     setTitle('');
+    setGroup('');
     setKlDk('');
     setKlDp('0');
     setAssignee('');
@@ -106,6 +110,24 @@ export default function ThemHangModal({ isOpen, departmentName, onClose, onSubmi
               className={inputClass}
             />
           </label>
+
+          {availableGroups.length > 0 && (
+            <label className="block">
+              <span className={labelClass}>CHỦ ĐỀ / NHÓM</span>
+              <select
+                value={group}
+                onChange={(e) => setGroup(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">— Không thuộc chủ đề —</option>
+                {availableGroups.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <label className="block">

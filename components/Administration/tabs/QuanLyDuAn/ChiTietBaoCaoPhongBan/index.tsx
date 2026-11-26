@@ -129,7 +129,7 @@ export default function ChiTietBaoCaoPhongBan({
       klDk: apiTask.qty_real ?? apiTask.klDk ?? 1,
       klDp: apiTask.qty_backup ?? apiTask.klDp ?? 0,
       rowTheme: apiTask.rowTheme,
-      group: apiTask.group || 'KHỞI TẠO VÀ PHÊ DUYỆT',
+      group: apiTask.group || '',
     };
   };
 
@@ -275,7 +275,7 @@ export default function ChiTietBaoCaoPhongBan({
         return {
           task_uid: r.id,
           name: r.title,
-          group: r.group || 'KHỞI TẠO VÀ PHÊ DUYỆT',
+          group: r.group || '',
           assignee: assigneeStr,
           planned_hours: plannedHoursNum,
           actual_hours: actualHoursVal,
@@ -548,6 +548,7 @@ export default function ChiTietBaoCaoPhongBan({
         <ThemHangModal
           isOpen={isThemHangOpen}
           departmentName={department.name}
+          availableGroups={Array.from(new Set(reportRows.map((r) => (r.group || '').trim()).filter(Boolean)))}
           onClose={() => setIsThemHangOpen(false)}
           onSubmit={async (newTask) => {
             let createdId = Date.now().toString();

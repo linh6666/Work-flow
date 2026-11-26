@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   IconSearch,
   IconDownload,
   IconUpload,
   IconPlus,
+  IconEye,
   IconPencil,
   IconTrash,
   IconChevronLeft,
@@ -15,6 +16,11 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import { PHONG_BAN_LIST } from '../DanhSachTongQuat';
+import Pagination from '@/common/pagination';
+import ThemBacLuongModal from './modal/ThemBacLuong';
+import XemBacLuongModal from './modal/XemBacLuong';
+import SuaBacLuongModal from './modal/SuaBacLuong';
+import XoaBacLuongModal from './modal/XoaBacLuong';
 
 export interface BacLuongTangBacItem {
   id: string;
@@ -42,6 +48,23 @@ export const INITIAL_BAC_LUONG_DATA: BacLuongTangBacItem[] = [
   { id: '6', maNV: 'NV006', hoTen: 'Lê Hoàng Long', phongBan: 'Phòng Cắt', chucVu: 'KTV Laser & CNC', bacLuongHienTai: 'Bậc 2', mucLuongHienTai: 7000000, thoiDiemTangLuongGanNhat: '06/2024', bacLuongDuKien: 'Bậc 3', mucLuongDuKien: 8000000, thoiDiemTangBacDuKien: '06/2025', dieuKienXetDuyet: 'Không vi phạm an toàn máy móc', trangThaiDuyet: 'Đủ điều kiện', ghiChu: '' },
   { id: '7', maNV: 'NV007', hoTen: 'Trần Văn Mạnh', phongBan: 'Lắp đặt', chucVu: 'Đội trưởng Lắp đặt', bacLuongHienTai: 'Bậc 5', mucLuongHienTai: 10500000, thoiDiemTangLuongGanNhat: '10/2024', bacLuongDuKien: 'Bậc 6', mucLuongDuKien: 12000000, thoiDiemTangBacDuKien: '10/2025', dieuKienXetDuyet: 'Tiến độ nghiệm thu công trình', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
   { id: '8', maNV: 'NV008', hoTen: 'Phạm Minh Trang', phongBan: 'Phòng Công nghệ và Thiết kế', chucVu: 'Kiến trúc sư 3D', bacLuongHienTai: 'Thử việc', mucLuongHienTai: 6240000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: 'Bậc 1', mucLuongDuKien: 7000000, thoiDiemTangBacDuKien: '06/2025', dieuKienXetDuyet: 'Đạt đánh giá hết thử việc', trangThaiDuyet: 'Chưa xét duyệt', ghiChu: 'Đang thử việc' },
+  { id: '9', maNV: 'NV009', hoTen: 'Quan Minh Hoàng', phongBan: 'Phòng Mộc Sơn', chucVu: '', bacLuongHienTai: 'C.03.1', mucLuongHienTai: 10152000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 10152000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '10', maNV: 'NV010', hoTen: 'Nguyễn Bá Ngọc', phongBan: 'Phòng Mộc Sơn', chucVu: '', bacLuongHienTai: 'C.03.1', mucLuongHienTai: 9652000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 9652000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '11', maNV: 'NV011', hoTen: 'Bùi Văn Lộc', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'B.02.2', mucLuongHienTai: 16010000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 16010000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '12', maNV: 'NV012', hoTen: 'Lâm Vĩnh Hưng', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'B.03.3', mucLuongHienTai: 14120000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 14120000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '13', maNV: 'NV013', hoTen: 'Bùi Thanh Xuân', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.03.1', mucLuongHienTai: 9152000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 9152000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '14', maNV: 'NV014', hoTen: 'Hà Tùng Lâm', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.02.2', mucLuongHienTai: 10502000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 10502000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '15', maNV: 'NV015', hoTen: 'Hà Anh Tuấn', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.03.1', mucLuongHienTai: 9152000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 9152000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '16', maNV: 'NV016', hoTen: 'Nguyễn Đức Huy (BTG)', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.05.1', mucLuongHienTai: 6240000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 6240000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '17', maNV: 'NV017', hoTen: 'Mai Ngọc Quyết (BTG)', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.05.1', mucLuongHienTai: 6240000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 6240000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '18', maNV: 'NV018', hoTen: 'Nguyễn Anh Đức (BTG)', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.05.1', mucLuongHienTai: 6240000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 6240000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '19', maNV: 'NV019', hoTen: 'Đinh Quang Huy (BTG)', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.05.1', mucLuongHienTai: 6240000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 6240000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '20', maNV: 'NV020', hoTen: 'Nguyễn Thành Vinh (BTG)', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.05.1', mucLuongHienTai: 6240000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 6240000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '21', maNV: 'NV021', hoTen: 'Thái Anh Tú (BTG)', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.05.1', mucLuongHienTai: 6240000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 6240000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '22', maNV: 'NV022', hoTen: 'Nguyễn Hùng Thái (BTG)', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.05.1', mucLuongHienTai: 6240000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 6240000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '23', maNV: 'NV023', hoTen: 'Phạm Văn Trọng (BTG)', phongBan: 'Phòng Điện', chucVu: '', bacLuongHienTai: 'C.05.1', mucLuongHienTai: 6240000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 6240000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '24', maNV: 'NV024', hoTen: 'Phạm Thị Thu Trang', phongBan: 'Phòng Cảnh quan', chucVu: '', bacLuongHienTai: 'B.02.1', mucLuongHienTai: 15200000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 15200000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
+  { id: '25', maNV: 'NV025', hoTen: 'Vũ Minh Hằng', phongBan: 'Phòng Cảnh quan', chucVu: '', bacLuongHienTai: 'C.03.1', mucLuongHienTai: 9152000, thoiDiemTangLuongGanNhat: '—', bacLuongDuKien: '—', mucLuongDuKien: 9152000, thoiDiemTangBacDuKien: '—', dieuKienXetDuyet: '', trangThaiDuyet: 'Đang theo dõi', ghiChu: '' },
 ];
 
 interface BacLuongTangBacTabProps {
@@ -56,11 +79,26 @@ export default function BacLuongTangBacTab({
   selectedTrangThai,
 }: BacLuongTangBacTabProps) {
   const [data, setData] = useState<BacLuongTangBacItem[]>(INITIAL_BAC_LUONG_DATA);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<BacLuongTangBacItem | null>(null);
+  const [editingItem, setEditingItem] = useState<BacLuongTangBacItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<BacLuongTangBacItem | null>(null);
+
+  useEffect(() => {
+    const handleAddClick = (event: Event) => {
+      const customEvent = event as CustomEvent<{ tab?: string }>;
+      if (customEvent.detail?.tab === 'bac-luong-tang-bac') {
+        setIsAddModalOpen(true);
+      }
+    };
+    window.addEventListener('nhan-su-add-click', handleAddClick);
+    return () => window.removeEventListener('nhan-su-add-click', handleAddClick);
+  }, []);
   const [internalSearch, setInternalSearch] = useState('');
   const [internalPhongBan, setInternalPhongBan] = useState('ALL');
   const [internalTrangThai, setInternalTrangThai] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   const search = searchQuery !== undefined ? searchQuery : internalSearch;
   const filterPhongBan = selectedPhongBan !== undefined ? selectedPhongBan : internalPhongBan;
@@ -98,102 +136,85 @@ export default function BacLuongTangBacTab({
         <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200 rounded-lg shadow-2xs overflow-hidden">
           <div className="flex-1 overflow-auto min-h-0 no-scrollbar">
             <table className="min-w-max w-full text-xs text-left border-collapse">
-              <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200 shadow-2xs">
+              <thead className='sticky top-0 z-10 bg-[#456b89] border-b border-slate-200 shadow-2xs'>
                 <tr>
-                  <th className="px-4 py-3 font-bold text-slate-500 text-xs whitespace-nowrap">STT</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mã NV</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Họ và tên</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Phòng ban</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Bậc hiện tại</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mức lương hiện tại</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Tăng gần nhất</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Bậc dự kiến</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Mức lương dự kiến</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Thời điểm dự kiến</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Điều kiện xét duyệt</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Trạng thái xét duyệt</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs whitespace-nowrap">Ghi chú</th>
-                  <th className="px-4 py-3 font-bold text-slate-600 text-xs text-right whitespace-nowrap">Thao tác</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs whitespace-nowrap'>Nhân sự</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs whitespace-nowrap'>Phòng ban</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs whitespace-nowrap'>Bậc lương</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs text-right whitespace-nowrap'>Lương cứng</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs text-right whitespace-nowrap'>Lương mềm</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs text-right whitespace-nowrap'>Trợ cấp</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs text-right whitespace-nowrap'>Tổng thu nhập</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs whitespace-nowrap'>Điều chỉnh gần nhất</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs whitespace-nowrap'>Tăng bậc dự kiến</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs whitespace-nowrap'>Còn lại</th>
+                  <th className='px-4 py-3 font-bold text-white text-xs text-right whitespace-nowrap'>Hành động</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className='divide-y divide-slate-100'>
                 {paginatedData.length === 0 ? (
                   <tr>
-                    <td colSpan={14} className="text-center py-12 text-slate-400">
-                      <IconWallet size={36} className="mx-auto mb-2 text-slate-300 stroke-1" />
-                      <p className="font-semibold text-xs text-slate-600">Không tìm thấy thông tin bậc lương</p>
+                    <td colSpan={11} className='text-center py-12 text-slate-400'>
+                      <IconWallet size={36} className='mx-auto mb-2 text-slate-300 stroke-1' />
+                      <p className='font-semibold text-xs text-slate-600'>Không tìm thấy thông tin bậc lương</p>
                     </td>
                   </tr>
                 ) : (
-                  paginatedData.map((item, idx) => (
-                    <tr key={item.id} className="hover:bg-slate-50/80 transition-colors group">
-                      <td className="px-4 py-3.5 align-middle text-slate-400 font-medium whitespace-nowrap">
-                        {startIndex + idx + 1}
-                      </td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap font-bold text-slate-700">
-                        {item.maNV}
-                      </td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-amber-50 text-amber-700 font-bold flex items-center justify-center text-[10px] shrink-0 border border-amber-100">
+                  paginatedData.map((item) => (
+                    <tr key={item.id} className='hover:bg-slate-50/80 transition-colors group'>
+                      <td className='px-4 py-3.5 align-middle whitespace-nowrap'>
+                        <div className='flex items-center gap-2.5'>
+                          <div className='w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-bold flex items-center justify-center text-[10px] shrink-0 border border-slate-200'>
                             {item.hoTen.charAt(0)}
                           </div>
-                          <span className="font-bold text-slate-800 text-xs">{item.hoTen}</span>
+                          <span className='font-semibold text-slate-800 text-xs'>{item.hoTen}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">{item.phongBan}</td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                          {item.bacLuongHienTai}
-                        </span>
+                      <td className='px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap'>{item.phongBan}</td>
+                      <td className='px-4 py-3.5 align-middle font-semibold text-slate-700 whitespace-nowrap'>
+                        {item.bacLuongHienTai}
                       </td>
-                      <td className="px-4 py-3.5 align-middle text-right font-semibold text-slate-700 whitespace-nowrap">
+                      <td className='px-4 py-3.5 align-middle text-right text-slate-600 whitespace-nowrap'>0</td>
+                      <td className='px-4 py-3.5 align-middle text-right text-slate-600 whitespace-nowrap'>0</td>
+                      <td className='px-4 py-3.5 align-middle text-right text-slate-600 whitespace-nowrap'>0</td>
+                      <td className='px-4 py-3.5 align-middle text-right font-bold text-[#406c89] whitespace-nowrap'>
                         {item.mucLuongHienTai.toLocaleString('vi-VN')}
                       </td>
-                      <td className="px-4 py-3.5 align-middle text-slate-500 whitespace-nowrap">{item.thoiDiemTangLuongGanNhat}</td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                          {item.bacLuongDuKien}
-                        </span>
+                      <td className='px-4 py-3.5 align-middle text-slate-500 whitespace-nowrap'>
+                        {item.thoiDiemTangLuongGanNhat || '—'}
                       </td>
-                      <td className="px-4 py-3.5 align-middle text-right font-bold text-emerald-700 whitespace-nowrap">
-                        {item.mucLuongDuKien.toLocaleString('vi-VN')}
+                      <td className='px-4 py-3.5 align-middle text-slate-500 whitespace-nowrap'>
+                        {item.thoiDiemTangBacDuKien || '—'}
                       </td>
-                      <td className="px-4 py-3.5 align-middle text-slate-700 font-semibold whitespace-nowrap">
-                        {item.thoiDiemTangBacDuKien}
-                      </td>
-                      <td className="px-4 py-3.5 align-middle text-slate-600 whitespace-nowrap">{item.dieuKienXetDuyet}</td>
-                      <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${
-                            item.trangThaiDuyet === 'Đủ điều kiện'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : item.trangThaiDuyet === 'Đang theo dõi'
-                              ? 'bg-amber-50 text-amber-700 border-amber-200'
-                              : 'bg-slate-100 text-slate-600 border-slate-200'
-                          }`}
-                        >
-                          {item.trangThaiDuyet}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 align-middle text-slate-400 whitespace-nowrap">{item.ghiChu || '—'}</td>
-                      <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap">
-                        <div className="inline-flex items-center gap-1">
+                      <td className='px-4 py-3.5 align-middle text-slate-500 whitespace-nowrap'>—</td>
+                      <td className='px-4 py-3.5 align-middle text-right whitespace-nowrap'>
+                        <div className='inline-flex items-center gap-1'>
                           <button
-                            type="button"
-                            title="Chỉnh sửa"
-                            onClick={() => alert(`Chỉnh sửa bậc lương: ${item.hoTen}`)}
-                            className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                            type='button'
+                            title='Xem'
+                            aria-label='Xem bậc lương'
+                            onClick={() => setViewingItem(item)}
+                            className='p-1.5 rounded hover:bg-sky-50 text-slate-500 hover:text-sky-700 transition-colors cursor-pointer'
                           >
-                            <IconPencil size={13} />
+                            <IconEye size={14} />
                           </button>
                           <button
-                            type="button"
-                            title="Xóa"
-                            onClick={() => alert(`Xóa bản ghi: ${item.hoTen}`)}
-                            className="p-1.5 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+                            type='button'
+                            title='Sửa'
+                            aria-label='Sửa bậc lương'
+                            onClick={() => setEditingItem(item)}
+                            className='p-1.5 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer'
                           >
-                            <IconTrash size={13} />
+                            <IconPencil size={14} />
+                          </button>
+                          <button
+                            type='button'
+                            title='Xóa'
+                            aria-label='Xóa bậc lương'
+                            onClick={() => setDeletingItem(item)}
+                            className='p-1.5 rounded hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer'
+                          >
+                            <IconTrash size={14} />
                           </button>
                         </div>
                       </td>
@@ -205,47 +226,45 @@ export default function BacLuongTangBacTab({
           </div>
 
           {/* Pagination Footer */}
-          <div className="shrink-0 border-t border-slate-100 px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50/60">
-            <div>
-              Hiển thị <span className="font-bold text-slate-700">{totalRecords > 0 ? startIndex + 1 : 0}</span> - <span className="font-bold text-slate-700">{endIndex}</span> trên tổng số <span className="font-bold text-slate-700">{totalRecords}</span> bản ghi
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer"
-              >
-                <IconChevronLeft size={13} />
-                <span>Trước</span>
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  type="button"
-                  onClick={() => setCurrentPage(page)}
-                  className={`w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer ${
-                    currentPage === page
-                      ? 'bg-[#406c89] text-white shadow-2xs'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-              <button
-                type="button"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                className="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 flex items-center gap-1 transition-colors cursor-pointer"
-              >
-                <span>Sau</span>
-                <IconChevronRight size={13} />
-              </button>
-            </div>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalRecords}
+            itemsPerPage={itemsPerPage}
+            itemName="bản ghi"
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
+      <ThemBacLuongModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={(newItem) => {
+          setData((current) => [{ ...newItem, id: Date.now().toString() }, ...current]);
+          setCurrentPage(1);
+        }}
+      />
+      <XemBacLuongModal
+        isOpen={!!viewingItem}
+        item={viewingItem}
+        onClose={() => setViewingItem(null)}
+      />
+      <SuaBacLuongModal
+        isOpen={!!editingItem}
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSubmit={(updated) => {
+          setData((current) => current.map((row) => (row.id === updated.id ? updated : row)));
+        }}
+      />
+      <XoaBacLuongModal
+        isOpen={!!deletingItem}
+        item={deletingItem}
+        onClose={() => setDeletingItem(null)}
+        onConfirm={(id) => {
+          setData((current) => current.filter((row) => row.id !== id));
+        }}
+      />
     </div>
   );
 }

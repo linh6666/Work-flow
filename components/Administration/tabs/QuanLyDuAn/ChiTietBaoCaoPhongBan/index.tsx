@@ -32,6 +32,8 @@ import XoaCongViecModal from './modal/XoaCongViecModal';
 import XemBaoCaoModal from './modal/XemBaoCaoModal';
 import ThemCongViecModal from './modal/ThemCongViecModal';
 import SuaCongViecModal from './modal/SuaCongViecModal';
+import ThemHangModal from './modal/ThemHang/ThemHangModal';
+import ThemMainTaskModal from './modal/ThemMainTask/ThemMainTaskModal';
 import {
   getDeptProjectForms,
   updateDeptProjectForm,
@@ -39,6 +41,8 @@ import {
   DeptProjectFormItem,
 } from '@/api/apiGetDeptProjectForms';
 import { NotificationExtension } from '@/common/extension/NotificationExtension';
+import { deleteTask } from '@/api/apiDeleteTask';
+import { createTask } from '@/api/apiCreateTask';
 
 export interface DepartmentItem {
   name: string;
@@ -124,7 +128,7 @@ export default function ChiTietBaoCaoPhongBan({
       status: apiTask.status || 'Chưa bắt đầu',
       klDk: apiTask.qty_real ?? apiTask.klDk ?? 1,
       klDp: apiTask.qty_backup ?? apiTask.klDp ?? 0,
-      rowTheme: apiTask.rowTheme || 'blue',
+      rowTheme: apiTask.rowTheme,
       group: apiTask.group || 'KHỞI TẠO VÀ PHÊ DUYỆT',
     };
   };
@@ -335,6 +339,8 @@ export default function ChiTietBaoCaoPhongBan({
   const [dropPosition, setDropPosition] = useState<'before' | 'after' | null>(null);
   const [activeModal, setActiveModal] = useState<{ type: 'delete' | 'view' | 'add' | 'edit'; taskId?: string; taskTitle?: string; targetItem?: ReportTask } | null>(null);
   const [reportGroupById, setReportGroupById] = useState<Record<string, string>>({});
+  const [isThemHangOpen, setIsThemHangOpen] = useState(false);
+  const [isThemMainTaskOpen, setIsThemMainTaskOpen] = useState(false);
 
   const selectedTask = activeModal?.taskId ? reportRows.find((item) => item.id === activeModal.taskId) ?? null : null;
 
@@ -406,8 +412,9 @@ export default function ChiTietBaoCaoPhongBan({
     saveTasksToApi(nextReports);
   };
 
-  const handleDeleteTask = () => {
+  const handleDeleteTask = async () => {
     if (!activeModal?.taskId) return;
+    await deleteTask(activeModal.taskId);
     const updated = reportRows.filter((item) => item.id !== activeModal.taskId);
     setReportRows(updated);
     saveTasksToApi(updated);
@@ -487,7 +494,7 @@ export default function ChiTietBaoCaoPhongBan({
     const groups: { id: string; title: string; items: ReportTask[] }[] = [];
 
     filteredReports.forEach((item, idx) => {
-      const gName = (item.group || 'KHỞI TẠO VÀ PHÊ DUYỆT').trim().toUpperCase();
+      const gName = (item.group || '').trim().toUpperCase();
       const currentGroup = groups[groups.length - 1];
 
       if (currentGroup && currentGroup.title === gName) {
@@ -538,6 +545,49 @@ export default function ChiTietBaoCaoPhongBan({
           onClose={() => setActiveModal(null)}
           onAddTask={handleConfirmAddTask}
         />
+        <ThemHangModal
+          isOpen={isThemHangOpen}
+          departmentName={department.name}
+          onClose={() => setIsThemHangOpen(false)}
+          onSubmit={async (newTask) => {
+            let createdId = Date.now().toString();
+            if (projectId) {
+              const res = await createTask({
+                project_id: projectId,
+                name: newTask.title,
+                status: newTask.status,
+                quantity_planned: String(newTask.klDk ?? 0),
+                quantity_done: String(newTask.klDp ?? 0),
+                scheduled_work: String(newTask.plannedHours).replace('h', ''),
+                actual_work: String(newTask.actualHours || '0').replace('h', ''),
+                start_date: newTask.date,
+                end_date: newTask.deadline || newTask.date,
+              });
+              if (res.success && res.data?.id) {
+                createdId = res.data.id;
+              }
+            }
+            const updated = [...reportRows, { ...newTask, id: createdId }];
+            setReportRows(updated);
+            saveTasksToApi(updated);
+            NotificationExtension.Success('Đã thêm hàng công việc mới!');
+          }}
+        />
+
+        <ThemMainTaskModal
+          isOpen={isThemMainTaskOpen}
+          departmentName={department.name}
+          onClose={() => setIsThemMainTaskOpen(false)}
+          onSubmit={(newTasks) => {
+            const baseId = Date.now();
+            setReportRows((prev) => [
+              ...prev,
+              ...newTasks.map((t, i) => ({ ...t, id: `${baseId}-${i}` })),
+            ]);
+            NotificationExtension.Success(`Đã thêm Main task + ${newTasks.length - 1} Subtask!`);
+          }}
+        />
+
         <SuaCongViecModal
           isOpen={activeModal?.type === 'edit'}
           departmentName={department.name}
@@ -705,6 +755,24 @@ export default function ChiTietBaoCaoPhongBan({
           </div>
         </div>
 
+        <button
+          type="button"
+          onClick={() => setIsThemHangOpen(true)}
+          className="inline-flex items-center gap-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-md px-2.5 py-1 text-[11px] font-medium cursor-pointer shadow-2xs transition-colors"
+        >
+          <IconPlus size={13} />
+          <span>Thêm hàng</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsThemMainTaskOpen(true)}
+          className="inline-flex items-center gap-1 bg-white border border-indigo-200 hover:bg-indigo-50 text-indigo-600 rounded-md px-2.5 py-1 text-[11px] font-medium cursor-pointer shadow-2xs transition-colors"
+        >
+          <IconPlus size={13} />
+          <span>Thêm Main task + 5 Subtask</span>
+        </button>
+
       </div>
 
       {/* ROW 3: ASSIGNED PERSONNEL TAG */}
@@ -792,6 +860,7 @@ export default function ChiTietBaoCaoPhongBan({
                   return (
                     <React.Fragment key={group.id}>
                       {/* GROUP HEADER ROW */}
+                      {group.title && (
                       <tr className="bg-[#f8fafc] border-b border-slate-200">
                         <td colSpan={12} className="px-3 py-2">
                           <div className="flex items-center gap-2">
@@ -815,13 +884,17 @@ export default function ChiTietBaoCaoPhongBan({
                           </div>
                         </td>
                       </tr>
+                      )}
 
                       {/* DATA ROWS */}
                       {!isCollapsed && group.items.map((item, idx) => {
                         const isGold = item.rowTheme === 'gold';
+                        const isBlue = item.rowTheme === 'blue';
                         const rowBgClass = isGold
-                          ? 'bg-[#dbae57] hover:bg-[#cf9e47]'
-                          : 'bg-[#5c8ba7] hover:bg-[#527d97]';
+                          ? 'bg-[#dbae57] hover:bg-[#cf9e47] text-white'
+                          : isBlue
+                          ? 'bg-[#5c8ba7] hover:bg-[#527d97] text-white'
+                          : 'bg-white hover:bg-slate-50 text-slate-800';
                         const borderClass = isGold
                           ? 'border-r border-b border-white/25'
                           : 'border-r border-b border-white/20';
@@ -859,7 +932,7 @@ export default function ChiTietBaoCaoPhongBan({
                                 setDragOverId(null);
                                 setDropPosition(null);
                               }}
-                              className={`${rowBgClass} transition-colors text-white text-xs ${draggedReportId === item.id ? 'opacity-40' : ''}`}
+                              className={`${rowBgClass} transition-colors text-xs ${draggedReportId === item.id ? 'opacity-40' : ''}`}
                             >
                               {/* # CỘT DRAG HANDLE CHÍNH */}
                               <td
@@ -879,8 +952,8 @@ export default function ChiTietBaoCaoPhongBan({
                                 title="Giữ và kéo biểu tượng này để đổi thứ tự công việc"
                               >
                                 <div className="flex items-center justify-center gap-1.5">
-                                  <IconGridDots size={14} className="text-white/80 shrink-0 cursor-grab active:cursor-grabbing" />
-                                  <span className="font-semibold text-white text-xs">{idx + 1}</span>
+                                  <IconGridDots size={14} className="opacity-80 shrink-0 cursor-grab active:cursor-grabbing" />
+                                  <span className="font-semibold text-xs">{reportRows.findIndex((r) => r.id === item.id) + 1}</span>
                                 </div>
                               </td>
 
@@ -898,11 +971,11 @@ export default function ChiTietBaoCaoPhongBan({
 
                               {/* THAO TÁC */}
                               <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
-                                <div className="flex items-center justify-center gap-1.5 text-white/90">
+                                <div className="flex items-center justify-center gap-1.5 ">
                                   <button
                                     type="button"
                                     onClick={() => handleOpenAddModal(item)}
-                                    className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                                    className="hover:opacity-100 hover:scale-110 transition-transform p-0.5 cursor-pointer"
                                     title="Thêm công việc phía dưới"
                                   >
                                     <IconPlus size={13} strokeWidth={2.5} />
@@ -910,7 +983,7 @@ export default function ChiTietBaoCaoPhongBan({
                                   <button
                                     type="button"
                                     onClick={() => handleOpenEditModal(item)}
-                                    className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                                    className="hover:opacity-100 hover:scale-110 transition-transform p-0.5 cursor-pointer"
                                     title="Chỉnh sửa công việc"
                                   >
                                     <IconEdit size={13} strokeWidth={2} />
@@ -918,7 +991,7 @@ export default function ChiTietBaoCaoPhongBan({
                                   <button
                                     type="button"
                                     onClick={() => handleOpenDeleteModal(item)}
-                                    className="hover:text-white hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                                    className="hover:opacity-100 hover:scale-110 transition-transform p-0.5 cursor-pointer"
                                     title="Xóa"
                                   >
                                     <IconTrash size={13} strokeWidth={2} />
@@ -935,18 +1008,18 @@ export default function ChiTietBaoCaoPhongBan({
 
                               {/* TÊN CÔNG VIỆC */}
                               <td className={`px-3 py-2.5 ${borderClass}`}>
-                                <span className="font-bold text-white uppercase text-[11px] tracking-wide block leading-snug">
+                                <span className="font-bold  uppercase text-[11px] tracking-wide block leading-snug">
                                   {item.title}
                                 </span>
                               </td>
 
                               {/* KL DK */}
-                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold  text-xs`}>
                                 {item.klDk ?? 1}
                               </td>
 
                               {/* KL DP */}
-                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold  text-xs`}>
                                 {item.klDp ?? 0}
                               </td>
 
@@ -959,15 +1032,15 @@ export default function ChiTietBaoCaoPhongBan({
                                     ))}
                                   </div>
                                 ) : (
-                                  <div className="flex items-center justify-between gap-1 text-white text-xs font-medium cursor-pointer hover:opacity-90">
+                                  <div className="flex items-center justify-between gap-1  text-xs font-medium cursor-pointer hover:opacity-90">
                                     <span className="whitespace-nowrap">{item.assignee}</span>
-                                    <IconChevronDown size={12} className="text-white/70 shrink-0" />
+                                    <IconChevronDown size={12} className="opacity-70 shrink-0" />
                                   </div>
                                 )}
                               </td>
 
                               {/* GIỜ DK */}
-                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold text-white text-xs`}>
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap font-semibold  text-xs`}>
                                 {item.plannedHours}
                               </td>
 
@@ -978,17 +1051,17 @@ export default function ChiTietBaoCaoPhongBan({
 
                               {/* BẮT ĐẦU */}
                               <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap`}>
-                                <div className="flex items-center justify-between gap-1.5 text-white text-[11px] font-medium">
+                                <div className="flex items-center justify-between gap-1.5  text-[11px] font-medium">
                                   <span>{item.date}</span>
-                                  <IconCalendar size={13} className="text-white/80 shrink-0" />
+                                  <IconCalendar size={13} className="opacity-80 shrink-0" />
                                 </div>
                               </td>
 
                               {/* KẾT THÚC */}
                               <td className={`px-2.5 py-2.5 border-b ${isGold ? 'border-white/25' : 'border-white/20'} whitespace-nowrap`}>
-                                <div className="flex items-center justify-between gap-1.5 text-white text-[11px] font-medium">
+                                <div className="flex items-center justify-between gap-1.5  text-[11px] font-medium">
                                   <span>{item.deadline || item.date}</span>
-                                  <IconCalendar size={13} className="text-white/80 shrink-0" />
+                                  <IconCalendar size={13} className="opacity-80 shrink-0" />
                                 </div>
                               </td>
                             </tr>

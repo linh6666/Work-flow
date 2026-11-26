@@ -1,17 +1,33 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { IconAlertTriangle, IconFileDescription, IconTrash, IconX } from '@tabler/icons-react';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 
 export interface XoaCongViecModalProps {
   isOpen: boolean;
   taskTitle: string;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
 }
 
 export default function XoaCongViecModal({ isOpen, taskTitle, onClose, onConfirm }: XoaCongViecModalProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      await onConfirm();
+      NotificationExtension.Success(`Đã xóa công việc "${taskTitle}"!`);
+      onClose();
+    } catch {
+      NotificationExtension.Fails('Có lỗi xảy ra khi xóa công việc!');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/65 p-4">

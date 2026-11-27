@@ -15,6 +15,7 @@ interface ThemMainTaskModalProps {
 export default function ThemMainTaskModal({ isOpen, departmentName, onClose, onSubmit }: ThemMainTaskModalProps) {
   const [mainTitle, setMainTitle] = useState('');
   const [assignee, setAssignee] = useState('');
+  const [rowTheme, setRowTheme] = useState<'blue' | 'gold' | ''>('');
   const [staffNames, setStaffNames] = useState<string[]>([]);
 
   useEffect(() => {
@@ -32,13 +33,7 @@ export default function ThemMainTaskModal({ isOpen, departmentName, onClose, onS
       });
     }
   }, [isOpen, departmentName]);
-  const [subtasks, setSubtasks] = useState<string[]>([
-    'Subtask 1',
-    'Subtask 2',
-    'Subtask 3',
-    'Subtask 4',
-    'Subtask 5',
-  ]);
+  const [subtasks, setSubtasks] = useState<string[]>(['', '', '', '', '']);
 
   if (!isOpen) return null;
 
@@ -54,9 +49,8 @@ export default function ThemMainTaskModal({ isOpen, departmentName, onClose, onS
 
     const created: Omit<ReportTask, 'id'>[] = subtasks
       .map((s) => s.trim())
-      .filter(Boolean)
       .map((sub) => ({
-        title: `↳ ${sub}`,
+        title: sub ? `↳ ${sub}` : 'Tên công việc...',
         group: mainTitle.trim(),
         assignee: assigned,
         date: '',
@@ -66,12 +60,13 @@ export default function ThemMainTaskModal({ isOpen, departmentName, onClose, onS
         status: 'Chưa bắt đầu',
         klDk: 0,
         klDp: 0,
+        rowTheme: rowTheme || undefined,
       }));
 
     onSubmit(created);
     setMainTitle('');
     setAssignee('');
-    setSubtasks(['Subtask 1', 'Subtask 2', 'Subtask 3', 'Subtask 4', 'Subtask 5']);
+    setSubtasks(['', '', '', '', '']);
     onClose();
   };
 
@@ -127,6 +122,36 @@ export default function ThemMainTaskModal({ isOpen, departmentName, onClose, onS
             </select>
           </label>
 
+          <div className="space-y-1.5">
+            <span className={labelClass}>TÔNG MÀU DÒNG</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setRowTheme(rowTheme === 'blue' ? '' : 'blue')}
+                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                  rowTheme === 'blue'
+                    ? 'bg-[#406c89] border-[#406c89] text-white shadow-2xs'
+                    : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200/70'
+                }`}
+              >
+                <span className="w-2.5 h-2.5 rounded-full border border-current bg-[#406c89]" />
+                Xanh (#406c89)
+              </button>
+              <button
+                type="button"
+                onClick={() => setRowTheme(rowTheme === 'gold' ? '' : 'gold')}
+                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                  rowTheme === 'gold'
+                    ? 'bg-[#dbae57] border-[#dbae57] text-white shadow-2xs'
+                    : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200/70'
+                }`}
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-[#dbae57]" />
+                Vàng cam
+              </button>
+            </div>
+          </div>
+
           <div className="space-y-2 pt-1">
             <span className={labelClass}>Danh sách 5 Subtask</span>
             {subtasks.map((sub, idx) => (
@@ -134,7 +159,7 @@ export default function ThemMainTaskModal({ isOpen, departmentName, onClose, onS
                 key={idx}
                 value={sub}
                 onChange={(e) => handleSubtaskChange(idx, e.target.value)}
-                placeholder={`Subtask ${idx + 1}`}
+                placeholder="Tên công việc"
                 className={inputClass}
               />
             ))}

@@ -45,6 +45,7 @@ import { NotificationExtension } from '@/common/extension/NotificationExtension'
 import { deleteTask } from '@/api/apiDeleteTask';
 import { createTask } from '@/api/apiCreateTask';
 import { bulkCreateTask } from '@/api/apiBulkCreateTask';
+import { updateTask } from '@/api/apiUpdateTask';
 
 export interface DepartmentItem {
   name: string;
@@ -352,6 +353,18 @@ export default function ChiTietBaoCaoPhongBan({
   const handleOpenEditModal = (item: ReportTask) => setActiveModal({ type: 'edit', taskId: item.id, taskTitle: item.title, targetItem: item });
 
   const handleConfirmUpdateTask = async (updatedTask: ReportTask) => {
+    if (projectId && updatedTask.id) {
+      await updateTask(updatedTask.id, {
+        name: updatedTask.title,
+        status: updatedTask.status,
+        quantity_planned: String(updatedTask.klDk ?? 0),
+        quantity_done: String(updatedTask.klDp ?? 0),
+        scheduled_work: String(updatedTask.plannedHours).replace('h', ''),
+        actual_work: String(updatedTask.actualHours || '0').replace('h', ''),
+        start_date: updatedTask.date,
+        end_date: updatedTask.deadline || updatedTask.date,
+      });
+    }
     const nextReports = reportRows.map((item) => (item.id === updatedTask.id ? updatedTask : item));
     setReportRows(nextReports);
     await saveTasksToApi(nextReports);
@@ -1023,8 +1036,14 @@ export default function ChiTietBaoCaoPhongBan({
 
                               {/* TÊN CÔNG VIỆC */}
                               <td className={`px-3 py-2.5 ${borderClass}`}>
-                                <span className="font-bold  uppercase text-[11px] tracking-wide block leading-snug">
-                                  {item.title}
+                                <span
+                                  className={`text-[11px] tracking-wide block leading-snug ${
+                                    !item.title || item.title === 'Tên công việc...'
+                                      ? 'text-slate-400 font-normal'
+                                      : 'font-bold uppercase'
+                                  }`}
+                                >
+                                  {item.title || 'Tên công việc...'}
                                 </span>
                               </td>
 

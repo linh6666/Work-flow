@@ -203,21 +203,16 @@ export default function ThemCongViecModal({
                 <div className="relative flex-1">
                   <select
                     value={group}
-                    onChange={(e) => {
-                      if (e.target.value === '__custom__') {
-                        setIsCustomGroup(true);
-                      } else {
-                        setGroup(e.target.value);
-                      }
-                    }}
-                    className="w-full h-9 px-3 pr-8 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89]/20 bg-white text-xs text-slate-800 appearance-none cursor-pointer"
+                    disabled
+                    className="w-full h-9 px-3 border border-slate-200 rounded-lg outline-none bg-slate-100 text-xs text-slate-500 appearance-none cursor-not-allowed"
                   >
+                    {group && !allGroups.includes(group) && (
+                      <option value={group}>{group}</option>
+                    )}
                     {allGroups.map((g) => (
                       <option key={g} value={g}>{g}</option>
                     ))}
-                    <option value="__custom__">+ Nhập nhóm mới...</option>
                   </select>
-                  <IconChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
               </div>
             ) : (
@@ -250,22 +245,17 @@ export default function ThemCongViecModal({
                 <div className="relative flex-1">
                   <select
                     value={assignee}
-                    onChange={(e) => {
-                      if (e.target.value === '__custom__') {
-                        setIsCustomAssignee(true);
-                      } else {
-                        setAssignee(e.target.value);
-                      }
-                    }}
-                    className="w-full h-9 px-3 pr-8 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89]/20 bg-white text-xs text-slate-800 appearance-none cursor-pointer"
+                    disabled
+                    className="w-full h-9 px-3 border border-slate-200 rounded-lg outline-none bg-slate-100 text-xs text-slate-500 appearance-none cursor-not-allowed"
                   >
                     <option value="">-- Chưa phân công --</option>
+                    {assignee && !availableAssignees.includes(assignee) && (
+                      <option value={assignee}>{assignee}</option>
+                    )}
                     {availableAssignees.map((name) => (
                       <option key={name} value={name}>{name}</option>
                     ))}
-                    <option value="__custom__">+ Nhập tên nhân sự mới...</option>
                   </select>
-                  <IconChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
               </div>
             ) : (
@@ -288,8 +278,8 @@ export default function ThemCongViecModal({
             )}
           </div>
 
-          {/* Row: Giờ DK + KL DK + KL DP */}
-          <div className="grid grid-cols-3 gap-3">
+          {/* Row: Giờ DK + KL DK */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                 Giờ DK
@@ -311,18 +301,6 @@ export default function ThemCongViecModal({
                 min="0"
                 value={klDk}
                 onChange={(e) => setKlDk(Number(e.target.value))}
-                className="w-full h-9 px-3 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] text-xs text-center font-medium"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                KL DP
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={klDp}
-                onChange={(e) => setKlDp(Number(e.target.value))}
                 className="w-full h-9 px-3 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] text-xs text-center font-medium"
               />
             </div>
@@ -358,60 +336,6 @@ export default function ThemCongViecModal({
                   className="w-full h-9 pl-3 pr-8 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] text-xs font-medium"
                 />
                 <IconCalendar size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
-            </div>
-          </div>
-
-          {/* Row: Trạng thái + Màu dòng */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Trạng thái
-              </label>
-              <div className="relative">
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="w-full h-9 px-3 pr-8 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] bg-white text-xs appearance-none cursor-pointer"
-                >
-                  <option value="Chưa bắt đầu">Chưa bắt đầu</option>
-                  <option value="Đang thực hiện">Đang thực hiện</option>
-                  <option value="Hoàn thành">Hoàn thành</option>
-                  <option value="Chờ duyệt">Chờ duyệt</option>
-                </select>
-                <IconChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Tông màu dòng
-              </label>
-              <div className="flex items-center gap-2 h-9">
-                <button
-                  type="button"
-                  onClick={() => setRowTheme('blue')}
-                  className={`flex-1 h-8 rounded-lg flex items-center justify-center gap-1.5 border text-xs font-semibold cursor-pointer transition ${
-                    rowTheme === 'blue'
-                      ? 'bg-[#5c8ba7] text-white border-[#5c8ba7] shadow-xs'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#5c8ba7] border border-white" />
-                  <span>Xanh (#406c89)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRowTheme('gold')}
-                  className={`flex-1 h-8 rounded-lg flex items-center justify-center gap-1.5 border text-xs font-semibold cursor-pointer transition ${
-                    rowTheme === 'gold'
-                      ? 'bg-[#dbae57] text-white border-[#dbae57] shadow-xs'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#dbae57] border border-white" />
-                  <span>Vàng cam</span>
-                </button>
               </div>
             </div>
           </div>

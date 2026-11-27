@@ -10,6 +10,7 @@ import {
   IconPencil,
 } from '@tabler/icons-react';
 import { ReportTask } from '../../index';
+import { getTaskById } from '@/api/apiGetTask';
 
 interface SuaCongViecModalProps {
   isOpen: boolean;
@@ -31,7 +32,7 @@ export default function SuaCongViecModal({
   onUpdateTask,
 }: SuaCongViecModalProps) {
   const [title, setTitle] = useState('');
-  const [group, setGroup] = useState('KHỞI TẠO VÀ PHÊ DUYỆT');
+  const [group, setGroup] = useState('');
   const [customGroup, setCustomGroup] = useState('');
   const [isCustomGroup, setIsCustomGroup] = useState(false);
   const [assignee, setAssignee] = useState('');
@@ -44,14 +45,14 @@ export default function SuaCongViecModal({
   const [date, setDate] = useState('');
   const [deadline, setDeadline] = useState('');
   const [status, setStatus] = useState('Chưa bắt đầu');
-  const [rowTheme, setRowTheme] = useState<'blue' | 'gold'>('blue');
+  const [rowTheme, setRowTheme] = useState<'blue' | 'gold' | undefined>(undefined);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen && task) {
-      setTitle(task.title || '');
-      setGroup(task.group || 'KHỞI TẠO VÀ PHÊ DUYỆT');
+      setTitle(task.title === 'Tên công việc...' ? '' : task.title || '');
+      setGroup(task.group || '');
       setCustomGroup('');
       setIsCustomGroup(false);
 
@@ -66,8 +67,22 @@ export default function SuaCongViecModal({
       setDate(task.date || '');
       setDeadline(task.deadline || task.date || '');
       setStatus(task.status || 'Chưa bắt đầu');
-      setRowTheme(task.rowTheme || 'blue');
+      setRowTheme(task.rowTheme);
       setErrorMsg('');
+
+      if (task.id) {
+        getTaskById(task.id).then((detail) => {
+          if (!detail) return;
+          if (detail.name) setTitle(detail.name === 'Tên công việc...' ? '' : detail.name);
+          if (detail.status) setStatus(detail.status);
+          if (detail.quantity_planned !== undefined) setKlDk(Number(detail.quantity_planned) || 0);
+          if (detail.quantity_done !== undefined) setKlDp(Number(detail.quantity_done) || 0);
+          if (detail.scheduled_work !== undefined) setPlannedHours(`${detail.scheduled_work}h`);
+          if (detail.actual_work !== undefined) setActualHours(`${detail.actual_work}h`);
+          if (detail.start_date) setDate(detail.start_date);
+          if (detail.end_date) setDeadline(detail.end_date);
+        });
+      }
     }
   }, [isOpen, task]);
 
@@ -82,7 +97,7 @@ export default function SuaCongViecModal({
 
     const finalGroup = isCustomGroup && customGroup.trim()
       ? customGroup.trim().toUpperCase()
-      : (group || 'KHỞI TẠO VÀ PHÊ DUYỆT').toUpperCase();
+      : (group || '').toUpperCase();
 
     const finalAssignee = isCustomAssignee && customAssignee.trim()
       ? customAssignee.trim()
@@ -119,15 +134,7 @@ export default function SuaCongViecModal({
     }
   };
 
-  const allGroups = Array.from(
-    new Set([
-      'KHỞI TẠO VÀ PHÊ DUYỆT',
-      'TRIỂN KHAI THIẾT KẾ & SẢN XUẤT',
-      'HOẠT ĐỘNG DOANH NGHIỆP',
-      'QUẢN LÝ DỰ ÁN',
-      ...existingGroups.filter(Boolean),
-    ])
-  );
+  const allGroups = Array.from(new Set(existingGroups.filter(Boolean)));
 
   return (
     <div className="fixed inset-0 z-60 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
@@ -187,6 +194,7 @@ export default function SuaCongViecModal({
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <select
+                    disabled
                     value={group}
                     onChange={(e) => {
                       if (e.target.value === '__custom__') {
@@ -195,14 +203,17 @@ export default function SuaCongViecModal({
                         setGroup(e.target.value);
                       }
                     }}
-                    className="w-full h-9 px-3 pr-8 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89]/20 bg-white text-xs text-slate-800 appearance-none cursor-pointer"
+                    className="w-full h-9 px-3 pr-8 border border-slate-200 rounded-lg outline-none bg-slate-100 text-xs text-slate-500 appearance-none cursor-not-allowed"
                   >
+                    <option value="">— Không thuộc nhóm —</option>
+                    {group && !allGroups.includes(group) && (
+                      <option value={group}>{group}</option>
+                    )}
                     {allGroups.map((g) => (
                       <option key={g} value={g}>{g}</option>
                     ))}
                     <option value="__custom__">+ Nhập nhóm mới...</option>
                   </select>
-                  <IconChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
               </div>
             ) : (
@@ -234,6 +245,7 @@ export default function SuaCongViecModal({
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <select
+                    disabled
                     value={assignee}
                     onChange={(e) => {
                       if (e.target.value === '__custom__') {
@@ -242,15 +254,17 @@ export default function SuaCongViecModal({
                         setAssignee(e.target.value);
                       }
                     }}
-                    className="w-full h-9 px-3 pr-8 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] focus:ring-1 focus:ring-[#406c89]/20 bg-white text-xs text-slate-800 appearance-none cursor-pointer"
+                    className="w-full h-9 px-3 pr-8 border border-slate-200 rounded-lg outline-none bg-slate-100 text-xs text-slate-500 appearance-none cursor-not-allowed"
                   >
                     <option value="">-- Chưa phân công --</option>
+                    {assignee && !availableAssignees.includes(assignee) && (
+                      <option value={assignee}>{assignee}</option>
+                    )}
                     {availableAssignees.map((name) => (
                       <option key={name} value={name}>{name}</option>
                     ))}
                     <option value="__custom__">+ Nhập tên nhân sự mới...</option>
                   </select>
-                  <IconChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
               </div>
             ) : (
@@ -295,8 +309,8 @@ export default function SuaCongViecModal({
                 type="text"
                 placeholder="—"
                 value={actualHours}
-                onChange={(e) => setActualHours(e.target.value)}
-                className="w-full h-9 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] text-xs text-center font-medium"
+                disabled
+                className="w-full h-9 px-2.5 border border-slate-200 rounded-lg outline-none text-xs text-center font-medium bg-slate-100 text-slate-500 cursor-not-allowed"
               />
             </div>
             <div>
@@ -319,8 +333,8 @@ export default function SuaCongViecModal({
                 type="number"
                 min="0"
                 value={klDp}
-                onChange={(e) => setKlDp(Number(e.target.value))}
-                className="w-full h-9 px-2.5 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] text-xs text-center font-medium"
+                disabled
+                className="w-full h-9 px-2.5 border border-slate-200 rounded-lg outline-none text-xs text-center font-medium bg-slate-100 text-slate-500 cursor-not-allowed"
               />
             </div>
           </div>
@@ -339,7 +353,25 @@ export default function SuaCongViecModal({
                   onChange={(e) => setDate(e.target.value)}
                   className="w-full h-9 pl-3 pr-8 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] text-xs font-medium"
                 />
-                <IconCalendar size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                <input
+                  id="sua-cv-start-picker"
+                  type="date"
+                  value={/^\d{4}-\d{2}-\d{2}$/.test(date) ? date : ''}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="sr-only"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('sua-cv-start-picker') as HTMLInputElement | null;
+                    el?.showPicker?.();
+                    el?.click();
+                  }}
+                  aria-label="Chọn ngày bắt đầu"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-[#406c89] cursor-pointer"
+                >
+                  <IconCalendar size={14} />
+                </button>
               </div>
             </div>
             <div>
@@ -354,60 +386,24 @@ export default function SuaCongViecModal({
                   onChange={(e) => setDeadline(e.target.value)}
                   className="w-full h-9 pl-3 pr-8 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] text-xs font-medium"
                 />
-                <IconCalendar size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
-            </div>
-          </div>
-
-          {/* Row: Trạng thái + Màu dòng */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Trạng thái
-              </label>
-              <div className="relative">
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="w-full h-9 px-3 pr-8 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] bg-white text-xs appearance-none cursor-pointer"
-                >
-                  <option value="Chưa bắt đầu">Chưa bắt đầu</option>
-                  <option value="Đang thực hiện">Đang thực hiện</option>
-                  <option value="Hoàn thành">Hoàn thành</option>
-                  <option value="Chờ duyệt">Chờ duyệt</option>
-                </select>
-                <IconChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Tông màu dòng
-              </label>
-              <div className="flex items-center gap-2 h-9">
+                <input
+                  id="sua-cv-end-picker"
+                  type="date"
+                  value={/^\d{4}-\d{2}-\d{2}$/.test(deadline) ? deadline : ''}
+                  onChange={(e) => setDeadline(e.target.value)}
+                  className="sr-only"
+                />
                 <button
                   type="button"
-                  onClick={() => setRowTheme('blue')}
-                  className={`flex-1 h-8 rounded-lg flex items-center justify-center gap-1.5 border text-xs font-semibold cursor-pointer transition ${
-                    rowTheme === 'blue'
-                      ? 'bg-[#5c8ba7] text-white border-[#5c8ba7] shadow-xs'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                  }`}
+                  onClick={() => {
+                    const el = document.getElementById('sua-cv-end-picker') as HTMLInputElement | null;
+                    el?.showPicker?.();
+                    el?.click();
+                  }}
+                  aria-label="Chọn hạn kết thúc"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-[#406c89] cursor-pointer"
                 >
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#5c8ba7] border border-white" />
-                  <span>Xanh (#406c89)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRowTheme('gold')}
-                  className={`flex-1 h-8 rounded-lg flex items-center justify-center gap-1.5 border text-xs font-semibold cursor-pointer transition ${
-                    rowTheme === 'gold'
-                      ? 'bg-[#dbae57] text-white border-[#dbae57] shadow-xs'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#dbae57] border border-white" />
-                  <span>Vàng cam</span>
+                  <IconCalendar size={14} />
                 </button>
               </div>
             </div>

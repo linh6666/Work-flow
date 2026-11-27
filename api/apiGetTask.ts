@@ -39,3 +39,26 @@ export async function getTaskList(limit = 500, projectId?: string): Promise<Task
 
   return [];
 }
+
+/**
+ * Lấy chi tiết công việc (Task) theo ID
+ * Endpoint: GET /api/v1/entities/Task/{id}
+ */
+export async function getTaskById(id: string): Promise<TaskRecord | null> {
+  const url = `${BASE_API_FASTAPI}/api/v1/entities/Task/${id}`;
+
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: getTaskHeaders(),
+    });
+
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn(`Lỗi khi lấy chi tiết Task [${id}]:`, err);
+  }
+
+  return null;
+}

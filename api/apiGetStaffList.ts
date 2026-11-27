@@ -116,7 +116,7 @@ export async function getStaffDetail(id: string): Promise<NhanSuItem | null> {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
@@ -162,7 +162,7 @@ export async function getStaffList(params?: { limit?: number }): Promise<NhanSuI
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
@@ -278,7 +278,7 @@ export async function createStaff(item: Partial<NhanSuItem>): Promise<NhanSuItem
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(payload),
@@ -405,7 +405,7 @@ export async function updateStaff(item: NhanSuItem): Promise<NhanSuItem> {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(payload),
@@ -453,7 +453,7 @@ export async function deleteStaff(id: string): Promise<boolean> {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });

@@ -102,7 +102,7 @@ export async function getHoSoPhapLyList(params?: { limit?: number }): Promise<Ho
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
@@ -152,7 +152,7 @@ export async function getHoSoPhapLyDetail(id: string): Promise<HoSoPhapLyItem | 
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
@@ -212,7 +212,7 @@ export async function createHoSoPhapLy(item: Partial<HoSoPhapLyItem>): Promise<H
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(payload),
@@ -277,7 +277,7 @@ export async function updateHoSoPhapLy(item: HoSoPhapLyItem): Promise<HoSoPhapLy
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(payload),
@@ -321,7 +321,7 @@ export async function deleteHoSoPhapLy(id: string): Promise<boolean> {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });

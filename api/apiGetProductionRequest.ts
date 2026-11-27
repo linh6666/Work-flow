@@ -35,7 +35,7 @@ export async function getProductionRequestList(params?: { limit?: number }): Pro
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { api_key: apiKey } : {}),
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });

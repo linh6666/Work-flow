@@ -129,7 +129,7 @@ export async function getDanhSachTongQuatList(params?: { limit?: number }): Prom
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
@@ -179,7 +179,7 @@ export async function getDanhSachTongQuatDetail(id: string): Promise<NhanSuItem 
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
@@ -298,7 +298,7 @@ export async function createDanhSachTongQuatItem(item: Partial<NhanSuItem>): Pro
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(payload),
@@ -433,7 +433,7 @@ export async function updateDanhSachTongQuatItem(item: NhanSuItem): Promise<Nhan
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(payload),
@@ -477,7 +477,7 @@ export async function deleteDanhSachTongQuatItem(id: string): Promise<boolean> {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { api_key: apiKey } : {}),
+          ...(apiKey ? { "X-API-Key": apiKey } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });

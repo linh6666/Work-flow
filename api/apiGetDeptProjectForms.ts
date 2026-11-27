@@ -47,7 +47,7 @@ export async function getDeptProjectForms(
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      ...(apiKey ? { "api_key": apiKey } : {}),
+      ...(apiKey ? { "X-API-Key": apiKey } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
@@ -88,7 +88,7 @@ export async function updateDeptProjectForm(
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      ...(apiKey ? { "api_key": apiKey } : {}),
+      ...(apiKey ? { "X-API-Key": apiKey } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(payload),
@@ -125,7 +125,7 @@ export async function createDeptProjectForm(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(apiKey ? { "api_key": apiKey } : {}),
+      ...(apiKey ? { "X-API-Key": apiKey } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(payload),

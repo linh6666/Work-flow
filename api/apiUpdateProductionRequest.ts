@@ -73,7 +73,7 @@ export async function getProductionRequestById(id: string): Promise<any | null> 
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { api_key: apiKey } : {}),
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
@@ -118,7 +118,7 @@ export async function updateProductionRequest(
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { api_key: apiKey } : {}),
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify(cleanPayload),

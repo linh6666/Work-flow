@@ -23,7 +23,7 @@ export async function deleteProject(projectId: string): Promise<any> {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { "api_key": apiKey } : {}),
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify({ id: projectId }),
@@ -39,7 +39,7 @@ export async function deleteProject(projectId: string): Promise<any> {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      ...(apiKey ? { "api_key": apiKey } : {}),
+      ...(apiKey ? { "X-API-Key": apiKey } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });

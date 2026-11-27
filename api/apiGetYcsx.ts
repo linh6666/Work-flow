@@ -67,7 +67,7 @@ export async function getYcsxList(params?: { limit?: number }): Promise<YcsxItem
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { api_key: apiKey } : {}),
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
@@ -109,7 +109,7 @@ export async function updateYcsxStatus(id: string, newStatus: string): Promise<b
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { api_key: apiKey } : {}),
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify({ approval_status: newStatus }),
@@ -140,7 +140,7 @@ export async function deleteYcsx(id: string): Promise<boolean> {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { api_key: apiKey } : {}),
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });

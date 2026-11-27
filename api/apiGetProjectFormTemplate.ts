@@ -27,7 +27,7 @@ export async function getProjectFormTemplateList(params?: { limit?: number }): P
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { api_key: apiKey } : {}),
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });

@@ -86,7 +86,7 @@ export async function createProductionRequest(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { api_key: apiKey } : {}),
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify(cleanPayload),

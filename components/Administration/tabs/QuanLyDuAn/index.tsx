@@ -216,12 +216,15 @@ export default function QuanLyDuAn() {
       if (list && list.length > 0) {
         const mapped = list.map((item, idx) => mapApiProjectToDuAnItem(item, idx));
         setProjects(mapped);
+        NotificationExtension.Success(`Đã tải ${mapped.length} dự án!`);
       } else {
         setProjects([]);
+        NotificationExtension.Fails('Không có dữ liệu dự án từ server!');
       }
     } catch (err) {
       console.error('Không thể tải danh sách dự án từ API:', err);
       setProjects([]);
+      NotificationExtension.Fails('Không thể tải danh sách dự án từ API!');
     } finally {
       setLoading(false);
     }

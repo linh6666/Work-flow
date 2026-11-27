@@ -23,6 +23,31 @@ export interface DeptProjectFormItem {
  *
  * @param projectId UUID của dự án cần lấy danh sách phòng ban
  */
+export async function getAllDeptProjectForms(
+  limit = 500
+): Promise<DeptProjectFormItem[]> {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const url = `${BASE_API_FASTAPI}${API_ROUTE.DEPT_PROJECT_FORM_LIST}?limit=${limit}`;
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      ...(apiKey ? { "X-API-Key": apiKey } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!res.ok) return [];
+  const data = await res.json().catch(() => []);
+  return Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : Array.isArray(data?.data) ? data.data : [];
+}
+
 export async function getDeptProjectForms(
   projectId: string
 ): Promise<DeptProjectFormItem[]> {

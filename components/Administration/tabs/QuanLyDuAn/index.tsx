@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import TaoDuAnModal from './modal/TaoDuAn';
 import SuaDuAnModal from './modal/SuaDuAn';
 import QuanLyTemplateModal from './modal/QuanLyTemplate';
 import XoaDuAnModal from './modal/XoaDuAn';
 import ChiTietDuAn from './ChiTietDuAn';
 import { getListProject, ProjectItem } from '@/api/apiGetlistProject';
+import { getAllDeptProjectForms, DeptProjectFormItem } from '@/api/apiGetDeptProjectForms';
 import { createProject } from '@/api/apiCreatProject';
 import { updateProject } from '@/api/apiUpdateProject';
 import { deleteProject } from '@/api/apiDeleteProject';
@@ -88,6 +89,7 @@ type SortKeyType = 'maDuAn' | 'tenDuAn' | 'tienDo' | 'indexText' | 'trangThai' |
 
 export default function QuanLyDuAn() {
   const [projects, setProjects] = useState<DuAnItem[]>([]);
+  const [deptForms, setDeptForms] = useState<DeptProjectFormItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedProject, setSelectedProject] = useState<DuAnItem | null>(null);
@@ -203,7 +205,11 @@ export default function QuanLyDuAn() {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const data = await getListProject({ limit: 200 });
+      const [data, formsData] = await Promise.all([
+        getListProject({ limit: 200 }),
+        getAllDeptProjectForms(500).catch(() => []),
+      ]);
+      setDeptForms(formsData);
       let list: ProjectItem[] = [];
       if (Array.isArray(data)) {
         list = data;
@@ -492,7 +498,22 @@ export default function QuanLyDuAn() {
 
   // --- Counters ---
   const countTotal = projects.length;
-  const countChoKhoiTao = DEPARTMENTS.reduce((sum, d) => sum + d.count, 0);
+  const computedDepartments = useMemo(() => {
+    return DEPARTMENTS.map((dept) => {
+      if (projects.length === 0) return { ...dept, count: 0 };
+      const missingCount = projects.filter(
+        (p) =>
+          !deptForms.some(
+            (f) =>
+              f.project_id === p.id &&
+              (f.department || '').trim().toLowerCase() === dept.name.trim().toLowerCase()
+          )
+      ).length;
+      return { ...dept, count: missingCount };
+    });
+  }, [projects, deptForms]);
+
+  const countChoKhoiTao = computedDepartments.reduce((sum, d) => sum + d.count, 0);
   const countDangThucHien = projects.filter(p => p.trangThai === 'Đang thực hiện').length;
   const countHoanThanh = projects.filter(p => p.trangThai === 'Hoàn thành').length;
   const countTamDung = projects.filter(p => p.trangThai === 'Tạm dừng').length;
@@ -632,7 +653,7 @@ export default function QuanLyDuAn() {
             </p>
           </div>
           <div className="flex flex-wrap gap-1 sm:gap-1.5">
-            {DEPARTMENTS.map(dept => {
+            {computedDepartments.map(dept => {
               const isSelected = selectedDept === dept.id;
               const isZero = dept.count === 0;
               return (

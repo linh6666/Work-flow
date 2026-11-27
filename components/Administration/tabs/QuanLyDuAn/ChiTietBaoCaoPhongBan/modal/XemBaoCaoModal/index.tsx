@@ -104,25 +104,28 @@ export default function XemBaoCaoModal({ isOpen, projectId, taskId, taskTitle, t
     setIsSubmitting(true);
     try {
       const now = new Date();
-      const reportDateIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-      const descParts = [
-        evaluation.trim() ? `Đánh giá: ${evaluation.trim()}` : '',
-        note.trim() ? `Ghi chú: ${note.trim()}` : '',
-      ].filter(Boolean);
-
       const pct = Math.min(100, Math.max(0, Number(dailyPercent) || 0));
       const computedStatus =
         pct >= 100 ? 'Hoàn thành' : pct > 0 ? 'Đang thực hiện' : 'Chưa bắt đầu';
 
       await createWorkReport({
-        ...(projectId ? { project_id: projectId } : {}),
-        ...(taskId ? { task_id: taskId } : {}),
-        report_date: reportDateIso,
+        project_id: projectId || '',
+        task_uid: taskId || undefined,
+        task_name: title || undefined,
         reporter_name: assignee || undefined,
+        report_datetime: now.toISOString(),
         actual_hours: Number(actualHours) || 0,
         quantity_done: Number(slTt) || 0,
-        description: descParts.join(' | ') || undefined,
-        status: computedStatus,
+        quality_rating: evaluation.trim() || undefined,
+        description: note.trim() || undefined,
+        photo_urls: attachments.length > 0 ? JSON.stringify(attachments.map((a) => a.url)) : undefined,
+        status: 'Chờ duyệt',
+        task_status: computedStatus,
+        task_progress: pct,
+        task_assignee: assignee || undefined,
+        task_planned_hours: Number(plannedHours) || 0,
+        task_start_date: startDate || undefined,
+        task_end_date: endDate || undefined,
       });
       NotificationExtension.Success('Gửi báo cáo thành công!');
       onClose();

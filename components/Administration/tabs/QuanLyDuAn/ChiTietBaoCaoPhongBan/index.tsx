@@ -851,8 +851,14 @@ export default function ChiTietBaoCaoPhongBan({
                 <th className="px-3 py-3 text-left whitespace-nowrap w-32 border-r border-slate-200">
                   BẮT ĐẦU
                 </th>
-                <th className="px-3 py-3 text-left whitespace-nowrap w-32">
+                <th className="px-3 py-3 text-left whitespace-nowrap w-32 border-r border-slate-200">
                   KẾT THÚC
+                </th>
+                <th className="px-3 py-3 text-center whitespace-nowrap w-20 border-r border-slate-200">
+                  %HT
+                </th>
+                <th className="px-3 py-3 text-left whitespace-nowrap w-48">
+                  GHI CHÚ
                 </th>
               </tr>
             </thead>
@@ -1098,11 +1104,21 @@ export default function ChiTietBaoCaoPhongBan({
                                   <span>{item.deadline || item.date || 'mm/dd/yyyy'}</span>
                                 </div>
                               </td>
+
+                              {/* %HT */}
+                              <td className={`px-2.5 py-2.5 text-center font-bold ${borderClass} whitespace-nowrap text-[11px]`}>
+                                {`${item.progress ?? 0}%`}
+                              </td>
+
+                              {/* GHI CHÚ */}
+                              <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap text-[11px] text-slate-400`}>
+                                {item.note || 'Ghi chú...'}
+                              </td>
                             </tr>
 
                             {dragOverId === item.id && dropPosition === 'after' && (
                               <tr className="bg-transparent">
-                                <td colSpan={12} className="p-0">
+                                <td colSpan={14} className="p-0">
                                   <div className="h-1.5 w-full bg-white/90 rounded-full shadow-[0_0_0_1px_rgba(255,255,255,0.3)]" />
                                 </td>
                               </tr>

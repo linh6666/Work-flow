@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { IconCalendar, IconHistory, IconPhotoPlus, IconX } from '@tabler/icons-react';
 import { getTaskById } from '@/api/apiGetTask';
+import { createWorkReport } from '@/api/apiWorkReport';
+import { NotificationExtension } from '@/common/extension/NotificationExtension';
 
 export interface XemBaoCaoModalProps {
   isOpen: boolean;
+  projectId?: string;
   taskId?: string;
   taskTitle: string;
   taskData?: {
@@ -22,7 +25,16 @@ export interface XemBaoCaoModalProps {
   onClose: () => void;
 }
 
-export default function XemBaoCaoModal({ isOpen, taskId, taskTitle, taskData, onClose }: XemBaoCaoModalProps) {
+function formatDateWithTime(val: string | undefined, defaultTime: string): string {
+  if (!val || val === '—') return '';
+  const trimmed = val.trim();
+  if (/\d{1,2}:\d{2}/.test(trimmed)) return trimmed;
+  const iso = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) return `${iso[3]}/${iso[2]}/${iso[1]} ${defaultTime}`;
+  return `${trimmed} ${defaultTime}`;
+}
+
+export default function XemBaoCaoModal({ isOpen, projectId, taskId, taskTitle, taskData, onClose }: XemBaoCaoModalProps) {
   const [title, setTitle] = useState(taskTitle);
   const [status, setStatus] = useState('');
   const [assignee, setAssignee] = useState('');
@@ -32,8 +44,13 @@ export default function XemBaoCaoModal({ isOpen, taskId, taskTitle, taskData, on
   const [slTt, setSlTt] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [dailyPercent, setDailyPercent] = useState('0');
+  const [reportTimestamp, setReportTimestamp] = useState('');
   const [evaluation, setEvaluation] = useState('');
   const [note, setNote] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachments, setAttachments] = useState<{ name: string; url: string }[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -45,8 +62,15 @@ export default function XemBaoCaoModal({ isOpen, taskId, taskTitle, taskData, on
     const dkDp = (Number(taskData?.klDk) || 0) + (Number(taskData?.klDp) || 0);
     setSlDkDp(taskData ? String(dkDp) : '');
     setSlTt(taskData?.klTt !== undefined ? String(taskData.klTt) : '');
-    setStartDate(taskData?.date || '');
-    setEndDate(taskData?.deadline || '');
+    setStartDate(formatDateWithTime(taskData?.date, '08:00'));
+    setEndDate(formatDateWithTime(taskData?.deadline, '17:30'));
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const yyyy = now.getFullYear();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    setReportTimestamp(`${dd}/${mm}/${yyyy} ${hh}:${min}`);
 
     const isBackendId =
       !!taskId &&
@@ -66,14 +90,48 @@ export default function XemBaoCaoModal({ isOpen, taskId, taskTitle, taskData, on
         setSlDkDp(String((Number(data.kl_dk) || 0) + (Number(data.kl_dp) || 0)));
       }
       if (data.kl_tt !== undefined) setSlTt(String(data.kl_tt));
-      if (data.start_date) setStartDate(data.start_date);
-      if (data.end_date || data.deadline) setEndDate(data.end_date || data.deadline || '');
+      if (data.start_date) setStartDate(formatDateWithTime(data.start_date, '08:00'));
+      if (data.end_date || data.deadline) setEndDate(formatDateWithTime(data.end_date || data.deadline, '17:30'));
     });
 
     return () => {
       cancelled = true;
     };
   }, [isOpen, taskId, taskTitle]);
+
+  const handleSubmitReport = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const now = new Date();
+      const reportDateIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const descParts = [
+        evaluation.trim() ? `Đánh giá: ${evaluation.trim()}` : '',
+        note.trim() ? `Ghi chú: ${note.trim()}` : '',
+      ].filter(Boolean);
+
+      const pct = Math.min(100, Math.max(0, Number(dailyPercent) || 0));
+      const computedStatus =
+        pct >= 100 ? 'Hoàn thành' : pct > 0 ? 'Đang thực hiện' : 'Chưa bắt đầu';
+
+      await createWorkReport({
+        ...(projectId ? { project_id: projectId } : {}),
+        ...(taskId ? { task_id: taskId } : {}),
+        report_date: reportDateIso,
+        reporter_name: assignee || undefined,
+        actual_hours: Number(actualHours) || 0,
+        quantity_done: Number(slTt) || 0,
+        description: descParts.join(' | ') || undefined,
+        status: computedStatus,
+      });
+      NotificationExtension.Success('Gửi báo cáo thành công!');
+      onClose();
+    } catch (err: any) {
+      NotificationExtension.Fails(err?.message || 'Gửi báo cáo thất bại!');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -117,22 +175,22 @@ export default function XemBaoCaoModal({ isOpen, taskId, taskTitle, taskData, on
               </Field>
               <div className="sm:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 <Field label="SL DK+DP" tone="gray"><input value={slDkDp} readOnly className="field-control" /></Field>
-                <Field label="SL TT" required tone="green"><input value={slTt} readOnly className="field-control" /></Field>
+                <Field label="SL TT" required tone="green"><input type="number" min="0" inputMode="decimal" value={slTt} onChange={(event) => setSlTt(event.target.value)} className="field-control" /></Field>
                 <Field label="Giờ DK" tone="gray"><input value={plannedHours} readOnly className="field-control" /></Field>
-                <Field label="Giờ TT" required tone="yellow"><input value={actualHours} onChange={(event) => setActualHours(event.target.value)} className="field-control" /></Field>
+                <Field label="Giờ TT" required tone="yellow"><input type="number" min="0" inputMode="decimal" value={actualHours} onChange={(event) => setActualHours(event.target.value)} className="field-control" /></Field>
               </div>
               <div className="sm:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 <Field label="Bắt đầu" required tone="blue"><input value={startDate} readOnly className="field-control" /></Field>
                 <Field label="Kết thúc" required tone="blue"><input value={endDate} readOnly className="field-control" /></Field>
-                <Field label="%HT trong ngày" required tone="purple"><input value="0" readOnly className="field-control" /></Field>
-                <Field label="% HT Lũy tiến" tone="purple"><input value="0%" readOnly className="field-control text-center" /></Field>
+                <Field label="%HT trong ngày" required tone="purple"><input type="number" min="0" max="100" inputMode="decimal" value={dailyPercent} onChange={(event) => setDailyPercent(event.target.value)} className="field-control" /></Field>
+                <Field label="% HT Lũy tiến" tone="purple"><input value={`${Math.min(100, Math.max(0, Number(dailyPercent) || 0))}%`} readOnly className="field-control text-center" /></Field>
               </div>
             </div>
 
             <div className="mt-2 rounded-md border border-[#f1c84b] bg-[#fffdf0] p-2">
               <label className="block text-[10px] font-semibold text-[#bd6b00]">Thời gian thực tế báo cáo</label>
               <div className="relative mt-1">
-                <input value="09/16/2026 03:08 PM" readOnly className="w-full rounded-md border border-[#f1c84b] bg-[#fffbea] px-2 py-1.5 text-[11px] text-slate-700" />
+                <input value={reportTimestamp} disabled className="w-full rounded-md border border-[#f1c84b] bg-[#fffbea] px-2 py-1.5 text-[11px] text-slate-600 cursor-not-allowed outline-none" />
                 <IconCalendar size={13} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#bd6b00]" />
               </div>
               <p className="mt-1 text-[10px] text-[#c47712]">Tự động ghi nhận thời điểm báo cáo trên hệ thống (không thể thay đổi)</p>
@@ -150,16 +208,51 @@ export default function XemBaoCaoModal({ isOpen, taskId, taskTitle, taskData, on
 
             <div className="mt-2">
               <p className="text-[10px] font-semibold text-slate-700">Ảnh đính kèm</p>
-              <button type="button" className="mt-1 flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-slate-300 bg-white text-[10px] text-slate-500 hover:bg-slate-50">
-                <IconPhotoPlus size={16} />Thêm ảnh
-              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  const next = files.map((f) => ({
+                    name: f.name,
+                    url: URL.createObjectURL(f),
+                  }));
+                  setAttachments((prev) => [...prev, ...next]);
+                  e.target.value = '';
+                }}
+              />
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                {attachments.map((img, idx) => (
+                  <div key={`${img.name}-${idx}`} className="relative h-16 w-16 rounded-md border border-slate-200 overflow-hidden bg-white">
+                    <img src={img.url} alt={img.name} className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setAttachments((prev) => prev.filter((_, i) => i !== idx))}
+                      className="absolute top-0.5 right-0.5 rounded-full bg-slate-900/60 p-0.5 text-white hover:bg-slate-900 cursor-pointer"
+                      aria-label="Xóa ảnh"
+                    >
+                      <IconX size={10} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-slate-300 bg-white text-[10px] text-slate-500 hover:bg-slate-50 cursor-pointer"
+                >
+                  <IconPhotoPlus size={16} />Thêm ảnh
+                </button>
+              </div>
             </div>
           </section>
         </div>
 
         <div className="flex shrink-0 justify-end gap-2 px-3 pb-3 sm:px-4">
           <button type="button" onClick={onClose} className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50">Hủy</button>
-          <button type="button" onClick={onClose} className="rounded-md bg-[#406c89] px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm hover:bg-[#345a73]">Gửi báo cáo</button>
+          <button type="button" disabled={isSubmitting} onClick={handleSubmitReport} className="rounded-md bg-[#406c89] px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm hover:bg-[#345a73] disabled:opacity-50 cursor-pointer">{isSubmitting ? 'Đang gửi...' : 'Gửi báo cáo'}</button>
         </div>
       </div>
     </div>

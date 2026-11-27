@@ -541,6 +541,7 @@ export default function ChiTietBaoCaoPhongBan({
       <div className="min-w-[1250px] flex-1 flex flex-col min-h-0 space-y-2.5">
         <XemBaoCaoModal
           isOpen={activeModal?.type === 'view'}
+          projectId={projectId}
           taskId={selectedTask?.id}
           taskTitle={activeModal?.taskTitle || selectedTask?.title || 'Công việc'}
           taskData={selectedTask}

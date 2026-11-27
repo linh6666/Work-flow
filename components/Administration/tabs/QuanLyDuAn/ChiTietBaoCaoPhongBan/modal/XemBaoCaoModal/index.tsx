@@ -51,23 +51,23 @@ export default function XemBaoCaoModal({ isOpen, taskTitle, onClose }: XemBaoCao
 
             <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
               <Field label="Trạng thái" tone="blue">
-                <select value={status} onChange={(event) => setStatus(event.target.value)} className="field-control">
-                  <option>Chưa bắt đầu</option><option>Đang thực hiện</option><option>Hoàn thành</option>
-                </select>
+                <input value={status} readOnly className="field-control cursor-default" />
               </Field>
               <Field label="Nhân sự" tone="purple">
-                <select value={assignee} onChange={(event) => setAssignee(event.target.value)} className="field-control">
-                  <option>Phan Thị Hồng Ngọc (BTG)</option><option>Nguyễn Phú Quang</option><option>Cao Trường Thiên</option>
-                </select>
+                <input value={assignee} readOnly className="field-control cursor-default" />
               </Field>
-              <Field label="SL DK+DP" tone="gray"><input value="0" readOnly className="field-control" /></Field>
-              <Field label="SL TT" required tone="green"><input value="0" readOnly className="field-control" /></Field>
-              <Field label="Giờ DK" tone="gray"><input value="0" readOnly className="field-control" /></Field>
-              <Field label="Giờ TT" required tone="yellow"><input value={actualHours} onChange={(event) => setActualHours(event.target.value)} className="field-control" /></Field>
-              <Field label="Bắt đầu" required tone="blue"><input value="09/16/2026 03:08 PM" readOnly className="field-control" /></Field>
-              <Field label="Kết thúc" required tone="blue"><input value="09/16/2026 03:08 PM" readOnly className="field-control" /></Field>
-              <Field label="%HT trong ngày" required tone="purple"><input value="0" readOnly className="field-control" /></Field>
-              <Field label="% HT Lũy tiến" tone="purple"><input value="0%" readOnly className="field-control text-center" /></Field>
+              <div className="sm:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                <Field label="SL DK+DP" tone="gray"><input value="0" readOnly className="field-control" /></Field>
+                <Field label="SL TT" required tone="green"><input value="0" readOnly className="field-control" /></Field>
+                <Field label="Giờ DK" tone="gray"><input value="0" readOnly className="field-control" /></Field>
+                <Field label="Giờ TT" required tone="yellow"><input value={actualHours} onChange={(event) => setActualHours(event.target.value)} className="field-control" /></Field>
+              </div>
+              <div className="sm:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                <Field label="Bắt đầu" required tone="blue"><input value="09/16/2026 03:08 PM" readOnly className="field-control" /></Field>
+                <Field label="Kết thúc" required tone="blue"><input value="09/16/2026 03:08 PM" readOnly className="field-control" /></Field>
+                <Field label="%HT trong ngày" required tone="purple"><input value="0" readOnly className="field-control" /></Field>
+                <Field label="% HT Lũy tiến" tone="purple"><input value="0%" readOnly className="field-control text-center" /></Field>
+              </div>
             </div>
 
             <div className="mt-2 rounded-md border border-[#f1c84b] bg-[#fffdf0] p-2">

@@ -1,20 +1,79 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IconCalendar, IconHistory, IconPhotoPlus, IconX } from '@tabler/icons-react';
+import { getTaskById } from '@/api/apiGetTask';
 
 export interface XemBaoCaoModalProps {
   isOpen: boolean;
+  taskId?: string;
   taskTitle: string;
+  taskData?: {
+    status?: string;
+    assignee?: string;
+    plannedHours?: string | number;
+    actualHours?: string | number;
+    klDk?: string | number;
+    klDp?: string | number;
+    klTt?: string | number;
+    date?: string;
+    deadline?: string;
+  } | null;
   onClose: () => void;
 }
 
-export default function XemBaoCaoModal({ isOpen, taskTitle, onClose }: XemBaoCaoModalProps) {
-  const [status, setStatus] = useState('Chưa bắt đầu');
-  const [assignee, setAssignee] = useState('Phan Thị Hồng Ngọc (BTG)');
-  const [actualHours, setActualHours] = useState('0');
+export default function XemBaoCaoModal({ isOpen, taskId, taskTitle, taskData, onClose }: XemBaoCaoModalProps) {
+  const [title, setTitle] = useState(taskTitle);
+  const [status, setStatus] = useState('');
+  const [assignee, setAssignee] = useState('');
+  const [plannedHours, setPlannedHours] = useState('');
+  const [actualHours, setActualHours] = useState('');
+  const [slDkDp, setSlDkDp] = useState('');
+  const [slTt, setSlTt] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [evaluation, setEvaluation] = useState('');
   const [note, setNote] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setTitle(taskTitle || '');
+    setStatus(taskData?.status || '');
+    setAssignee(taskData?.assignee || '');
+    setPlannedHours(taskData?.plannedHours !== undefined ? String(taskData.plannedHours).replace(/h$/i, '') : '');
+    setActualHours(taskData?.actualHours !== undefined ? String(taskData.actualHours).replace(/h$/i, '') : '');
+    const dkDp = (Number(taskData?.klDk) || 0) + (Number(taskData?.klDp) || 0);
+    setSlDkDp(taskData ? String(dkDp) : '');
+    setSlTt(taskData?.klTt !== undefined ? String(taskData.klTt) : '');
+    setStartDate(taskData?.date || '');
+    setEndDate(taskData?.deadline || '');
+
+    const isBackendId =
+      !!taskId &&
+      (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskId) ||
+        /^\d+$/.test(taskId));
+    if (!isBackendId) return;
+
+    let cancelled = false;
+    getTaskById(taskId).then((data) => {
+      if (cancelled || !data) return;
+      if (data.title || data.name) setTitle(data.title || data.name || taskTitle);
+      if (data.status) setStatus(data.status);
+      if (data.assignee_name || data.assignee) setAssignee(data.assignee_name || data.assignee || '');
+      if (data.planned_hours !== undefined) setPlannedHours(String(data.planned_hours));
+      if (data.actual_hours !== undefined) setActualHours(String(data.actual_hours));
+      if (data.kl_dk !== undefined || data.kl_dp !== undefined) {
+        setSlDkDp(String((Number(data.kl_dk) || 0) + (Number(data.kl_dp) || 0)));
+      }
+      if (data.kl_tt !== undefined) setSlTt(String(data.kl_tt));
+      if (data.start_date) setStartDate(data.start_date);
+      if (data.end_date || data.deadline) setEndDate(data.end_date || data.deadline || '');
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, taskId, taskTitle]);
 
   if (!isOpen) return null;
 
@@ -25,7 +84,7 @@ export default function XemBaoCaoModal({ isOpen, taskTitle, onClose }: XemBaoCao
         <div className="flex shrink-0 items-start justify-between px-3 pb-1 pt-2.5 sm:px-4">
           <div className="min-w-0 pr-2">
             <h3 className="text-xs font-semibold text-slate-800">Báo cáo thực tế — thiết kế báo cáo</h3>
-            <p className="mt-0.5 max-w-[calc(100vw-120px)] truncate text-[10px] text-slate-500 sm:max-w-[350px]">{taskTitle}</p>
+            <p className="mt-0.5 max-w-[calc(100vw-120px)] truncate text-[10px] text-slate-500 sm:max-w-[350px]">{title}</p>
           </div>
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <button type="button" className="inline-flex items-center gap-1 text-[10px] text-slate-500 hover:text-slate-700">
@@ -39,10 +98,10 @@ export default function XemBaoCaoModal({ isOpen, taskTitle, onClose }: XemBaoCao
 
         <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3 pb-3 pt-1.5 sm:px-4">
           <div className="grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
-            <Summary label="Tổng giờ KH" value="0h" />
+            <Summary label="Tổng giờ KH" value={`${plannedHours}h`} />
             <Summary label="Tổng giờ TT" value={`${actualHours}h`} tone="yellow" />
-            <Summary label="Tổng KL DK+DP" value="0" tone="blue" />
-            <Summary label="Tổng KL đã thực hiện" value="0" tone="green" />
+            <Summary label="Tổng KL DK+DP" value={slDkDp} tone="blue" />
+            <Summary label="Tổng KL đã thực hiện" value={slTt} tone="green" />
           </div>
 
           <section className="rounded-md border border-slate-200 bg-[#f8fafc] p-2.5 sm:p-3">
@@ -57,14 +116,14 @@ export default function XemBaoCaoModal({ isOpen, taskTitle, onClose }: XemBaoCao
                 <input value={assignee} readOnly className="field-control cursor-default" />
               </Field>
               <div className="sm:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                <Field label="SL DK+DP" tone="gray"><input value="0" readOnly className="field-control" /></Field>
-                <Field label="SL TT" required tone="green"><input value="0" readOnly className="field-control" /></Field>
-                <Field label="Giờ DK" tone="gray"><input value="0" readOnly className="field-control" /></Field>
+                <Field label="SL DK+DP" tone="gray"><input value={slDkDp} readOnly className="field-control" /></Field>
+                <Field label="SL TT" required tone="green"><input value={slTt} readOnly className="field-control" /></Field>
+                <Field label="Giờ DK" tone="gray"><input value={plannedHours} readOnly className="field-control" /></Field>
                 <Field label="Giờ TT" required tone="yellow"><input value={actualHours} onChange={(event) => setActualHours(event.target.value)} className="field-control" /></Field>
               </div>
               <div className="sm:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                <Field label="Bắt đầu" required tone="blue"><input value="09/16/2026 03:08 PM" readOnly className="field-control" /></Field>
-                <Field label="Kết thúc" required tone="blue"><input value="09/16/2026 03:08 PM" readOnly className="field-control" /></Field>
+                <Field label="Bắt đầu" required tone="blue"><input value={startDate} readOnly className="field-control" /></Field>
+                <Field label="Kết thúc" required tone="blue"><input value={endDate} readOnly className="field-control" /></Field>
                 <Field label="%HT trong ngày" required tone="purple"><input value="0" readOnly className="field-control" /></Field>
                 <Field label="% HT Lũy tiến" tone="purple"><input value="0%" readOnly className="field-control text-center" /></Field>
               </div>

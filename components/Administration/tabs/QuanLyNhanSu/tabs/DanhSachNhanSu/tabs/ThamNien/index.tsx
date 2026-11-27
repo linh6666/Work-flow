@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   IconSearch,
   IconDownload,
@@ -17,6 +17,10 @@ import {
 } from '@tabler/icons-react';
 import { PHONG_BAN_LIST } from '../DanhSachTongQuat';
 import Pagination from '@/common/pagination';
+import ThemThamNienModal from './modal/ThemThamNienModal';
+import SuaThamNienModal from './modal/SuaThamNienModal';
+import ChiTietThamNienModal from './modal/ChiTietThamNienModal';
+import XoaThamNienModal from './modal/XoaThamNienModal';
 
 export interface ThamNienItem {
   id: string;
@@ -113,7 +117,22 @@ export default function ThamNienTab({
   const [internalSearch, setInternalSearch] = useState('');
   const [internalPhongBan, setInternalPhongBan] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<ThamNienItem | null>(null);
+  const [editingItem, setEditingItem] = useState<ThamNienItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<ThamNienItem | null>(null);
   const itemsPerPage = 15;
+
+  useEffect(() => {
+    const handleAddClick = (e: Event) => {
+      const detail = (e as CustomEvent)?.detail;
+      if (detail?.tab === 'tham-nien') {
+        setIsAddOpen(true);
+      }
+    };
+    window.addEventListener('nhan-su-add-click', handleAddClick);
+    return () => window.removeEventListener('nhan-su-add-click', handleAddClick);
+  }, []);
 
   const search = searchQuery !== undefined ? searchQuery : internalSearch;
   const filterPhongBan = selectedPhongBan !== undefined ? selectedPhongBan : internalPhongBan;
@@ -219,7 +238,7 @@ export default function ThamNienTab({
                           <button
                             type="button"
                             title="Xem chi tiết"
-                            onClick={() => alert(`Xem chi tiết thâm niên: ${item.hoTen}`)}
+                            onClick={() => setViewingItem(item)}
                             className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-sky-600 transition-colors cursor-pointer"
                           >
                             <IconEye size={13} />
@@ -227,7 +246,7 @@ export default function ThamNienTab({
                           <button
                             type="button"
                             title="Chỉnh sửa"
-                            onClick={() => alert(`Chỉnh sửa thâm niên: ${item.hoTen}`)}
+                            onClick={() => setEditingItem(item)}
                             className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
                           >
                             <IconPencil size={13} />
@@ -235,7 +254,7 @@ export default function ThamNienTab({
                           <button
                             type="button"
                             title="Xóa"
-                            onClick={() => alert(`Xóa bản ghi: ${item.hoTen}`)}
+                            onClick={() => setDeletingItem(item)}
                             className="p-1.5 rounded border border-slate-200 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
                           >
                             <IconTrash size={13} />
@@ -261,6 +280,42 @@ export default function ThamNienTab({
           />
         </div>
       </div>
+
+      {/* Modals */}
+      <ThemThamNienModal
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        onAdd={(added) => {
+          setData((prev) => [added, ...prev]);
+          setCurrentPage(1);
+        }}
+      />
+
+      <SuaThamNienModal
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSave={(saved) => {
+          setData((prev) => prev.map((x) => (x.id === saved.id ? saved : x)));
+        }}
+      />
+
+      <ChiTietThamNienModal
+        item={viewingItem}
+        anniversary={
+          viewingItem && viewingItem.trangThai !== 'Đã nghỉ'
+            ? getNextAnniversary(viewingItem.ngayVao)
+            : null
+        }
+        onClose={() => setViewingItem(null)}
+      />
+
+      <XoaThamNienModal
+        item={deletingItem}
+        onClose={() => setDeletingItem(null)}
+        onConfirm={(id) => {
+          setData((prev) => prev.filter((x) => x.id !== id));
+        }}
+      />
     </div>
   );
 }

@@ -41,8 +41,8 @@ export default function ThemCongViecModal({
   const [assignee, setAssignee] = useState('');
   const [customAssignee, setCustomAssignee] = useState('');
   const [isCustomAssignee, setIsCustomAssignee] = useState(false);
-  const [plannedHours, setPlannedHours] = useState('1h');
-  const [klDk, setKlDk] = useState<number | string>(1);
+  const [plannedHours, setPlannedHours] = useState('');
+  const [klDk, setKlDk] = useState<number | string>('');
   const [klDp, setKlDp] = useState<number | string>(0);
   const [date, setDate] = useState('');
   const [deadline, setDeadline] = useState('');
@@ -74,8 +74,8 @@ export default function ThemCongViecModal({
       setCustomAssignee('');
       setIsCustomAssignee(false);
 
-      setPlannedHours(targetTask?.plannedHours ? String(targetTask.plannedHours) : '1h');
-      setKlDk(1);
+      setPlannedHours('');
+      setKlDk('');
       setKlDp(0);
       setDate(targetTask?.date && targetTask.date !== '—' ? targetTask.date : today);
       setDeadline(targetTask?.deadline && targetTask.deadline !== '—' ? targetTask.deadline : today);
@@ -299,8 +299,9 @@ export default function ThemCongViecModal({
               <input
                 type="number"
                 min="0"
+                placeholder="0"
                 value={klDk}
-                onChange={(e) => setKlDk(Number(e.target.value))}
+                onChange={(e) => setKlDk(e.target.value === '' ? '' : Number(e.target.value))}
                 className="w-full h-9 px-3 border border-slate-200 rounded-lg outline-none focus:border-[#406c89] text-xs text-center font-medium"
               />
             </div>

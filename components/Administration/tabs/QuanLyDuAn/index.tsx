@@ -561,20 +561,10 @@ export default function QuanLyDuAn() {
     <div className="flex-1 flex flex-col overflow-hidden text-slate-700 w-full bg-slate-50">
 
       {/* ══ ZONE 1: FIXED TOP HEADER ══ */}
-      <div className="shrink-0 bg-slate-50 border-b border-slate-200/80 px-3 sm:px-6 pt-3 sm:pt-4 pb-3 z-30 relative">
+      <div className="shrink-0 bg-slate-50 border-b border-slate-200/80 px-3 sm:px-6 py-2 z-30 relative">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
           <h2 className="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Quản lý Dự án</h2>
           <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={fetchProjects}
-              disabled={loading}
-              className="flex items-center justify-center gap-1 px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-800 text-xs font-semibold rounded-lg shadow-2xs border border-slate-200 transition-all cursor-pointer whitespace-nowrap shrink-0 disabled:opacity-50"
-              title="Làm mới danh sách từ server"
-            >
-              <IconRefresh size={14} className={loading ? "animate-spin" : ""} />
-              <span className="hidden sm:inline">Làm mới</span>
-            </button>
             <button
               type="button"
               onClick={() => setIsTemplateModalOpen(true)}
@@ -596,35 +586,35 @@ export default function QuanLyDuAn() {
       </div>
 
       {/* ══ ZONE 2: SCROLLABLE BODY ══ */}
-      <div className="flex-1 overflow-y-auto px-3 sm:px-6 pt-3 sm:pt-4 pb-6 space-y-3 sm:space-y-4 overscroll-y-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-6 pt-2 sm:pt-2.5 pb-4 space-y-2 overscroll-y-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
         {/* 1. Workflow Bar */}
-        <div className="bg-white border border-slate-200/80 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-1.5 sm:gap-2 overflow-x-auto shadow-xs touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="bg-white border border-slate-200/80 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 flex items-center gap-1.5 overflow-x-auto shadow-xs touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {[
             { label: 'Tạo YCSX', color: 'text-purple-700 bg-purple-50 border-purple-200' },
             { label: 'PGD đã duyệt YCSX', color: 'text-orange-600 bg-orange-50 border-orange-200' },
             { label: 'Khởi tạo Dự án từ YCSX', color: 'text-blue-700 bg-blue-50 border-blue-200' },
           ].map((step, i) => (
             <React.Fragment key={i}>
-              <span className={`${step.color} border font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs whitespace-nowrap shrink-0`}>
+              <span className={`${step.color} border font-semibold px-2 py-0.5 sm:py-1 rounded-md text-[10.5px] sm:text-[11px] whitespace-nowrap shrink-0`}>
                 {step.label}
               </span>
-              <IconArrowRight size={13} className="text-slate-300 shrink-0" />
+              <IconArrowRight size={12} className="text-slate-300 shrink-0" />
             </React.Fragment>
           ))}
-          <span className="flex items-center gap-1.5 bg-indigo-50 border border-indigo-300 text-indigo-700 font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs whitespace-nowrap shrink-0">
+          <span className="flex items-center gap-1.5 bg-indigo-50 border border-indigo-300 text-indigo-700 font-semibold px-2 py-0.5 sm:py-1 rounded-md text-[10.5px] sm:text-[11px] whitespace-nowrap shrink-0">
             Đang thực hiện
-            <span className="bg-[#406c89] text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{countDangThucHien}</span>
+            <span className="bg-[#406c89] text-white text-[9.5px] px-1.5 py-0.2 rounded-full font-bold">{countDangThucHien}</span>
           </span>
-          <IconArrowRight size={13} className="text-slate-300 shrink-0" />
-          <span className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 text-emerald-700 font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs whitespace-nowrap shrink-0">
+          <IconArrowRight size={12} className="text-slate-300 shrink-0" />
+          <span className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 text-emerald-700 font-semibold px-2 py-0.5 sm:py-1 rounded-md text-[10.5px] sm:text-[11px] whitespace-nowrap shrink-0">
             Hoàn thành
-            <span className="bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{countHoanThanh}</span>
+            <span className="bg-emerald-600 text-white text-[9.5px] px-1.5 py-0.2 rounded-full font-bold">{countHoanThanh}</span>
           </span>
         </div>
 
         {/* 2. Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5">
           {[
             { label: 'Tổng dự án', value: countTotal, color: 'text-[#406c89]' },
             { label: 'Chờ khởi tạo', value: countChoKhoiTao, color: 'text-orange-500' },
@@ -634,12 +624,12 @@ export default function QuanLyDuAn() {
           ].map((stat, idx) => (
             <div
               key={stat.label}
-              className={`bg-white border border-slate-200/80 rounded-lg sm:rounded-xl p-2 sm:px-3 sm:py-2.5 shadow-xs ${
+              className={`bg-white border border-slate-200/80 rounded-lg p-1.5 sm:px-2.5 sm:py-1.5 shadow-xs ${
                 idx === 4 ? 'col-span-2 sm:col-span-1' : ''
               }`}
             >
-              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">{stat.label}</p>
-              <p className={`text-lg sm:text-xl font-black ${stat.color} leading-tight mt-0.5`}>{stat.value}</p>
+              <p className="text-[10px] text-slate-500 font-medium truncate">{stat.label}</p>
+              <p className={`text-base sm:text-lg font-black ${stat.color} leading-tight`}>{stat.value}</p>
             </div>
           ))}
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getProjectFormTemplateList } from '@/api/apiGetProjectFormTemplate';
 import {
   IconX,
   IconPlus,
@@ -16,138 +17,14 @@ import TaoTemplateMoiModal from '../TaoTemplateMoi';
 export interface TemplateItem {
   id: string;
   tenTemplate: string;
-  phamVi: string; // e.g. "Tổng thể dự án", "Ban Giám đốc", "Phòng Ghép", "Phòng Mộc Sơn"...
+  phamVi: string;
   phongBan: string;
-  soCongViecText: string; // e.g. "— công việc", "16 công việc"
+  soCongViecText: string;
   moTa?: string;
   taoBoi: string;
   soLanDung: number;
   isPurpleIcon?: boolean;
 }
-
-const INITIAL_TEMPLATES: TemplateItem[] = [
-  {
-    id: 'tpl-1',
-    tenTemplate: 'DA KHU CONG NGHIEP - MH NHAN BAN',
-    phamVi: 'Tổng thể dự án',
-    phongBan: 'Tất cả phòng',
-    soCongViecText: '— công việc',
-    taoBoi: 'Thảo Phùng',
-    soLanDung: 1,
-    isPurpleIcon: true,
-  },
-  {
-    id: 'tpl-2',
-    tenTemplate: 'P.CN&TK - MẪU 1',
-    phamVi: 'Tổng thể dự án',
-    phongBan: 'Phòng CN&TK',
-    soCongViecText: '— công việc',
-    taoBoi: 'Trần Diễm My',
-    soLanDung: 0,
-    isPurpleIcon: true,
-  },
-  {
-    id: 'tpl-3',
-    tenTemplate: 'BGĐ-MẪU 1',
-    phamVi: 'Ban Giám đốc',
-    phongBan: 'Ban Giám đốc',
-    soCongViecText: '16 công việc',
-    taoBoi: 'Thảo Phùng',
-    soLanDung: 4,
-    isPurpleIcon: false,
-  },
-  {
-    id: 'tpl-4',
-    tenTemplate: 'P. GHÉP - MẪU 1',
-    phamVi: 'Phòng Ghép',
-    phongBan: 'Phòng Ghép',
-    soCongViecText: '— công việc',
-    taoBoi: 'Trần Diễm My',
-    soLanDung: 1,
-    isPurpleIcon: false,
-  },
-  {
-    id: 'tpl-5',
-    tenTemplate: 'P. CẮT - MẪU 1',
-    phamVi: 'Phòng Cắt',
-    phongBan: 'Phòng Cắt',
-    soCongViecText: '— công việc',
-    taoBoi: 'Trần Diễm My',
-    soLanDung: 1,
-    isPurpleIcon: false,
-  },
-  {
-    id: 'tpl-6',
-    tenTemplate: 'P. KHAI TRIỂN - MẪU 1',
-    phamVi: 'Phòng Khai triển',
-    phongBan: 'Phòng Khai triển',
-    soCongViecText: '— công việc',
-    taoBoi: 'Trần Diễm My',
-    soLanDung: 3,
-    isPurpleIcon: false,
-  },
-  {
-    id: 'tpl-7',
-    tenTemplate: 'P. CẢNH QUAN - MẪU 1',
-    phamVi: 'Phòng Cảnh quan',
-    phongBan: 'Phòng Cảnh quan',
-    soCongViecText: '— công việc',
-    taoBoi: 'Trần Diễm My',
-    soLanDung: 2,
-    isPurpleIcon: false,
-  },
-  {
-    id: 'tpl-8',
-    tenTemplate: 'P.ĐIỆN - MẪU 1',
-    phamVi: 'Phòng Điện',
-    phongBan: 'Phòng Điện',
-    soCongViecText: '— công việc',
-    taoBoi: 'Trần Diễm My',
-    soLanDung: 1,
-    isPurpleIcon: false,
-  },
-  {
-    id: 'tpl-9',
-    tenTemplate: 'P.MỘC SƠN - MẪU 1',
-    phamVi: 'Phòng Mộc Sơn',
-    phongBan: 'Phòng Mộc Sơn',
-    soCongViecText: '— công việc',
-    taoBoi: 'Trần Diễm My',
-    soLanDung: 1,
-    isPurpleIcon: false,
-  },
-  {
-    id: 'tpl-10',
-    tenTemplate: 'P. CÔNG NGHỆ & TK - MẪU 1',
-    phamVi: 'Phòng Công nghệ và Thiết kế',
-    phongBan: 'Phòng CN&TK',
-    soCongViecText: '— công việc',
-    taoBoi: 'congnghevathietke.mhv',
-    soLanDung: 8,
-    isPurpleIcon: false,
-  },
-  {
-    id: 'tpl-11',
-    tenTemplate: 'TEMP 1',
-    phamVi: 'Phòng Khai triển',
-    phongBan: 'Phòng Khai triển',
-    soCongViecText: '— công việc',
-    moTa: 'Mẫu báo cáo dùng chung cho tất cả các loại dự án',
-    taoBoi: 'trandiemmy86',
-    soLanDung: 3,
-    isPurpleIcon: false,
-  },
-  {
-    id: 'tpl-12',
-    tenTemplate: 'DỰ ÁN QUY HOẠCH',
-    phamVi: 'Tổng thể dự án',
-    phongBan: 'Tất cả phòng',
-    soCongViecText: '— công việc',
-    taoBoi: 'Thao Phung',
-    soLanDung: 0,
-    isPurpleIcon: true,
-  },
-];
 
 interface QuanLyTemplateModalProps {
   isOpen: boolean;
@@ -155,7 +32,30 @@ interface QuanLyTemplateModalProps {
 }
 
 export default function QuanLyTemplateModal({ isOpen, onClose }: QuanLyTemplateModalProps) {
-  const [templates, setTemplates] = useState<TemplateItem[]>(INITIAL_TEMPLATES);
+  const [templates, setTemplates] = useState<TemplateItem[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    getProjectFormTemplateList({ limit: 100 }).then((list) => {
+      if (cancelled) return;
+      const mapped: TemplateItem[] = list.map((item) => ({
+        id: item.id,
+        tenTemplate: item.template_name,
+        phamVi: item.department ? 'Theo phòng ban' : 'Tổng thể dự án',
+        phongBan: item.department || 'Tất cả phòng',
+        soCongViecText: '— công việc',
+        moTa: item.description || '',
+        taoBoi: 'Hệ thống',
+        soLanDung: 0,
+        isPurpleIcon: !item.department,
+      }));
+      setTemplates(mapped);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
   const [selectedPhamVi, setSelectedPhamVi] = useState<string>('Tất cả phạm vi');
   const [selectedPhong, setSelectedPhong] = useState<string>('Tất cả phòng');
   const [isCreating, setIsCreating] = useState(false);

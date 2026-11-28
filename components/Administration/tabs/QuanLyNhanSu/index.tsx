@@ -10,6 +10,7 @@ import {
   IconUserPlus,
   IconCurrencyDollar,
   IconChartBar,
+  IconClock,
 } from '@tabler/icons-react';
 
 import NhanSuDuAnTab from './tabs/NhanSuDuAn';
@@ -20,6 +21,7 @@ import NvVaoRaTab from './tabs/NvVaoRa';
 import TuyenDungTab from './tabs/TuyenDung';
 import BacLuongTab from './tabs/BacLuong';
 import BaoCaoThamNienTab from './tabs/BaoCaoThamNien';
+import TheoDoiGioTTTab from './tabs/TheoDoiGioTT';
 
 // ─── Tab definitions ──────────────────────────────────────────────────
 export type TabKey =
@@ -30,7 +32,8 @@ export type TabKey =
   | 'nv-vao-ra'
   | 'tuyen-dung'
   | 'bac-luong'
-  | 'bao-cao-tham-nien';
+  | 'bao-cao-tham-nien'
+  | 'theo-doi-gio-tt';
 
 interface Tab {
   key: TabKey;
@@ -47,6 +50,7 @@ const TABS: Tab[] = [
   { key: 'tuyen-dung', label: 'Tuyển dụng', icon: <IconUserPlus size={14} /> },
   { key: 'bac-luong', label: 'Bậc lương', icon: <IconCurrencyDollar size={14} /> },
   { key: 'bao-cao-tham-nien', label: 'Báo cáo thâm niên', icon: <IconChartBar size={14} /> },
+  { key: 'theo-doi-gio-tt', label: 'Theo dõi Giờ TT', icon: <IconClock size={14} /> },
 ];
 
 export default function QuanLyNhanSu() {
@@ -101,6 +105,7 @@ export default function QuanLyNhanSu() {
         {activeTab === 'tuyen-dung' && <TuyenDungTab />}
         {activeTab === 'bac-luong' && <BacLuongTab />}
         {activeTab === 'bao-cao-tham-nien' && <BaoCaoThamNienTab />}
+        {activeTab === 'theo-doi-gio-tt' && <TheoDoiGioTTTab />}
       </div>
     </div>
   );

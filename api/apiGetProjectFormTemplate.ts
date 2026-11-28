@@ -87,6 +87,39 @@ export async function getProjectFormTemplateById(id: string): Promise<ProjectFor
   }
 }
 
+export async function createProjectFormTemplate(payload: {
+  template_name: string;
+  scope?: string;
+  department?: string;
+  tasks_json?: string;
+  all_depts_json?: string;
+  description?: string;
+  created_by_name?: string;
+}): Promise<any> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const url = `${BASE_API_FASTAPI}/api/v1/entities/ProjectFormTemplate`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(apiKey ? { "X-API-Key": apiKey } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.detail || err?.message || `Lỗi ${res.status}`);
+  }
+  return res.json();
+}
+
 export async function updateProjectFormTemplate(
   id: string,
   payload: { template_name?: string; department?: string; description?: string }

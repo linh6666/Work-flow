@@ -133,6 +133,8 @@ export default function ChiTietBaoCaoPhongBan({
       klDp: apiTask.qty_backup ?? apiTask.klDp ?? 0,
       rowTheme: apiTask.rowTheme,
       group: apiTask.group || '',
+      progress: apiTask.progress !== undefined ? Number(apiTask.progress) : undefined,
+      note: apiTask.notes ?? apiTask.note ?? '',
     };
   };
 
@@ -1107,7 +1109,7 @@ export default function ChiTietBaoCaoPhongBan({
 
                               {/* %HT */}
                               <td className={`px-2.5 py-2.5 text-center font-bold ${borderClass} whitespace-nowrap text-[11px]`}>
-                                {`${item.progress ?? 0}%`}
+                                {`${item.progress ?? (item.status === 'Hoàn thành' ? 100 : item.status === 'Đang thực hiện' ? 50 : 0)}%`}
                               </td>
 
                               {/* GHI CHÚ */}

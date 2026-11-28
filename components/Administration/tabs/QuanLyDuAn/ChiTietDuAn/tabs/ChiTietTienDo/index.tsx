@@ -51,9 +51,9 @@ export default function ChiTietTienDoTab({
   }
 
   return (
-    <div className="space-y-3.5 animate-fade-in max-h-[600px] overflow-y-auto no-scrollbar pr-2 pb-8">
+    <div className="flex-1 flex flex-col min-h-0 gap-3 animate-fade-in">
       {/* Banner Notification Note */}
-      <div className="bg-[#406c89]/10 border border-[#406c89]/20 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
+      <div className="shrink-0 bg-[#406c89]/10 border border-[#406c89]/20 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <IconClipboardList size={16} className="text-[#406c89] shrink-0" />
           <span className="text-xs text-[#406c89] font-medium leading-relaxed">
@@ -83,12 +83,12 @@ export default function ChiTietTienDoTab({
           <p className="text-xs text-slate-400 font-medium">Dự án này chưa có phòng ban nào khởi tạo hồ sơ.</p>
         </div>
       ) : (
-        <div className="space-y-2.5">
+        <div className="flex-1 overflow-y-auto min-h-0 pr-1 space-y-3">
           {departments.map((dept, index) => (
             <div
               key={index}
               onClick={() => handleSelectDept(dept)}
-              className="bg-white border border-slate-200/90 hover:border-[#406c89]/60 hover:shadow-md rounded-xl p-3.5 flex items-center justify-between gap-3 transition-all cursor-pointer group"
+              className="bg-white border border-slate-200/90 hover:border-[#406c89]/60 hover:shadow-md rounded-xl px-4 py-5 flex items-center justify-between gap-3 transition-all cursor-pointer group"
             >
               {/* Left Side: Checkmark & Title */}
               <div className="flex items-center gap-3">

@@ -172,7 +172,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
     <div className="flex-1 flex flex-col bg-[#f4f6fa] h-full overflow-y-auto overflow-x-auto no-scrollbar select-none">
       
       {/* 1. TOP HEADER (COMPACT) */}
-      <div className="bg-[#f4f6fa] px-4 sm:px-6 py-2.5 border-b border-slate-200/60 shrink-0 min-w-[1000px]">
+      <div className="bg-[#f4f6fa] px-4 sm:px-6 py-2.5 border-b border-slate-200/60 shrink-0 w-full">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           
           {/* Back button & Title with Breadcrumb */}
@@ -223,10 +223,10 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
       </div>
 
       {/* 2. BODY CONTENT */}
-      <div className="flex-1 px-3 sm:px-6 py-4 pb-16 space-y-4 min-w-[1000px] w-full">
-        <div className="w-full space-y-4">
+      <div className="flex-1 overflow-hidden px-3 sm:px-6 pt-4 pb-0 w-full flex flex-col">
+        <div className="w-full space-y-4 flex-1 flex flex-col min-h-0">
           {/* SECTION 1: YÊU CẦU SẢN XUẤT (ACCORDION & MODAL TRIGGER) */}
-          <div className="bg-[#406c89]/10 border border-[#406c89]/20 rounded-2xl overflow-hidden shadow-2xs transition-all">
+          <div className="bg-[#e9eff5] border border-[#406c89]/20 rounded-2xl overflow-hidden shadow-2xs transition-all">
             <button
               type="button"
               onClick={() => setIsYcsxModalOpen(true)}
@@ -251,12 +251,12 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
           </div>
 
           {/* SECTION 2: HỒ SƠ QUẢN LÝ DỰ ÁN (MAIN CONTAINER) */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl shadow-2xs overflow-hidden">
+          <div className="flex-1 flex flex-col min-h-0 bg-white border border-slate-200/80 rounded-2xl shadow-2xs">
             
             {/* Main Title Bar */}
             <div
               onClick={() => setIsHoSoOpen(!isHoSoOpen)}
-              className="bg-[#fffdf5] border-b border-[#fef3c7] px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-[#fff9e6] transition-all"
+              className="rounded-t-2xl bg-[#fffdf5] border-b border-[#fef3c7] px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-[#fff9e6] transition-all"
             >
               <div className="flex items-center gap-2">
                 <IconClipboardList size={18} className="text-[#9a6700]" />
@@ -361,7 +361,7 @@ export default function ChiTietDuAn({ project, onBack }: ChiTietDuAnProps) {
               </div>
 
               {/* TAB CONTENT 1: CHI TIẾT TIẾN ĐỘ */}
-              <div className="project-table-theme">
+              <div className="project-table-theme flex-1 flex flex-col min-h-0">
                 {activeTab === 'chi-tiet-tien-do' && (
                   <ChiTietTienDoTab
                     project={project}

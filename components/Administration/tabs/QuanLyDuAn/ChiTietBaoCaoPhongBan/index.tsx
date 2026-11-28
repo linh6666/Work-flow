@@ -825,10 +825,6 @@ export default function ChiTietBaoCaoPhongBan({
                 <th className="px-2.5 py-3 text-center whitespace-nowrap w-16 border-r border-slate-200">
                   BC TH
                 </th>
-                <th className="px-2 py-2 text-center whitespace-nowrap w-16 leading-tight border-r border-slate-200">
-                  <div>THAO</div>
-                  <div>TÁC</div>
-                </th>
                 <th className="px-3 py-3 text-left whitespace-nowrap w-28 border-r border-slate-200">
                   TRẠNG THÁI
                 </th>
@@ -859,8 +855,12 @@ export default function ChiTietBaoCaoPhongBan({
                 <th className="px-3 py-3 text-center whitespace-nowrap w-20 border-r border-slate-200">
                   %HT
                 </th>
-                <th className="px-3 py-3 text-left whitespace-nowrap w-48">
+                <th className="px-3 py-3 text-left whitespace-nowrap w-48 border-r border-slate-200">
                   GHI CHÚ
+                </th>
+                <th className="px-2 py-2 text-center whitespace-nowrap w-16 leading-tight">
+                  <div>THAO</div>
+                  <div>TÁC</div>
                 </th>
               </tr>
             </thead>
@@ -1008,36 +1008,6 @@ export default function ChiTietBaoCaoPhongBan({
                                 </button>
                               </td>
 
-                              {/* THAO TÁC */}
-                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
-                                <div className="flex items-center justify-center gap-1.5 ">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenAddModal(item)}
-                                    className="hover:opacity-100 hover:scale-110 transition-transform p-0.5 cursor-pointer"
-                                    title="Thêm công việc phía dưới"
-                                  >
-                                    <IconPlus size={13} strokeWidth={2.5} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenEditModal(item)}
-                                    className="hover:opacity-100 hover:scale-110 transition-transform p-0.5 cursor-pointer"
-                                    title="Chỉnh sửa công việc"
-                                  >
-                                    <IconEdit size={13} strokeWidth={2} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenDeleteModal(item)}
-                                    className="hover:opacity-100 hover:scale-110 transition-transform p-0.5 cursor-pointer"
-                                    title="Xóa"
-                                  >
-                                    <IconTrash size={13} strokeWidth={2} />
-                                  </button>
-                                </div>
-                              </td>
-
                               {/* TRẠNG THÁI */}
                               <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap`}>
                                 <span className="bg-[#e8f7ee] text-[#15803d] border border-[#a7f3d0] font-bold text-[11px] px-2.5 py-0.5 rounded-full inline-block shadow-2xs">
@@ -1115,6 +1085,36 @@ export default function ChiTietBaoCaoPhongBan({
                               {/* GHI CHÚ */}
                               <td className={`px-2.5 py-2.5 ${borderClass} whitespace-nowrap text-[11px] text-slate-400`}>
                                 {item.note || 'Ghi chú...'}
+                              </td>
+
+                              {/* THAO TÁC */}
+                              <td className={`px-2 py-2.5 text-center ${borderClass} whitespace-nowrap`}>
+                                <div className="flex items-center justify-center gap-1.5 ">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenAddModal(item)}
+                                    className="hover:opacity-100 hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                                    title="Thêm công việc phía dưới"
+                                  >
+                                    <IconPlus size={13} strokeWidth={2.5} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenEditModal(item)}
+                                    className="hover:opacity-100 hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                                    title="Chỉnh sửa công việc"
+                                  >
+                                    <IconEdit size={13} strokeWidth={2} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenDeleteModal(item)}
+                                    className="hover:opacity-100 hover:scale-110 transition-transform p-0.5 cursor-pointer"
+                                    title="Xóa"
+                                  >
+                                    <IconTrash size={13} strokeWidth={2} />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
 

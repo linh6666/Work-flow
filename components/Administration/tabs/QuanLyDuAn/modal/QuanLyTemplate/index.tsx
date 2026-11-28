@@ -13,6 +13,7 @@ import {
   IconBooks,
 } from '@tabler/icons-react';
 import TaoTemplateMoiModal from '../TaoTemplateMoi';
+import SuaTemplateModal from '../SuaTemplate';
 
 export interface TemplateItem {
   id: string;
@@ -60,6 +61,7 @@ export default function QuanLyTemplateModal({ isOpen, onClose }: QuanLyTemplateM
   const [selectedPhong, setSelectedPhong] = useState<string>('Tất cả phòng');
   const [isCreating, setIsCreating] = useState(false);
   const [isTaoTemplateMoiOpen, setIsTaoTemplateMoiOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<TemplateItem | null>(null);
 
   const handleCreateNewTemplateSubmit = (data: {
     tenTemplate: string;
@@ -335,7 +337,7 @@ export default function QuanLyTemplateModal({ isOpen, onClose }: QuanLyTemplateM
                   <div className="flex items-center justify-end gap-1 shrink-0 opacity-90 sm:opacity-80 group-hover:opacity-100 transition-opacity border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
                     <button
                       type="button"
-                      onClick={() => alert(`Chỉnh sửa ${item.tenTemplate}`)}
+                      onClick={() => setEditingItem(item)}
                       className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
                       title="Sửa"
                     >
@@ -382,6 +384,14 @@ export default function QuanLyTemplateModal({ isOpen, onClose }: QuanLyTemplateM
         isOpen={isTaoTemplateMoiOpen}
         onClose={() => setIsTaoTemplateMoiOpen(false)}
         onSubmit={handleCreateNewTemplateSubmit}
+      />
+
+      <SuaTemplateModal
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSave={(updated) => {
+          setTemplates((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+        }}
       />
     </div>
   );

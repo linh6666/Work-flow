@@ -55,3 +55,62 @@ export async function getProjectFormTemplateList(params?: { limit?: number }): P
 
   return [];
 }
+
+export async function getProjectFormTemplateById(id: string): Promise<ProjectFormTemplateItem | null> {
+  if (!id) return null;
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const url = `${BASE_API_FASTAPI}/api/v1/entities/ProjectFormTemplate/${id}`;
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+    if (!res.ok) return null;
+    const r = await res.json();
+    return {
+      id: String(r.id || id),
+      template_name: r.template_name || r.name || r.title || "",
+      department: r.department || "",
+      description: r.description || "",
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function updateProjectFormTemplate(
+  id: string,
+  payload: { template_name?: string; department?: string; description?: string }
+): Promise<any> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const apiKey =
+    (typeof window !== "undefined" ? localStorage.getItem("api_key") : null) ||
+    process.env.NEXT_PUBLIC_API_KEY ||
+    "";
+
+  const url = `${BASE_API_FASTAPI}/api/v1/entities/ProjectFormTemplate/${id}`;
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(apiKey ? { "X-API-Key": apiKey } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.detail || err?.message || `Lỗi ${res.status}`);
+  }
+  return res.json();
+}
